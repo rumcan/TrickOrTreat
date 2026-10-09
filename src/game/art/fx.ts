@@ -88,8 +88,10 @@ export function lightSprite() {
   if (!lightMask) {
     const { c, ctx } = makeCanvas(256, 256);
     const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    // solid core: inside a light's radius the night is fully cut away, only the rim fades back to dark
     g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.45, 'rgba(255,255,255,0.65)');
+    g.addColorStop(0.55, 'rgba(255,255,255,1)');
+    g.addColorStop(0.8, 'rgba(255,255,255,0.55)');
     g.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 256, 256);

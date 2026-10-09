@@ -3,7 +3,7 @@ import { Game, Enemy } from './engine';
 import { PropInst } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES } from './art/characters';
 import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
-import { tinted, makeCanvas } from './art/draw';
+import { tinted, makeCanvas, rawCanvas } from './art/draw';
 import { G } from './art/tiles';
 import { Img } from './assets';
 import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
@@ -23,6 +23,27 @@ const HELD_GUN_H = 16;
 const HELD_GUN_GRIP_X = 8;
 const HELD_GUN_GRIP_Y = 10;
 const KID_WAIST_HEIGHT = 22;
+
+/** first opaque row of a sprite (fraction of its height), measured once: generated PNGs often carry empty headroom */
+const opaqueTop = new WeakMap<object, number>();
+function spriteTop(img: Img): number {
+  let t = opaqueTop.get(img);
+  if (t === undefined) {
+    t = 0;
+    const w = img.width, h = img.height;
+    if (w > 0 && h > 0) {
+      const c = rawCanvas(w, h), ctx = c.getContext('2d', { willReadFrequently: true })!;
+      ctx.drawImage(img, 0, 0);
+      const d = ctx.getImageData(0, 0, w, h).data;
+      let y = 0;
+      outer: for (; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 40) break outer;
+      t = y / h;
+      c.width = c.height = 0;
+    }
+    opaqueTop.set(img, t);
+  }
+  return t;
+}
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -188,9 +209,13 @@ export class Renderer {
       if (pr.big) {
         const s = 1.1 * pr.shadow, x0 = pr.x0, y0 = pr.y0, x1 = x0 + pr.fw, y1 = y0 + pr.fh;
         const pts: [number, number][] = [[x0, y0], [x1, y0], [x1 + s, y0 + s * 0.15], [x1 + s, y1 + s * 0.15], [x0 + s, y1 + s * 0.15], [x0, y1]];
+        // the shadow fades with its building, so an x-rayed house doesn't leave a dark slab behind
+        const fa = pr.fade ?? 1;
+        if (fa < 0.999) ctx.globalAlpha = fa;
         ctx.beginPath();
         pts.forEach(([a, b], k) => (k ? ctx.lineTo(isoX(a, b), isoY(a, b)) : ctx.moveTo(isoX(a, b), isoY(a, b))));
         ctx.fill();
+        if (fa < 0.999) ctx.globalAlpha = 1;
       } else if (pr.shadow > 0) {
         ctx.beginPath();
         ctx.ellipse(ax + 6, ay + 2, pr.shadow * HW, pr.shadow * HH, 0, 0, Math.PI * 2);
@@ -392,21 +417,42 @@ export class Renderer {
       order = before.concat([B], moved, order.slice(pos));
     }
     // fading of occluders in front of the player (the "mask" effect)
+    // A building only fades when the kid's body is actually inside its silhouette (footprint + walls as a hexagon),
+    // not merely inside its sprite's bounding box: standing beside a house must not dim it.
+    const psx = isoX(p.x, p.y), psy = isoY(p.x, p.y);
+    const covers = (it: Item, pr: PropInst) => {
+      const x0 = pr.x0, y0 = pr.y0, x1 = x0 + pr.fw, y1 = y0 + pr.fh;
+      const lift = isoY(x0, y0) - (it.by0 + spriteTop(pr.sp.img) * pr.sp.h); // wall height: back corner up to the roof
+      const hx = [isoX(x0, y1), isoX(x1, y1), isoX(x1, y0), isoX(x1, y0), isoX(x0, y0), isoX(x0, y1)];
+      const hy = [isoY(x0, y1), isoY(x1, y1), isoY(x1, y0), isoY(x1, y0) - lift, isoY(x0, y0) - lift, isoY(x0, y1) - lift];
+      // clearly inside: at least 10px from every edge, so brushing past a corner doesn't flicker the house
+      const inside = (px: number, py: number) => {
+        for (let k = 0; k < 6; k++) {
+          const j = (k + 1) % 6, ex = hx[j] - hx[k], ey = hy[j] - hy[k];
+          if (ex * (py - hy[k]) - ey * (px - hx[k]) > -10 * Math.hypot(ex, ey)) return false;
+        }
+        return true;
+      };
+      return inside(psx, psy - 40) || inside(psx, psy - 70);
+    };
     let occluded = false;
-    for (const it of [...bigs, ...items]) {
+    const fadeStep = Math.min(1, dt * 10);
+    const fadeIt = (it: Item) => {
       const pr = it.prop;
-      if (!pr) continue;
+      if (!pr) return;
       const tall = pr.big || pr.kind === 'tree' || pr.kind === 'lamp' || pr.kind === 'vending';
-      if (!tall) continue;
+      if (!tall) return;
       let hide = false;
       if (overlap(it, playerItem)) {
-        if (pr.big) hide = behind(playerItem, pr);
+        if (pr.big) hide = behind(playerItem, pr) && covers(it, pr);
         else hide = playerItem.key < it.key - 0.2 && playerItem.by0 < it.by1 - 40;
       }
       if (hide) occluded = true;
-      const target = hide ? (pr.big ? 0.45 : 0.55) : 1;
-      pr.fade = (pr.fade ?? 1) + (target - (pr.fade ?? 1)) * Math.min(1, dt * 10);
-    }
+      const target = hide ? (pr.big ? 0.32 : 0.55) : 1;
+      pr.fade = (pr.fade ?? 1) + (target - (pr.fade ?? 1)) * fadeStep;
+    };
+    for (const it of bigs) fadeIt(it);
+    for (const it of items) fadeIt(it);
     for (const it of order) it.draw();
 
     // orbit blades & lobs
@@ -887,9 +933,10 @@ export class Renderer {
     const p = g.p;
     for (const s of g.map.lights) {
       const fl = s.flicker ? 0.85 + Math.sin(this.t * 13 + s.x * 7) * 0.08 + Math.sin(this.t * 31 + s.y) * 0.05 : 1;
-      light(s.x, s.y, s.r, s.i * fl);
+      // street lamps, porch lights and lit windows clear the dark (almost) completely, dim ones just a bit less
+      light(s.x, s.y, s.r, (0.6 + s.i * 0.45) * fl);
     }
-    light(p.x, p.y, 3.4, 0.95, 20);
+    light(p.x, p.y, 3.4, 1, 20);
     // flashlight cone
     {
       const [sx, sy] = toS(isoX(p.x, p.y), isoY(p.x, p.y) - 30);
