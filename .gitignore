@@ -6,3 +6,6 @@ dist
 # Art regen working files (results land in public/assets)
 art/regen/raw/
 art/regen/layout/
+
+art/regen/log.txt
+art/regen/run.*
