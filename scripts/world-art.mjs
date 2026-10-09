@@ -49,9 +49,15 @@ async function prepare() {
   if (await exists(queuePath)) prior = await readJson(queuePath);
   const styleHash = digest(JSON.stringify(style));
   const jobs = [];
+  const requested = arg('--keys')?.split(',');
   for (const entry of atlas.filter((s) => flag('--all') || style.scope.includes(s.category))) {
     const { render, renderScale, ...spec } = entry;
     checkSpec(spec);
+    if (requested && !requested.includes(spec.key)) {
+      const saved = prior.jobs.find(j => j.key === spec.key);
+      if (saved && prior.styleHash === styleHash && prior.referenceHash === referenceHash && saved.outputScale === scale && JSON.stringify(saved.spec) === JSON.stringify(spec)) { jobs.push(saved); continue; }
+      if (saved) throw new Error(`Unselected ${spec.key} has changed specifications; include it in --keys`);
+    }
     const template = `art/world/layout/${spec.key}.png`;
     const promptFile = `art/world/prompts/${spec.key}.txt`;
     await fs.mkdir(path.dirname(inside(root, template)), { recursive: true });
@@ -296,7 +302,7 @@ async function main() {
       const references = [...job.references];
       let prompt = await fs.readFile(inside(root, job.promptFile), 'utf8');
       if (job.spec.category === 'tile') prompt += '\nSOLID TERRAIN: the diamond interior is one fully opaque surface. Render opaque soil/lawn under every blade and pebble, with absolutely no alpha gaps between details. Extend the solid diamond to all four canvas midpoints with zero surrounding padding. Alpha is only outside the diamond.\n';
-      const match = /^hero_(tommy|sam|jess)_/.exec(job.key);
+      const match = /^hero_(tommy|sam|jess|maya|leo)_/.exec(job.key);
       if (match) {
         const base = q.jobs.find((j) => j.key === `hero_${match[1]}`);
         if (base?.result) {

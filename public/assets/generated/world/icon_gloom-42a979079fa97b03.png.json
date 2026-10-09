@@ -1,0 +1,45 @@
+{
+  "key": "icon_gloom",
+  "spec": {
+    "key": "icon_gloom",
+    "file": "icons/icon_gloom.png",
+    "category": "icon",
+    "w": 64,
+    "h": 32,
+    "anchor": [
+      16,
+      20
+    ],
+    "desc": "Gloom Drum: purple homemade toy blaster with a round spectral drum magazine",
+    "prompt": "Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 64x32 px. Gloom Drum: purple homemade toy blaster with a round spectral drum magazine."
+  },
+  "id": "42a979079fa97b03",
+  "rawFile": "art/world/raw/icon_gloom-289a3dd88f2a1258.png",
+  "stagedFile": "art/world/staged/icon_gloom-42a979079fa97b03.png",
+  "savedPromptFile": "art/world/raw/icon_gloom-289a3dd88f2a1258.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "289a3dd88f2a1258521566b3220378386b8ac8f4db6239c07425ea1402d28414",
+  "packedHash": "42a979079fa97b03ef5932d8776a5c155d8cf7409d831af598322790e6a53de6",
+  "promptHash": "117877564097cc2325384250f423dc746b9a7efa2af4cd697b3d5a6c4d4826f4",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    256,
+    128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T13:37:18.306Z",
+  "fingerprint": "4c4b938e6191c07db7c432efe208e4be98a0fce4efc020caef6e5e821f8087e2",
+  "activationFile": "art/world/activations/icon_gloom-1791553186235.json",
+  "gameFile": "generated/world/icon_gloom-42a979079fa97b03.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 64x32 px. Gloom Drum: purple homemade toy blaster with a round spectral drum magazine.\nAtlas entry: icon_gloom. Gloom Drum: purple homemade toy blaster with a round spectral drum magazine\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 64x32; render 256x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,20), rendered (64,80). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/icon_gloom.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

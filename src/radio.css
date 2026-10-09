@@ -1,0 +1,30 @@
+/* The radio pill (RadioPill.tsx): a small dark pill with ‹ ▶ › and the station line, like HexMatch's radio. */
+.radio-pill { position: relative; display: inline-flex; align-items: center; gap: 2px; height: 30px; max-width: 340px; padding: 0 4px; border-radius: 999px; background: #0b1219e6; border: 1px solid #2b3a4a; color: #d9e3ee; font: 700 11px var(--mono, ui-monospace, monospace); letter-spacing: .3px; box-shadow: 0 2px 10px #0006; pointer-events: auto; }
+.radio-pill button { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+.radio-pill button:hover:not(:disabled) { background: #ffffff14; }
+.radio-pill button:disabled { opacity: .35; cursor: default; }
+.radio-pill .radio-play { position: relative; width: 26px; height: 26px; background: #d63e2e; color: #fff; }
+.radio-pill[data-on="0"] .radio-play { background: #334155; }
+.radio-pill .radio-note { position: absolute; right: -3px; top: -3px; color: #facc15; opacity: 0; }
+.radio-pill[data-playing="1"] .radio-note { opacity: 1; animation: radio-bob 1.6s ease-in-out infinite; }
+@keyframes radio-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.radio-pill .radio-now { overflow: hidden; min-width: 0; max-width: 200px; margin: 0 4px; white-space: nowrap; }
+.radio-pill .radio-now-text { display: inline-block; }
+.radio-pill[data-playing="1"] .radio-now:hover .radio-now-text { animation: radio-marquee 9s linear infinite; }
+@keyframes radio-marquee { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(calc(-100% + 190px)); } }
+.radio-pill .radio-slider { position: absolute; top: calc(100% + 6px); right: 0; padding: 8px 10px; border-radius: 10px; background: #0b1219f2; border: 1px solid #2b3a4a; z-index: 30; }
+.radio-pill .radio-slider input { width: 120px; accent-color: #d63e2e; }
+.radio-pill.compact .radio-now { max-width: 140px; }
+@media (prefers-reduced-motion: reduce) { .radio-pill .radio-note, .radio-pill .radio-now-text { animation: none !important; } }
+/* Phones: just the round play key; a long press shows the line for a moment. */
+@media (max-width: 650px) {
+  .radio-pill { padding: 0 2px; }
+  .radio-pill .radio-step, .radio-pill .radio-skip, .radio-pill .radio-vol, .radio-pill .radio-now { display: none; }
+  .radio-pill[data-peek="1"] .radio-now { display: block; position: absolute; top: calc(100% + 6px); right: 0; max-width: 70vw; padding: 6px 10px; border-radius: 10px; background: #0b1219f2; border: 1px solid #2b3a4a; z-index: 30; }
+}
+
+/* HeatEdges.tsx: the overheated Magic Engine, a soft red glow at the sides of the race (never over the middle). */
+.heat-edges { position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0; transition: opacity .35s ease; background: linear-gradient(90deg, rgba(220, 38, 38, .26), rgba(220, 38, 38, 0) 11%, rgba(220, 38, 38, 0) 89%, rgba(220, 38, 38, .26)); }
+.heat-edges.on { opacity: 1; animation: heat-glow 1.3s ease-in-out infinite; }
+@keyframes heat-glow { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .heat-edges.on { animation: none; } }

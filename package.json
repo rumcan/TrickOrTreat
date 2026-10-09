@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/pack-release-assets.mjs",
     "preview": "vite preview",
     "art:export": "node scripts/export-art.mjs",
     "art:ui": "python3 scripts/crop-ui-kit.py",
@@ -13,7 +13,17 @@
     "art:world:prepare": "node scripts/world-art.mjs prepare",
     "art:world:status": "node scripts/world-art.mjs status",
     "art:world:validate": "node scripts/world-art.mjs validate",
-    "art:world:test": "node --test scripts/world-art.test.mjs"
+    "art:world:test": "node --test scripts/world-art.test.mjs",
+    "test:expansion": "node --test scripts/expansion-store.test.mjs && node scripts/expansion.test.mjs",
+    "test:expansion:media": "node scripts/expansion-media.test.mjs",
+    "test:encounters": "node scripts/encounters.test.mjs",
+    "test:production": "node scripts/production.test.mjs",
+    "test:weapon-layout": "node scripts/weapon-layout.test.mjs",
+    "test:pickup-layout": "node scripts/pickup-layout.test.mjs",
+    "test:presentation": "node scripts/presentation.test.mjs",
+    "test:landing": "node scripts/landing.test.mjs",
+    "art:presentation": "node scripts/prepare-presentation-art.mjs",
+    "audio:generate": "node scripts/generate-sounds.mjs"
   },
   "dependencies": {
     "@series-inc/rundot-game-sdk": "^5.24.0",

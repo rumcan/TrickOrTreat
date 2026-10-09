@@ -1,0 +1,55 @@
+{
+  "key": "enemy_hex",
+  "spec": {
+    "key": "enemy_hex",
+    "file": "monsters/enemy_hex.png",
+    "category": "sheet",
+    "w": 1200,
+    "h": 210,
+    "frameW": 200,
+    "frameH": 210,
+    "frames": 6,
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      100,
+      202
+    ],
+    "desc": "BOSS: Headmistress Hex",
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A towering elderly witch headmistress, plum academic robes, broad hooked witch hat, stern green face, iron school bell in one hand and a glowing spellbook in the other. Distinct six-frame breathing and robe-sway cycle, full body, feet anchored. Grid: 6 columns x 1 rows of 200x210px frames (any whole multiple of that size works, e.g. 800x840). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (100,202) in each frame."
+  },
+  "id": "69e2811cc16aae8c",
+  "rawFile": "art/world/raw/enemy_hex-d38f513aa351f6aa.png",
+  "stagedFile": "art/world/staged/enemy_hex-69e2811cc16aae8c.png",
+  "savedPromptFile": "art/world/raw/enemy_hex-d38f513aa351f6aa.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "d38f513aa351f6aa03990838c98f7161243d592b5873ee788517045fa809cee2",
+  "packedHash": "69e2811cc16aae8c9635373ba10c6c6713fbf1a584d75d9699607f5c159f3b88",
+  "promptHash": "cc9bb11476d944298f66a6874efb236f0858ec81cf47f23902fc0c9eeab42057",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "outputSize": [
+    4800,
+    840
+  ],
+  "sourceAnchor": null,
+  "gridAlignment": "uniform frame packing, shared feet baseline",
+  "importedAt": "2026-10-09T14:26:23.238Z",
+  "fingerprint": "2aeff147029d3bf5d166a3dceb63eab2e57a076728fc96e8bbe33cddc598d541",
+  "activationFile": "art/world/activations/enemy_hex-1791556028734.json",
+  "gameFile": "generated/world/enemy_hex-69e2811cc16aae8c.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production sheet sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted with clean painted edges, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A towering elderly witch headmistress, plum academic robes, broad hooked witch hat, stern green face, iron school bell in one hand and a glowing spellbook in the other. Distinct six-frame breathing and robe-sway cycle, full body, feet anchored. Feet anchor at (100,202) in each frame.\nAtlas entry: enemy_hex. BOSS: Headmistress Hex\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 600x420; render 2400x1680 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: feet within EVERY frame at native (100,202), rendered (400,808). All contact positions stay fixed to the layout guide.\nSPRITE SHEET: EXACTLY 3 columns and 2 rows of equal 800x840 pixel cells. No grid lines, labels, frames or borders. Each pose remains inside its own cell with feet at the same local anchor, no overlapping neighbours. Every occupied cell depicts the SAME character, body size, face, clothing and lighting. Preserve frame-by-frame pose movement in Image 2. Transparent gutters and empty cells stay empty. No weapon held unless part of the atlas design; runtime draws equipped weapons.\nThis is ONE 6 frame animation rearranged into 3x2 for generation. Read frames left-to-right, then top-to-bottom. The importer repacks it to the engine's original horizontal strip. Draw every frame; do not invent a different animation row.\nAvoid: HUD, menus, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one complete animation sheet of the requested character. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/enemy_hex.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

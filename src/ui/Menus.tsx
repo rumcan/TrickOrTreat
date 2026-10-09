@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon } from 'lucide-react';
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents } from '../game/data';
@@ -6,7 +6,13 @@ import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
 import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, HeroPreview, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon } from './common';
-import { ART, FACES, HERO_COLORS } from './art';
+import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
+import { RunInventory } from './RunInventory';
+import { TalentTree } from './TalentTree';
+import { gameAudio } from '../game/audio';
+import { expansion, hasFullGame } from '../game/expansion';
+import { ExpansionUnlock } from './ExpansionUnlock';
+import { SplashArt } from './SplashArt';
 
 const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
@@ -14,7 +20,7 @@ const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 function KeyArt({ dim = 0, blur }: { dim?: number; blur?: boolean }) {
   return (
     <>
-      <img src={ART.keyart} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover object-bottom" style={blur ? { filter: 'blur(5px) saturate(0.7)', transform: 'scale(1.05)' } : undefined} />
+      <SplashArt style={blur ? { filter: 'blur(5px) saturate(0.7)', transform: 'scale(1.05)' } : undefined} />
       <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(14,15,19,${0.55 + dim}) 0%, rgba(14,15,19,${dim}) 38%, rgba(14,15,19,${0.15 + dim}) 62%, rgba(14,15,19,0.92) 100%)` }} />
     </>
   );
@@ -29,28 +35,57 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () 
 }
 
 // ================= TITLE =================
-export function Title({ save, onPlay, onTalents, onAtlas, onChars }: { save: Save; onPlay: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
+export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
+  useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
+  const allowed = save.hero < 3 || hasFullGame();
+  const hero = HERO_INFO[save.hero];
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
-      <div className="relative flex h-full flex-col justify-between gap-6 p-4 sm:p-8">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <LogoImg className="kit-bob w-[min(560px,88vw)] md:w-[min(600px,40vw)]" />
-          <div className="flex flex-col items-end gap-2">
-            <div className="font-cond2 text-[11px] font-bold uppercase tracking-[0.22em] text-[#9aa0a6]">Soul candy</div>
-            <Chip icon={<CandyIcon size={20} />} className="!text-xl">{save.soul}</Chip>
-            {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
+      <div className="relative flex h-full flex-col justify-between gap-6 overflow-y-auto p-3 pt-16 sm:p-8 sm:pt-16">
+        <header aria-label="Game header" className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-2">
+            <LogoImg className="kit-bob w-[min(180px,40vw)] sm:w-[min(420px,40vw)]" />
+            <div className="flex flex-wrap items-center gap-2">
+              <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
+              {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
+            </div>
           </div>
+          <ExpansionUnlock compact onPlay={onCampaign} />
         </header>
-        <nav className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
-          <KitButton size="lg" icon={Play} fillIcon onClick={onPlay} className="w-full sm:w-auto">Go trick-or-treating</KitButton>
-          <KitButton size="lg" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
-          <KitButton size="lg" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Characters</KitButton>
-          <KitButton size="lg" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>
-          <KitButton size="lg" variant="dark" icon={Gamepad2} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
-          <KitButton size="lg" variant="dark" icon={Gear} iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
-        </nav>
+        <div className="mx-auto mt-auto w-full max-w-4xl space-y-3">
+          <section aria-label="Character selection" className="kit-panel bg-[#0e0f13]/90 p-3 sm:p-4">
+            <h1 className="mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids">
+              {HERO_INFO.map((kid, index) => {
+                const selected = index === save.hero, locked = index >= 3 && !hasFullGame();
+                return <button key={kid.name} aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`} aria-pressed={selected} onClick={() => setHero(index)} className="group relative min-w-0 overflow-hidden rounded border-2 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffc453]" style={{ borderColor: selected ? '#ffc453' : '#3a3d44', background: HERO_COLORS[index] }}>
+                  <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className={`h-24 w-full object-cover object-top sm:h-44 ${selected ? '' : 'opacity-80 group-hover:opacity-100'}`} />
+                  <div className={`bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}</div>
+                  {locked && <span className="absolute inset-x-0 bottom-8 bg-black/75 py-0.5 text-[9px] uppercase tracking-wide text-[#ffc453]">Full game</span>}
+                  {selected && <span aria-hidden="true" className="absolute right-1 top-1 rounded bg-[#ffc453] px-1 text-xs font-bold text-black">✓</span>}
+                </button>;
+              })}
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <div aria-live="polite" className="min-w-0 flex-1">
+                <div className="font-cond text-xl">{hero.name} <span className="text-sm text-[#9aa0a6]">· {hero.title}</span></div>
+                <p className="mt-1 text-xs text-[#e6dcc4]">{hero.passive} · {hero.skill} ({hero.cd}s)</p>
+                <p className="mt-1 hidden text-xs text-[#9aa0a6] sm:block">{hero.skillDesc}</p>
+                {!allowed && <p className="mt-1 text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
+              </div>
+              <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="w-full sm:w-auto">Go trick-or-treating</KitButton>
+            </div>
+          </section>
+          <nav className="flex flex-wrap items-center justify-center gap-2">
+            <KitButton size="sm" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
+            <KitButton size="sm" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
+            <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>
+            <KitButton size="sm" variant="dark" icon={Gamepad2} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
+            <KitButton size="sm" variant="dark" icon={Gear} iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
+          </nav>
+        </div>
       </div>
       {modal === 'settings' && <SettingsModal onClose={() => setModal('none')} />}
       {modal === 'howto' && <HowToModal onClose={() => setModal('none')} />}
@@ -81,6 +116,8 @@ function HowToModal({ onClose }: { onClose: () => void }) {
 
 // ================= CHARACTER SELECT =================
 export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setHero: (h: number) => void; onBack: () => void; onPlay: () => void }) {
+  useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
+  const allowed = save.hero < 3 || hasFullGame();
   const i = save.hero;
   const n = HERO_INFO.length;
   const stats = useMemo(() => {
@@ -94,12 +131,12 @@ export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setH
       const k = e.key.toLowerCase();
       if (k === 'arrowleft' || k === 'a') setHero((i + n - 1) % n);
       else if (k === 'arrowright' || k === 'd') setHero((i + 1) % n);
-      else if (k === 'enter') onPlay();
+      else if (k === 'enter' && allowed) onPlay();
       else if (k === 'escape') onBack();
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
-  }, [i, n, setHero, onPlay, onBack]);
+  }, [i, n, setHero, onPlay, onBack, allowed]);
   return (
     <div className="absolute inset-0 overflow-y-auto bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt dim={0.35} blur />
@@ -122,8 +159,9 @@ export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setH
         </div>
         <div className="flex gap-3">
           <KitButton variant="dark" icon={ChevronLeft} onClick={onBack}>Back</KitButton>
-          <KitButton icon={Play} fillIcon onClick={onPlay}>Start the night</KitButton>
+          <KitButton icon={Play} fillIcon disabled={!allowed} onClick={onPlay}>{allowed ? 'Start the night' : 'Full-game kid · unlock required'}</KitButton>
         </div>
+        {!allowed && <ExpansionUnlock onPlay={onPlay} />}
       </div>
     </div>
   );
@@ -151,6 +189,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           <SettingRow label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
           <SettingRow label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
           <SettingRow label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
+          <SettingRow label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="rounded border border-[#4a4d55] bg-[#13151b] p-2 text-[#f2e6c9]"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
+          <SettingRow label="Sound effects" desc="Soft low-pass rumbling effects"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
+          <SettingRow label="Mute audio" desc="Silences effects and the radio"><Toggle label="Mute all audio" on={settings.muted} onChange={(v) => { gameAudio.setMuted(v); force((n) => n + 1); }} /></SettingRow>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
           <KitButton
@@ -180,10 +221,12 @@ function SettingRow({ label, desc, children }: { label: string; desc: string; ch
 // ================= PAUSE =================
 export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onResume: () => void; onRestart: () => void; onQuit: () => void }) {
   const cur = game.p.weapons[game.p.cur];
-  const [panel, setPanel] = useState<'none' | 'settings' | 'controls'>('none');
+  const [panel, setPanel] = useState<'none' | 'settings' | 'controls' | 'inventory' | 'team'>('none');
   const [hover, setHover] = useState(0);
   const items = [
     { label: 'Resume', on: onResume, icon: Play },
+    { label: 'Your run build (I)', on: () => setPanel('inventory'), icon: Backpack },
+    ...(game.campaign ? [{ label: 'Friends & shared guns', on: () => setPanel('team'), icon: Users }] : []),
     { label: 'Settings', on: () => setPanel('settings'), icon: Gear },
     { label: 'Controls', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')), icon: Gamepad2 },
     { label: 'Restart run', on: onRestart, icon: RotateCw },
@@ -229,6 +272,8 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
         {panel === 'controls' && <ControlsPanel className="kit-pop w-full max-w-[640px]" />}
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
+      {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
+      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Only one helper fights at a time. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {game.activeFriend === f.hero ? '· active' : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.map.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><KitButton size="sm" className="mt-2" onClick={() => { game.selectFriend(f.hero); setHover(n => n + 1); }}>Choose helper</KitButton><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
     </div>
   );
 }
@@ -298,8 +343,8 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
       <div className="kit-panel kit-pop w-full max-w-3xl p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <KitTitle className="text-3xl sm:text-4xl">Candy Lady's Treats</KitTitle>
-            <div className="mt-1 font-ui text-[13px] italic text-[#9aa0a6]">"Spend those coins wisely, dearie… the night is long."</div>
+            <KitTitle className="text-3xl sm:text-4xl">{game.bossBreak ? 'Boss defeated · Upgrade break' : "Candy Lady's Treats"}</KitTitle>
+            <div className="mt-1 font-ui text-[13px] italic text-[#9aa0a6]">{game.bossBreak ? 'All creatures cleared. Time is paused. Buy treats, heal and upgrade before the next fight.' : '"Spend those coins wisely, dearie… the night is long."'}</div>
           </div>
           <Chip icon={<CoinIcon size={20} />} className="!text-xl" color="#ffc453">{p.coins}</Chip>
         </div>
@@ -329,7 +374,7 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
         </div>
         <div className="mt-5 flex items-center justify-end gap-2.5">
           <span className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]"><Keycap>E</Keycap> / <Keycap>Esc</Keycap></span>
-          <KitButton variant="cream" onClick={onClose}>Leave</KitButton>
+          <KitButton variant="cream" onClick={onClose}>{game.bossBreak ? game.bossKilled ? 'Finish / rescue remaining friends' : 'Continue to next boss' : 'Leave'}</KitButton>
         </div>
       </div>
     </div>
@@ -338,7 +383,15 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
 
 // ================= END =================
 export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { game: Game; onAgain: () => void; onTitle: () => void; onTalents: () => void; onContinue: () => void }) {
+  const [panel, setPanel] = useState<'talents' | 'summary'>('summary');
+  const [tally, setTally] = useState(0);
+  useEffect(() => {
+    let frame = 0; const began = performance.now();
+    const tick = () => { const progress = Math.min(1, (performance.now() - began) / 1200); setTally(Math.floor(game.soulEarned * progress)); if (progress < 1) frame = requestAnimationFrame(tick); };
+    frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame);
+  }, [game, game.soulEarned]);
   const win = game.state === 'victory';
+  if (panel === 'talents') return <TalentTree save={game.save} onBack={() => setPanel('summary')} onAgain={onAgain} earned={game.soulEarned} />;
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/80 p-4">
       <div className="w-full max-w-xl">
@@ -351,11 +404,13 @@ export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { g
             <Stat icon={<HouseIcon size={18} />} label="Doors" v={String(game.housesVisited)} />
             <Stat icon={<CandyIcon size={18} />} label="Level" v={String(game.p.level)} />
           </div>
-          <div className="mt-4 flex items-center justify-center gap-2 font-cond text-3xl text-[#b98aff]">+{game.soulEarned} <CandyIcon size={26} /> <span className="font-cond2 text-sm font-bold uppercase tracking-[0.18em] text-[#9aa0a6]">soul candy</span></div>
+          <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-sm">{[['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses]].map(([label, amount]) => <div key={label} className="flex justify-between"><dt>{label}</dt><dd>+{amount} essence</dd></div>)}</dl>
+          <div className="mt-4 flex items-center justify-center gap-2 font-cond text-3xl text-[#b98aff]" aria-label={`Earned ${game.soulEarned} essence`}>+{tally} <CandyIcon size={26} /> <span className="font-cond2 text-sm font-bold uppercase tracking-[0.18em] text-[#9aa0a6]">essence earned</span></div>
+          <p className="mt-2 text-center text-sm text-[#f2e6c9]">Total balance: {game.save.soul} essence (Soul Candy). Spend it on permanent talents.</p>
           <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {win && <KitButton icon={Play} fillIcon onClick={onContinue} className="sm:col-span-2">Endless night</KitButton>}
-            <KitButton variant={win ? 'teal' : 'orange'} icon={RotateCw} onClick={onAgain}>Play again</KitButton>
-            <KitButton variant="teal" icon={Lollipop} onClick={onTalents}>Talents</KitButton>
+            <KitButton variant={win ? 'teal' : 'orange'} icon={RotateCw} onClick={() => setPanel('talents')}>Spend essence on talents</KitButton>
+            <KitButton variant="teal" icon={Lollipop} onClick={onTalents}>Talent menu</KitButton>
             <KitButton variant="red" icon={LogOut} onClick={onTitle} className="sm:col-span-2">Quit to menu</KitButton>
           </div>
         </div>

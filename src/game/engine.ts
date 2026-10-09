@@ -1,6 +1,8 @@
 import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM } from './config';
 import { buildMap, GameMap, cellAt, lineOfSight, PropInst, HouseInst } from './map';
 import { settings } from './settings';
+import { gameAudio } from './audio';
+import { hasFullGame } from './expansion';
 import {
   Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
   COSTUMES, COSTUME_BY_ID, GIVE_LINES,
@@ -29,6 +31,7 @@ export class Input {
     el.addEventListener('contextmenu', this.cm);
   }
   kd = (e: KeyboardEvent) => {
+    if (e.key !== 'Escape' && e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     const k = e.key.toLowerCase();
     if (!this.keys.has(k)) this.pressed.add(k);
     this.keys.add(k);
@@ -70,6 +73,9 @@ export class Input {
 // ================= ENTITY TYPES =================
 export interface EnemyDef { hp: number; speed: number; dmg: number; r: number; xp: number; coin: number; fly?: boolean; phase?: boolean; ranged?: boolean; bomber?: boolean; elite?: boolean; boss?: boolean; color: string; mass: number; anim: number }
 export const EDEF: Record<string, EnemyDef> = {
+  hex: { hp: 1900, speed: 0.8, dmg: 16, r: 0.8, xp: 90, coin: 1, boss: true, color: '#b580d5', mass: 35, anim: 6 },
+  alpha: { hp: 3300, speed: 1.65, dmg: 22, r: 0.85, xp: 140, coin: 1, boss: true, color: '#9cacb8', mass: 40, anim: 8 },
+  warden: { hp: 4800, speed: 0.9, dmg: 24, r: 0.9, xp: 190, coin: 1, boss: true, color: '#7cb9b0', mass: 45, anim: 6 },
   zombie: { hp: 32, speed: 1.25, dmg: 8, r: 0.28, xp: 1, coin: 0.3, color: '#7aa35a', mass: 1, anim: 6 },
   bat: { hp: 12, speed: 2.7, dmg: 5, r: 0.2, xp: 1, coin: 0.2, fly: true, color: '#3a2446', mass: 0.5, anim: 12 },
   skeleton: { hp: 55, speed: 1.75, dmg: 10, r: 0.28, xp: 2, coin: 0.4, color: '#e8e2d0', mass: 1, anim: 8 },
@@ -90,15 +96,22 @@ export interface Bullet {
   crit: number; fire: number; shock: number; ecto: number; explode: number; hit: number[]; vamp: boolean; dead: boolean; spin: number; home?: boolean;
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
-export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean }
-export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' }
+export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
+export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' }
 export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number }
 export interface Zone { kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string }
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
-export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number }
+export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
 
-export type GameState = 'play' | 'levelup' | 'shop' | 'dead' | 'victory' | 'pause';
+export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'dead' | 'victory' | 'pause' | 'inventory';
+
+export interface RescueFriend {
+  hero: number; x: number; y: number; r: number; gate: number;
+  status: 'locked' | 'waiting' | 'rescued'; guardian: Enemy | null;
+  progress: number; hp: number; maxHp: number; weapon: Weapon;
+  anim: number; flip: boolean; back: boolean; hurtCd: number; reviveCd: number; candy: number;
+}
 
 export interface Player {
   x: number; y: number; r: number; hp: number; shield: number; shieldT: number; invuln: number; dashT: number; dashRecharge: number; dashCharges: number;
@@ -108,6 +121,8 @@ export interface Player {
 }
 
 const xpFor = (l: number) => Math.floor(6 + l * 5 + l * l * 0.7);
+export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
+const CAMPAIGN_BOSSES = ['hex', 'alpha', 'warden', 'king'];
 
 // ================= GAME =================
 export class Game {
@@ -147,6 +162,12 @@ export class Game {
   boss: Enemy | null = null;
   bossSpawned = false;
   bossKilled = false;
+  bossWins = 0;
+  bossRound = 0;
+  bossBreak = false;
+  nextBossAt = 90;
+  xpCollected = 0;
+  essence = { combat: 0, kills: 0, survival: 0, bosses: 0 };
   endless = false;
   banner: { text: string; sub: string; t: number; kind: BannerKind } | null = null;
   /** walkie-talkie heads-ups shown under the minimap */
@@ -174,13 +195,24 @@ export class Game {
   orbitAng = 0;
   familiar = { x: 0, y: 0 };
   soulEarned = 0;
+  private soulPaid = 0;
   hitStop = 0;
+  campaign = false;
+  friends: RescueFriend[] = [];
+  activeFriend: number | null = null;
+  introTime = 0;
+  introLine = -1;
+  downedTime = 0;
+  rescuePrompt = '';
+  private playerReviveProgress = 0;
+  private winDelay = 0;
 
-  constructor(hero: number, save: Save, input: Input) {
-    this.hero = hero;
+  constructor(hero: number, save: Save, input: Input, campaign = false, seed = (Math.random() * 1e9) | 0) {
+    this.hero = Number.isInteger(hero) && hero >= 0 && hero < HERO_INFO.length && (hero < 3 || hasFullGame()) ? hero : 0;
+    this.campaign = campaign && hasFullGame();
     this.save = save;
     this.input = input;
-    this.map = buildMap((Math.random() * 1e9) | 0);
+    this.map = buildMap(seed, this.campaign);
     for (let i = 0; i < MAP_W * MAP_H; i++) this.grid.push([]);
     this.recalcStats();
     const s = this.stats;
@@ -190,15 +222,173 @@ export class Game {
       aimX: 1, aimY: 0, aiming: false, skillCd: 0, level: 1, xp: 0, xpNext: xpFor(1), coins: s.startCoins, revives: s.revive, recoil: 0, hurtT: 0,
       costume: null, novaCd: 0, stompT: 4, hexT: 1,
     };
-    if (s.startCostume > 0) this.wearCostume(COSTUMES[Math.floor(Math.random() * COSTUMES.length)].id, false);
+    if (s.startCostume > 0) this.wearCostume(this.randomCostume(), false);
     this.rerolls = s.rerolls;
-    // a costume lying in the street to teach the mechanic
-    this.dropCostume(this.p.x - 1.4, this.p.y + 1.4, this.randomCostume());
     this.familiar = { x: this.p.x, y: this.p.y };
-    // a free weapon near the start to teach pickup
-    this.dropWeapon(this.p.x + 1.6, this.p.y - 1.2, makeWeapon(['nerf', 'shotgun', 'roman', 'soaker'][Math.floor(Math.random() * 4)], 1));
+    if (!this.campaign) this.dropStarterItems();
     this.setBanner('Trick or Treat... or FIGHT!', 'Survive the night. Boss arrives at 5:00');
     this.computeFlow(true);
+    if (this.campaign) {
+      const sites = [[35, 18], [52, 35], [40, 73], [18, 35]];
+      // Choose sites from the reachable neighbourhood, not isolated fenced pockets.
+      // Temporarily open only the gate cells, then restore the exact initial locks.
+      const gateCells = this.map.gates.flatMap(gate => gate.cells.map(([x, y]) => ({ index: y * CW + x, value: this.map.coll[y * CW + x] })));
+      for (const cell of gateCells) this.map.coll[cell.index] = 0;
+      this.computeFlow(true);
+      this.friends = HERO_INFO.map((_, i) => i).filter(i => i !== this.hero).map((id, i) => {
+        const pos = this.freeSpot(sites[i][0], sites[i][1], true);
+        return { hero: id, ...pos, r: 0.24, gate: i, status: 'locked', guardian: null, progress: 0,
+          hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
+      });
+      for (const cell of gateCells) this.map.coll[cell.index] = cell.value;
+      this.computeFlow(true);
+      this.state = 'intro';
+      this.banner = null;
+    }
+  }
+
+  private dropStarterItems() {
+    this.dropCostume(this.p.x - 1.4, this.p.y + 1.4, this.randomCostume());
+    this.dropWeapon(this.p.x + 1.6, this.p.y - 1.2, makeWeapon(['nerf', 'shotgun', 'roman', 'soaker'][Math.floor(Math.random() * 4)], 1));
+  }
+
+  private freeSpot(x: number, y: number, reachable = false) {
+    for (let radius = 0; radius < 8; radius += 0.5) for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
+      const nx = x + Math.cos(a) * radius, ny = y + Math.sin(a) * radius;
+      if ((!reachable || this.reachable(nx, ny)) && [[0, 0], [-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].every(([dx, dy]) => cellAt(this.map, nx + dx, ny + dy) === 0)) return { x: nx, y: ny };
+    }
+    return { x, y };
+  }
+  introPosition(hero: number) {
+    const index = [this.hero, ...this.friends.map(f => f.hero)].indexOf(hero);
+    return index === 0 ? { x: this.p.x, y: this.p.y } : this.freeSpot(this.p.x + (index % 2 ? -1 : 1) * 1.2, this.p.y + Math.ceil(index / 2) * 0.65);
+  }
+  get introText() {
+    const kids = [this.hero, ...this.friends.map(f => f.hero)];
+    const lines = ["Hide and seek! I'm the seeker tonight.", 'Count to twenty. No peeking!', "We'll hide around the neighbourhood.", 'Wait... did that pumpkin just move?', "Those aren't costumes! Run!", 'Stay calm. I will find every one of you.'];
+    const line = Math.min(5, Math.floor(this.introTime / 2.8));
+    const hero = line === 5 ? this.hero : kids[line % kids.length];
+    return { hero, text: lines[line], position: this.introPosition(hero) };
+  }
+  private updateIntro(dt: number) {
+    this.introTime += dt;
+    const line = Math.min(5, Math.floor(this.introTime / 2.8));
+    if (line !== this.introLine) {
+      this.introLine = line;
+      const dialogue = this.introText;
+      this.bubble(dialogue.position.x, dialogue.position.y, 110, dialogue.text, 'kid', 2.8);
+    }
+    for (const bubble of this.bubbles) bubble.life = Math.max(0.1, bubble.life - dt);
+    if (this.input.pressed.has(' ') || this.input.pressed.has('enter') || this.introTime >= 17) {
+      this.state = 'play'; this.bubbles = [];
+      this.dropStarterItems();
+      this.setBanner('HIDE & SHRIEK', 'Rescue four friends. One companion can fight beside you.');
+      gameAudio.play('guardian', 0.4);
+    }
+  }
+  selectFriend(hero: number) {
+    if (this.state !== 'pause') return;
+    const friend = this.friends.find(f => f.hero === hero && f.status === 'rescued');
+    if (!friend) return;
+    this.activeFriend = hero;
+    Object.assign(friend, this.freeSpot(this.p.x + 0.7, this.p.y + 0.7));
+    this.syncTeamWeapons();
+  }
+  giveFriendWeapon(hero: number, slot: number) {
+    if (this.state !== 'pause' || ![0, 1].includes(slot)) return;
+    const friend = this.friends.find(f => f.hero === hero && f.status === 'rescued'), weapon = this.p.weapons[slot];
+    if (!friend || !weapon || friend.hp <= 0) return;
+    this.p.weapons[slot] = friend.weapon; friend.weapon = weapon; this.syncTeamWeapons();
+  }
+  syncTeamWeapons() {
+    const level = Math.max(0, ...this.p.weapons.map(w => w?.level || 0), ...this.friends.map(f => f.weapon.level));
+    for (const f of this.friends) f.weapon.level = Math.max(f.weapon.level, level);
+  }
+  private updateTeam(dt: number) {
+    if (!this.campaign || this.bossBreak) return;
+    this.rescuePrompt = '';
+    for (const f of this.friends) {
+      if (f.status === 'rescued') continue;
+      const gate = this.map.gates[f.gate], distance = Math.hypot(f.x - this.p.x, f.y - this.p.y);
+      if (gate.opened && f.status === 'locked' && distance < 12 && this.reachable(f.x, f.y)) {
+        const spot = this.freeSpot(f.x + 1, f.y + 1);
+        f.guardian = this.spawnEnemy('werewolf', spot.x, spot.y);
+        f.guardian.hp = f.guardian.maxHp = 220 + this.time * 0.3; f.status = 'waiting';
+        gameAudio.play('guardian', 0.5); this.toast(`${HERO_INFO[f.hero].name} needs help! Defeat the guardian.`);
+      }
+      if (this.state !== 'play') continue;
+      if (distance < 1.7) {
+        const safe = f.status === 'waiting' && f.guardian?.dead;
+        this.rescuePrompt = safe ? `Hold E to revive ${HERO_INFO[f.hero].name} · ${Math.round(f.progress / 3 * 100)}%` : 'Defeat the guardian to break the ward';
+        if (safe && this.input.keys.has('e') && this.p.hurtT <= 0) f.progress += dt * this.stats.reviveSpeed;
+        else f.progress = 0;
+        if (f.progress >= 3) {
+          f.status = 'rescued'; f.progress = 0;
+          if (this.activeFriend === null) this.activeFriend = f.hero;
+          this.syncTeamWeapons(); gameAudio.play('revive');
+          this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS SAFE!`, 'Pause to choose your companion and share weapons.', 'loot'); this.rescuePrompt = '';
+        }
+      } else f.progress = 0;
+    }
+    const friend = this.friends.find(f => f.hero === this.activeFriend && f.status === 'rescued');
+    if (!friend) { if (this.state === 'downed') this.endRun(false); return; }
+    friend.reviveCd = Math.max(0, friend.reviveCd - dt); friend.hurtCd = Math.max(0, friend.hurtCd - dt);
+    const distance = Math.hypot(friend.x - this.p.x, friend.y - this.p.y);
+    if (friend.hp <= 0) {
+      if (this.state === 'downed') { this.endRun(false); return; }
+      if (distance < 1.7) {
+        this.rescuePrompt = `Hold E to revive ${HERO_INFO[friend.hero].name} · ${Math.round(friend.progress / 3 * 100)}%`;
+        if (this.input.keys.has('e') && this.p.hurtT <= 0) friend.progress += dt * this.stats.reviveSpeed; else friend.progress = 0;
+        if (friend.progress >= 3) { friend.hp = friend.maxHp * 0.5; friend.progress = 0; friend.hurtCd = 3; gameAudio.play('revive'); }
+      } else friend.progress = 0;
+      return;
+    }
+    if (distance > (this.state === 'downed' ? 0.7 : 1.6)) {
+      const direction = this.flowDir(friend.x, friend.y);
+      const dx = direction?.x ?? (this.p.x - friend.x) / (distance || 1), dy = direction?.y ?? (this.p.y - friend.y) / (distance || 1);
+      this.moveCircle(friend, dx * this.stats.move * 1.05 * dt, dy * this.stats.move * 1.05 * dt, friend.r);
+      friend.anim += dt * 8; friend.back = dy < 0; friend.flip = dx < 0;
+    } else friend.anim += dt * 3;
+    if (distance > 18 && this.state !== 'downed') Object.assign(friend, this.freeSpot(this.p.x + 1, this.p.y + 1));
+    for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
+      friend.hp = Math.max(0, friend.hp - e.def.dmg * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
+    }
+    for (const bullet of this.ebullets) if (!bullet.dead && Math.hypot(bullet.x - friend.x, bullet.y - friend.y) < bullet.r + friend.r && friend.hurtCd <= 0) {
+      bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
+    }
+    if (this.state === 'downed') {
+      this.downedTime -= dt;
+      if (distance < 1.1 && friend.hp > 0 && friend.reviveCd <= 0 && friend.hurtCd <= 0) this.playerReviveProgress += dt * this.stats.reviveSpeed; else this.playerReviveProgress = 0;
+      this.rescuePrompt = `${HERO_INFO[friend.hero].name} reviving you · ${Math.round(this.playerReviveProgress / 3 * 100)}% · ${Math.ceil(this.downedTime)}s left`;
+      if (this.playerReviveProgress >= 3) {
+        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; friend.reviveCd = 60; this.playerReviveProgress = 0;
+        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', 'Your companion saved you. Revive recharges in 60 seconds.');
+      } else if (this.downedTime <= 0 || friend.hp <= 0) this.endRun(false);
+      return;
+    }
+    for (const pickup of this.pickups) if (pickup.friendOnly && !pickup.dead && Math.hypot(pickup.x - friend.x, pickup.y - friend.y) < 6) {
+      pickup.dead = true; friend.candy++; friend.hp = Math.min(friend.maxHp, friend.hp + 5); gameAudio.play('pickup', 0.25);
+    }
+    const weapon = friend.weapon, st = weaponStats(weapon, this.stats);
+    weapon.cd -= dt;
+    if (weapon.reloadT > 0) { weapon.reloadT -= dt; if (weapon.reloadT <= 0) weapon.ammo = st.mag; return; }
+    if (weapon.ammo <= 0) { weapon.reloadT = st.reload; return; }
+    let target: Enemy | null = null, nearest = st.range;
+    for (const enemy of this.enemies) if (!enemy.dead) {
+      const d = Math.hypot(enemy.x - friend.x, enemy.y - friend.y);
+      if (d < nearest && lineOfSight(this.map, friend.x, friend.y, enemy.x, enemy.y)) { nearest = d; target = enemy; }
+    }
+    if (!target || weapon.cd > 0 || friend.hp <= 0) return;
+    weapon.cd = 1 / st.rate; weapon.ammo--;
+    const angle = Math.atan2(target.y - friend.y, target.x - friend.x), damage = st.dmg * 0.65 * this.stats.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02);
+    gameAudio.play('shot', 0.2);
+    if (weapon.def.kind === 'beam') this.hitscan(friend.x, friend.y, Math.cos(angle), Math.sin(angle), { ...st, dmg: damage }, weapon.def.color);
+    else for (let i = 0; i < st.pellets; i++) {
+      const a = angle + rand(-weapon.def.spread, weapon.def.spread);
+      this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * weapon.def.speed, vy: Math.sin(a) * weapon.def.speed, dmg: damage, r: 0.1,
+        life: st.range / Math.max(weapon.def.speed, 1), pierce: st.pierce, bounce: st.bounce, kind: weapon.def.kind, color: weapon.def.color,
+        crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: weapon.def.explode, hit: [], vamp: false, dead: false, spin: 0 });
+    }
   }
 
   // ---------- stats ----------
@@ -219,7 +409,7 @@ export class Game {
 
   // ---------- costumes ----------
   randomCostume(exclude: string | null = null) {
-    const pool = COSTUMES.filter((c) => c.id !== exclude && c.id !== this.p?.costume);
+    const pool = COSTUMES.filter((c) => (!c.premium || hasFullGame()) && c.id !== exclude && c.id !== this.p?.costume);
     return pool[Math.floor(Math.random() * pool.length)].id;
   }
   dropCostume(x: number, y: number, id: string) {
@@ -282,11 +472,17 @@ export class Game {
   // ---------- main update ----------
   update(dtRaw: number) {
     const inp = this.input;
+    if (this.state === 'intro') {
+      this.updateIntro(Math.min(dtRaw, 0.05));
+      inp.endFrame();
+      return;
+    }
+    if (inp.pressed.has('i') && (this.state === 'play' || this.state === 'inventory')) this.state = this.state === 'inventory' ? 'play' : 'inventory';
     if (inp.pressed.has('escape') || inp.pressed.has('p')) {
       if (this.state === 'play') this.state = 'pause';
-      else if (this.state === 'pause') this.state = 'play';
+      else if (this.state === 'pause' || this.state === 'inventory') this.state = 'play';
     }
-    if (this.state !== 'play') {
+    if (this.state !== 'play' && this.state !== 'downed') {
       inp.endFrame();
       return;
     }
@@ -298,21 +494,26 @@ export class Game {
     const dt = Math.min(dtRaw, 1 / 30);
     this.time += dt;
     if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
-    this.updatePlayer(dt);
+    const downed = this.state === 'downed';
+    if (!downed) this.updatePlayer(dt);
     this.rebuildGrid();
-    this.updateWeapon(dt);
-    this.updateSkill(dt);
-    this.updateCompanions(dt);
+    if (!downed) { this.updateWeapon(dt); this.updateSkill(dt); this.updateCompanions(dt); }
     this.computeFlow(false, dt);
     this.updateEnemies(dt);
     this.updateBullets(dt);
     this.updateEBullets(dt);
     this.updateZones(dt);
-    this.updatePickups(dt);
+    if (!downed) this.updatePickups(dt);
     this.updateFx(dt);
     this.director(dt);
-    this.updateTot(dt);
-    this.updateInteract();
+    this.updateTeam(dt);
+    // A boss death can switch to the safe shop inside a bullet/zone update.
+    if (this.bossBreak) { this.state = 'shop'; inp.endFrame(); return; }
+    if (!downed) { this.updateTot(dt); this.updateInteract(); }
+    if (this.bossKilled && !this.endless && (!this.campaign || this.friends.every(f => f.status === 'rescued'))) {
+      this.winDelay += dt;
+      if (this.winDelay >= 3.5 && this.state === 'play') this.endRun(true);
+    }
     if (this.banner) {
       this.banner.t -= dt;
       if (this.banner.t <= 0) this.banner = null;
@@ -340,11 +541,14 @@ export class Game {
     if (blocked(o.x, o.y)) {
       // already overlapping a wall (spawned/pushed in) -> let it slide out freely
       const nx = o.x + dx, ny = o.y + dy;
-      if (cellAt(this.map, nx, ny) < 2 && nx > 0.7 && ny > 0.7 && nx < MAP_W - 0.7 && ny < MAP_H - 0.7) { o.x = nx; o.y = ny; }
+      if (!blocked(nx, ny)) { o.x = nx; o.y = ny; }
       return;
     }
-    if (dx && !blocked(o.x + dx, o.y)) o.x += dx;
-    if (dy && !blocked(o.x, o.y + dy)) o.y += dy;
+    const steps = Math.max(1, Math.ceil(Math.hypot(dx, dy) / (0.5 / CR)));
+    for (let i = 0; i < steps; i++) {
+      if (dx && !blocked(o.x + dx / steps, o.y)) o.x += dx / steps;
+      if (dy && !blocked(o.x, o.y + dy / steps)) o.y += dy / steps;
+    }
   }
 
   private updatePlayer(dt: number) {
@@ -383,6 +587,7 @@ export class Game {
       p.dashCharges--;
       p.dashRecharge = 0;
       p.dashT = 0.2;
+      gameAudio.play('dash', 0.5);
       p.invuln = Math.max(p.invuln, 0.3);
       const dx = p.moving ? mx : p.aimX, dy = p.moving ? my : p.aimY;
       p.dashX = dx; p.dashY = dy;
@@ -427,11 +632,11 @@ export class Game {
       if (inp.pressed.has('1')) n = 0;
       else if (inp.pressed.has('2')) n = 1;
       else n = 1 - p.cur;
-      if (p.weapons[n]) p.cur = n;
+      if (p.weapons[n] && n !== p.cur) { p.cur = n; gameAudio.play('click', 0.3); }
     }
     if (inp.pressed.has('r')) {
       const w = this.weapon;
-      if (w && w.reloadT <= 0 && w.ammo < weaponStats(w, s).mag) w.reloadT = weaponStats(w, s).reload;
+      if (w && w.reloadT <= 0 && w.ammo < weaponStats(w, s).mag) { w.reloadT = weaponStats(w, s).reload; gameAudio.play('reload', 0.4); }
     }
   }
 
@@ -456,6 +661,7 @@ export class Game {
       if (p.shield <= 0) this.text(p.x, p.y, 'SHIELD BROKEN', '#7fd8ff', 14);
     }
     p.hp -= dmg;
+    gameAudio.play('hurt');
     p.invuln = 0.45;
     p.hurtT = 0.25;
     this.shake = Math.max(this.shake, 6);
@@ -470,21 +676,25 @@ export class Game {
         this.explode(p.x, p.y, 3.5, 200, 'fire', true);
       } else {
         p.hp = 0;
-        this.endRun(false);
+        const friend = this.friends.find(f => f.hero === this.activeFriend && f.hp > 0 && f.reviveCd <= 0);
+        if (friend) {
+          this.state = 'downed'; this.downedTime = 15; this.playerReviveProgress = 0;
+          this.setBanner('HANG ON!', `${HERO_INFO[friend.hero].name} is coming to revive you`, 'danger');
+        } else this.endRun(false);
       }
     }
   }
 
   endRun(victory: boolean) {
+    gameAudio.play(victory ? 'victory' : 'hurt');
     this.state = victory ? 'victory' : 'dead';
-    if (!victory || !this.soulEarned) {
-      this.soulEarned = Math.floor(this.kills / 8 + this.time / 6 + (this.bossKilled ? 120 : 0));
-    }
-    if (!victory) {
-      this.save.soul += this.soulEarned;
-      this.save.best = Math.max(this.save.best, Math.floor(this.time));
-      storeSave(this.save);
-    }
+    this.essence = { combat: Math.floor(this.xpCollected / 6), kills: Math.floor(this.kills / 8), survival: Math.floor(this.time / 6), bosses: this.bossWins * 120 };
+    this.soulEarned = Object.values(this.essence).reduce((sum, value) => sum + value, 0);
+    const additional = Math.max(0, this.soulEarned - this.soulPaid);
+    this.save.soul += additional;
+    this.soulPaid += additional;
+    this.save.best = Math.max(this.save.best, Math.floor(this.time));
+    storeSave(this.save);
   }
 
   // ---------- weapons ----------
@@ -538,6 +748,7 @@ export class Game {
     if (this.tot) return; // hands are full of candy bag - can't shoot while trick-or-treating
     if (w.ammo <= 0) {
       w.reloadT = st.reload;
+      gameAudio.play('reload', 0.4);
       return;
     }
     if (w.cd <= 0 && (manual || target)) {
@@ -549,6 +760,7 @@ export class Game {
   }
 
   private fire(w: Weapon, st: ReturnType<typeof weaponStats>) {
+    gameAudio.play('shot');
     const p = this.p, d = w.def;
     const base = Math.atan2(p.aimY, p.aimX);
     const n = st.pellets;
@@ -637,6 +849,7 @@ export class Game {
   damageEnemy(e: Enemy, dmg: number, color: string, big = false, quiet = false) {
     if (e.dead) return;
     e.hp -= dmg;
+    if (!quiet) gameAudio.play('impact', 0.4);
     e.hit = 0.1;
     if (!quiet) this.text(e.x + rand(-0.2, 0.2), e.y + rand(-0.2, 0.2), Math.round(dmg).toString(), color, big ? 20 : 13, 'dmg');
     if (e.hp <= 0) this.killEnemy(e);
@@ -688,6 +901,7 @@ export class Game {
     p.skillCd -= dt;
     if (this.tot || !(this.input.rpressed || this.input.pressed.has('f')) || p.skillCd > 0) return;
     p.skillCd = info.cd * s.skillCd;
+    gameAudio.play('skill', 0.5);
     const m = this.mouseWorld();
     let dx = m.x - p.x, dy = m.y - p.y;
     let l = Math.hypot(dx, dy) || 1;
@@ -698,6 +912,17 @@ export class Game {
       this.lobs.push({ x0: p.x, y0: p.y, x1: tx, y1: ty, t: 0, dur: 0.55 });
     } else if (this.hero === 1) {
       this.zones.push({ kind: 'tornado', x: tx, y: ty, r: 1.8 * s.skillPow, t: 0, life: 4.5, dmg: 9 * s.dmg * s.skillPow, tick: 0 });
+    } else if (this.hero === 3) {
+      p.hp = Math.min(s.maxHp, p.hp + 30 * s.skillPow);
+      p.shield = Math.min(s.maxShield, p.shield + 35 * s.skillPow);
+      const weapon = this.weapon;
+      if (weapon) { weapon.ammo = weaponStats(weapon, s).mag; weapon.reloadT = 0; }
+      const friend = this.friends.find(f => f.hero === this.activeFriend && f.hp > 0);
+      if (friend) friend.hp = Math.min(friend.maxHp, friend.hp + 40 * s.skillPow);
+      this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 3, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#ffd580' });
+    } else if (this.hero === 4) {
+      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 6) { e.ectoT = Math.max(e.ectoT, 5 * s.skillPow); e.stunT = Math.max(e.stunT, 0.7); }
+      this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 6, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#80d9ce' });
     } else {
       const ang = Math.atan2(dy, dx);
       const R = 6 * Math.sqrt(s.skillPow);
@@ -846,7 +1071,7 @@ export class Game {
   }
   reachable(x: number, y: number) {
     const c = Math.floor(y * CR) * CW + Math.floor(x * CR);
-    return this.flow[c] < 1 << 29;
+    return c >= 0 && c < this.flow.length && this.flow[c] < (1 << 29);
   }
 
   // ---------- enemies ----------
@@ -874,6 +1099,10 @@ export class Game {
     else this.dropPickup(e.x, e.y, xp >= 4 ? 'xp3' : xp >= 2 ? 'xp2' : 'xp1', xp);
     if (Math.random() < e.def.coin) this.dropPickup(e.x, e.y, 'coin', Math.ceil(rand(1, 3) * (e.elite ? 5 : 1)));
     if (Math.random() < s.healDrop) this.dropPickup(e.x, e.y, 'heal', 25);
+    if (this.activeFriend !== null && Math.random() < 0.12) {
+      this.dropPickup(e.x, e.y, 'xp2', 0);
+      this.pickups[this.pickups.length - 1].friendOnly = true;
+    }
     if (e.elite && !e.def.boss) this.dropPickup(e.x, e.y, 'chest', 0);
     if (Math.random() < s.vamp) { this.p.hp = Math.min(s.maxHp, this.p.hp + 2); }
     if (this.p.costume === 'vampire' && this.p.hp < s.maxHp) {
@@ -882,29 +1111,36 @@ export class Game {
     }
     if (e.elite && !e.def.boss && Math.random() < 0.35) this.dropCostume(e.x, e.y, this.randomCostume());
     // fx
-    const n = e.def.boss ? 60 : 10;
+    const n = settings.gore === 'off' ? 0 : settings.lowFx ? 4 : e.def.boss ? 24 : 8;
     for (let i = 0; i < n; i++) {
       const a = rand(0, Math.PI * 2), sp = rand(1, 3.5);
-      this.particle(e.x, e.y, 0.4, Math.cos(a) * sp, Math.sin(a) * sp, rand(1.5, 4), rand(0.4, 0.9), e.def.color, rand(3, 6), 'sq');
+      this.particle(e.x, e.y, 0.4, Math.cos(a) * sp, Math.sin(a) * sp, rand(1.5, 4), rand(0.4, 0.9), settings.gore === 'red' ? '#ab2134' : '#5baf42', rand(3, 7), 'gore');
     }
-    this.decals.push({ x: e.x, y: e.y, r: e.r * 1.4, color: e.type === 'ghost' ? 'rgba(160,200,255,0.3)' : e.type === 'pumpkin' || e.type === 'king' ? 'rgba(200,90,20,0.45)' : 'rgba(60,110,40,0.45)', life: 25, rot: rand(0, 6) });
+    if (settings.gore !== 'off') {
+      this.decals.push({ x: e.x, y: e.y, r: e.r * 0.75, color: '#5baf42', life: 25, rot: rand(0, 6), gore: true });
+      const max = settings.lowFx ? 60 : 160;
+      if (this.decals.length > max) this.decals.splice(0, this.decals.length - max);
+    }
     if (e.def.bomber) this.explode(e.x, e.y, 1.5, 40 * s.dmg, 'fire', true);
     if (e.def.boss) {
       this.boss = null;
-      this.bossKilled = true;
+      this.bossWins++;
+      this.bossRound++;
+      this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
+      this.bossBreak = true;
+      // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
+      for (const creature of this.enemies) creature.dead = true;
+      this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
+      this.spawnAcc = 0; this.tot = null; this.interact = null;
+      this.p.coins += 150 + this.bossRound * 50;
+      this.p.hp = Math.min(this.stats.maxHp, this.p.hp + this.stats.maxHp * 0.25);
+      this.nextBossAt = Math.max([90, 170, 245, 320][this.bossRound] ?? Infinity, this.time + 45);
+      this.state = 'shop';
       this.hitStop = 0.25;
       for (let i = 0; i < 3; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner('THE PUMPKIN KING IS SMASHED!', 'You saved Halloween... for now', 'win');
-      setTimeout(() => {
-        if (this.state === 'play' && !this.endless) {
-          this.soulEarned = Math.floor(this.kills / 8 + this.time / 6 + 120);
-          this.save.soul += this.soulEarned;
-          this.save.best = Math.max(this.save.best, Math.floor(this.time));
-          storeSave(this.save);
-          this.state = 'victory';
-        }
-      }, 3500);
+      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, 'The streets are clear. Spend coins and upgrade before continuing.', 'win');
+      gameAudio.play('victory', 0.45);
     }
   }
 
@@ -1022,6 +1258,28 @@ export class Game {
   private bossAI(e: Enemy, dt: number, dx: number, dy: number, dist: number) {
     const rage = e.hp < e.maxHp * 0.5;
     e.p1 -= dt; e.p2 -= dt; e.p3 -= dt;
+    if (e.type !== 'king') {
+      if (e.p1 <= 0) {
+        e.p1 = rage ? 2.2 : 3.8;
+        const base = Math.atan2(dy, dx), count = e.type === 'warden' ? 12 : 5;
+        for (let i = 0; i < count; i++) {
+          const angle = e.type === 'warden' ? i / count * Math.PI * 2 : base + (i - 2) * 0.18;
+          this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4, r: 0.16, dmg: 12, life: 4, color: e.def.color, kind: 'orb', dead: false });
+        }
+      }
+      if (e.p2 <= 0) {
+        e.p2 = rage ? 6 : 9;
+        if (e.type === 'alpha') {
+          e.lungeT = 0.5; e.lungeX = dx / (dist || 1); e.lungeY = dy / (dist || 1);
+          this.zones.push({ kind: 'warn', x: this.p.x, y: this.p.y, r: 1.4, t: 0, life: 0.6, dmg: 0, tick: 0 });
+        } else for (let i = 0; i < (rage ? 4 : 2); i++) {
+          const spot = this.freeSpot(e.x + Math.cos(i * Math.PI) * 2, e.y + Math.sin(i * Math.PI) * 2, true);
+          this.spawnEnemy(e.type === 'hex' ? 'ghost' : 'skeleton', spot.x, spot.y);
+        }
+      }
+      if (e.type === 'alpha' && e.lungeT > 0) { e.lungeT -= dt; this.moveCircle(e, e.lungeX * dt * 7, e.lungeY * dt * 7, e.r); }
+      return;
+    }
     if (e.p1 <= 0) {
       e.p1 = rage ? 2.2 : 3.2;
       const n = rage ? 22 : 16, off = rand(0, 1);
@@ -1215,6 +1473,7 @@ export class Game {
     const magR = 1.7 * s.magnet;
     for (const k of this.pickups) {
       k.t += dt;
+      if (k.friendOnly) { if (k.t > 45) k.dead = true; continue; }
       if (k.z > 0 || k.vz > 0) {
         k.vz -= 12 * dt;
         k.z += k.vz * dt;
@@ -1233,6 +1492,7 @@ export class Game {
       }
       if (d < 0.35) {
         k.dead = true;
+        gameAudio.play('pickup', 0.4);
         if (k.kind === 'coin') {
           const v = Math.ceil(k.value * s.coinGain);
           p.coins += v;
@@ -1242,7 +1502,8 @@ export class Game {
           p.hp = Math.min(s.maxHp, p.hp + v);
           this.text(p.x, p.y, `+${Math.round(v)} HP`, '#7dff5a', 14);
         } else {
-          p.xp += k.value * s.xpGain;
+          const gained = k.value * s.xpGain;
+          p.xp += gained; this.xpCollected += gained;
           while (p.xp >= p.xpNext) {
             p.xp -= p.xpNext;
             p.level++;
@@ -1262,6 +1523,7 @@ export class Game {
 
   private updateInteract() {
     const p = this.p;
+    if (this.rescuePrompt) { this.interact = null; this.nearbyWeapon = null; this.nearbyCostume = null; return; }
     this.nearbyWeapon = null;
     this.nearbyCostume = null;
     if (this.tot) { this.interact = null; return; }
@@ -1301,6 +1563,7 @@ export class Game {
         if (old) this.dropCostume(p.x, p.y, old);
         this.pickups = this.pickups.filter((x) => !x.dead);
       } else if (best.kind === 'weapon') {
+        gameAudio.play('click', 0.35);
         const k = best.ref as Pickup;
         k.dead = true;
         const empty = p.weapons.findIndex((w) => !w);
@@ -1333,6 +1596,7 @@ export class Game {
   // ---------- level up / shop ----------
   // ---------- trick or treat ----------
   private startTot(h: HouseInst) {
+    gameAudio.play('door', 0.45);
     const dur = 3.4 * this.stats.totSpeed;
     const c = this.p.costume ? COSTUME_BY_ID[this.p.costume] : null;
     const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
@@ -1443,6 +1707,7 @@ export class Game {
     this.choices = rollScrolls(this.choiceN, this.scrolls, this.choiceLuck);
   }
   choose(id: string) {
+    gameAudio.play('unlock');
     this.input.pressed.clear(); // the key that picked the card must not also swap weapons
     this.scrolls[id] = (this.scrolls[id] || 0) + 1;
     this.scrollOrder.push(id);
@@ -1472,6 +1737,7 @@ export class Game {
     if (this.p.coins < c) return;
     this.p.coins -= c;
     w.level++;
+    this.syncTeamWeapons();
   }
   healCost() { return 30 + this.shopHealBuys * 15; }
   treatCost() { return Math.round(70 * Math.pow(1.35, this.shopTreatBuys)); }
@@ -1491,6 +1757,7 @@ export class Game {
   }
   closeShop() {
     this.input.pressed.clear(); // Esc/E closed the shop: don't also pause or re-open it
+    this.bossBreak = false;
     this.state = 'play';
     this.p.invuln = 0.8;
   }
@@ -1516,6 +1783,7 @@ export class Game {
   }
 
   private director(dt: number) {
+    if (this.bossBreak || (this.bossKilled && !this.endless)) return;
     const t = this.time;
     const cap = 280;
     const alive = this.enemies.length;
@@ -1579,26 +1847,30 @@ export class Game {
       if (!gate.opened && this.soon(1000 + gate.id, gate.openAt, 10)) this.toast(`The road to ${gate.name} opens in 10 seconds!`);
       if (gate.opened || t < gate.openAt) continue;
       gate.opened = true;
+      gameAudio.play('unlock', 0.5);
       for (const [cx, cy] of gate.cells) this.map.coll[cy * CW + cx] = 0;
+      this.computeFlow(true);
       for (const pr of this.map.props) if (gate.propIds.includes(pr.id)) pr.removed = true;
       this.pickups.push({ x: gate.x, y: gate.y, z: 3, vz: 0, vx: 0, vy: 0, kind: 'chest', value: 0, mag: false, t: 0, dead: false });
       this.setBanner(`${gate.name} IS OPEN!`, 'New streets to explore — a Treat Bag waits at the gate', 'loot');
       for (let i = 0; i < 30; i++) this.particle(gate.x, gate.y, 0.3, rand(-3, 3), rand(-3, 3), rand(2, 6), 1, ['#7CFF64', '#FFC453', '#F9781B'][i % 3], 5, i % 2 ? 'glow' : 'sq');
     }
     // boss
-    if (!this.bossSpawned && this.soon(-1, 300, 10)) this.toast('Something huge is stirring in the pumpkin patch…');
-    if (t >= 300 && !this.bossSpawned) {
+    const at = this.campaign ? this.nextBossAt : 300;
+    if (!this.boss && this.soon(-100 - this.bossRound, at, 10)) this.toast('A boss is coming. Get your weapons ready!');
+    if (t >= at && !this.boss && (this.campaign ? this.bossRound < CAMPAIGN_BOSSES.length : !this.bossSpawned)) {
       this.bossSpawned = true;
       const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
-      this.boss = this.spawnEnemy('king', pos.x, pos.y);
-      this.setBanner('THE PUMPKIN KING RISES', 'Smash him to save Halloween!', 'danger');
+      const type = this.campaign ? CAMPAIGN_BOSSES[this.bossRound] : 'king';
+      this.boss = this.spawnEnemy(type, pos.x, pos.y);
+      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for an upgrade break`, 'danger');
       this.shake = 15;
     }
   }
 
   // ---------- fx ----------
   particle(x: number, y: number, z: number, vx: number, vy: number, vz: number, life: number, color: string, size: number, kind: Particle['kind']) {
-    if (this.particles.length > (settings.lowFx ? 300 : 900)) return;
+    if (this.particles.length >= (settings.lowFx ? 300 : 900)) return;
     if (settings.lowFx && kind === 'glow' && Math.random() < 0.5) return;
     this.particles.push({ x, y, z, vx, vy, vz, life, max: life, color, size, kind });
   }
@@ -1611,7 +1883,7 @@ export class Game {
       q.life -= dt;
       q.x += q.vx * dt; q.y += q.vy * dt;
       q.z += q.vz * dt;
-      if (q.kind === 'sq') {
+      if (q.kind === 'sq' || q.kind === 'gore') {
         q.vz -= 9 * dt;
         if (q.z < 0) { q.z = 0; q.vz *= -0.3; q.vx *= 0.6; q.vy *= 0.6; }
       }
@@ -1638,8 +1910,8 @@ export class Game {
       costumesFound: this.costumesFound, doorsRung: this.housesVisited,
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
       housesLeft: this.map.houses.filter((h) => !h.visited).length, housesTotal: this.map.houses.length,
-      banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
-      bossIn: this.bossSpawned || this.endless ? null : Math.max(0, 300 - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
+      banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, name: BOSS_NAMES[this.boss.type] } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
+      bossIn: this.boss || this.bossKilled || this.endless ? null : Math.max(0, (this.campaign ? this.nextBossAt : 300) - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
     };
   }
 }

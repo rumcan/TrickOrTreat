@@ -1,0 +1,45 @@
+{
+  "key": "treat_walkie",
+  "spec": {
+    "key": "treat_walkie",
+    "file": "icons/treat_walkie.png",
+    "category": "icon",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "desc": "A worn teal toy walkie-talkie with a short antenna and amber indicator",
+    "prompt": "Single hand-painted Halloween ARPG inventory icon, transparent background, no lettering, no cast shadow. A worn teal toy walkie-talkie with a short antenna and amber indicator. Centered inside 48x48 pixels with a clear readable silhouette and 4px safe margins."
+  },
+  "id": "3e9ff045ada20b28",
+  "rawFile": "art/world/raw/treat_walkie-a05d6d56d942b31a.png",
+  "stagedFile": "art/world/staged/treat_walkie-3e9ff045ada20b28.png",
+  "savedPromptFile": "art/world/raw/treat_walkie-a05d6d56d942b31a.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "a05d6d56d942b31a896993473f40c8409762f1906ccc61b5cbb356248f1e7435",
+  "packedHash": "3e9ff045ada20b284d6b630d1e17aaba3b883c81ec67f9776650727cf1729af1",
+  "promptHash": "82d491c00bd947c75e1e915a9c89ec237d5098181237fb96297b70b1dce18690",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "outputSize": [
+    192,
+    192
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T13:37:18.923Z",
+  "fingerprint": "1a5fbc9ee6fc86c73704ed38e38545d69278df7b0db1c0647295ed9c40e8c749",
+  "activationFile": "art/world/activations/treat_walkie-1791553186461.json",
+  "gameFile": "generated/world/treat_walkie-3e9ff045ada20b28.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Single hand-painted Halloween ARPG inventory icon, transparent background, no lettering, no cast shadow. A worn teal toy walkie-talkie with a short antenna and amber indicator. Centered inside 48x48 pixels with a clear readable silhouette and 4px safe margins.\nAtlas entry: treat_walkie. A worn teal toy walkie-talkie with a short antenna and amber indicator\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 48x48; render 192x192 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (24,24), rendered (96,96). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/treat_walkie.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

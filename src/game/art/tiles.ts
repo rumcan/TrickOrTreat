@@ -254,7 +254,7 @@ function genFlagstone(seed: number) {
 
 const TILE_DESC: Record<G, { name: string; desc: string; variants: number; gen: (seed: number) => HTMLCanvasElement }> = {
   [G.GRASS]: { name: 'grass', desc: 'Short dark lawn grass at night, a few fallen autumn leaves (orange/red/yellow)', variants: 4, gen: (s) => genGrass(s, '#2c4626', s % 4 === 3 ? 14 : 3) },
-  [G.ROAD]: { name: 'road', desc: 'Old suburban asphalt road, dark grey with fine grain, occasional hairline crack', variants: 3, gen: (s) => genAsphalt(s) },
+  [G.ROAD]: { name: 'road', desc: 'Plain UNMARKED old suburban asphalt road, dark grey fine grain, occasional hairline crack. No painted lines, lane markings, stripes, curbs, road edges or crosswalks; these are separate engine overlays', variants: 3, gen: (s) => genAsphalt(s) },
   [G.SIDEWALK]: { name: 'sidewalk', desc: 'Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges', variants: 3, gen: (s) => genConcrete(s, '#77787b', true) },
   [G.DIRT]: { name: 'dirt', desc: 'Garden soil / flower bed dirt with small pebbles', variants: 2, gen: (s) => genDirt(s) },
   [G.GRAVEL]: { name: 'gravel', desc: 'Cemetery gravel path, small grey/brown stones', variants: 2, gen: (s) => genGravel(s) },

@@ -121,7 +121,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
       {/* boss */}
       {s.boss && (
         <div className="absolute left-1/2 top-[152px] w-[min(540px,86vw)] -translate-x-1/2 sm:top-[104px]">
-          <KitTitle className="mb-1 text-center text-xl tracking-[0.2em]">The Pumpkin King</KitTitle>
+          <KitTitle className="mb-1 text-center text-xl tracking-[0.2em]">{s.boss.name}</KitTitle>
           <Bar value={s.boss.hp} max={s.boss.max} color="linear-gradient(90deg,#b0340c,#fb8016,#ffc453)" h={16} label={false} />
         </div>
       )}
@@ -178,7 +178,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
 
       {/* interaction + compare */}
       {s.interact && (
-        <div className="absolute bottom-[118px] left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 sm:bottom-[134px]">
+        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[118px] left-1/2 -translate-x-1/2 items-center sm:bottom-[134px]'}`}>
           {s.nearbyCostume && (
             <div className="hidden items-end gap-2 md:flex">
               {s.costume && <div className="opacity-70"><CostumeCard id={s.costume} hero={hero} title="Wearing" /></div>}
@@ -186,12 +186,12 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             </div>
           )}
           {s.nearbyWeapon && (
-            <div className="hidden items-end gap-2 md:flex">
+            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-440px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-end">
               {cur && <div className="opacity-75"><WeaponCard w={cur.w} stats={game.stats} title="Equipped" compact /></div>}
-              <WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact />
+              <div className="order-first xl:order-last"><WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact /></div>
             </div>
           )}
-          <div className="kit-panel flex max-w-[92vw] items-center gap-2.5 px-3.5 py-2" style={{ borderColor: '#fb8016', boxShadow: '0 0 0 1px #000, 0 0 16px rgba(251,128,22,0.35)' }}>
+          <div className={`kit-panel flex items-center gap-2.5 px-3.5 py-2 ${s.nearbyWeapon ? 'max-w-full' : 'max-w-[92vw]'}`} style={{ borderColor: '#fb8016', boxShadow: '0 0 0 1px #000, 0 0 16px rgba(251,128,22,0.35)' }}>
             <Keycap>E</Keycap>
             <span className="truncate font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{s.interact}</span>
           </div>

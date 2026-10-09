@@ -1,0 +1,16 @@
+{
+  "items": [{
+    "itemId": "hide-and-shriek-full-game",
+    "name": "Hide & Shriek - Full Game",
+    "description": "Permanent unlock of the rescue campaign, companions, expanded districts, two kids, four weapons, two costumes and advanced talents.",
+    "category": "non_consumable",
+    "price": { "type": "bucks", "value": "100" },
+    "entitlements": [{ "entitlementId": "hide-and-shriek-full-game", "quantity": 1, "consumable": false }],
+    "unique": true,
+    "active": false,
+    "refundEligible": true,
+    "refundWindowHours": 24,
+    "tags": ["full-game", "permanent"],
+    "sortOrder": 1
+  }]
+}
