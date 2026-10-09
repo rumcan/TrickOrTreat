@@ -12,6 +12,8 @@ import { TalentTree } from './TalentTree';
 import { gameAudio } from '../game/audio';
 import { expansion, hasFullGame } from '../game/expansion';
 import { ExpansionUnlock } from './ExpansionUnlock';
+import { TagChips } from './BuildSheet';
+import { SCROLL_TAGS } from '../game/build';
 import { SplashArt } from './SplashArt';
 
 const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
@@ -314,7 +316,8 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
                 <div className="my-3 text-5xl transition-transform group-hover:scale-110">{c.icon}</div>
                 <div className="font-cond text-xl uppercase leading-tight text-[#f2e6c9]">{c.name}</div>
                 <div className="mt-1.5 text-[13px] leading-snug text-[#c9c1ad]">{c.desc}</div>
-                <div className="mt-auto pt-2 font-num text-[11px] text-[#6b7078]">Owned {game.scrolls[c.id] || 0}/{c.max}</div>
+                <TagChips tags={SCROLL_TAGS[c.id] ?? []} build={game.build} className="mt-2" />
+                <div className="mt-auto pt-2 font-num text-[11px] text-[#6b7078]">{(game.scrolls[c.id] || 0) >= c.max ? <span className="text-[#ff7ad9]">Overstack · owned {game.scrolls[c.id]}</span> : <>Owned {game.scrolls[c.id] || 0}/{c.max}</>}</div>
               </button>
             );
           })}
@@ -398,7 +401,7 @@ export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { g
     <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/80 p-4">
       <div className="w-full max-w-xl">
         <img src={ART.kitLogo} alt="" draggable={false} className="mx-auto mb-3 w-[min(300px,70vw)]" />
-        <Banner kind={win ? 'mission' : 'died'} title={win ? 'Mission complete' : 'You died'} sub={win ? 'The Pumpkin King has been smashed' : 'The monsters got you this time'} size="lg" className="kit-pop" />
+        <Banner kind={win || game.victorious ? 'mission' : 'died'} title={game.victorious ? `Wave ${game.wave}` : win ? 'Mission complete' : 'You died'} sub={game.victorious ? `You beat the night, then held out to wave ${game.wave}${(game.save.bestWave ?? 0) <= game.wave ? ' · new best!' : ` · best ${game.save.bestWave}`}` : win ? 'The Pumpkin King has been smashed' : 'The monsters got you this time'} size="lg" className="kit-pop" />
         <div className="kit-panel mt-4 p-5">
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             <Stat icon={<ClockIcon size={18} />} label="Survived" v={fmtTime(game.time)} />
@@ -406,11 +409,11 @@ export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { g
             <Stat icon={<HouseIcon size={18} />} label="Doors" v={String(game.housesVisited)} />
             <Stat icon={<CandyIcon size={18} />} label="Level" v={String(game.p.level)} />
           </div>
-          <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-sm">{[['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses]].map(([label, amount]) => <div key={label} className="flex justify-between"><dt>{label}</dt><dd>+{amount} essence</dd></div>)}</dl>
+          <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-sm">{[['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses], ...(game.wave ? [[`Endless waves (${game.wave})`, game.essence.waves]] : [])].map(([label, amount]) => <div key={label} className="flex justify-between"><dt>{label}</dt><dd>+{amount} essence</dd></div>)}</dl>
           <div className="mt-4 flex items-center justify-center gap-2 font-cond text-3xl text-[#b98aff]" aria-label={`Earned ${game.soulEarned} essence`}>+{tally} <CandyIcon size={26} /> <span className="font-cond2 text-sm font-bold uppercase tracking-[0.18em] text-[#9aa0a6]">essence earned</span></div>
           <p className="mt-2 text-center text-sm text-[#f2e6c9]">Total balance: {game.save.soul} essence (Soul Candy). Spend it on permanent talents.</p>
           <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {win && <KitButton icon={Play} fillIcon onClick={onContinue} className="sm:col-span-2">Endless night</KitButton>}
+            {win && !game.victorious && <KitButton icon={Play} fillIcon onClick={onContinue} className="sm:col-span-2">Endless night</KitButton>}
             <KitButton variant={win ? 'teal' : 'orange'} icon={RotateCw} onClick={() => setPanel('talents')}>Spend essence on talents</KitButton>
             <KitButton variant="teal" icon={Lollipop} onClick={onTalents}>Talent menu</KitButton>
             <KitButton variant="red" icon={LogOut} onClick={onTitle} className="sm:col-span-2">Quit to menu</KitButton>

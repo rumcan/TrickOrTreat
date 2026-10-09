@@ -89,7 +89,7 @@ export const TRAITS: Trait[] = [
   { id: 'opener', tier: 'trigger', name: 'Trick Shot', desc: 'First shot of every magazine deals +100% damage', minRarity: 1 },
   { id: 'fresh', tier: 'trigger', name: 'Fresh Batch', desc: 'Reloading an empty magazine: +40% damage for 4s', minRarity: 1 },
   { id: 'seconds', tier: 'trigger', name: 'Seconds, Please!', desc: 'Kills: 30% chance to refund 2 ammo and +30% fire rate for 3s', minRarity: 1 },
-  { id: 'combo', tier: 'trigger', name: 'Candy Corn Combo', desc: 'Each hit +3% damage (up to 10 stacks), lost after 2s without a hit', minRarity: 2 },
+  { id: 'combo', tier: 'trigger', name: 'Candy Corn Combo', desc: 'Each hit +3% damage, stacking without limit; all lost after 2s without a hit', minRarity: 2 },
   { id: 'scaredy', tier: 'trigger', name: 'Scaredy-Cat', desc: 'Below 35% HP: +35% fire rate', minRarity: 1 },
   { id: 'freeze', tier: 'trigger', name: 'Freeze Tag', desc: 'After standing still for 1s: +30% damage', minRarity: 1 },
   { id: 'trot', tier: 'trigger', name: 'Trick-or-Treat Trot', desc: 'While moving: +15% fire rate', minRarity: 1 },
@@ -259,14 +259,18 @@ export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as
 export function rollScrolls(n: number, owned: Record<string, number>, luck: number): Scroll[] {
   const out: Scroll[] = [];
   const weights = [60, 30, 14 + luck * 3, 6 + luck * 2, 2 + luck];
-  const avail = SCROLLS.filter((s) => (owned[s.id] || 0) < s.max && (!s.premium || hasFullGame()));
+  // No hard caps: stacking treats can be taken past their usual max ("overstack"), just less often.
+  // One-off treats (max 1) are switches, so they stay single.
+  const over = (s: Scroll) => (owned[s.id] || 0) >= s.max;
+  const avail = SCROLLS.filter((s) => (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
+  const weight = (s: Scroll) => weights[s.rarity] * (over(s) ? 0.3 : 1);
   for (let i = 0; i < n && avail.length; i++) {
     let tot = 0;
-    for (const s of avail) tot += weights[s.rarity];
+    for (const s of avail) tot += weight(s);
     let r = Math.random() * tot;
     let k = 0;
     for (; k < avail.length; k++) {
-      r -= weights[avail[k].rarity];
+      r -= weight(avail[k]);
       if (r <= 0) break;
     }
     k = Math.min(k, avail.length - 1);
@@ -353,7 +357,7 @@ export const HOMEOWNERS = ['Mrs. Henderson', 'Mr. Kowalski', 'Old Man Jenkins', 
 export const GIVE_LINES = ['Here you go, sweetie!', 'Take two, I won\'t tell!', 'Full-size bars this year!', 'Careful out there tonight…', 'Happy Halloween, dear!', 'Ooh, last of the good stuff!'];
 
 const SAVE_KEY = 'tot_survivors_save_v1';
-export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number }
+export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number }
 export function loadSave(): Save {
   try {
     const s = JSON.parse(storage.getItem(SAVE_KEY) || '');
@@ -363,7 +367,7 @@ export function loadSave(): Save {
       const rank = Math.min(tal.max, finite(s.talents?.[tal.id]));
       if (rank) talents[tal.id] = rank;
     }
-    return { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)) };
+    return { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave) };
   } catch {
     return { soul: 60, talents: {}, best: 0, hero: 0 };
   }

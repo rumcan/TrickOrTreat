@@ -3,6 +3,16 @@ import { Game } from '../game/engine';
 import { RARITY } from '../game/config';
 import { KitButton, Keycap } from './kit';
 import { WeaponCard, RARITY_KIT } from './common';
+import { TagChips } from './BuildSheet';
+import { INSC_TAGS, Tag } from '../game/build';
+import type { Weapon } from '../game/data';
+
+/** a gun counts toward your synergies while it's in your hand: its inscriptions, its element, explosions */
+const gunTags = (w: Weapon): Tag[] => [
+  ...w.traits.flatMap((t) => INSC_TAGS[t] ?? []),
+  ...(w.def.elem ? [w.def.elem as Tag] : []),
+  ...(w.def.explode > 0 ? (['blast'] as Tag[]) : []),
+];
 
 /** E on a gun: the world pauses, you read it, then choose the slot it goes into (or leave it). */
 export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void }) {
@@ -32,6 +42,7 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
           <span className="font-cond2 text-sm font-bold uppercase tracking-[0.16em]" style={{ color: found.rarity ? rc : '#c9bda6' }}>{RARITY[found.rarity].name} · Lv {found.level}</span>
         </div>
         <span className="paper-rule" />
+        {gunTags(found).length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2"><span className="paper-kicker !mb-0">Synergy tags while in hand</span><TagChips tags={gunTags(found)} className="!justify-start" /></div>}
         <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
           <WeaponCard w={found} stats={game.stats} compare={game.weapon} bigInsc className="!w-full md:!w-[340px] shrink-0" />
           <div className="flex min-w-0 flex-1 flex-col gap-3">

@@ -69,6 +69,9 @@ function TimerPlate({ s }: { s: HudSnap }) {
         <span className="flex items-center gap-1.5 text-[#f2e6c9]"><CoinIcon size={16} />{s.coins}</span>
         <span className="flex items-center gap-1.5 text-[#f2e6c9]"><CandyIcon size={17} />{s.doorsRung}/{s.housesTotal}</span>
         {s.bossIn !== null && <span className="flex items-center gap-1.5 text-[#fb8016]" title="The Pumpkin King arrives"><HouseIcon size={16} />{fmtTime(s.bossIn)}</span>}
+        {s.wave > 0 && <span className="flex items-center gap-1.5 text-[#ff5a6e]" title="Endless Night: monsters grow every wave">WAVE {s.wave} · {Math.ceil(s.waveIn)}s</span>}
+        {s.momentum > 0 && <span className="flex items-center gap-1 text-[#ff5a6e]" title="Kill · Momentum">💀{s.momentum}</span>}
+        {s.streak > 0 && <span className="flex items-center gap-1 text-[#ffe14a]" title="Crit · Lucky Streak">🎯{s.streak}</span>}
       </div>
     </div>
   );

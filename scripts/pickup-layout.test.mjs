@@ -38,10 +38,14 @@ try {
       await scroll.evaluate(el => { el.scrollTop = el.scrollHeight; });
     }
     else await page.screenshot({ path: `art/world/checks/weapon-pickup-${width}x${height}.png` });
+    // E inspects first (the world pauses), then a number key picks the slot: 2 is the empty one, nothing drops
     await page.keyboard.press('e');
+    await page.getByRole('dialog', { name: 'Inspect weapon' }).waitFor();
+    assert.equal(await page.evaluate(() => window.__tot.game.state), 'inspect');
+    await page.keyboard.press('2');
     await page.waitForFunction(() => window.__tot.game.weapon.def.id === 'soaker');
     await panel.waitFor({ state: 'hidden' });
-    console.log(`${width}x${height}: right-side panel, clear center, responsive bounds and E pickup passed.`);
+    console.log(`${width}x${height}: right-side panel, clear center, responsive bounds and E inspect → slot pickup passed.`);
   }
   assert.deepEqual(errors, []);
 } finally { await browser.close(); }
