@@ -1,0 +1,4 @@
+{
+  "_readme": "Map asset keys (see the in-game Asset Atlas) to files inside /assets. Listed files replace the procedural art. Example: \"tile_grass_0\": \"tiles/tile_grass_0.webp\"",
+  "overrides": {}
+}

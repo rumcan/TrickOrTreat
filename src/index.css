@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --pumpkin: #f9781b;
+  --purple: #7a45f2;
+  --neon: #7cff64;
+  --cream: #f4e8d5;
+  --charcoal: #0e1117;
+  --blood: #e63946;
+  --night: #10315b;
+  --street: #ffc453;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  font-family: "Barlow", system-ui, sans-serif;
+  background: #0e1117;
+  color: #f4e8d5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-title {
+  font-family: "Creepster", Impact, fantasy;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.font-cond {
+  font-family: "Anton", "Arial Narrow", Impact, sans-serif;
+  letter-spacing: 0.04em;
+}
+.font-cond2 {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+.font-ui {
+  font-family: "Barlow", system-ui, sans-serif;
+}
+
+/* notched-corner shapes from the kit */
+.kit-clip {
+  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
+}
+.kit-clip-b {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%);
+}
+.kit-tab {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+}
+
+.kit-panel {
+  background: rgba(14, 17, 23, 0.92);
+  border: 2px solid #3a3f4d;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(244, 232, 213, 0.05);
+}
+
+.kit-scanlines {
+  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 3px);
+}
+
+::selection {
+  background: #f9781b;
+  color: #0e1117;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: #0e1117;
+}
+*::-webkit-scrollbar-thumb {
+  background: #3a3f4d;
+  border: 2px solid #0e1117;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #f9781b;
+}
+
+@keyframes kit-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.55; }
+  94% { opacity: 1; }
+  97% { opacity: 0.7; }
+}
+.kit-flicker {
+  animation: kit-flicker 5s infinite;
+}
+@keyframes kit-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.kit-bob {
+  animation: kit-bob 2.2s ease-in-out infinite;
+}
+@keyframes kit-bat-fly {
+  0% { transform: translate(0, 0) rotate(-4deg); }
+  25% { transform: translate(26px, -14px) rotate(5deg); }
+  50% { transform: translate(52px, 4px) rotate(-6deg); }
+  75% { transform: translate(22px, 14px) rotate(4deg); }
+  100% { transform: translate(0, 0) rotate(-4deg); }
+}
+.kit-bat {
+  animation: kit-bat-fly 9s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
