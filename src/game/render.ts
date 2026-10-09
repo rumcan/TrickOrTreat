@@ -116,7 +116,9 @@ export class Renderer {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.dpr = dpr;
     const vw = cv.clientWidth, vh = cv.clientHeight;
-    if (cv.width !== Math.floor(vw * dpr) || cv.height !== Math.floor(vh * dpr)) {
+    // also size our own layers on the first frame: a restarted run reuses a canvas that is already the right size,
+    // and a 4x4 light layer stretched over the screen was the "no flashlight, dark blob" bug on the second game
+    if (cv.width !== Math.floor(vw * dpr) || cv.height !== Math.floor(vh * dpr) || this.light.width !== Math.ceil(Math.floor(vw * dpr) / 2) || !this.vignette) {
       cv.width = Math.floor(vw * dpr);
       cv.height = Math.floor(vh * dpr);
       this.light.width = Math.ceil(cv.width / 2);
