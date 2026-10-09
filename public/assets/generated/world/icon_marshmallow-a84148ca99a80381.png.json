@@ -1,0 +1,45 @@
+{
+  "key": "icon_marshmallow",
+  "spec": {
+    "key": "icon_marshmallow",
+    "file": "icons/icon_marshmallow.png",
+    "category": "icon",
+    "w": 64,
+    "h": 32,
+    "anchor": [
+      16,
+      20
+    ],
+    "desc": "Marshmallow Mortar: cream cardboard tube launcher with a fluffy marshmallow at its mouth",
+    "prompt": "Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 64x32 px. Marshmallow Mortar: cream cardboard tube launcher with a fluffy marshmallow at its mouth."
+  },
+  "id": "a84148ca99a80381",
+  "rawFile": "art/world/raw/icon_marshmallow-cd311c42367f41a8.png",
+  "stagedFile": "art/world/staged/icon_marshmallow-a84148ca99a80381.png",
+  "savedPromptFile": "art/world/raw/icon_marshmallow-cd311c42367f41a8.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "cd311c42367f41a869c99fc5da4e3fe3498dc255e3704f68ccc35c2c633f66a6",
+  "packedHash": "a84148ca99a803811968a230d44194a510d39d3e0866bea3dc40894a0589c4c5",
+  "promptHash": "a80e346e487cd4fac716af92982e0e743f2e36f41b1aed3130d146311aaf2c4b",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    256,
+    128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T13:37:18.442Z",
+  "fingerprint": "81ac32ce2298d55aeebc5502f813cbd5b6507684caac90e1d6d5262944d3acd1",
+  "activationFile": "art/world/activations/icon_marshmallow-1791553186285.json",
+  "gameFile": "generated/world/icon_marshmallow-a84148ca99a80381.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 64x32 px. Marshmallow Mortar: cream cardboard tube launcher with a fluffy marshmallow at its mouth.\nAtlas entry: icon_marshmallow. Marshmallow Mortar: cream cardboard tube launcher with a fluffy marshmallow at its mouth\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 64x32; render 256x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,20), rendered (64,80). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/icon_marshmallow.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

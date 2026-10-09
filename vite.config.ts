@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
   server: {
     // Offline generation inputs/outputs are not part of the running game.
-    watch: { ignored: ['**/art/**'] },
+    watch: { ignored: [path.resolve(__dirname, 'art').replace(/\\/g, '/') + '/**'] },
   },
   build: {
     target: 'esnext',

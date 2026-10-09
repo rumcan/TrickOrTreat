@@ -6,7 +6,7 @@ import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
 import { tinted, makeCanvas } from './art/draw';
 import { G } from './art/tiles';
 import { Img } from './assets';
-import { weaponStats, COSTUME_BY_ID } from './data';
+import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 
 interface Item {
@@ -16,6 +16,13 @@ interface Item {
 }
 
 const Z = 40; // px per world height unit
+// Held guns are half the inventory icon size. Anchor their (16,20) grip at
+// the kid's waist, rather than centering the whole icon near their head.
+const HELD_GUN_W = 32;
+const HELD_GUN_H = 16;
+const HELD_GUN_GRIP_X = 8;
+const HELD_GUN_GRIP_Y = 10;
+const KID_WAIST_HEIGHT = 22;
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -142,21 +149,31 @@ export class Renderer {
 
     // decals
     for (const d of g.decals) {
+      if (d.gore && settings.gore === 'off') continue;
       const sx = isoX(d.x, d.y), sy = isoY(d.x, d.y);
+      if (!inView(sx - d.r * HW * 2, sy - d.r * HH * 2, sx + d.r * HW * 2, sy + d.r * HH * 2)) continue;
       ctx.save();
       ctx.globalAlpha = Math.min(1, d.life / 5);
       ctx.translate(sx, sy);
       ctx.scale(1, 0.5);
       ctx.rotate(d.rot);
-      ctx.fillStyle = d.color;
+      ctx.fillStyle = d.gore ? settings.gore === 'red' ? 'rgba(97,17,28,0.7)' : 'rgba(37,76,25,0.7)' : d.color;
       ctx.beginPath();
       const R = d.r * HW * 1.4;
-      for (let k = 0; k < 8; k++) {
-        const a = (k / 8) * Math.PI * 2, rr = R * (0.7 + ((k * 37) % 10) / 25);
+      const vertices = d.gore ? 16 : 8;
+      for (let k = 0; k < vertices; k++) {
+        const a = (k / vertices) * Math.PI * 2, rr = R * (0.5 + (Math.sin(k * 19.3 + d.rot * 7) + 1) * 0.2);
         if (k === 0) ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
         else ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
       }
       ctx.fill();
+      if (d.gore) {
+        // Organic satellite droplets, without textures, allocations or bright glows.
+        for (let k = 0; k < 3; k++) {
+          const angle = k * 2.1 + d.rot, radius = R * (0.08 + k * 0.035);
+          ctx.beginPath(); ctx.ellipse(Math.cos(angle) * R * 1.1, Math.sin(angle) * R, radius, radius * 0.7, angle, 0, Math.PI * 2); ctx.fill();
+        }
+      }
       ctx.restore();
     }
 
@@ -204,7 +221,7 @@ export class Renderer {
       ctx.beginPath(); ctx.ellipse(isoX(x, y), isoY(x, y), r * HW * 1.3, r * HH * 1.3, 0, 0, Math.PI * 2); ctx.fill();
     };
     sh(p.x, p.y, p.r);
-    for (const e of g.enemies) if (inView(isoX(e.x, e.y) - 60, isoY(e.x, e.y) - 60, isoX(e.x, e.y) + 60, isoY(e.x, e.y) + 20)) sh(e.x, e.y, e.def.fly ? e.r * 0.6 : e.r);
+    for (const e of g.enemies) if (!e.dead && inView(isoX(e.x, e.y) - 60, isoY(e.x, e.y) - 60, isoX(e.x, e.y) + 60, isoY(e.x, e.y) + 20)) sh(e.x, e.y, e.def.fly ? e.r * 0.6 : e.r);
 
     // ===== sorted pass =====
     const items: Item[] = [];
@@ -231,7 +248,38 @@ export class Renderer {
       playerItem = { key: p.x + p.y, x: p.x, y: p.y, bx0: sx - 22, by0: sy - 90, bx1: sx + 22, by1: sy, draw: () => this.drawPlayer(g, sx, sy) };
       items.push(playerItem);
     }
+    if (g.campaign) for (const friend of g.friends) {
+      if (g.state !== 'intro' && friend.status === 'rescued' && friend.hero !== g.activeFriend) continue;
+      const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
+      const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
+      if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
+      const sheet = heroSheet(friend.hero);
+      const down = g.state !== 'intro' && (friend.status !== 'rescued' || friend.hp <= 0);
+      items.push({ key: pos.x + pos.y, x: pos.x, y: pos.y, bx0: sx - 32, by0: sy - 100, bx1: sx + 32, by1: sy + 10,
+        draw: () => {
+          ctx.save(); ctx.translate(sx, sy);
+          ctx.fillStyle = friend.status === 'rescued' ? 'rgba(65,210,180,0.25)' : 'rgba(155,75,190,0.25)';
+          ctx.beginPath(); ctx.ellipse(0, 0, 22, 10, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.save();
+          if (down) { ctx.translate(-12, -10); ctx.rotate(-Math.PI / 2); ctx.globalAlpha = 0.8; }
+          if (friend.flip) ctx.scale(-1, 1);
+          const drawFriendGun = () => {
+            if (!down && g.state !== 'intro') ctx.drawImage(weaponIcon(friend.weapon.def.id), -HELD_GUN_GRIP_X, -KID_WAIST_HEIGHT - HELD_GUN_GRIP_Y, HELD_GUN_W, HELD_GUN_H);
+          };
+          if (friend.back) drawFriendGun();
+          blitFrame(ctx, sheet, sheet.img, down || g.state === 'intro' ? 0 : friend.back ? 3 : 1, Math.floor(friend.anim), 0, 0);
+          if (!friend.back) drawFriendGun();
+          ctx.restore();
+          ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f2e6c9';
+          ctx.strokeStyle = '#100c12'; ctx.lineWidth = 3;
+          const label = `${HERO_INFO[friend.hero].name}${down ? ' · needs help' : ''}`;
+          ctx.strokeText(label, 0, -95); ctx.fillText(label, 0, -95);
+          if (friend.status === 'rescued' && g.state !== 'intro') { ctx.fillStyle = '#211a25'; ctx.fillRect(-20, -87, 40, 4); ctx.fillStyle = '#66d2b7'; ctx.fillRect(-20, -87, 40 * friend.hp / friend.maxHp, 4); }
+          ctx.restore();
+        } });
+    }
     for (const e of g.enemies) {
+      if (e.dead) continue;
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
       const es = this.en[e.type].s;
       const sc = e.elite && !e.def.elite ? 1.25 : 1;
@@ -523,11 +571,14 @@ export class Renderer {
     }
     // square particles (lit-ish)
     for (const q of g.particles) {
-      if (q.kind !== 'sq') continue;
+      if (q.kind !== 'sq' && q.kind !== 'gore') continue;
+      if (q.kind === 'gore' && settings.gore === 'off') continue;
       const sx = isoX(q.x, q.y), sy = isoY(q.x, q.y) - q.z * Z;
       ctx.globalAlpha = Math.min(1, (q.life / q.max) * 2);
-      ctx.fillStyle = q.color;
-      ctx.fillRect(sx - q.size / 2, sy - q.size / 2, q.size, q.size);
+      ctx.fillStyle = q.kind === 'gore' ? settings.gore === 'red' ? '#b12b3a' : '#6db543' : q.color;
+      if (q.kind === 'gore') {
+        ctx.beginPath(); ctx.ellipse(sx, sy, q.size * 0.65, q.size * 0.4, q.vx, 0, Math.PI * 2); ctx.fill();
+      } else ctx.fillRect(sx - q.size / 2, sy - q.size / 2, q.size, q.size);
     }
     ctx.globalAlpha = 1;
 
@@ -898,12 +949,12 @@ export class Renderer {
       if (!w) return;
       const a = Math.atan2(isoY(p.aimX, p.aimY), isoX(p.aimX, p.aimY));
       ctx.save();
-      ctx.translate(sx + Math.cos(a) * 6, sy - 36 + Math.sin(a) * 4);
+      ctx.translate(sx + Math.cos(a) * 4, sy - KID_WAIST_HEIGHT + Math.sin(a) * 2);
       ctx.rotate(a);
       if (Math.cos(a) < 0) ctx.scale(1, -1);
-      ctx.translate(-p.recoil * 5, 0);
+      ctx.translate(-p.recoil * 3, 0);
       if (w.reloadT > 0) ctx.rotate(Math.sin(this.t * 14) * 0.25 - 0.4);
-      ctx.drawImage(weaponIcon(w.def.id), -12, -20, 64, 32);
+      ctx.drawImage(weaponIcon(w.def.id), -HELD_GUN_GRIP_X, -HELD_GUN_GRIP_Y, HELD_GUN_W, HELD_GUN_H);
       ctx.restore();
     };
     if (p.dashT > 0) {

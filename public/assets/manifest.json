@@ -379,7 +379,7 @@
       ]
     },
     "enemy_king": {
-      "file": "generated/world/enemy_king-631f70415ccf77f5.png",
+      "file": "generated/world/enemy_king-e6967c45fc6c76c6.png",
       "scale": 4,
       "anchor": [
         400,
@@ -387,7 +387,7 @@
       ]
     },
     "tile_road_0": {
-      "file": "generated/world/tile_road_0-204b72c2e94f9f07.png",
+      "file": "generated/world/tile_road_0-0ea5e3e7133278a3.png",
       "scale": 4
     },
     "tile_sidewalk_0": {
@@ -543,7 +543,7 @@
       ]
     },
     "grave_2": {
-      "file": "generated/world/grave_2-465ea9412487cf04.png",
+      "file": "generated/world/grave_2-18fbb794d0bc9c5b.png",
       "scale": 4,
       "anchor": [
         256,
@@ -851,11 +851,11 @@
       "scale": 4
     },
     "tile_road_1": {
-      "file": "generated/world/tile_road_1-fff2b454a137d35f.png",
+      "file": "generated/world/tile_road_1-446038454b92c4fa.png",
       "scale": 4
     },
     "tile_road_2": {
-      "file": "generated/world/tile_road_2-246003aae48de422.png",
+      "file": "generated/world/tile_road_2-c7237f0b4b5e2b13.png",
       "scale": 4
     },
     "tile_sidewalk_1": {
@@ -944,6 +944,310 @@
       "anchor": [
         220,
         656
+      ]
+    },
+    "hero_maya": {
+      "file": "generated/world/hero_maya-3abaaa4dd314c8f0.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo": {
+      "file": "generated/world/hero_leo-a617aabb0b514275.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_knight": {
+      "file": "generated/world/hero_jess_knight-cd2b29df903e7e75.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_moth": {
+      "file": "generated/world/hero_jess_moth-1cda3df99bf48609.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_astronaut": {
+      "file": "generated/world/hero_leo_astronaut-fcd999cbc1acf4d9.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_dino": {
+      "file": "generated/world/hero_leo_dino-fa32ea30f7a7bc8d.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_ghost": {
+      "file": "generated/world/hero_leo_ghost-8ef507e4d6f2e76f.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_hero": {
+      "file": "generated/world/hero_leo_hero-adf409b72fc64292.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_knight": {
+      "file": "generated/world/hero_leo_knight-89f2112252c4127f.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_moth": {
+      "file": "generated/world/hero_leo_moth-cb20cd980c6c0a3f.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_pumpkin": {
+      "file": "generated/world/hero_leo_pumpkin-7508726556ffdec9.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_skeleton": {
+      "file": "generated/world/hero_leo_skeleton-fbb53e2be46df0f0.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_vampire": {
+      "file": "generated/world/hero_leo_vampire-f6d0f2a0b379cb05.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_leo_witch": {
+      "file": "generated/world/hero_leo_witch-c55aadec5a055062.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_astronaut": {
+      "file": "generated/world/hero_maya_astronaut-dbdde405bb66f0cd.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_dino": {
+      "file": "generated/world/hero_maya_dino-a6ab1c7e524315f3.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_ghost": {
+      "file": "generated/world/hero_maya_ghost-24e6aa0f7caf5365.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_hero": {
+      "file": "generated/world/hero_maya_hero-f38ec0dffd44b943.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_knight": {
+      "file": "generated/world/hero_maya_knight-e48e9f608822f8cb.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_moth": {
+      "file": "generated/world/hero_maya_moth-da1c4d19d031caa3.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_pumpkin": {
+      "file": "generated/world/hero_maya_pumpkin-f4504b9afe401f3d.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_skeleton": {
+      "file": "generated/world/hero_maya_skeleton-4b87c727da282464.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_vampire": {
+      "file": "generated/world/hero_maya_vampire-a70fd486b5c01fe3.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_maya_witch": {
+      "file": "generated/world/hero_maya_witch-ef7072fe53b1e328.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_knight": {
+      "file": "generated/world/hero_sam_knight-26c17868edfd65bd.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_moth": {
+      "file": "generated/world/hero_sam_moth-812d3208f1a73786.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_knight": {
+      "file": "generated/world/hero_tommy_knight-240274d78245b3e1.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_moth": {
+      "file": "generated/world/hero_tommy_moth-b2dcbd2a6e3c0478.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "icon_acorn": {
+      "file": "generated/world/icon_acorn-b6ef141879576144.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_bubblegum": {
+      "file": "generated/world/icon_bubblegum-ee1fa4325db4820d.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_gloom": {
+      "file": "generated/world/icon_gloom-42a979079fa97b03.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_marshmallow": {
+      "file": "generated/world/icon_marshmallow-a84148ca99a80381.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "treat_firstaid": {
+      "file": "generated/world/treat_firstaid-70fda5da071b7480.png",
+      "scale": 4,
+      "anchor": [
+        96,
+        96
+      ]
+    },
+    "treat_friendship": {
+      "file": "generated/world/treat_friendship-701069c6747b3500.png",
+      "scale": 4,
+      "anchor": [
+        96,
+        96
+      ]
+    },
+    "treat_walkie": {
+      "file": "generated/world/treat_walkie-3e9ff045ada20b28.png",
+      "scale": 4,
+      "anchor": [
+        96,
+        96
+      ]
+    },
+    "enemy_alpha": {
+      "file": "generated/world/enemy_alpha-263954e4ef15626f.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        808
+      ]
+    },
+    "enemy_hex": {
+      "file": "generated/world/enemy_hex-69e2811cc16aae8c.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        808
+      ]
+    },
+    "enemy_warden": {
+      "file": "generated/world/enemy_warden-c856b3a144d759a8.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        808
       ]
     }
   }

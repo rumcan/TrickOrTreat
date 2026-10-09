@@ -57,7 +57,7 @@ const ROADS = [22, 23, 46, 47, 70, 71];
 const isRoadLine = (v: number) => ROADS.includes(v);
 
 
-export function buildMap(seed = 1337): GameMap {
+export function buildMap(seed = 1337, expanded = false): GameMap {
   const rnd = makeRng(seed);
   const N = MAP_W * MAP_H;
   const ground = new Uint8Array(N).fill(G.GRASS);
@@ -297,6 +297,12 @@ export function buildMap(seed = 1337): GameMap {
     for (let i = 0; i < 6; i++) addSmall(getTree('pine', i % 3), 16 + Math.floor(rnd() * 4), 27 + Math.floor(rnd() * 16), 'tree');
   }
 
+  if (expanded) {
+    houseBlock(26, 74, false); // south: Lantern Lane
+    houseBlock(50, 50, false); // east: Moonlight Court
+    houseBlock(5, 50, false);  // west: Willow Row
+  }
+
   // NW — pumpkin farm
   {
     for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) ground[idx(x, y)] = G.DIRT;
@@ -323,16 +329,19 @@ export function buildMap(seed = 1337): GameMap {
   // Hedge blockade lines seal each outer district behind a single gate.
   const gates: Gate[] = [];
   const hedgeWall = (axis: 'x' | 'y', line: number, line2: number, gapA: number, gapB: number) => {
-    for (let t = 3; t <= 90; t++) {
+    for (let t = 1; t <= 92; t++) {
       if (t === gapA || t === gapB) continue;
       const x = axis === 'x' ? t : line, y = axis === 'x' ? line : t;
       const x2 = axis === 'x' ? t : line2, y2 = axis === 'x' ? line2 : t;
       for (const [hx, hy] of [[x, y], [x2, y2]]) {
+        // Progression boundaries are solid even when a decorative prop occupies the tile.
+        // They also block ghost costumes; ordinary garden hedges remain phaseable.
+        markRect(hx, hy, hx + 1, hy + 1, 2);
         if (!inMap(hx, hy) || occ[idx(hx, hy)]) continue;
         const p: PropInst = { id: pid++, sp: getHedge(), x0: hx, y0: hy, fw: 1, fh: 1, big: false, kind: 'hedge', shadow: 0 };
         props.push(p);
         occupy(hx, hy, 1, 1);
-        markRect(hx, hy, hx + 1, hy + 1, 1);
+        markRect(hx, hy, hx + 1, hy + 1, 2);
       }
     }
   };
@@ -393,11 +402,11 @@ export function buildMap(seed = 1337): GameMap {
         if (ry && !rx) {
           const cross = ROADS.some((c) => x === c - 1 || x === c + 2);
           if (cross) ov.push(getCrosswalk('x'));
-          else if (ROADS.includes(y)) ov.push(getRoadLine(2));
+          else if (y % 24 === 22) ov.push(getRoadLine(2));
         } else if (rx && !ry) {
           const cross = ROADS.some((c) => y === c - 1 || y === c + 2);
           if (cross) ov.push(getCrosswalk('y'));
-          else if (ROADS.includes(x)) ov.push(getRoadLine(1));
+          else if (x % 24 === 22) ov.push(getRoadLine(1));
         }
       }
       overlays[idx(x, y)] = ov;
@@ -408,7 +417,17 @@ export function buildMap(seed = 1337): GameMap {
   for (let i = 0; i < Math.max(1, Math.floor(houses.length / 6)); i++) houses[order[i]].trick = true;
   houses.forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
-  return { ground, tiles, overlays, coll, props, lights, shops, houses, gates, start: { x: 35, y: 36 } };
+  // Meet on the open central sidewalk, not inside the randomized housing lot.
+  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, start: { x: 35, y: 45 } };
+  let best = Infinity;
+  for (let y = 25; y < 69; y += 0.5) for (let x = 25; x < 45; x += 0.5) {
+    const distance = (x - 35) ** 2 + (y - 45) ** 2;
+    if (distance >= best || blockedCircle(map, x, y, 0.5)) continue;
+    if (props.some(p => p.big && x > p.x0 - 0.5 && x < p.x0 + p.fw + 0.5 && y > p.y0 - 0.5 && y < p.y0 + p.fh + 0.5)) continue;
+    best = distance; map.start = { x, y };
+  }
+  if (!Number.isFinite(best)) throw new Error('No safe starting clearing in the central neighbourhood');
+  return map;
 }
 
 // ---- collision queries ----

@@ -1,16 +1,16 @@
 # Game artwork pipeline
 
-The full reference-style production pass is installed: **137/137 Atlas entries**
+The full reference-style production pass is installed: **175/175 Atlas entries**
 are generated, reviewed and active in `public/assets/manifest.json`: 49 props,
-24 tiles, 14 overlays, 35 animation sheets and 15 weapon/pickup icons. All use
+24 tiles, 14 overlays, 66 animation sheets and 22 weapon/pickup icons. All use
 the supplied Halloween screenshot as their style reference. Original procedural
 assets and previous manifest overrides are preserved.
 
 The live Collection / Asset Atlas is the source of truth. This pipeline covers
 props (including buildings), ground tiles and edge overlays. The first export
 contains **87 world assets: 49 props, 24 tiles and 14 overlays**. Use
-`npm run art:world:prepare -- --all` for the complete **137-entry Atlas**, including
-35 character/costume/monster animation sheets and 15 weapon/pickup icons. Existing
+`npm run art:world:prepare -- --all` for the complete **175-entry Atlas**, including
+66 character/costume/monster animation sheets and 22 weapon/pickup icons. Existing
 menu/concept artwork lives separately in `public/images/`.
 
 Every job uses `art/reference/style-target.webp` (the provided screenshot) for
@@ -39,11 +39,13 @@ Prepare exports the live world registry, saves layout PNGs and one prompt per
 asset, and creates `art/world/queue.json`. `prepare --offline` rebuilds the queue
 from the last `atlas.json` without Vite. Re-export after changing registry specs.
 Matching job fingerprints retain staged/active state; changed inputs reset jobs.
+For a targeted registry change, use `prepare --all --keys key1,key2` to preserve
+the other jobs' layout references. Include every asset whose specification changed.
 
 Monster strips are arranged into compact 3x2 (or 2x2) generation grids and repacked
 into the engine's original horizontal strips. Character sheets retain their
 6x4 grid and 4/6/4/6 occupied cells. Generated base-character sheets are supplied
-as an additional identity reference for that kid's eight costumes. Import checks
+as an additional identity reference for that kid's ten costumes. Import checks
 that every required animation frame is present and inactive cells remain empty.
 
 ## Generate with both references

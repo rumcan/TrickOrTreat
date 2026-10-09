@@ -3,7 +3,7 @@
 // update memory immediately and persist in the background.
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
-export const STORAGE_KEYS = ['tot_survivors_save_v1', 'tot_settings_v1'] as const;
+export const STORAGE_KEYS = ['tot_survivors_save_v1', 'tot_settings_v1', 'tot_radio_v1', 'tot_fullgame_purchase_v1'] as const;
 
 const cache = new Map<string, string>();
 

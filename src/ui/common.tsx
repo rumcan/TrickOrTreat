@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Tornado, Camera } from 'lucide-react';
+import { Tornado, Camera, Wrench, Moon } from 'lucide-react';
 import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
@@ -43,7 +43,7 @@ export function Check({ on }: { on: boolean }) {
 /** hero skill icon: Tommy's pumpkin comes from the kit art */
 export function SkillIcon({ hero, size = 40 }: { hero: number; size?: number }) {
   if (hero === 0) return <img src={ART.skillPumpkin} alt="" draggable={false} style={{ width: size, height: size }} className="shrink-0 object-cover" />;
-  const Icon = hero === 1 ? Tornado : Camera;
+  const Icon = hero === 1 ? Tornado : hero === 3 ? Wrench : hero === 4 ? Moon : Camera;
   return (
     <span className="flex shrink-0 items-center justify-center bg-[#16181d]" style={{ width: size, height: size, color: HERO_COLORS[hero] }}>
       <Icon size={size * 0.62} strokeWidth={2.4} />
