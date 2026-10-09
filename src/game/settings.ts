@@ -1,3 +1,4 @@
+import * as storage from './storage';
 export interface Settings {
   /** screen-shake strength 0..1 */
   shake: number;
@@ -10,7 +11,7 @@ const KEY = 'tot_settings_v1';
 export const settings: Settings = loadSettings();
 export function loadSettings(): Settings {
   try {
-    const s = JSON.parse(localStorage.getItem(KEY) || '');
+    const s = JSON.parse(storage.getItem(KEY) || '');
     const num = (v: unknown, d: number) => (typeof v === 'number' ? Math.max(0, Math.min(1, v)) : typeof v === 'boolean' ? (v ? 1 : 0) : d);
     return { shake: num(s.shake, 1), bright: num(s.bright, 0), dmgText: s.dmgText ?? true, lowFx: s.lowFx ?? false };
   } catch {
@@ -18,5 +19,5 @@ export function loadSettings(): Settings {
   }
 }
 export function saveSettings() {
-  localStorage.setItem(KEY, JSON.stringify(settings));
+  storage.setItem(KEY, JSON.stringify(settings));
 }

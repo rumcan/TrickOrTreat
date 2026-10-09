@@ -1,3 +1,4 @@
+import * as storage from './storage';
 import { Elem, RARITY } from './config';
 
 // ================= STATS =================
@@ -251,14 +252,14 @@ const SAVE_KEY = 'tot_survivors_save_v1';
 export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number }
 export function loadSave(): Save {
   try {
-    const s = JSON.parse(localStorage.getItem(SAVE_KEY) || '');
+    const s = JSON.parse(storage.getItem(SAVE_KEY) || '');
     return { soul: s.soul || 0, talents: s.talents || {}, best: s.best || 0, hero: s.hero || 0 };
   } catch {
     return { soul: 60, talents: {}, best: 0, hero: 0 };
   }
 }
 export function storeSave(s: Save) {
-  localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+  storage.setItem(SAVE_KEY, JSON.stringify(s));
 }
 
 export function applyTalents(s: Stats, t: Record<string, number>) {
