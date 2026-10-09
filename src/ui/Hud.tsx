@@ -176,8 +176,38 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
         </div>
       )}
 
+      {/* rescuing a friend / being revived */}
+      {s.rescue && (
+        <div className="absolute bottom-[118px] left-1/2 flex w-[min(420px,90vw)] -translate-x-1/2 flex-col items-center gap-2 sm:bottom-[134px]">
+          <div className="kit-panel flex w-full items-center gap-3 px-3.5 py-2.5" style={{ borderColor: '#b58bff', boxShadow: '0 0 0 1px #000, 0 0 18px rgba(181,139,255,0.4)' }}>
+            {!s.rescue.downed && <Keycap>E</Keycap>}
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{s.rescue.label}</div>
+              {s.rescue.progress >= 0 && <Bar value={s.rescue.progress * 100} max={100} color="linear-gradient(90deg,#7b4dd6,#b58bff,#e6d4ff)" h={8} label={false} className="mt-1.5" />}
+            </div>
+          </div>
+          {!s.rescue.downed && s.rescue.progress <= 0 && !/Defeat/.test(s.rescue.label) && <div className="font-cond2 text-[12px] font-bold uppercase tracking-wider text-[#c9b8e8]" style={{ textShadow: '0 1px 2px #000' }}>Tap E and stay close · hits only pause it</div>}
+        </div>
+      )}
+
+      {/* manning a Candy Cannon */}
+      {s.turret && (
+        <div className="absolute bottom-[118px] left-1/2 w-[min(400px,90vw)] -translate-x-1/2 sm:bottom-[134px]">
+          <div className="kit-panel px-3.5 py-2.5" style={{ borderColor: s.turret.over > 0 ? '#ff5a3a' : '#fb8016' }}>
+            <div className="mb-1.5 flex items-center justify-between gap-3">
+              <span className="font-cond text-lg uppercase leading-none text-[#fb8016]">Candy Cannon</span>
+              <span className={`font-cond2 text-[12px] font-bold uppercase tracking-wider ${s.turret.over > 0 ? 'text-[#ff5a3a]' : 'text-[#9aa0a6]'}`}>{s.turret.over > 0 ? 'Overheated!' : 'Heat'}</span>
+            </div>
+            <Bar value={s.turret.heat * 100} max={100} color={s.turret.over > 0 ? '#ff5a3a' : 'linear-gradient(90deg,#2ec4b0,#ffd23a 60%,#ff5a3a)'} h={9} label={false} />
+            <div className="mt-1.5 flex items-center gap-2 font-cond2 text-[12px] font-bold uppercase tracking-wider text-[#c9bda6]">
+              <Keycap className="!h-5 !text-[11px]">E</Keycap> climb down · hold mouse to aim · auto-fires at the nearest monster
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* interaction + compare */}
-      {s.interact && (
+      {s.interact && !s.turret && (
         <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[118px] left-1/2 -translate-x-1/2 items-center sm:bottom-[134px]'}`}>
           {s.nearbyCostume && (
             <div className="hidden items-end gap-2 md:flex">

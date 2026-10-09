@@ -30,7 +30,7 @@ export function baseStats(): Stats {
 }
 
 // ================= WEAPONS =================
-export type BulletKind = 'pea' | 'dart' | 'corn' | 'fire' | 'water' | 'balloon' | 'rocket' | 'beam' | 'stone' | 'hex' | 'bone';
+export type BulletKind = 'pea' | 'dart' | 'corn' | 'fire' | 'water' | 'balloon' | 'rocket' | 'beam' | 'stone' | 'hex' | 'bone' | 'candy';
 
 export interface WeaponDef {
   premium?: boolean;

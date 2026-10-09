@@ -4,6 +4,8 @@ import {
   PropSprite, getHouse, HOUSE_COUNT, houseDims, getTree, getBush, getHedge, getFence, getGrave, getCrypt, getPumpkin, getLamp,
   getMailbox, getTrash, getHydrant, getCar, getShop, getVending, getHayScarecrow,
   getSchool, getArcade, getDiner, getVideoStore, getWaterTower, getGate, getBleachers, getGoalPosts, getScoreboard,
+  getChurch, getDriveInScreen, getSnackBar, getSpeakerPost, getMarquee, getVideoRental, getPrimarySchool, getJungleGym,
+  getSwings, getMerryGoRound, getSchoolBus, getBarn, getGazebo, getBench,
 } from './art/props';
 import { Img } from './assets';
 
@@ -48,6 +50,8 @@ export interface GameMap {
   shops: { x: number; y: number; prop: PropInst }[];
   houses: HouseInst[];
   gates: Gate[];
+  /** mountable Candy Cannons: (x, y) is the jungle-gym deck centre */
+  turrets: { x: number; y: number; gym: PropInst }[];
   start: { x: number; y: number };
 }
 
@@ -107,18 +111,18 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   const addLights = (sp: PropSprite, x0: number, y0: number) => {
     for (const l of sp.lights) lights.push({ x: x0 + l.x, y: y0 + l.y, r: l.r, color: l.color, i: l.i, flicker: l.color === '#ff9a2a' || l.color === '#ffbe5c' ? 1 : 0 });
   };
-  const addBig = (sp: PropSprite, x0: number, y0: number, kind: string, shadow = 1) => {
+  const addBig = (sp: PropSprite, x0: number, y0: number, kind: string, shadow = 1, solid = 2) => {
     const p: PropInst = { id: pid++, sp, x0, y0, fw: sp.fw, fh: sp.fh, big: true, kind, shadow };
     props.push(p);
     occupy(x0, y0, sp.fw, sp.fh);
-    markRect(x0 + 0.02, y0 + 0.02, x0 + sp.fw - 0.02, y0 + sp.fh - 0.02, 2);
+    markRect(x0 + 0.02, y0 + 0.02, x0 + sp.fw - 0.02, y0 + sp.fh - 0.02, solid);
     addLights(sp, x0, y0);
     return p;
   };
-  type SmallKind = 'tree' | 'bush' | 'hedge' | 'fencex' | 'fencey' | 'grave' | 'pumpkin' | 'lamp' | 'mailbox' | 'trash' | 'hydrant' | 'vending' | 'scarecrow';
+  type SmallKind = 'tree' | 'bush' | 'hedge' | 'fencex' | 'fencey' | 'grave' | 'pumpkin' | 'lamp' | 'mailbox' | 'trash' | 'hydrant' | 'vending' | 'scarecrow' | 'bench' | 'speaker' | 'sign';
   const addSmall = (sp: PropSprite, x: number, y: number, kind: SmallKind, allowHard = false, force = false) => {
     if (!force && !free(x, y, 1, 1, allowHard)) return null;
-    const shadowR: Record<SmallKind, number> = { tree: 0.55, bush: 0.4, hedge: 0, fencex: 0, fencey: 0, grave: 0.25, pumpkin: 0.2, lamp: 0.15, mailbox: 0.15, trash: 0.18, hydrant: 0.13, vending: 0.35, scarecrow: 0.3 };
+    const shadowR: Record<SmallKind, number> = { tree: 0.55, bush: 0.4, hedge: 0, fencex: 0, fencey: 0, grave: 0.25, pumpkin: 0.2, lamp: 0.15, mailbox: 0.15, trash: 0.18, hydrant: 0.13, vending: 0.35, scarecrow: 0.3, bench: 0.3, speaker: 0.1, sign: 0.2 };
     const p: PropInst = { id: pid++, sp, x0: x, y0: y, fw: 1, fh: 1, big: false, kind, shadow: shadowR[kind] };
     props.push(p);
     occupy(x, y, 1, 1);
@@ -297,16 +301,117 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     for (let i = 0; i < 6; i++) addSmall(getTree('pine', i % 3), 16 + Math.floor(rnd() * 4), 27 + Math.floor(rnd() * 16), 'tree');
   }
 
+  // a little park: fills a lot that has no houses (free game) without adding doorbells
+  const park = (bx: number, by: number, w: number, h: number) => {
+    const gz = addBig(getGazebo(), bx + Math.floor(w / 2) - 1, by + Math.floor(h / 2) - 1, 'gazebo', 0.6);
+    for (let y = by; y < by + h; y++) ground[idx(gz.x0 + 1, y)] = ground[idx(gz.x0 + 1, y)] === G.GRASS ? G.FLAGSTONE : ground[idx(gz.x0 + 1, y)];
+    occupy(gz.x0 + 1, by, 1, h);
+    for (const [dx, dy] of [[-1, -1], [2, -1], [-1, 2], [2, 2]]) addSmall(getBench(), gz.x0 + 1 + dx, gz.y0 + 1 + dy, 'bench');
+    addSmall(getLamp(), gz.x0 - 1, gz.y0 + 3, 'lamp', true);
+    addSmall(getLamp(), gz.x0 + 3, gz.y0 - 1, 'lamp', true);
+    for (let i = 0; i < Math.floor((w * h) / 9); i++) {
+      const x = bx + Math.floor(rnd() * w), y = by + Math.floor(rnd() * h);
+      const k = rnd();
+      if (k < 0.55) addSmall(getTree(rnd() < 0.7 ? 'oak' : 'dead', Math.floor(rnd() * 3)), x, y, 'tree');
+      else if (k < 0.8) addSmall(getBush(Math.floor(rnd() * 3)), x, y, 'bush');
+      else addSmall(getPumpkin(Math.floor(rnd() * 2)), x, y, 'pumpkin');
+    }
+  };
+  const scatterTrees = (x0: number, y0: number, x1: number, y1: number, n: number, kinds: ('oak' | 'dead' | 'pine')[]) => {
+    for (let i = 0; i < n; i++) addSmall(getTree(kinds[Math.floor(rnd() * kinds.length)], Math.floor(rnd() * 3)), x0 + Math.floor(rnd() * (x1 - x0 + 1)), y0 + Math.floor(rnd() * (y1 - y0 + 1)), 'tree');
+  };
+  const paint = (x0: number, y0: number, x1: number, y1: number, g: G) => {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (inMap(x, y) && ground[idx(x, y)] !== G.ROAD && ground[idx(x, y)] !== G.SIDEWALK) ground[idx(x, y)] = g;
+  };
+
   if (expanded) {
     houseBlock(26, 74, false); // south: Lantern Lane
     houseBlock(50, 50, false); // east: Moonlight Court
     houseBlock(5, 50, false);  // west: Willow Row
+  } else {
+    park(26, 74, 12, 12);
+    park(50, 50, 12, 12);
+    park(5, 50, 12, 12);
   }
 
-  // NW — pumpkin farm
+  // EAST, far side — Hollow Pines Road houses + Moonlight Park
+  houseBlock(72, 26, false);
+  houseBlock(72, 55, false);
+  park(73, 39, 14, 13);
+  scatterTrees(86, 25, 90, 68, 10, ['pine', 'oak']);
+
+  // NE — Hollow Creek Primary: school, playground with two jungle-gym forts (Candy Cannons on top), bus lot
+  const turrets: GameMap['turrets'] = [];
   {
-    for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) ground[idx(x, y)] = G.DIRT;
-    for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) if (rnd() < 0.22) addSmall(getPumpkin(Math.floor(rnd() * 2)), x, y, 'pumpkin', false, true);
+    addBig(getPrimarySchool(), 50, 4, 'school', 1);
+    paint(49, 8, 56, 10, G.DRIVEWAY);
+    paint(75, 3, 82, 11, G.DRIVEWAY);
+    addBig(getSchoolBus(false), 76, 4, 'car', 0.5);
+    addBig(getSchoolBus(false), 76, 7, 'car', 0.5);
+    addBig(getSchoolBus(false), 77, 10, 'car', 0.5);
+    paint(57, 8, 72, 19, G.DIRT); // wood-chip playground
+    for (const [gx, gy, v] of [[60, 10, 0], [67, 14, 1]]) {
+      const gym = addBig(getJungleGym(v), gx, gy, 'junglegym', 0.7, 1); // bars stop feet, not bullets
+      turrets.push({ x: gx + 1.5, y: gy + 1.5, gym });
+    }
+    addBig(getMerryGoRound(), 64, 9, 'merrygoround', 0.2, 1);
+    addBig(getSwings(), 58, 16, 'swings', 0.3, 1);
+    addBig(getSwings(), 62, 18, 'swings', 0.3, 1);
+    for (const [bx, by] of [[57, 13], [71, 9], [71, 19]]) addSmall(getBench(), bx, by, 'bench');
+    for (const [lx, ly] of [[56, 11], [73, 8], [56, 19], [73, 19]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
+    for (let i = 0; i < 4; i++) addSmall(getPumpkin(i % 2), 58 + i * 4, 8, 'pumpkin');
+    scatterTrees(83, 3, 90, 20, 12, ['pine', 'oak', 'dead']);
+    scatterTrees(49, 12, 55, 20, 6, ['oak']);
+    scatterTrees(74, 13, 82, 20, 7, ['oak', 'dead']);
+  }
+
+  // SE — Moonlite Drive-In
+  {
+    paint(50, 75, 76, 90, G.GRAVEL);
+    addBig(getDriveInScreen(), 56, 74, 'screen', 0.4);
+    for (let row = 0; row < 3; row++)
+      for (let k = 0; k < 7; k++) {
+        const x = 52 + k * 3, y = 78 + row * 4;
+        if (rnd() < 0.72) addBig(getCar(Math.floor(rnd() * 4), true), x, y, 'car', 0.5);
+        addSmall(getSpeakerPost(), x + 2, y, 'speaker', true, true);
+      }
+    addBig(getSnackBar(), 80, 80, 'snackbar', 1);
+    addSmall(getMarquee(), 84, 74, 'sign', true, true);
+    for (const [lx, ly] of [[78, 78], [78, 86], [83, 85]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
+    scatterTrees(78, 87, 90, 90, 6, ['pine', 'dead']);
+    scatterTrees(86, 76, 90, 86, 6, ['pine']);
+  }
+
+  // SW — St. Hallow's chapel and churchyard
+  {
+    addBig(getChurch(), 5, 75, 'church', 1.4);
+    for (let y = 80; y <= 88; y++) ground[idx(7, y)] = G.FLAGSTONE;
+    occupy(7, 80, 1, 9);
+    paint(12, 74, 20, 89, G.DARKGRASS);
+    for (let y = 75; y <= 88; y += 2) for (let x = 13; x <= 19; x += 2) if (rnd() < 0.8) addSmall(getGrave(Math.floor(rnd() * 3)), x, y, 'grave');
+    for (let i = 0; i < 12; i++) { addSmall(getFence('iron', 'y'), 11, 74 + i, 'fencey'); }
+    for (const [lx, ly] of [[6, 81], [9, 81], [10, 88]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
+    scatterTrees(2, 82, 10, 90, 7, ['dead', 'pine']);
+    scatterTrees(12, 74, 20, 89, 4, ['dead']);
+    for (let i = 0; i < 3; i++) addSmall(getPumpkin(i % 2), 5 + i * 2, 80, 'pumpkin');
+  }
+
+  // SOUTH — Video Vault rentals + lot
+  {
+    addBig(getVideoRental(), 39, 75, 'videorental', 1);
+    paint(38, 79, 44, 88, G.DRIVEWAY);
+    addBig(getCar(2, true), 39, 81, 'car', 0.5);
+    addBig(getCar(0, true), 42, 84, 'car', 0.5);
+    addSmall(getLamp(), 44, 80, 'lamp', true, true);
+    addSmall(getLamp(), 38, 87, 'lamp', true, true);
+    scatterTrees(26, 87, 44, 90, 5, ['oak', 'dead']);
+  }
+
+  // NW — pumpkin farm (now reachable from the school yard)
+  {
+    addBig(getBarn(), 15, 9, 'barn', 1.2);
+    for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) if (!occ[idx(x, y)]) ground[idx(x, y)] = G.DIRT;
+    for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) if (rnd() < 0.22) addSmall(getPumpkin(Math.floor(rnd() * 2)), x, y, 'pumpkin');
     addSmall(getHayScarecrow(), 11, 9, 'scarecrow', false, true);
     addSmall(getHayScarecrow(), 15, 15, 'scarecrow', false, true);
     for (let i = 0; i < 5; i++) addSmall(getTree('dead', i % 3), 4 + Math.floor(rnd() * 16), 4 + Math.floor(rnd() * 3), 'tree');
@@ -328,9 +433,9 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   // ================= GATED DISTRICT WALLS =================
   // Hedge blockade lines seal each outer district behind a single gate.
   const gates: Gate[] = [];
-  const hedgeWall = (axis: 'x' | 'y', line: number, line2: number, gapA: number, gapB: number) => {
+  const hedgeWall = (axis: 'x' | 'y', line: number, line2: number, gaps: number[]) => {
     for (let t = 1; t <= 92; t++) {
-      if (t === gapA || t === gapB) continue;
+      if (gaps.includes(t)) continue;
       const x = axis === 'x' ? t : line, y = axis === 'x' ? line : t;
       const x2 = axis === 'x' ? t : line2, y2 = axis === 'x' ? line2 : t;
       for (const [hx, hy] of [[x, y], [x2, y2]]) {
@@ -352,14 +457,18 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
       for (let cx = Math.floor(x * CR); cx < Math.floor((x + 2) * CR); cx++) cells.push([cx, cy]);
     gates.push({ id: p.id, propIds: [p.id], cells, openAt, name, dir, x: x + 1, y: y + 1, opened: false });
   };
-  hedgeWall('x', 22, 23, 34, 35);
+  // Each district also opens into the corner beyond it (always-open hedge gaps), so no part of the town is sealed off:
+  // school yard <-> pumpkin farm (NW) and primary school (NE), Starcade <-> drive-in (SE), cemetery <-> chapel (SW).
+  hedgeWall('x', 22, 23, [34, 35]);
   addGate(34, 22, 60, 'THE SCHOOL YARD', 'n');
-  hedgeWall('y', 46, 47, 34, 35);
+  hedgeWall('y', 46, 47, [34, 35, 12, 13]);
   addGate(46, 34, 120, 'THE STARCADE', 'e');
-  hedgeWall('x', 70, 71, 34, 35);
+  hedgeWall('x', 70, 71, [34, 35, 10, 11, 86, 87]);
   addGate(34, 70, 180, 'DOWNTOWN', 's');
-  hedgeWall('y', 22, 23, 34, 35);
+  hedgeWall('y', 22, 23, [34, 35, 12, 13]);
   addGate(22, 34, 240, 'THE OLD CEMETERY', 'w');
+  // light the passages so they read as ways through
+  for (const [lx, ly] of [[21, 11], [24, 14], [45, 11], [48, 14], [9, 69], [12, 72], [85, 69], [88, 72]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
 
   // ---- woods (outer ring) ----
   for (let y = 0; y < MAP_H; y++)
@@ -418,7 +527,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   houses.forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
   // Meet on the open central sidewalk, not inside the randomized housing lot.
-  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, start: { x: 35, y: 45 } };
+  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, start: { x: 35, y: 45 } };
   let best = Infinity;
   for (let y = 25; y < 69; y += 0.5) for (let x = 25; x < 45; x += 0.5) {
     const distance = (x - 35) ** 2 + (y - 45) ** 2;

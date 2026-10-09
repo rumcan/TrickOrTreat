@@ -94,6 +94,8 @@ export interface Enemy {
 export interface Bullet {
   x: number; y: number; vx: number; vy: number; dmg: number; r: number; life: number; pierce: number; bounce: number; kind: BulletKind; color: string;
   crit: number; fire: number; shock: number; ecto: number; explode: number; hit: number[]; vamp: boolean; dead: boolean; spin: number; home?: boolean;
+  /** drawn height in px (shots fired from up on a jungle gym drop toward the ground as they fly) */
+  z?: number;
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
 export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
@@ -111,6 +113,8 @@ export interface RescueFriend {
   status: 'locked' | 'waiting' | 'rescued'; guardian: Enemy | null;
   progress: number; hp: number; maxHp: number; weapon: Weapon;
   anim: number; flip: boolean; back: boolean; hurtCd: number; reviveCd: number; candy: number;
+  /** revive started with a tap of E: keeps going while the player stays close; a hit only pauses it */
+  channel?: boolean; pauseT?: number; burst?: boolean;
 }
 
 export interface Player {
@@ -120,6 +124,12 @@ export interface Player {
   costume: string | null; novaCd: number; stompT: number; hexT: number;
 }
 
+export interface Turret { x: number; y: number; gym: PropInst; aimX: number; aimY: number; cd: number; heat: number; over: number; barrel: number; recoil: number }
+/** the Candy Cannon: heavy, fast, heats up; standing on the gym deck keeps most melee monsters at arm's length */
+export const TURRET = { dmg: 24, rate: 11, speed: 21, range: 13, heatPerShot: 0.05, cool: 0.28, lockout: 2.2, armor: 0.4, reach: 1.65 };
+
+/** seconds of helping a friend up (scaled by the reviveSpeed talent) */
+const RESCUE_TIME = 1.8;
 const xpFor = (l: number) => Math.floor(6 + l * 5 + l * l * 0.7);
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
 const CAMPAIGN_BOSSES = ['hex', 'alpha', 'warden', 'king'];
@@ -176,7 +186,10 @@ export class Game {
   private warned = new Set<number>();
   /** M / Tab: big map overlay */
   bigMap = false;
-  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'costume' | 'house'; ref: Pickup | PropInst | HouseInst } | null = null;
+  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'costume' | 'house' | 'turret'; ref: Pickup | PropInst | HouseInst } | null = null;
+  /** Candy Cannons on the playground jungle gyms; `mounted` is the index of the one the kid is manning (-1: on foot) */
+  turrets: Turret[] = [];
+  mounted = -1;
   nearbyWeapon: Weapon | null = null;
   nearbyCostume: string | null = null;
   // camera (written by renderer)
@@ -204,6 +217,8 @@ export class Game {
   introLine = -1;
   downedTime = 0;
   rescuePrompt = '';
+  /** 0..1 while a revive is under way (drives the HUD bar), -1 when the prompt has no progress */
+  rescueProgress = -1;
   private playerReviveProgress = 0;
   private winDelay = 0;
 
@@ -213,6 +228,7 @@ export class Game {
     this.save = save;
     this.input = input;
     this.map = buildMap(seed, this.campaign);
+    this.turrets = this.map.turrets.map((t) => ({ x: t.x, y: t.y, gym: t.gym, aimX: 0.7, aimY: 0.7, cd: 0, heat: 0, over: 0, barrel: 0, recoil: 0 }));
     for (let i = 0; i < MAP_W * MAP_H; i++) this.grid.push([]);
     this.recalcStats();
     const s = this.stats;
@@ -304,31 +320,62 @@ export class Game {
     const level = Math.max(0, ...this.p.weapons.map(w => w?.level || 0), ...this.friends.map(f => f.weapon.level));
     for (const f of this.friends) f.weapon.level = Math.max(f.weapon.level, level);
   }
+  /** a guardian's ward breaking: knocks back and stuns everything nearby (bosses only flinch) */
+  private wardBurst(x: number, y: number) {
+    for (const e of this.enemies) {
+      if (e.dead) continue;
+      const dx = e.x - x, dy = e.y - y, d = Math.hypot(dx, dy);
+      if (d > 6) continue;
+      const k = (1 - d / 6) * (e.def.boss ? 2 : 9) / Math.max(1, e.def.mass * 0.15);
+      e.kx += (dx / (d || 1)) * k; e.ky += (dy / (d || 1)) * k;
+      if (!e.def.boss) e.stunT = Math.max(e.stunT, 2.2);
+    }
+    for (const b of this.ebullets) if (Math.hypot(b.x - x, b.y - y) < 6) b.dead = true;
+    this.zones.push({ kind: 'flash', x, y, r: 6, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#c9a8ff' });
+    for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2; this.particle(x, y, 0.4, Math.cos(a) * 5, Math.sin(a) * 5, rand(1, 3), 0.7, i % 2 ? '#b58bff' : '#e6d4ff', 5, 'glow'); }
+    this.shake = Math.max(this.shake, 8);
+    gameAudio.play('revive', 0.3);
+  }
   private updateTeam(dt: number) {
     if (!this.campaign || this.bossBreak) return;
-    this.rescuePrompt = '';
+    this.rescuePrompt = ''; this.rescueProgress = -1;
     for (const f of this.friends) {
       if (f.status === 'rescued') continue;
       const gate = this.map.gates[f.gate], distance = Math.hypot(f.x - this.p.x, f.y - this.p.y);
-      if (gate.opened && f.status === 'locked' && distance < 12 && this.reachable(f.x, f.y)) {
+      // a guardian that left the arena without dying (despawned, culled) no longer holds the ward
+      if (f.guardian && !f.guardian.dead && !this.enemies.includes(f.guardian)) f.guardian.dead = true;
+      // the player standing right there proves the friend is reachable, gate or no gate
+      if (f.status === 'locked' && ((gate.opened && distance < 12 && this.reachable(f.x, f.y)) || distance < 5)) {
         const spot = this.freeSpot(f.x + 1, f.y + 1);
         f.guardian = this.spawnEnemy('werewolf', spot.x, spot.y);
         f.guardian.hp = f.guardian.maxHp = 220 + this.time * 0.3; f.status = 'waiting';
         gameAudio.play('guardian', 0.5); this.toast(`${HERO_INFO[f.hero].name} needs help! Defeat the guardian.`);
       }
       if (this.state !== 'play') continue;
-      if (distance < 1.7) {
-        const safe = f.status === 'waiting' && f.guardian?.dead;
-        this.rescuePrompt = safe ? `Hold E to revive ${HERO_INFO[f.hero].name} · ${Math.round(f.progress / 3 * 100)}%` : 'Defeat the guardian to break the ward';
-        if (safe && this.input.keys.has('e') && this.p.hurtT <= 0) f.progress += dt * this.stats.reviveSpeed;
-        else f.progress = 0;
-        if (f.progress >= 3) {
-          f.status = 'rescued'; f.progress = 0;
+      const safe = f.status === 'waiting' && !!f.guardian?.dead;
+      if (safe && !f.burst) {
+        // the ward shatters: shove the horde back so there is room to help
+        f.burst = true;
+        this.wardBurst(f.x, f.y);
+      }
+      if (distance < 2 || (f.channel && distance < 2.6)) {
+        const name = HERO_INFO[f.hero].name;
+        if (!safe) { this.rescuePrompt = `Defeat the guardian to free ${name}`; continue; }
+        if (this.input.pressed.has('e') || this.input.keys.has('e')) f.channel = true;
+        if (f.channel) {
+          f.pauseT = Math.max(0, (f.pauseT ?? 0) - dt);
+          if (this.p.hurtT > 0) f.pauseT = 0.35; // a hit stalls the revive for a moment, it never wipes it
+          if (!f.pauseT) f.progress += dt * this.stats.reviveSpeed;
+          this.rescuePrompt = `Helping ${name} up…`;
+        } else this.rescuePrompt = `Revive ${name} · they'll join you`;
+        this.rescueProgress = Math.min(1, f.progress / RESCUE_TIME);
+        if (f.progress >= RESCUE_TIME) {
+          f.status = 'rescued'; f.progress = 0; f.channel = false;
           if (this.activeFriend === null) this.activeFriend = f.hero;
           this.syncTeamWeapons(); gameAudio.play('revive');
           this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS SAFE!`, 'Pause to choose your companion and share weapons.', 'loot'); this.rescuePrompt = '';
         }
-      } else f.progress = 0;
+      } else { f.channel = false; f.progress = Math.max(0, f.progress - dt * 2); }
     }
     const friend = this.friends.find(f => f.hero === this.activeFriend && f.status === 'rescued');
     if (!friend) { if (this.state === 'downed') this.endRun(false); return; }
@@ -336,11 +383,17 @@ export class Game {
     const distance = Math.hypot(friend.x - this.p.x, friend.y - this.p.y);
     if (friend.hp <= 0) {
       if (this.state === 'downed') { this.endRun(false); return; }
-      if (distance < 1.7) {
-        this.rescuePrompt = `Hold E to revive ${HERO_INFO[friend.hero].name} · ${Math.round(friend.progress / 3 * 100)}%`;
-        if (this.input.keys.has('e') && this.p.hurtT <= 0) friend.progress += dt * this.stats.reviveSpeed; else friend.progress = 0;
-        if (friend.progress >= 3) { friend.hp = friend.maxHp * 0.5; friend.progress = 0; friend.hurtCd = 3; gameAudio.play('revive'); }
-      } else friend.progress = 0;
+      if (distance < 2 || (friend.channel && distance < 2.6)) {
+        if (this.input.pressed.has('e') || this.input.keys.has('e')) friend.channel = true;
+        if (friend.channel) {
+          friend.pauseT = Math.max(0, (friend.pauseT ?? 0) - dt);
+          if (this.p.hurtT > 0) friend.pauseT = 0.35;
+          if (!friend.pauseT) friend.progress += dt * this.stats.reviveSpeed;
+        }
+        this.rescuePrompt = friend.channel ? `Helping ${HERO_INFO[friend.hero].name} up…` : `Revive ${HERO_INFO[friend.hero].name}`;
+        this.rescueProgress = Math.min(1, friend.progress / RESCUE_TIME);
+        if (friend.progress >= RESCUE_TIME) { friend.hp = friend.maxHp * 0.5; friend.progress = 0; friend.channel = false; friend.hurtCd = 3; gameAudio.play('revive'); }
+      } else { friend.channel = false; friend.progress = Math.max(0, friend.progress - dt * 2); }
       return;
     }
     if (distance > (this.state === 'downed' ? 0.7 : 1.6)) {
@@ -359,7 +412,8 @@ export class Game {
     if (this.state === 'downed') {
       this.downedTime -= dt;
       if (distance < 1.1 && friend.hp > 0 && friend.reviveCd <= 0 && friend.hurtCd <= 0) this.playerReviveProgress += dt * this.stats.reviveSpeed; else this.playerReviveProgress = 0;
-      this.rescuePrompt = `${HERO_INFO[friend.hero].name} reviving you · ${Math.round(this.playerReviveProgress / 3 * 100)}% · ${Math.ceil(this.downedTime)}s left`;
+      this.rescuePrompt = `${HERO_INFO[friend.hero].name} is reviving you · ${Math.ceil(this.downedTime)}s left`;
+      this.rescueProgress = Math.min(1, this.playerReviveProgress / 3);
       if (this.playerReviveProgress >= 3) {
         this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; friend.reviveCd = 60; this.playerReviveProgress = 0;
         gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', 'Your companion saved you. Revive recharges in 60 seconds.');
@@ -495,9 +549,11 @@ export class Game {
     this.time += dt;
     if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
     const downed = this.state === 'downed';
-    if (!downed) this.updatePlayer(dt);
+    const manning = this.mounted >= 0;
+    if (!downed) { if (manning) this.updateMounted(dt); else this.updatePlayer(dt); }
+    for (const t of this.turrets) { t.heat = Math.max(0, t.heat - TURRET.cool * dt * (t.over > 0 ? 1.6 : 1)); t.over = Math.max(0, t.over - dt); t.recoil = Math.max(0, t.recoil - dt * 10); }
     this.rebuildGrid();
-    if (!downed) { this.updateWeapon(dt); this.updateSkill(dt); this.updateCompanions(dt); }
+    if (!downed) { if (!manning) this.updateWeapon(dt); this.updateSkill(dt); this.updateCompanions(dt); }
     this.computeFlow(false, dt);
     this.updateEnemies(dt);
     this.updateBullets(dt);
@@ -640,9 +696,71 @@ export class Game {
     }
   }
 
+  // ---------- Candy Cannon ----------
+  mountTurret(i: number) {
+    const t = this.turrets[i];
+    if (!t || this.mounted >= 0) return;
+    this.mounted = i;
+    this.p.x = t.x; this.p.y = t.y; this.p.dashT = 0; this.p.moving = false;
+    gameAudio.play('click', 0.5);
+    this.text(t.x, t.y, 'CANDY CANNON!', '#ff8a1e', 16);
+    this.computeFlow(true);
+  }
+  dismount() {
+    const t = this.turrets[this.mounted];
+    this.mounted = -1;
+    if (!t) return;
+    // hop off on the side the cannon faces away from (back toward safety), else anywhere clear
+    const spot = this.freeSpot(t.x - t.aimX * 2.1, t.y - t.aimY * 2.1);
+    this.p.x = spot.x; this.p.y = spot.y;
+    this.p.invuln = Math.max(this.p.invuln, 0.4);
+    this.computeFlow(true);
+  }
+  private updateMounted(dt: number) {
+    const p = this.p, inp = this.input, s = this.stats, t = this.turrets[this.mounted];
+    p.x = t.x; p.y = t.y; p.moving = false;
+    p.anim += dt * 4; p.invuln -= dt; p.hurtT -= dt; p.recoil = Math.max(0, p.recoil - dt * 8);
+    p.shieldT += dt;
+    if (p.shieldT > s.shieldDelay && p.shield < s.maxShield) p.shield = Math.min(s.maxShield, p.shield + s.maxShield * 0.4 * dt);
+    p.dashRecharge += dt;
+    if (p.dashCharges < s.dashCharges && p.dashRecharge >= 2.2) { p.dashCharges++; p.dashRecharge = 0; }
+    if (inp.pressed.has(' ') || inp.pressed.has('shift')) { this.dismount(); return; }
+    // aim: mouse while held, otherwise the nearest monster in range
+    const manual = inp.mdown;
+    let target: Enemy | null = null;
+    if (manual) {
+      const m = this.mouseWorld(), dx = m.x - t.x, dy = m.y - t.y, l = Math.hypot(dx, dy) || 1;
+      t.aimX = dx / l; t.aimY = dy / l;
+    } else {
+      target = this.findTarget(TURRET.range);
+      if (target) { const dx = target.x - t.x, dy = target.y - t.y, l = Math.hypot(dx, dy) || 1; t.aimX = dx / l; t.aimY = dy / l; }
+    }
+    p.aimX = t.aimX; p.aimY = t.aimY; p.aiming = true;
+    const sx = isoX(t.aimX, t.aimY), sy = isoY(t.aimX, t.aimY);
+    p.back = sy < -2; p.flip = sx < 0;
+    t.cd -= dt;
+    if (t.over > 0 || t.cd > 0 || !(manual || target)) return;
+    t.cd = 1 / TURRET.rate;
+    t.barrel ^= 1; t.recoil = 1;
+    t.heat += TURRET.heatPerShot;
+    if (t.heat >= 1) { t.heat = 1; t.over = TURRET.lockout; this.text(t.x, t.y, 'OVERHEATED!', '#ff5a3a', 15); gameAudio.play('reload', 0.5); }
+    gameAudio.play('shot', 0.55);
+    this.shake = Math.max(this.shake, 2.5);
+    const a = Math.atan2(t.aimY, t.aimX) + rand(-0.03, 0.03), side = t.barrel ? 0.16 : -0.16;
+    const mx = t.x + t.aimX * 0.7 - t.aimY * side, my = t.y + t.aimY * 0.7 + t.aimX * side;
+    this.particle(mx, my, 1.8, 0, 0, 0, 0.07, '#ffb43c', 22, 'glow');
+    const crit = Math.random() < s.crit;
+    const dmg = TURRET.dmg * s.dmg * (1 + this.time / 240) * (crit ? s.critDmg : 1);
+    this.bullets.push({
+      x: mx, y: my, vx: Math.cos(a) * TURRET.speed, vy: Math.sin(a) * TURRET.speed, dmg, r: 0.16, life: TURRET.range / TURRET.speed, pierce: 1, bounce: 0, kind: 'candy', color: ['#ff4d6d', '#ffd23a', '#7dff5a', '#21d0ff'][(Math.random() * 4) | 0],
+      crit: crit ? 1 : 0, fire: 0, shock: 0, ecto: 0, explode: 0, hit: [], vamp: false, dead: false, spin: rand(0, 6), z: 58,
+    });
+  }
+
   takeDamage(dmg: number, fromX: number, fromY: number) {
     const p = this.p;
     if (p.invuln > 0 || this.state !== 'play') return;
+    if (this.mounted >= 0) dmg *= 1 - TURRET.armor; // high ground
     if (Math.random() < this.stats.dodge) {
       this.text(p.x, p.y, 'DODGE', '#dfe8ff', 14);
       p.invuln = 0.25;
@@ -666,7 +784,8 @@ export class Game {
     p.hurtT = 0.25;
     this.shake = Math.max(this.shake, 6);
     const dx = p.x - fromX, dy = p.y - fromY, l = Math.hypot(dx, dy) || 1;
-    this.moveCircle(p, (dx / l) * 0.15, (dy / l) * 0.15, p.r);
+    if (this.mounted < 0) this.moveCircle(p, (dx / l) * 0.15, (dy / l) * 0.15, p.r);
+    if (p.hp <= 0 && this.mounted >= 0) this.dismount();
     if (p.hp <= 0) {
       if (p.revives > 0) {
         p.revives--;
@@ -1040,8 +1159,19 @@ export class Game {
     f.fill(1 << 30);
     const q = new Int32Array(CW * CH);
     let h = 0, t = 0;
-    f[pc] = 0;
-    q[t++] = pc;
+    const tur = this.turrets[this.mounted];
+    if (tur) {
+      // the kid is up on a jungle gym (solid): monsters path to the ring of open cells around it
+      const g = tur.gym, x0 = Math.floor(g.x0 * CR) - 1, y0 = Math.floor(g.y0 * CR) - 1, x1 = Math.ceil((g.x0 + g.fw) * CR), y1 = Math.ceil((g.y0 + g.fh) * CR);
+      for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+        if (cx < 0 || cy < 0 || cx >= CW || cy >= CH || (cx > x0 && cx < x1 && cy > y0 && cy < y1)) continue;
+        const c = cy * CW + cx;
+        if (!coll[c]) { f[c] = 0; q[t++] = c; }
+      }
+    } else {
+      f[pc] = 0;
+      q[t++] = pc;
+    }
     while (h < t) {
       const c = q[h++];
       const cx = c % CW, cy = (c / CW) | 0, d = f[c] + 1;
@@ -1227,7 +1357,7 @@ export class Game {
       } else this.moveCircle(e, vx * dt, vy * dt, e.r * 0.85);
       if (Math.abs(isoX(vx, vy)) > 0.05) e.flip = isoX(vx, vy) < 0;
       // contact
-      if (dist < e.r + p.r + 0.05 && e.atkCd <= 0 && e.spawnT <= 0 && e.stunT <= 0) {
+      if (dist < e.r + p.r + 0.05 + (this.mounted >= 0 && !d.fly ? TURRET.reach : 0) && e.atkCd <= 0 && e.spawnT <= 0 && e.stunT <= 0) {
         e.atkCd = 0.8;
         this.takeDamage(d.dmg * (e.elite && !d.elite ? 1.5 : 1) * (1 + this.time / 600), e.x, e.y);
       }
@@ -1316,6 +1446,7 @@ export class Game {
       b.x += b.vx * dt;
       b.y += b.vy * dt;
       b.life -= dt;
+      if (b.z) b.z = Math.max(0, b.z - dt * 130);
       b.spin += dt * 12;
       if (b.home) {
         let best: Enemy | null = null, bd = 36;
@@ -1523,6 +1654,13 @@ export class Game {
 
   private updateInteract() {
     const p = this.p;
+    if (this.mounted >= 0) {
+      const t = this.turrets[this.mounted];
+      this.nearbyWeapon = null; this.nearbyCostume = null;
+      this.interact = { kind: 'turret', label: 'Climb down', ref: t.gym };
+      if (this.input.pressed.has('e')) this.dismount();
+      return;
+    }
     if (this.rescuePrompt) { this.interact = null; this.nearbyWeapon = null; this.nearbyCostume = null; return; }
     this.nearbyWeapon = null;
     this.nearbyCostume = null;
@@ -1537,6 +1675,10 @@ export class Game {
           : k.kind === 'costume' ? { kind: 'costume', label: `Put on ${COSTUME_BY_ID[k.costume!].name} costume`, ref: k }
           : { kind: 'chest', label: 'Open Treat Bag', ref: k };
       }
+    }
+    for (let i = 0; i < this.turrets.length; i++) {
+      const t = this.turrets[i], d = (t.x - p.x) ** 2 + (t.y - p.y) ** 2;
+      if (d < 2.7 * 2.7 && (!best || best.kind === 'turret' || d < bd + 2)) { bd = Math.min(bd, d); best = { kind: 'turret', label: 'Climb up · man the Candy Cannon', ref: t.gym }; }
     }
     for (const sh of this.map.shops) {
       const d = (sh.x - p.x) ** 2 + (sh.y - p.y) ** 2;
@@ -1554,7 +1696,9 @@ export class Game {
     if (best && best.kind === 'weapon') this.nearbyWeapon = (best.ref as Pickup).weapon!;
     if (best && best.kind === 'costume') this.nearbyCostume = (best.ref as Pickup).costume!;
     if (best && this.input.pressed.has('e')) {
-      if (best.kind === 'house') {
+      if (best.kind === 'turret') {
+        this.mountTurret(this.turrets.findIndex((t) => t.gym === best!.ref));
+      } else if (best.kind === 'house') {
         this.startTot(best.ref as HouseInst);
       } else if (best.kind === 'costume') {
         const k = best.ref as Pickup;
@@ -1864,6 +2008,7 @@ export class Game {
       const type = this.campaign ? CAMPAIGN_BOSSES[this.bossRound] : 'king';
       this.boss = this.spawnEnemy(type, pos.x, pos.y);
       this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for an upgrade break`, 'danger');
+      if (this.turrets.length && this.mounted < 0) this.toast('Get up on a jungle gym at Hollow Creek Primary — the Candy Cannon shreds bosses!');
       this.shake = 15;
     }
   }
@@ -1907,6 +2052,8 @@ export class Game {
       weapons: p.weapons.map((w) => (w ? { w, st: weaponStats(w, s) } : null)), cur: p.cur, skillCd: Math.max(0, p.skillCd), skillMax: HERO_INFO[this.hero].cd * s.skillCd,
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
+      turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,
+      rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,
       costumesFound: this.costumesFound, doorsRung: this.housesVisited,
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
       housesLeft: this.map.houses.filter((h) => !h.visited).length, housesTotal: this.map.houses.length,

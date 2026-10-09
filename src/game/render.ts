@@ -1,5 +1,6 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy } from './engine';
+import { Game, Enemy, Turret } from './engine';
+import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES } from './art/characters';
 import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
@@ -82,7 +83,7 @@ export class Renderer {
   private buildMinimap(g: Game) {
     const s = 3;
     const { c, ctx } = makeCanvas((MAP_W + MAP_H) * s, ((MAP_W + MAP_H) * s) / 2);
-    const col: Record<number, string> = { [G.GRASS]: '#2c4626', [G.ROAD]: '#2a2a31', [G.SIDEWALK]: '#77787b', [G.DIRT]: '#3d2c22', [G.GRAVEL]: '#4a4744', [G.DARKGRASS]: '#1f3324', [G.DRIVEWAY]: '#6a6b6e', [G.FLAGSTONE]: '#3a5a32' };
+    const col: Record<number, string> = { [G.GRASS]: '#2c4626', [G.ROAD]: '#2a2a31', [G.SIDEWALK]: '#77787b', [G.DIRT]: '#3d2c22', [G.GRAVEL]: '#4a4744', [G.DARKGRASS]: '#1f3324', [G.DRIVEWAY]: '#6a6b6e', [G.FLAGSTONE]: '#3a5a32', [G.FIELD]: '#2f5a2a' };
     const P = (x: number, y: number): [number, number] => [(x - y) * s + MAP_H * s, ((x + y) * s) / 2];
     for (let y = 0; y < MAP_H; y++)
       for (let x = 0; x < MAP_W; x++) {
@@ -245,7 +246,7 @@ export class Renderer {
     const sh = (x: number, y: number, r: number) => {
       ctx.beginPath(); ctx.ellipse(isoX(x, y), isoY(x, y), r * HW * 1.3, r * HH * 1.3, 0, 0, Math.PI * 2); ctx.fill();
     };
-    sh(p.x, p.y, p.r);
+    if (g.mounted < 0) sh(p.x, p.y, p.r);
     for (const e of g.enemies) if (!e.dead && inView(isoX(e.x, e.y) - 60, isoY(e.x, e.y) - 60, isoX(e.x, e.y) + 60, isoY(e.x, e.y) + 20)) sh(e.x, e.y, e.def.fly ? e.r * 0.6 : e.r);
 
     // ===== sorted pass =====
@@ -256,6 +257,7 @@ export class Renderer {
       const cx = pr.x0 + pr.fw / 2, cy = pr.y0 + pr.fh / 2;
       const ax = isoX(cx, cy), ay = isoY(cx, cy);
       const sp = pr.sp;
+      const tur = pr.kind === 'junglegym' ? g.turrets.find((t) => t.gym === pr) : undefined;
       const it: Item = {
         key: cx + cy, x: cx, y: cy, prop: pr, bx0: ax - sp.ax, by0: ay - sp.ay, bx1: ax - sp.ax + sp.w, by1: ay - sp.ay + sp.h,
         draw: () => {
@@ -263,6 +265,7 @@ export class Renderer {
           if (a < 0.999) ctx.globalAlpha = a;
           ctx.drawImage(sp.img, ax - sp.ax, ay - sp.ay, sp.w, sp.h);
           if (a < 0.999) ctx.globalAlpha = 1;
+          if (tur) this.drawTurret(g, tur);
         },
       };
       if (pr.big) { it.big = pr; bigs.push(it); } else items.push(it);
@@ -271,7 +274,8 @@ export class Renderer {
     {
       const sx = isoX(p.x, p.y), sy = isoY(p.x, p.y);
       playerItem = { key: p.x + p.y, x: p.x, y: p.y, bx0: sx - 22, by0: sy - 90, bx1: sx + 22, by1: sy, draw: () => this.drawPlayer(g, sx, sy) };
-      items.push(playerItem);
+      // up on a jungle gym the kid is drawn with the cannon, on the deck
+      if (g.mounted < 0) items.push(playerItem);
     }
     if (g.campaign) for (const friend of g.friends) {
       if (g.state !== 'intro' && friend.status === 'rescued' && friend.hero !== g.activeFriend) continue;
@@ -443,7 +447,7 @@ export class Renderer {
       const tall = pr.big || pr.kind === 'tree' || pr.kind === 'lamp' || pr.kind === 'vending';
       if (!tall) return;
       let hide = false;
-      if (overlap(it, playerItem)) {
+      if (g.mounted < 0 && overlap(it, playerItem)) {
         if (pr.big) hide = behind(playerItem, pr) && covers(it, pr);
         else hide = playerItem.key < it.key - 0.2 && playerItem.by0 < it.by1 - 40;
       }
@@ -760,7 +764,7 @@ export class Renderer {
     }
 
     // interaction marker
-    if (g.interact) {
+    if (g.interact && g.mounted < 0) {
       const r = g.interact.ref as { x?: number; y?: number; x0?: number; y0?: number; fw?: number; fh?: number };
       let wx = 0, wy = 0;
       const door = (g.interact.ref as { door?: { x: number; y: number } }).door;
@@ -993,7 +997,7 @@ export class Renderer {
     const blink = p.invuln > 0 && p.dashT <= 0 && Math.floor(this.t * 20) % 2 === 0;
     const w = g.weapon;
     const drawWeapon = () => {
-      if (!w) return;
+      if (!w || g.mounted >= 0) return;
       const a = Math.atan2(isoY(p.aimX, p.aimY), isoX(p.aimX, p.aimY));
       ctx.save();
       ctx.translate(sx + Math.cos(a) * 4, sy - KID_WAIST_HEIGHT + Math.sin(a) * 2);
@@ -1076,9 +1080,30 @@ export class Renderer {
     ctx.fillRect(-s * 0.6, s * 0.4, s * 1.2, s * 0.6);
   }
 
+  /** a Candy Cannon on its jungle-gym deck (+ the kid manning it) */
+  private drawTurret(g: Game, t: Turret) {
+    const ctx = this.ctx, sheet = getTurretSheet();
+    const sx = isoX(t.x, t.y), sy = isoY(t.x, t.y) - GYM_DECK_Z;
+    const a = Math.atan2(t.aimX + t.aimY, t.aimX - t.aimY); // aim on the screen, before the 2:1 squash
+    const f = (((Math.round((a / (Math.PI * 2)) * TURRET_DIRS)) % TURRET_DIRS) + TURRET_DIRS) % TURRET_DIRS;
+    const ca = Math.cos(a), sa = Math.sin(a) * 0.55;
+    const manned = g.mounted >= 0 && g.turrets[g.mounted] === t;
+    const kid = () => this.drawPlayer(g, sx - ca * 30 - sa * 22, sy - sa * 30 + 4); // behind the grips, a little to the side so both read
+    if (manned && sa > 0) kid(); // barrel toward the camera: the kid stands behind it
+    blitFrame(ctx, sheet, sheet.img, 0, f, sx - ca * t.recoil * 3, sy - sa * t.recoil * 3);
+    if (t.heat > 0.45) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.min(1, (t.heat - 0.45) * 1.8) * (t.over > 0 ? 0.6 + Math.sin(this.t * 20) * 0.3 : 0.7);
+      ctx.drawImage(glow('#ff4a1a', 64), sx + ca * 26 - 22, sy - 22 + sa * 26 - 22, 44, 44);
+      ctx.restore();
+    }
+    if (manned && sa <= 0) kid();
+  }
+
   private drawBullet(b: Game['bullets'][number], sx: number, sy: number) {
     const ctx = this.ctx;
-    const y = sy - 24;
+    const y = sy - 24 - (b.z ?? 0);
     const a = Math.atan2(isoY(b.vx, b.vy), isoX(b.vx, b.vy));
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.beginPath(); ctx.ellipse(sx, sy, 4, 2, 0, 0, Math.PI * 2); ctx.fill();
@@ -1137,6 +1162,17 @@ export class Renderer {
         ctx.restore();
         break;
       }
+      case 'candy':
+        // wrapped sweet from the Candy Cannon
+        ctx.save(); ctx.translate(sx, y); ctx.rotate(a);
+        ctx.fillStyle = b.color;
+        ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-12, -5); ctx.lineTo(-12, 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(12, -5); ctx.lineTo(12, 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 0, 7.5, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#140c12'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.fillRect(-3, -3, 4, 2);
+        ctx.restore();
+        break;
       case 'bone':
         ctx.save(); ctx.translate(sx, y); ctx.rotate(b.spin);
         ctx.strokeStyle = '#eee8d8'; ctx.lineWidth = 3; ctx.lineCap = 'round';
