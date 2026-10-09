@@ -1,4 +1,4 @@
-import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM } from './config';
+import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
 import { buildMap, GameMap, cellAt, lineOfSight, PropInst, HouseInst } from './map';
 import { settings } from './settings';
 import { gameAudio } from './audio';
@@ -163,6 +163,8 @@ export class Game {
   kills = 0;
   pendingLevels = 0;
   choices: Scroll[] = [];
+  /** trick-or-treat bowls can also hold guns (rare or better), shown after the treat cards */
+  gunChoices: Weapon[] = [];
   choiceMode: ChoiceMode = 'level';
   choiceGiver = '';
   tot: TotState | null = null;
@@ -1471,6 +1473,7 @@ export class Game {
       this.bossRound++;
       this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
+      this.relightHouses();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
       for (const creature of this.enemies) creature.dead = true;
       this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
@@ -2121,17 +2124,67 @@ export class Game {
     this.choiceMode = mode;
     this.choiceN = n;
     this.choiceLuck = luck;
-    this.choices = rollScrolls(n, this.scrolls, luck);
+    this.rollChoices();
     this.state = 'levelup';
+  }
+  /** Houses only hand out the good stuff: rare, epic or legendary, and each card can be a treat or a gun. */
+  private rollChoices() {
+    const n = this.choiceN, luck = this.choiceLuck;
+    if (this.choiceMode !== 'house') {
+      this.gunChoices = [];
+      this.choices = rollScrolls(n, this.scrolls, luck);
+      return;
+    }
+    let guns = 0;
+    for (let i = 0; i < n; i++) if (Math.random() < 0.4) guns++;
+    guns = Math.min(guns, n - 1); // always at least one treat on offer
+    this.choices = rollScrolls(n - guns, this.scrolls, luck, 2);
+    this.gunChoices = Array.from({ length: n - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, 2)));
   }
   reroll() {
     if (this.rerolls <= 0) return;
     this.rerolls--;
-    this.choices = rollScrolls(this.choiceN, this.scrolls, this.choiceLuck);
+    this.rollChoices();
+  }
+  /** take a gun from a trick-or-treat bowl: straight into a free slot, else inspect it and pick the slot */
+  chooseGun(i: number) {
+    const w = this.gunChoices[i];
+    if (!w || this.choiceMode !== 'house') return;
+    gameAudio.play('unlock');
+    this.input.pressed.clear();
+    this.gunChoices = [];
+    this.choiceMode = 'level';
+    this.p.invuln = 1;
+    const p = this.p;
+    const free = p.weapons.findIndex((x) => !x);
+    if (free >= 0 && free < 2) {
+      p.weapons[free] = w;
+      p.cur = free;
+      this.setBanner('NEW WEAPON!', `${w.def.name} · ${RARITY[w.rarity].name}`, 'loot');
+      this.state = 'play';
+      return;
+    }
+    this.dropWeapon(p.x, p.y, w);
+    const k = this.pickups[this.pickups.length - 1];
+    k.z = 0; k.vz = 0;
+    this.inspecting = k;
+    this.state = 'inspect';
+  }
+  /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
+  private relightHouses() {
+    const hs = this.map.houses;
+    for (const h of hs) {
+      h.visited = false;
+      h.trick = false;
+      if (h.light) h.light.i = h.lightI;
+    }
+    for (let i = 0; i < Math.max(1, Math.floor(hs.length / 6)); i++) hs[Math.floor(Math.random() * hs.length)].trick = true;
+    this.toast('The porch lights are back on: every house has fresh treats');
   }
   choose(id: string) {
     gameAudio.play('unlock');
     this.input.pressed.clear(); // the key that picked the card must not also swap weapons
+    this.gunChoices = [];
     this.scrolls[id] = (this.scrolls[id] || 0) + 1;
     this.scrollOrder.push(id);
     this.recalcStats();

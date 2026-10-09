@@ -11,7 +11,7 @@ Every piece of a build carries one or more **tags**:
 
 | Source | Counts while… | Where the table lives |
 |---|---|---|
-| Treats (level-ups, houses, the Candy Lady) | you own them. Every stack counts | `SCROLL_TAGS` |
+| Treats: 80s/90s movie homages the kids imagine (level-ups, houses, the Candy Lady) | you own them. Every stack counts | `SCROLL_TAGS` |
 | Inscriptions | the gun is **in your hand** (swapping guns re-tunes the build) | `INSC_TAGS` |
 | The gun itself | in hand: its element (fire/shock/ecto), plus *blast* if it explodes | `Build` constructor |
 | Costume | worn | `COSTUME_TAGS` |
@@ -58,7 +58,7 @@ hit = gun base
     × inscription stat lines    Sugar-Coated, Tummy Ache, …
     × run damage                every treat/talent/kid/costume damage bonus, compounding
     × trigger inscriptions      Trick Shot ×2 first shot, Fresh Batch, Candy Corn Combo (+3%/hit, no cap), Sixth Sense…
-    × run-wide treats           Lucky Number Six, Full Pillowcase, Statue Game, Brave Face
+    × run-wide treats           Feeling Lucky, Punk?, The Trap Is Full, Unstoppable Cyborg Stance, Danger-Zone Aviators
     × global "more"             (1 + momentum·perKill) · Juggernaut · Bulwark · Sugar High
     × crit                      critMul ^ layers   (see overcrit)
     × fire-rate overflow        when not overclocked
@@ -102,7 +102,7 @@ At wave 30, monsters have ×86 HP. At wave 50, ×1,670. At wave 80, ×143,000. Y
 
 ## 6. Example god-tier builds (starting points, not answers)
 
-* **Overcrit Blaster.** Stack Crit (Sour Patch, Jawbreaker, Owl Eyes, Lucky Socks, Jack-o'-Grin inscriptions) until crit
+* **Overcrit Blaster.** Stack Crit (Eye of the Tiger, Crane Kick, Heat-Vision Hunter, Feeling Lucky, Punk?, Jack-o'-Grin inscriptions) until crit
   passes 100%. Lucky Streak keeps adding crit while you hit, Critical Mass turns crits into explosions, and with Blast T3
   those explosions chain. Pair it with a high fire-rate gun.
 * **Inferno Storm.** Fire + Shock with an elemental gun. Inferno stacks burns without limit, Overload detonates the
@@ -110,10 +110,10 @@ At wave 30, monsters have ×86 HP. At wave 50, ×1,670. At wave 80, ×143,000. Y
   Add Ecto T3 (Possessed) so ecto amplifies both.
 * **Momentum Shotgun.** Kill + Sugar. Overclocked pellets clear trash, every kill adds Momentum, and Scavenger refunds
   ammo. Piñata Pop and Two-for-One inscriptions turn kills into more kills.
-* **Juggernaut Knight.** Tank stacking (Cardboard Knight, Mom's Lasagna, Costume Padding overstacked). Juggernaut and
+* **Juggernaut Knight.** Tank stacking (Blessing of the Barbarian Prince, Raw-Egg Breakfast, Cyborg Cop Plating overstacked). Juggernaut and
   Bulwark turn HP and shield into damage, and Spiky Costume punishes everything that touches you. Man a Candy Cannon
   with Pack Leader.
-* **Ghost Army.** Summon. Orbit blades, Ghost Buddy, a companion and the Candy Cannon, all ×1.3^tier. Shared Tricks
+* **Ghost Army.** Summon. Orbit blades, Pocket Ghost Pal, a companion and the Candy Cannon, all ×1.3^tier. Shared Tricks
   hands them your gun's elements, and Army of Ghosts doubles up.
 
 ## 7. Adding new pieces

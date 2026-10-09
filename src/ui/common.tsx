@@ -3,6 +3,7 @@ import { Tornado, Camera, Wrench, Moon } from 'lucide-react';
 import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
+import { treatArt } from '../game/art/treats';
 import { RARITY } from '../game/config';
 import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO } from '../game/data';
 import { ART, PORTRAITS, HERO_COLORS } from './art';
@@ -254,4 +255,9 @@ export function InfoPanel({ className = '' }: { className?: string }) {
       <img src={ART.infoPumpkin} alt="" draggable={false} className="h-[124px] w-auto shrink-0 self-end" style={{ maskImage: 'linear-gradient(90deg,transparent,#000 30%)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 30%)' }} />
     </div>
   );
+}
+
+/** the 80s/90s-movie card art for a treat (procedural, or the generated PNG when one is dropped in) */
+export function TreatArt({ id, className = '' }: { id: string; className?: string }) {
+  return <img src={imgUrl(treatArt(id))} alt="" draggable={false} className={`block h-full w-full object-cover ${className}`} />;
 }

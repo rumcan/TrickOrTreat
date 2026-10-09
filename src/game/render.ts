@@ -883,18 +883,21 @@ export class Renderer {
     if (this.minimap) {
       const big = g.bigMap;
       const mw = big ? Math.min(vw * 0.72, vh * 1.5) : Math.min(230, vw * 0.22), sc = mw / this.minimap.width, mh = this.minimap.height * sc;
-      const mx = big ? (vw - mw) / 2 : vw - mw - 18, my = big ? (vh - mh) / 2 : 18;
+      // tucked under the HUD's top bar (56px, 48px on phones, + its 3px rule)
+      const top = (vw < 640 ? 48 : 56) + 3;
+      const mx = big ? (vw - mw) / 2 : vw - mw - 16, my = big ? (vh - mh) / 2 : top + 16;
       const k = big ? 2 : 1;
       if (big) {
         ctx.fillStyle = 'rgba(5,6,10,0.6)';
         ctx.fillRect(0, 0, vw, vh);
       }
-      ctx.fillStyle = 'rgba(12,13,17,0.9)';
-      ctx.fillRect(mx - 8, my - 8, mw + 16, mh + 16);
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 5;
-      ctx.strokeRect(mx - 8, my - 8, mw + 16, mh + 16);
-      ctx.strokeStyle = '#d9af50'; ctx.lineWidth = 2;
-      ctx.strokeRect(mx - 8, my - 8, mw + 16, mh + 16);
+      // HexMatch minimap frame: 4px ink border + 1px orange outline
+      ctx.fillStyle = '#172022';
+      ctx.fillRect(mx - 6, my - 6, mw + 12, mh + 12);
+      ctx.fillStyle = '#0d1418';
+      ctx.fillRect(mx - 2, my - 2, mw + 4, mh + 4);
+      ctx.strokeStyle = '#ec9633'; ctx.lineWidth = 1;
+      ctx.strokeRect(mx - 6.5, my - 6.5, mw + 13, mh + 13);
       ctx.drawImage(this.minimap, mx, my, mw, mh);
       const s = 3 * sc;
       const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + MAP_H * s), my + ((x + y) * s) / 2];
@@ -916,15 +919,20 @@ export class Renderer {
       ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(pa, pb, 3.5 * k, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
       if (big) {
-        ctx.font = '22px Anton, Impact, sans-serif';
+        ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillStyle = '#fb8016';
-        ctx.fillText('MAPLE FALLS', mx, my - 18);
-        ctx.font = '700 14px "Barlow Condensed", system-ui, sans-serif';
+        ctx.fillStyle = '#f08a2c';
+        ctx.fillText('M A P L E   F A L L S', mx - 6, my - 34);
+        ctx.font = '32px Anton, Impact, sans-serif';
+        ctx.fillStyle = '#fff0da';
+        ctx.fillText('TONIGHT\'S STREETS', mx - 6, my - 14);
+        ctx.fillStyle = '#ed7414';
+        ctx.fillRect(mx + 268, my - 24, 61, 4);
+        ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillStyle = '#9aa0a6';
-        ctx.fillText('M  ·  CLOSE MAP', mx + mw, my - 18);
+        ctx.fillStyle = '#c9bda6';
+        ctx.fillText('M  ·  CLOSE MAP', mx + mw + 6, my - 14);
       }
     }
 

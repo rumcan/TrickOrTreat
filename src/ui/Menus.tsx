@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon } from 'lucide-react';
 import { Game } from '../game/engine';
-import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents } from '../game/data';
+import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
-import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, HeroPreview, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon } from './common';
+import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, HeroPreview, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon, TreatArt, Inscriptions } from './common';
 import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
 import { RunInventory } from './RunInventory';
 import { TalentTree } from './TalentTree';
@@ -226,54 +226,53 @@ function SettingRow({ label, desc, children }: { label: string; desc: string; ch
 export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onResume: () => void; onRestart: () => void; onQuit: () => void }) {
   const cur = game.p.weapons[game.p.cur];
   const [panel, setPanel] = useState<'none' | 'settings' | 'controls' | 'inventory' | 'team'>('none');
-  const [hover, setHover] = useState(0);
+  const [, setHover] = useState(0);
   const items = [
-    { label: 'Resume', on: onResume, icon: Play },
-    { label: 'Your run build (I)', on: () => setPanel('inventory'), icon: Backpack },
-    ...(game.campaign ? [{ label: 'Friends & shared guns', on: () => setPanel('team'), icon: Users }] : []),
-    { label: 'Settings', on: () => setPanel('settings'), icon: Gear },
-    { label: 'Controls', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')), icon: Gamepad2 },
-    { label: 'Restart run', on: onRestart, icon: RotateCw },
-    { label: 'Quit run', on: onQuit, icon: LogOut },
+    { label: 'Resume', sub: 'back to the night', on: onResume },
+    { label: 'Your run build (I)', sub: 'treats · synergies · damage math', on: () => setPanel('inventory') },
+    ...(game.campaign ? [{ label: 'Friends & shared guns', sub: 'pick your helper', on: () => setPanel('team') }] : []),
+    { label: 'Settings', sub: 'sound · brightness · gore', on: () => setPanel('settings') },
+    { label: 'Controls', sub: 'keys and mouse', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')) },
+    { label: 'Restart run', sub: 'same kid, fresh night', on: onRestart },
+    { label: 'Quit run', sub: 'bank your essence', on: onQuit },
   ];
+  const treats = Object.entries(game.scrolls).filter(([id, n]) => n > 0 && SCROLL_BY_ID[id]);
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex flex-wrap items-start justify-center gap-5">
-          <div className="kit-panel kit-pop w-[300px] overflow-hidden">
-            <KitTitle className="pb-3 pt-4 text-center text-[54px]">Paused</KitTitle>
-            <img src={ART.pause} alt="" draggable={false} className="block w-full border-y border-black" />
-            <div className="py-1">
-              {items.map((it, k) => {
-                const on = hover === k;
-                return (
-                  <button key={it.label} onMouseEnter={() => setHover(k)} onFocus={() => setHover(k)} onClick={it.on} className="flex w-full items-center gap-4 border-b border-[#24262c] px-5 py-2.5 text-left last:border-0">
-                    <span className={`flex h-9 w-9 items-center justify-center rounded-[3px] ${on ? 'bg-[#fb8016] text-[#0c0b0a]' : 'text-[#f4e6c4]'}`}>
-                      <it.icon size={on ? 20 : 24} strokeWidth={2.6} fill={it.icon === Play ? 'currentColor' : 'none'} />
-                    </span>
-                    <span className={`font-cond2 text-[19px] font-bold uppercase tracking-wide ${on ? 'text-[#fb8016]' : 'text-[#f2e6c9]'}`}>{it.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex w-72 flex-col gap-4">
-            {cur ? <WeaponCard w={cur} stats={game.stats} title="Equipped" /> : <div className="font-cond2 text-sm text-[#9aa0a6]">No weapon equipped</div>}
-            {Object.keys(game.scrolls).length > 0 && (
-              <div className="kit-panel p-3">
-                <div className="mb-2 font-cond2 text-[12px] font-bold uppercase tracking-[0.18em] text-[#9aa0a6]">Treats this run</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(game.scrolls).map(([id, n]) => (
-                    <span key={id} className="kit-tile flex h-9 min-w-9 items-center justify-center gap-0.5 px-1 text-base" style={{ borderColor: RARITY_KIT[SCROLL_BY_ID[id].rarity] }} title={`${SCROLL_BY_ID[id].name}: ${SCROLL_BY_ID[id].desc}`}>
-                      {SCROLL_BY_ID[id].icon}{n > 1 && <span className="font-cond2 text-[11px] font-bold text-[#fb8016]">x{n}</span>}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+    <div className="hm-backdrop">
+      <div className="hm-modal kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0">
+          <div className="paper-kicker">Paused · {fmtTime(game.time)} · {HERO_INFO[game.hero].name}</div>
+          <h2 className="hm-modal-title">Take a breather</h2>
+          <span className="hm-rule" />
+          <ol className="mt-5">
+            {items.map((it, k) => (
+              <li key={it.label}>
+                <button onMouseEnter={() => setHover(k)} onClick={it.on} className="hm-menu-row">
+                  <span className="hm-menu-n">{String(k + 1).padStart(2, '0')}</span>
+                  <span className="hm-menu-label">{it.label}</span>
+                  <span className="hm-menu-sub">{it.sub}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+          {panel === 'controls' && <ControlsPanel className="kit-pop mt-4 w-full" />}
         </div>
-        {panel === 'controls' && <ControlsPanel className="kit-pop w-full max-w-[640px]" />}
+        <aside className="flex min-w-0 flex-col gap-4">
+          {cur ? <WeaponCard w={cur} stats={game.stats} title="In hand" className="!w-full" /> : <div className="text-sm text-[#8f8676]">No weapon equipped</div>}
+          {treats.length > 0 && (
+            <div className="paper-section">
+              <h3>Treats this run</h3>
+              <div className="grid grid-cols-4 gap-1.5">
+                {treats.map(([id, n]) => (
+                  <div key={id} className="hm-thumb" title={`${SCROLL_BY_ID[id].name}: ${SCROLL_BY_ID[id].desc}`} style={{ borderColor: RARITY_KIT[SCROLL_BY_ID[id].rarity] }}>
+                    <TreatArt id={id} />
+                    {n > 1 && <span className="hm-thumb-n">×{n}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
       {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
@@ -282,57 +281,96 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
   );
 }
 
+/** a treat's retro card illustration */
+
 // ================= LEVEL UP =================
 export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const [, force] = useState(0);
   const pick = (id: string) => { game.choose(id); force((n) => n + 1); onDone(); };
+  const pickGun = (i: number) => { game.chooseGun(i); force((n) => n + 1); onDone(); };
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
-      const i = ['1', '2', '3', '4', '5'].indexOf(e.key);
-      if (i >= 0 && game.choices[i]) pick(game.choices[i].id);
+      const i = ['1', '2', '3', '4', '5', '6'].indexOf(e.key);
+      if (i < 0) return;
+      if (game.choices[i]) pick(game.choices[i].id);
+      else if (game.gunChoices[i - game.choices.length]) pickGun(i - game.choices.length);
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
   });
   const mode = game.choiceMode;
-  const kind = mode === 'house' ? 'tot' : mode === 'shop' ? 'weapon' : 'level';
   const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : 'Level up!';
-  const sub = mode === 'house'
-    ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: extra pick' : 'no costume = stingy treats'}`
-    : mode === 'shop' ? "Candy Lady's mystery treat" : `Level ${game.p.level - game.pendingLevels + 1} · treats stack`;
+  const houseNote = mode === 'house' ? ' · rare or better: a treat or a gun' : '';
+  const kicker = mode === 'house'
+    ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: extra pick' : 'no costume = stingy treats'}${houseNote}`
+    : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;
+  const n = game.choices.length + game.gunChoices.length;
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
-      <div className="w-full max-w-5xl">
-        <Banner key={title + game.p.level} kind={kind} title={title} sub={sub} size="lg" className="kit-pop mx-auto w-[min(660px,100%)]" />
-        <div className={`mt-6 grid grid-cols-1 gap-4 ${game.choices.length >= 4 ? 'md:grid-cols-4' : game.choices.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+    <div className="hm-backdrop">
+      <div className="hm-modal kit-pop">
+        <div className="paper-kicker">{kicker}</div>
+        <h2 className="hm-modal-title">{title}</h2>
+        <span className="hm-rule" />
+        <div className={`mt-6 grid grid-cols-1 gap-5 ${n >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : n === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
           {game.choices.map((c, i) => {
-            const rc = RARITY_KIT[c.rarity];
+            const rc = RARITY_KIT[c.rarity], owned = game.scrolls[c.id] || 0;
             return (
-              <button key={c.id + i} onClick={() => pick(c.id)} className="kit-panel group flex flex-col items-center p-4 text-center transition-transform hover:-translate-y-1.5" style={{ borderColor: rc, boxShadow: `0 0 0 1px #000, 0 0 22px ${rc}33` }}>
-                <div className="flex w-full items-center justify-between">
-                  <Keycap>{i + 1}</Keycap>
-                  <span className="font-cond2 text-[12px] font-bold uppercase tracking-[0.2em]" style={{ color: rc }}>{RARITY_NAMES[c.rarity]}</span>
+              <button key={c.id + i} onClick={() => pick(c.id)} className="hm-pick" style={{ ['--acc' as string]: rc }}>
+                <div className="hm-pick-art">
+                  <TreatArt id={c.id} />
+                  <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
+                  <span className="hm-stamp">{RARITY_NAMES[c.rarity]}</span>
                 </div>
-                <div className="my-3 text-5xl transition-transform group-hover:scale-110">{c.icon}</div>
-                <div className="font-cond text-xl uppercase leading-tight text-[#f2e6c9]">{c.name}</div>
-                <div className="mt-1.5 text-[13px] leading-snug text-[#c9c1ad]">{c.desc}</div>
-                <TagChips tags={SCROLL_TAGS[c.id] ?? []} build={game.build} className="mt-2" />
-                <div className="mt-auto pt-2 font-num text-[11px] text-[#6b7078]">{(game.scrolls[c.id] || 0) >= c.max ? <span className="text-[#ff7ad9]">Overstack · owned {game.scrolls[c.id]}</span> : <>Owned {game.scrolls[c.id] || 0}/{c.max}</>}</div>
+                <div className="flex flex-1 flex-col p-3.5">
+                  <div className="hm-pick-name">{c.name}</div>
+                  {c.quote && <div className="hm-pick-quote">“{c.quote}”</div>}
+                  <div className="hm-label mt-3">Effect</div>
+                  <div className="hm-pick-desc">{c.desc}</div>
+                  <TagChips tags={SCROLL_TAGS[c.id] ?? []} build={game.build} className="mt-2.5 !justify-start" />
+                  <div className="mt-auto flex items-baseline justify-between pt-3">
+                    <span className="hm-label !text-[#8f8676]">{owned >= c.max ? 'Overstack' : 'Owned'}</span>
+                    <span className={`font-num text-[12px] ${owned >= c.max ? 'text-[#ff7ad9]' : 'text-[#c9bda6]'}`}>{owned >= c.max ? `${owned} · no cap` : `${owned}/${c.max}`}</span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+          {game.gunChoices.map((w, j) => {
+            const rc = RARITY_KIT[w.rarity], i = game.choices.length + j;
+            const st = weaponStats(w, game.stats);
+            return (
+              <button key={w.uid} onClick={() => pickGun(j)} className="hm-pick" style={{ ['--acc' as string]: rc }} aria-label={`Take ${w.def.name}`}>
+                <div className="hm-pick-art hm-pick-gun" style={{ ['--glow' as string]: rc }}>
+                  <img src={weaponUrl(w.def.id)} alt="" draggable={false} className="relative h-[62%] w-auto [image-rendering:pixelated]" />
+                  <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
+                  <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun</span>
+                </div>
+                <div className="flex flex-1 flex-col p-3.5">
+                  <div className="hm-pick-name">{w.def.name}</div>
+                  <div className="hm-pick-quote">{w.def.desc}</div>
+                  <div className="hm-label mt-3">Firepower</div>
+                  <div className="hm-pick-desc font-num">{weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
+                  <Inscriptions w={w} compact />
+                  <div className="mt-auto flex items-baseline justify-between pt-3">
+                    <span className="hm-label !text-[#8f8676]">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Swap'}</span>
+                    <span className="font-num text-[12px] text-[#c9bda6]">{game.p.weapons.some((x) => !x) ? 'goes straight in' : 'inspect, then pick a slot'}</span>
+                  </div>
+                </div>
               </button>
             );
           })}
         </div>
-        <div className="mt-5 flex justify-center">
-          <KitButton variant="teal" disabled={game.rerolls <= 0} onClick={() => { game.reroll(); force((n) => n + 1); }}>🎲 Reroll ({game.rerolls})</KitButton>
+        <div className="hm-foot">
+          <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack, and stacks never cap</span>
+          <button className="hm-btn ghost" disabled={game.rerolls <= 0} onClick={() => { game.reroll(); force((k) => k + 1); }}>Reroll ({game.rerolls})</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ================= SHOP =================
 function WeaponThumb({ id }: { id: string }) {
-  return <div className="kit-tile flex h-11 w-[72px] shrink-0 items-center justify-center"><img src={weaponUrl(id)} className="h-7 w-14 [image-rendering:pixelated]" alt="" /></div>;
+  return <img src={weaponUrl(id)} className="h-9 w-[72px] shrink-0 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt="" />;
 }
 export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
   const [, force] = useState(0);
@@ -344,42 +382,47 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
   }, [onClose]);
   const p = game.p;
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
-      <div className="kit-panel kit-pop w-full max-w-3xl p-5 sm:p-6">
+    <div className="hm-backdrop">
+      <div className="hm-modal kit-pop !max-w-[860px]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <KitTitle className="text-3xl sm:text-4xl">{game.bossBreak ? 'Boss defeated · Upgrade break' : "Candy Lady's Treats"}</KitTitle>
-            <div className="mt-1 font-ui text-[13px] italic text-[#9aa0a6]">{game.bossBreak ? 'All creatures cleared. Time is paused. Buy treats, heal and upgrade before the next fight.' : '"Spend those coins wisely, dearie… the night is long."'}</div>
+            <div className="paper-kicker">{game.bossBreak ? 'Boss down · time is paused' : "The Candy Lady's stand"}</div>
+            <h2 className="hm-modal-title">{game.bossBreak ? 'Upgrade break' : 'Treats & trades'}</h2>
+            <span className="hm-rule" />
           </div>
-          <Chip icon={<CoinIcon size={20} />} className="!text-xl" color="#ffc453">{p.coins}</Chip>
+          <div className="paper-card flex items-center gap-2 !px-4 !py-2"><CoinIcon size={22} /><span className="font-cond text-3xl leading-none text-[#f29b39]">{p.coins}</span></div>
         </div>
+        <p className="mt-3 text-[14px] italic text-[#c9bda6]">{game.bossBreak ? 'Every monster is cleared. Heal, upgrade and pick treats before the next one rises.' : '“Spend those coins wisely, dearie… the night is long.”'}</p>
         <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
           {p.weapons.map((w, i) => w && (
-            <div key={i} className="kit-tile p-3">
+            <div key={i} className="paper-card flex flex-col gap-2" style={{ borderLeft: `5px solid ${w.rarity ? RARITY_KIT[w.rarity] : '#58585b'}` }}>
               <div className="flex items-center gap-3">
                 <WeaponThumb id={w.def.id} />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-cond text-lg uppercase" style={{ color: w.rarity ? RARITY_KIT[w.rarity] : '#f2e6c9' }}>{weaponTitle(w)}</div>
-                  <div className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]">+14% damage · +3% fire rate</div>
+                  <div className="label">Gun {i + 1} · upgrade</div>
+                  <div className="truncate font-cond text-xl uppercase leading-tight">{weaponTitle(w)}</div>
                 </div>
               </div>
-              <KitButton size="sm" className="mt-2.5 w-full" disabled={p.coins < upgradeCost(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Upgrade to Lv {w.level + 1} · 🪙 {upgradeCost(w)}</KitButton>
+              <div className="text-[13px] text-[#c9bda6]">+14% damage · +3% fire rate per level</div>
+              <button className="hm-btn" disabled={p.coins < upgradeCost(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Level {w.level + 1} · {upgradeCost(w)} coins</button>
             </div>
           ))}
-          <div className="kit-tile p-3">
-            <div className="font-cond text-lg uppercase text-[#ff4d5a]">🍫 Full-size chocolate bar</div>
-            <div className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]">Restore 50% HP ({Math.ceil(p.hp)}/{Math.round(game.stats.maxHp)})</div>
-            <KitButton size="sm" variant="dark" className="mt-2.5 w-full" disabled={p.coins < game.healCost() || p.hp >= game.stats.maxHp} onClick={() => { game.shopHeal(); f(); }}>Buy · 🪙 {game.healCost()}</KitButton>
+          <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #e8433c' }}>
+            <div className="label">First aid</div>
+            <div className="font-cond text-xl uppercase leading-tight">Full-size chocolate bar</div>
+            <div className="text-[13px] text-[#c9bda6]">Restore 50% HP ({Math.ceil(p.hp)}/{Math.round(game.stats.maxHp)})</div>
+            <button className="hm-btn ghost" disabled={p.coins < game.healCost() || p.hp >= game.stats.maxHp} onClick={() => { game.shopHeal(); f(); }}>Buy · {game.healCost()} coins</button>
           </div>
-          <div className="kit-tile p-3">
-            <div className="font-cond text-lg uppercase text-[#b98aff]">🎁 Mystery treat</div>
-            <div className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]">Pick 1 of {3 + game.stats.totChoices} treats (like a level-up)</div>
-            <KitButton size="sm" variant="dark" className="mt-2.5 w-full" disabled={p.coins < game.treatCost()} onClick={() => { game.shopTreat(); onClose(); }}>Buy · 🪙 {game.treatCost()}</KitButton>
+          <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #b98aff' }}>
+            <div className="label">Imagination</div>
+            <div className="font-cond text-xl uppercase leading-tight">Mystery treat</div>
+            <div className="text-[13px] text-[#c9bda6]">Pick 1 of {3 + game.stats.totChoices} treats, like a level-up</div>
+            <button className="hm-btn ghost" disabled={p.coins < game.treatCost()} onClick={() => { game.shopTreat(); onClose(); }}>Buy · {game.treatCost()} coins</button>
           </div>
         </div>
-        <div className="mt-5 flex items-center justify-end gap-2.5">
-          <span className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]"><Keycap>E</Keycap> / <Keycap>Esc</Keycap></span>
-          <KitButton variant="cream" onClick={onClose}>{game.bossBreak ? game.bossKilled ? 'Finish / rescue remaining friends' : 'Continue to next boss' : 'Leave'}</KitButton>
+        <div className="hm-foot">
+          <span className="text-[13px] text-[#8f8676]"><Keycap className="!h-5 !rounded-none !text-[11px]">E</Keycap> / <Keycap className="!h-5 !rounded-none !text-[11px]">Esc</Keycap> to leave</span>
+          <button className="hm-btn" onClick={onClose}>{game.bossBreak ? game.bossKilled ? 'Finish / rescue remaining friends' : 'Continue to next boss' : 'Leave'}</button>
         </div>
       </div>
     </div>
