@@ -1,0 +1,41 @@
+{
+  "key": "ovl_crosswalk_y",
+  "spec": {
+    "key": "ovl_crosswalk_y",
+    "file": "overlays/ovl_crosswalk_y.png",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "desc": "Zebra crosswalk stripes for a road running along the world Y axis",
+    "prompt": "Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles. Four worn white zebra crossing stripes, iso-projected."
+  },
+  "id": "73bae5ef175f7754",
+  "rawFile": "art/world/raw/ovl_crosswalk_y-3164cb0e7dcd2e73.png",
+  "stagedFile": "art/world/staged/ovl_crosswalk_y-73bae5ef175f7754.png",
+  "savedPromptFile": "art/world/raw/ovl_crosswalk_y-3164cb0e7dcd2e73.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "3164cb0e7dcd2e73bba65b814ff94fda516aba6f8741fd9f1583b80e0dc91e95",
+  "packedHash": "73bae5ef175f7754a38f515398c33589c6b312bbc635fa705d34e63f6bbc075f",
+  "promptHash": "036b43b15209cdbc79fc40d6cfce7b61b654b991e3e875dea8cad1b16da4cf71",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T10:02:06.374Z",
+  "fingerprint": "36252fae1b0104415691032d3524a5d603b145100e737d9397c83db87d1c3267",
+  "activationFile": "art/world/activations/ovl_crosswalk_y-1791540186842.json",
+  "gameFile": "generated/world/ovl_crosswalk_y-73bae5ef175f7754.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production overlay sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles. Four worn white zebra crossing stripes, iso-projected.\nAtlas entry: ovl_crosswalk_y. Zebra crosswalk stripes for a road running along the world Y axis\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x64; render 512x256 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nOverlay: only the described decal/edge detail; leave the rest transparent, including the underlying terrain. Match the layout guide exactly. NE connects (w/2,0) to (w,h/2); SE connects (w,h/2) to (w/2,h); SW connects (w/2,h) to (0,h/2); NW connects (0,h/2) to (w/2,0).\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/ovl_crosswalk_y.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

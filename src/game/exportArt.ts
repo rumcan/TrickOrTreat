@@ -52,14 +52,16 @@ export function exportArt(refScale = 4, sheets: 'base' | 'all' = 'base', buildin
 
 /**
  * Every asset in the Collection / Asset Atlas (all categories, overrides ignored) with its spec, AI prompt and a 1×
- * procedural render. scripts/regen-art.py feeds the render to the image generator as the layout guide (exact
- * canvas, frame grid and anchor) next to the style reference.
+ * procedural render. scripts/regen-art-dump.mjs exports these for the world-art generation queue, using each
+ * render as the layout guide (exact canvas and anchor) next to the style reference. Original defaults stay 1x/all.
  */
-export function exportRegen() {
+export function exportRegen(renderScale = 1, worldOnly = false) {
+  if (!Number.isInteger(renderScale) || renderScale < 1 || renderScale > 4) throw new Error('Render scale must be an integer from 1 to 4');
   return allAssets()
     .filter((e) => e.spec.prompt && e.spec.category !== 'fx')
+    .filter((e) => !worldOnly || ['prop', 'tile', 'overlay'].includes(e.spec.category))
     .map((e) => {
-      const { key, file, category, w, h, frameW, frameH, rows, rowFrames, anchor, footprint, desc, prompt } = e.spec;
-      return { key, file, category, w, h, frameW, frameH, rows, rowFrames, anchor, footprint, desc, prompt, render: b64(withArtScale(1, e.gen)) };
+      const { key, file, category, w, h, frameW, frameH, frames, rows, rowFrames, anchor, footprint, desc, prompt } = e.spec;
+      return { key, file, category, w, h, frameW, frameH, frames, rows, rowFrames, anchor, footprint, desc, prompt, renderScale, render: b64(withArtScale(renderScale, e.gen)) };
     });
 }

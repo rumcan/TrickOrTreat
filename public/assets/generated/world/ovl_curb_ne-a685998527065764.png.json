@@ -1,0 +1,41 @@
+{
+  "key": "ovl_curb_ne",
+  "spec": {
+    "key": "ovl_curb_ne",
+    "file": "overlays/ovl_curb_ne.png",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "desc": "Concrete curb strip along the NE edge of a sidewalk tile (road is on that side)",
+    "prompt": "Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles. A raised light-grey concrete curb running exactly along the NE diamond edge, ~9px wide."
+  },
+  "id": "a685998527065764",
+  "rawFile": "art/world/raw/ovl_curb_ne-d8e689bcd177b227.png",
+  "stagedFile": "art/world/staged/ovl_curb_ne-a685998527065764.png",
+  "savedPromptFile": "art/world/raw/ovl_curb_ne-d8e689bcd177b227.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "d8e689bcd177b227c39a1103d2de93cb394286b547d53aa37b162c51724f6c96",
+  "packedHash": "a685998527065764a12e8bd3acdb25bcd9380f955ac9f810eaf7f80d6077c0eb",
+  "promptHash": "684361ebd0608cbf5e923d694224dd138ceac3c7fb1546cc25f2cdc9da43def3",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T10:02:06.542Z",
+  "fingerprint": "b6063374b11c3e788b94a2551ea885be7f4fe467effec6455c54b07379467642",
+  "activationFile": "art/world/activations/ovl_curb_ne-1791540186891.json",
+  "gameFile": "generated/world/ovl_curb_ne-a685998527065764.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production overlay sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles. A raised light-grey concrete curb running exactly along the NE diamond edge, ~9px wide.\nAtlas entry: ovl_curb_ne. Concrete curb strip along the NE edge of a sidewalk tile (road is on that side)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x64; render 512x256 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nOverlay: only the described decal/edge detail; leave the rest transparent, including the underlying terrain. Match the layout guide exactly. NE connects (w/2,0) to (w,h/2); SE connects (w,h/2) to (w/2,h); SW connects (w/2,h) to (0,h/2); NW connects (0,h/2) to (w/2,0).\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/ovl_curb_ne.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

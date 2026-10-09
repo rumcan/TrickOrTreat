@@ -1,0 +1,49 @@
+{
+  "key": "scarecrow",
+  "spec": {
+    "key": "scarecrow",
+    "file": "props/scarecrow.png",
+    "category": "prop",
+    "w": 128,
+    "h": 200,
+    "anchor": [
+      64,
+      164
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Hay bale with scarecrow",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A straw hay bale with a ragged scarecrow on a pole wearing a witch hat. Footprint 1x1 tile(s); footprint centre on pixel (64,164)."
+  },
+  "id": "4b319722a82a7397",
+  "rawFile": "art/world/raw/scarecrow-7c03c703bd979473.png",
+  "stagedFile": "art/world/staged/scarecrow-4b319722a82a7397.png",
+  "savedPromptFile": "art/world/raw/scarecrow-7c03c703bd979473.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "7c03c703bd979473a3ab8f65539859d20c7836ede654a365cbba2db4678774b5",
+  "packedHash": "4b319722a82a73978895e04e2eb3ff9f1ed42702d3f82ca11107eb2c6bd573ca",
+  "promptHash": "47b03b5804a4f87582eeab77137a41664413e47c79f84165ab2d48c6d8b78fd9",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1003,
+    1568
+  ],
+  "outputSize": [
+    512,
+    800
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T10:03:20.850Z",
+  "fingerprint": "6c96167069033b39ec2e442898d88f10f339a534e13299912044044e45e860de",
+  "activationFile": "art/world/activations/scarecrow-1791540366936.json",
+  "gameFile": "generated/world/scarecrow-4b319722a82a7397.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A straw hay bale with a ragged scarecrow on a pole wearing a witch hat. Footprint 1x1 tile(s); footprint centre on pixel (64,164).\nAtlas entry: scarecrow. Hay bale with scarecrow\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x200; render 512x800 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (64,164), rendered (256,656). All contact positions stay fixed to the layout guide.\nFootprint: exactly 1x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/scarecrow.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

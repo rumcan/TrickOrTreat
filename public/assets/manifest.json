@@ -2,53 +2,949 @@
   "_readme": "Maps asset keys (see Collection / Asset Atlas in-game) to files inside /assets. Listed files replace the procedural art. A value can be a path (PNG sprite sheet, animated PNG, or WEBP at any whole-number scale) or an object: { \"file\", \"frames\": n | [per row] | [\"frame files\"], \"rows\": [one strip/APNG/frame list per row], \"scale\", \"anchor\": [x, y] }. Images bigger than maxScale x the game size are downsampled once at load. See ASSET_SPEC.md.",
   "maxScale": 2,
   "overrides": {
-    "house_0": "buildings/house_0.png",
-    "house_1": "buildings/house_1.png",
-    "house_2": "buildings/house_2.png",
-    "house_3": "buildings/house_3.png",
-    "house_4": "buildings/house_4.png",
-    "house_5": "buildings/house_5.png",
-    "crypt": "buildings/crypt.png",
-    "candy_stand": "buildings/candy_stand.png",
-    "school": "buildings/school.png",
-    "arcade": "buildings/arcade.png",
-    "diner": "buildings/diner.png",
-    "video": "buildings/video.png",
-    "watertower": "buildings/watertower.png",
-    "hero_tommy": "characters/hero_tommy.png",
-    "hero_sam": "characters/hero_sam.png",
-    "hero_jess": "characters/hero_jess.png",
-    "hero_tommy_ghost": "characters/hero_tommy_ghost.png",
-    "hero_tommy_vampire": "characters/hero_tommy_vampire.png",
-    "hero_tommy_witch": "characters/hero_tommy_witch.png",
-    "hero_tommy_hero": "characters/hero_tommy_hero.png",
-    "hero_tommy_skeleton": "characters/hero_tommy_skeleton.png",
-    "hero_tommy_pumpkin": "characters/hero_tommy_pumpkin.png",
-    "hero_tommy_astronaut": "characters/hero_tommy_astronaut.png",
-    "hero_tommy_dino": "characters/hero_tommy_dino.png",
-    "hero_sam_ghost": "characters/hero_sam_ghost.png",
-    "hero_sam_vampire": "characters/hero_sam_vampire.png",
-    "hero_sam_witch": "characters/hero_sam_witch.png",
-    "hero_sam_hero": "characters/hero_sam_hero.png",
-    "hero_sam_skeleton": "characters/hero_sam_skeleton.png",
-    "hero_sam_pumpkin": "characters/hero_sam_pumpkin.png",
-    "hero_sam_astronaut": "characters/hero_sam_astronaut.png",
-    "hero_sam_dino": "characters/hero_sam_dino.png",
-    "hero_jess_ghost": "characters/hero_jess_ghost.png",
-    "hero_jess_vampire": "characters/hero_jess_vampire.png",
-    "hero_jess_witch": "characters/hero_jess_witch.png",
-    "hero_jess_hero": "characters/hero_jess_hero.png",
-    "hero_jess_skeleton": "characters/hero_jess_skeleton.png",
-    "hero_jess_pumpkin": "characters/hero_jess_pumpkin.png",
-    "hero_jess_astronaut": "characters/hero_jess_astronaut.png",
-    "hero_jess_dino": "characters/hero_jess_dino.png",
-    "enemy_zombie": "monsters/enemy_zombie.png",
-    "enemy_skeleton": "monsters/enemy_skeleton.png",
-    "enemy_ghost": "monsters/enemy_ghost.png",
-    "enemy_bat": "monsters/enemy_bat.png",
-    "enemy_pumpkin": "monsters/enemy_pumpkin.png",
-    "enemy_witch": "monsters/enemy_witch.png",
-    "enemy_werewolf": "monsters/enemy_werewolf.png",
-    "enemy_king": "monsters/enemy_king.png"
+    "house_0": {
+      "file": "generated/world/house_0-b12128c26da3f80f.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1336
+      ]
+    },
+    "house_1": {
+      "file": "generated/world/house_1-64a7a02f64f5d458.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1560
+      ]
+    },
+    "house_2": {
+      "file": "generated/world/house_2-75cba04ddaa4a070.png",
+      "scale": 4,
+      "anchor": [
+        888,
+        1496
+      ]
+    },
+    "house_3": {
+      "file": "generated/world/house_3-4f5194bb46735905.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1336
+      ]
+    },
+    "house_4": {
+      "file": "generated/world/house_4-034d3089ea7b8a91.png",
+      "scale": 4,
+      "anchor": [
+        888,
+        1272
+      ]
+    },
+    "house_5": {
+      "file": "generated/world/house_5-13b08c139bc1ce9f.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1560
+      ]
+    },
+    "crypt": {
+      "file": "generated/world/crypt-5f5c93fcb05b00ce.png",
+      "scale": 4,
+      "anchor": [
+        720,
+        1000
+      ]
+    },
+    "candy_stand": {
+      "file": "generated/world/candy_stand-c171087230c1349b.png",
+      "scale": 4,
+      "anchor": [
+        592,
+        936
+      ]
+    },
+    "school": {
+      "file": "generated/world/school-bc2778189522dc02.png",
+      "scale": 4,
+      "anchor": [
+        1400,
+        1560
+      ]
+    },
+    "arcade": {
+      "file": "generated/world/arcade-f72a1d9e8cc68115.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1248
+      ]
+    },
+    "diner": {
+      "file": "generated/world/diner-4303d5a0c5ba086b.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1128
+      ]
+    },
+    "video": {
+      "file": "generated/world/video-15d8aec9338cd510.png",
+      "scale": 4,
+      "anchor": [
+        868,
+        1024
+      ]
+    },
+    "watertower": {
+      "file": "generated/world/watertower-1dc2a5ccf42d9ec3.png",
+      "scale": 4,
+      "anchor": [
+        632,
+        1272
+      ]
+    },
+    "hero_tommy": {
+      "file": "generated/world/hero_tommy-964f2394e87fd1d5.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam": {
+      "file": "generated/world/hero_sam-0738bee5fa941582.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess": {
+      "file": "generated/world/hero_jess-86df4faed3cc211f.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_ghost": {
+      "file": "generated/world/hero_tommy_ghost-13020e79ab0581ec.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_vampire": {
+      "file": "generated/world/hero_tommy_vampire-ed10cc2b2a55c10a.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_witch": {
+      "file": "generated/world/hero_tommy_witch-808dfca255361b02.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_hero": {
+      "file": "generated/world/hero_tommy_hero-03578208baee5b50.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_skeleton": {
+      "file": "generated/world/hero_tommy_skeleton-a1785f12b824da04.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_pumpkin": {
+      "file": "generated/world/hero_tommy_pumpkin-7ab1f10467400b12.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_astronaut": {
+      "file": "generated/world/hero_tommy_astronaut-443fb8224489f288.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_tommy_dino": {
+      "file": "generated/world/hero_tommy_dino-090237b5e5443446.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_ghost": {
+      "file": "generated/world/hero_sam_ghost-f7b5d4a4098b34d8.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_vampire": {
+      "file": "generated/world/hero_sam_vampire-6ee251684b5d8bd5.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_witch": {
+      "file": "generated/world/hero_sam_witch-728b8ed6835d697d.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_hero": {
+      "file": "generated/world/hero_sam_hero-2c19d07f95eafe67.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_skeleton": {
+      "file": "generated/world/hero_sam_skeleton-36143d00d70f90a0.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_pumpkin": {
+      "file": "generated/world/hero_sam_pumpkin-a8c3a7725b1e21f9.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_astronaut": {
+      "file": "generated/world/hero_sam_astronaut-368b78571ba4c264.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_sam_dino": {
+      "file": "generated/world/hero_sam_dino-29f0d4fc22e27819.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_ghost": {
+      "file": "generated/world/hero_jess_ghost-e4f7a96438112e8a.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_vampire": {
+      "file": "generated/world/hero_jess_vampire-f906a370a6eef8ff.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_witch": {
+      "file": "generated/world/hero_jess_witch-cefb56eb8c657a19.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_hero": {
+      "file": "generated/world/hero_jess_hero-f0f1582cebd38e85.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_skeleton": {
+      "file": "generated/world/hero_jess_skeleton-6a9bff8fc22dcc33.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_pumpkin": {
+      "file": "generated/world/hero_jess_pumpkin-8a2722c8c360c7ac.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_astronaut": {
+      "file": "generated/world/hero_jess_astronaut-12dc60dd7d303b7c.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "hero_jess_dino": {
+      "file": "generated/world/hero_jess_dino-9d27e00619bf771e.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "enemy_zombie": {
+      "file": "generated/world/enemy_zombie-9631a8f62ad6a6cb.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "enemy_skeleton": {
+      "file": "generated/world/enemy_skeleton-7f9149a401e53fb0.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "enemy_ghost": {
+      "file": "generated/world/enemy_ghost-b5d239d43e81e016.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        360
+      ]
+    },
+    "enemy_bat": {
+      "file": "generated/world/enemy_bat-340be58333b35673.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        208
+      ]
+    },
+    "enemy_pumpkin": {
+      "file": "generated/world/enemy_pumpkin-67cbe1b124d5bcd9.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        304
+      ]
+    },
+    "enemy_witch": {
+      "file": "generated/world/enemy_witch-09e58eafd78436bd.png",
+      "scale": 4,
+      "anchor": [
+        144,
+        424
+      ]
+    },
+    "enemy_werewolf": {
+      "file": "generated/world/enemy_werewolf-2b1a37499d272fd1.png",
+      "scale": 4,
+      "anchor": [
+        192,
+        488
+      ]
+    },
+    "enemy_king": {
+      "file": "generated/world/enemy_king-631f70415ccf77f5.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        808
+      ]
+    },
+    "tile_road_0": {
+      "file": "generated/world/tile_road_0-204b72c2e94f9f07.png",
+      "scale": 4
+    },
+    "tile_sidewalk_0": {
+      "file": "generated/world/tile_sidewalk_0-5fbbb2660b4d43e0.png",
+      "scale": 4
+    },
+    "tree_oak_0": {
+      "file": "generated/world/tree_oak_0-502a951585ce8286.png",
+      "scale": 4,
+      "anchor": [
+        360,
+        856
+      ]
+    },
+    "streetlamp": {
+      "file": "generated/world/streetlamp-57c1616a5a639908.png",
+      "scale": 4,
+      "anchor": [
+        160,
+        816
+      ]
+    },
+    "bleachers": {
+      "file": "generated/world/bleachers-f7efdb922a37eb8d.png",
+      "scale": 4,
+      "anchor": [
+        552,
+        496
+      ]
+    },
+    "bush_0": {
+      "file": "generated/world/bush_0-3507d07e6911db1e.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        296
+      ]
+    },
+    "bush_1": {
+      "file": "generated/world/bush_1-b7b93238c62530c8.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        296
+      ]
+    },
+    "bush_2": {
+      "file": "generated/world/bush_2-ddf68d31eb422d44.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        296
+      ]
+    },
+    "car_0": {
+      "file": "generated/world/car_0-cfb3d4a6ae2dac5c.png",
+      "scale": 4,
+      "anchor": [
+        464,
+        552
+      ]
+    },
+    "car_1": {
+      "file": "generated/world/car_1-3f55fc4bfa38d74c.png",
+      "scale": 4,
+      "anchor": [
+        464,
+        552
+      ]
+    },
+    "car_2": {
+      "file": "generated/world/car_2-508d686943119686.png",
+      "scale": 4,
+      "anchor": [
+        464,
+        552
+      ]
+    },
+    "car_3": {
+      "file": "generated/world/car_3-49dba9163b7edd0e.png",
+      "scale": 4,
+      "anchor": [
+        464,
+        552
+      ]
+    },
+    "fence_iron_x": {
+      "file": "generated/world/fence_iron_x-dc3632090ef6eb52.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        416
+      ]
+    },
+    "fence_iron_y": {
+      "file": "generated/world/fence_iron_y-fafef59bf5acd831.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        416
+      ]
+    },
+    "fence_picket_x": {
+      "file": "generated/world/fence_picket_x-ef826d6087b22dd8.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        416
+      ]
+    },
+    "tile_grass_0": {
+      "file": "generated/world/tile_grass_0-c31ccd10b7892d15.png",
+      "scale": 4
+    },
+    "fence_picket_y": {
+      "file": "generated/world/fence_picket_y-7b7e3dffc41080b7.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        416
+      ]
+    },
+    "gate": {
+      "file": "generated/world/gate-6032f97f21d7ab81.png",
+      "scale": 4,
+      "anchor": [
+        572,
+        536
+      ]
+    },
+    "goalposts": {
+      "file": "generated/world/goalposts-d6e49c9db05ee21b.png",
+      "scale": 4,
+      "anchor": [
+        180,
+        820
+      ]
+    },
+    "grave_0": {
+      "file": "generated/world/grave_0-739feee14fff77ef.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        376
+      ]
+    },
+    "grave_1": {
+      "file": "generated/world/grave_1-d97102e0aade84b0.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        376
+      ]
+    },
+    "grave_2": {
+      "file": "generated/world/grave_2-465ea9412487cf04.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        376
+      ]
+    },
+    "hedge": {
+      "file": "generated/world/hedge-b19ca7312effee2e.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        376
+      ]
+    },
+    "hydrant": {
+      "file": "generated/world/hydrant-0bada59965a1047e.png",
+      "scale": 4,
+      "anchor": [
+        128,
+        256
+      ]
+    },
+    "icon_balloon": {
+      "file": "generated/world/icon_balloon-dc3ee35d99dd5051.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_laser": {
+      "file": "generated/world/icon_laser-05eee587ab3fba04.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_nerf": {
+      "file": "generated/world/icon_nerf-7cb09e73928f9c67.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_pea": {
+      "file": "generated/world/icon_pea-086f426c9eb4ce5b.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_rocket": {
+      "file": "generated/world/icon_rocket-e9461892b7621726.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_roman": {
+      "file": "generated/world/icon_roman-13dbef4993e954d9.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_shotgun": {
+      "file": "generated/world/icon_shotgun-6dcaf206a9302b1d.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_slingshot": {
+      "file": "generated/world/icon_slingshot-7dfeee5b650ebe13.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_soaker": {
+      "file": "generated/world/icon_soaker-73c44bff387eae6b.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "mailbox": {
+      "file": "generated/world/mailbox-cffa76a98dc93281.png",
+      "scale": 4,
+      "anchor": [
+        160,
+        336
+      ]
+    },
+    "ovl_crosswalk_x": {
+      "file": "generated/world/ovl_crosswalk_x-300e8125e1589eea.png",
+      "scale": 4
+    },
+    "ovl_crosswalk_y": {
+      "file": "generated/world/ovl_crosswalk_y-73bae5ef175f7754.png",
+      "scale": 4
+    },
+    "ovl_curb_ne": {
+      "file": "generated/world/ovl_curb_ne-a685998527065764.png",
+      "scale": 4
+    },
+    "ovl_curb_nw": {
+      "file": "generated/world/ovl_curb_nw-d1dd143dfdf7928b.png",
+      "scale": 4
+    },
+    "ovl_curb_se": {
+      "file": "generated/world/ovl_curb_se-1426edf8598031c4.png",
+      "scale": 4
+    },
+    "ovl_curb_sw": {
+      "file": "generated/world/ovl_curb_sw-d0eea3f707489827.png",
+      "scale": 4
+    },
+    "ovl_grass_ne": {
+      "file": "generated/world/ovl_grass_ne-2c514dd60a6bf806.png",
+      "scale": 4
+    },
+    "ovl_grass_nw": {
+      "file": "generated/world/ovl_grass_nw-ceec46799fc93414.png",
+      "scale": 4
+    },
+    "ovl_grass_se": {
+      "file": "generated/world/ovl_grass_se-f4055b3c4a70085c.png",
+      "scale": 4
+    },
+    "ovl_grass_sw": {
+      "file": "generated/world/ovl_grass_sw-f46bf5b93674ebd1.png",
+      "scale": 4
+    },
+    "ovl_roadline_ne": {
+      "file": "generated/world/ovl_roadline_ne-8794eba7a7f0e496.png",
+      "scale": 4
+    },
+    "ovl_roadline_nw": {
+      "file": "generated/world/ovl_roadline_nw-06c7937a1e90aaec.png",
+      "scale": 4
+    },
+    "ovl_roadline_se": {
+      "file": "generated/world/ovl_roadline_se-e5aaef3080303dc2.png",
+      "scale": 4
+    },
+    "ovl_roadline_sw": {
+      "file": "generated/world/ovl_roadline_sw-af2e2069f7ce78a5.png",
+      "scale": 4
+    },
+    "pickup_chest": {
+      "file": "generated/world/pickup_chest-e77ddd0f03638b1a.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        112
+      ]
+    },
+    "pickup_coin": {
+      "file": "generated/world/pickup_coin-7e2bad0aa681fa27.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        112
+      ]
+    },
+    "pickup_heal": {
+      "file": "generated/world/pickup_heal-ab773b04b4fc0c8a.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        112
+      ]
+    },
+    "pickup_xp1": {
+      "file": "generated/world/pickup_xp1-cf2e422764797791.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        112
+      ]
+    },
+    "pickup_xp2": {
+      "file": "generated/world/pickup_xp2-8a718b3fb3c3c5fc.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        112
+      ]
+    },
+    "pickup_xp3": {
+      "file": "generated/world/pickup_xp3-8534dd6f847a4797.png",
+      "scale": 4,
+      "anchor": [
+        64,
+        112
+      ]
+    },
+    "pumpkin_0": {
+      "file": "generated/world/pumpkin_0-59b7ecd1d39741d0.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        256
+      ]
+    },
+    "pumpkin_1": {
+      "file": "generated/world/pumpkin_1-83d50f3c9acb08c4.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        256
+      ]
+    },
+    "scarecrow": {
+      "file": "generated/world/scarecrow-4b319722a82a7397.png",
+      "scale": 4,
+      "anchor": [
+        256,
+        656
+      ]
+    },
+    "scoreboard": {
+      "file": "generated/world/scoreboard-c5cecfd021208bc3.png",
+      "scale": 4,
+      "anchor": [
+        220,
+        580
+      ]
+    },
+    "tile_darkgrass_0": {
+      "file": "generated/world/tile_darkgrass_0-5994e9208b08c2f6.png",
+      "scale": 4
+    },
+    "tile_darkgrass_1": {
+      "file": "generated/world/tile_darkgrass_1-67237a2e26f42bbf.png",
+      "scale": 4
+    },
+    "tile_darkgrass_2": {
+      "file": "generated/world/tile_darkgrass_2-27538b747092f010.png",
+      "scale": 4
+    },
+    "tile_dirt_0": {
+      "file": "generated/world/tile_dirt_0-c32a30a85f61c428.png",
+      "scale": 4
+    },
+    "tile_dirt_1": {
+      "file": "generated/world/tile_dirt_1-83991c41304a0135.png",
+      "scale": 4
+    },
+    "tile_driveway_0": {
+      "file": "generated/world/tile_driveway_0-131f690492a9b4c0.png",
+      "scale": 4
+    },
+    "tile_driveway_1": {
+      "file": "generated/world/tile_driveway_1-bb5111a9b6492ef5.png",
+      "scale": 4
+    },
+    "tile_field_0": {
+      "file": "generated/world/tile_field_0-fa0301c080a7b631.png",
+      "scale": 4
+    },
+    "tile_field_1": {
+      "file": "generated/world/tile_field_1-d901a095702374b6.png",
+      "scale": 4
+    },
+    "tile_field_2": {
+      "file": "generated/world/tile_field_2-9495516e1c5e305c.png",
+      "scale": 4
+    },
+    "tile_flagstone_0": {
+      "file": "generated/world/tile_flagstone_0-913b4ecf581c5d9d.png",
+      "scale": 4
+    },
+    "tile_flagstone_1": {
+      "file": "generated/world/tile_flagstone_1-68ea855c2d136d05.png",
+      "scale": 4
+    },
+    "tile_grass_1": {
+      "file": "generated/world/tile_grass_1-6c1bcf846739e6a5.png",
+      "scale": 4
+    },
+    "tile_grass_2": {
+      "file": "generated/world/tile_grass_2-feb588d548915879.png",
+      "scale": 4
+    },
+    "tile_grass_3": {
+      "file": "generated/world/tile_grass_3-d0045114ca2d910a.png",
+      "scale": 4
+    },
+    "tile_gravel_0": {
+      "file": "generated/world/tile_gravel_0-9dbb052de67793a9.png",
+      "scale": 4
+    },
+    "tile_gravel_1": {
+      "file": "generated/world/tile_gravel_1-76c4879527cfe40d.png",
+      "scale": 4
+    },
+    "tile_road_1": {
+      "file": "generated/world/tile_road_1-fff2b454a137d35f.png",
+      "scale": 4
+    },
+    "tile_road_2": {
+      "file": "generated/world/tile_road_2-246003aae48de422.png",
+      "scale": 4
+    },
+    "tile_sidewalk_1": {
+      "file": "generated/world/tile_sidewalk_1-952a23f78f7c9079.png",
+      "scale": 4
+    },
+    "tile_sidewalk_2": {
+      "file": "generated/world/tile_sidewalk_2-d87cf2ad57043947.png",
+      "scale": 4
+    },
+    "trashcan": {
+      "file": "generated/world/trashcan-9d2f61a0a9d8e752.png",
+      "scale": 4,
+      "anchor": [
+        160,
+        336
+      ]
+    },
+    "tree_dead_0": {
+      "file": "generated/world/tree_dead_0-5729fde7ed0384f3.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        896
+      ]
+    },
+    "tree_dead_1": {
+      "file": "generated/world/tree_dead_1-1564f00a1ef054d4.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        896
+      ]
+    },
+    "tree_dead_2": {
+      "file": "generated/world/tree_dead_2-3bd97c134e48bd70.png",
+      "scale": 4,
+      "anchor": [
+        400,
+        896
+      ]
+    },
+    "tree_oak_1": {
+      "file": "generated/world/tree_oak_1-71feff18a8e41bed.png",
+      "scale": 4,
+      "anchor": [
+        360,
+        856
+      ]
+    },
+    "tree_oak_2": {
+      "file": "generated/world/tree_oak_2-3914f58b583ac72f.png",
+      "scale": 4,
+      "anchor": [
+        360,
+        856
+      ]
+    },
+    "tree_pine_0": {
+      "file": "generated/world/tree_pine_0-b5c107de8f818015.png",
+      "scale": 4,
+      "anchor": [
+        300,
+        936
+      ]
+    },
+    "tree_pine_1": {
+      "file": "generated/world/tree_pine_1-cd3a8ee8305f57f6.png",
+      "scale": 4,
+      "anchor": [
+        300,
+        936
+      ]
+    },
+    "tree_pine_2": {
+      "file": "generated/world/tree_pine_2-6dcf4fa11243eee2.png",
+      "scale": 4,
+      "anchor": [
+        300,
+        936
+      ]
+    },
+    "vending": {
+      "file": "generated/world/vending-c5d8e201dd86d317.png",
+      "scale": 4,
+      "anchor": [
+        220,
+        656
+      ]
+    }
   }
 }

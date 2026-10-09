@@ -1,0 +1,41 @@
+{
+  "key": "ovl_grass_nw",
+  "spec": {
+    "key": "ovl_grass_nw",
+    "file": "overlays/ovl_grass_nw.png",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "desc": "Grass blades overhanging onto a hard tile from the NW edge",
+    "prompt": "Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles. Tufts of dark lawn grass spilling over the NW diamond edge."
+  },
+  "id": "ceec46799fc93414",
+  "rawFile": "art/world/raw/ovl_grass_nw-d8b94f5503a0e227.png",
+  "stagedFile": "art/world/staged/ovl_grass_nw-ceec46799fc93414.png",
+  "savedPromptFile": "art/world/raw/ovl_grass_nw-d8b94f5503a0e227.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "d8b94f5503a0e227433987d551b1757a606988a29c288463c8900dbb55927a41",
+  "packedHash": "ceec46799fc934141f3eb9f2b399320cd000c7eb451e19f9c27e369bc02ad838",
+  "promptHash": "4fe73ddefb2462193bf0a9e5511e1e7feccf9cab9c482f625cdb006c468b7259",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T10:02:07.399Z",
+  "fingerprint": "7baea062730aeb730fb17fab311e94ab6ddd0cc82deb92ba9360487544417f28",
+  "activationFile": "art/world/activations/ovl_grass_nw-1791540187134.json",
+  "gameFile": "generated/world/ovl_grass_nw-ceec46799fc93414.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production overlay sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles. Tufts of dark lawn grass spilling over the NW diamond edge.\nAtlas entry: ovl_grass_nw. Grass blades overhanging onto a hard tile from the NW edge\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x64; render 512x256 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nOverlay: only the described decal/edge detail; leave the rest transparent, including the underlying terrain. Match the layout guide exactly. NE connects (w/2,0) to (w,h/2); SE connects (w,h/2) to (w/2,h); SW connects (w/2,h) to (0,h/2); NW connects (0,h/2) to (w/2,0).\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/ovl_grass_nw.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

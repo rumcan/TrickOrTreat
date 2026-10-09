@@ -1,0 +1,49 @@
+{
+  "key": "candy_stand",
+  "spec": {
+    "key": "candy_stand",
+    "file": "buildings/candy_stand.png",
+    "category": "prop",
+    "w": 296,
+    "h": 318,
+    "anchor": [
+      148,
+      234
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "desc": "Candy Lady's treat stand (shop), 2x2",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A wooden Halloween treat stand with an orange-and-black striped awning, glowing 'TREATS' sign, candy jars on the counter, string lights. Footprint 2x2 tile(s); footprint centre on pixel (148,234)."
+  },
+  "id": "c171087230c1349b",
+  "rawFile": "art/world/raw/candy_stand-fa3e7d61e216bbdd.png",
+  "stagedFile": "art/world/staged/candy_stand-c171087230c1349b.png",
+  "savedPromptFile": "art/world/raw/candy_stand-fa3e7d61e216bbdd.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "fa3e7d61e216bbdd70df6c8fbcbc7fb4f05a7afc71e1fd5ad0b5fbe64cc106a4",
+  "packedHash": "c171087230c1349b8477467fcecca64fb44674dc0dd814a448eef8f8ade038f1",
+  "promptHash": "a4a720634ff187dd798609565053ea54faf3affa0e3c6b60b1abba7aaf638dcd",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1210,
+    1300
+  ],
+  "outputSize": [
+    1184,
+    1272
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:12:51.516Z",
+  "fingerprint": "377cff88832809eba70b5531b55f824c310778c7fcc60f5d2f1ff09438ce3ebb",
+  "activationFile": "art/world/activations/candy_stand-1791537461277.json",
+  "gameFile": "generated/world/candy_stand-c171087230c1349b.png",
+  "prompt": "Use case: stylized-concept. Asset type: one production game environment sprite, candy_stand. Image 1 is STYLE ONLY: match the richly painted Halloween suburb game screenshot: detailed stylized realism, worn wood, fabric texture, dark navy blue moonlit surfaces and warm amber practical lights, soft painterly modeling and clean readable edges. Image 2 is LAYOUT ONLY: retain its overall canvas proportions, transparent margins, exact 2:1 dimetric projection, orange-black striped awning orientation, four wooden support posts, front candy counter and footprint placement. Replace the flat procedural/vector rendering with the painted style of Image 1. Primary request: a wooden Halloween candy stand with orange-and-black striped fabric canopy, warm string bulbs, glass candy jars, little pumpkin decorations confined to the existing counter, painted TREATS sign on the front panel. No people, no zombies, no HUD, no panels, no landscape, no extra freestanding props. View from elevated camera, world X towards screen lower-right, world Y lower-left; selling face lower-left. Footprint exactly 2x2 tiles; native canvas 296x318, footprint centre (148,234). Prefer render at 1184x1272 (4x), keeping footprint centre (592,936); if another resolution is necessary preserve these relative positions and canvas aspect ratio. Match the template's silhouette size and vertical placement; do not shrink to a tiny centred object. Neutral moonlit exposure with visible surface details; bulbs may be amber emissive but NO cast ground shadows, floor patch, halo outside silhouette or atmospheric fog because runtime supplies lighting. Genuine alpha transparency outside object, not a checkerboard painted into the image. Smooth hand-painted material shading, NOT pixel art, NOT a flat vector. Text (verbatim): TREATS on front sign. Keep isolated entire object visible with no clipping.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/candy_stand.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

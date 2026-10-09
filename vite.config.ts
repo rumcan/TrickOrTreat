@@ -11,6 +11,10 @@ const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    // Offline generation inputs/outputs are not part of the running game.
+    watch: { ignored: ['**/art/**'] },
+  },
   build: {
     target: 'esnext',
   },

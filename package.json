@@ -8,7 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "art:export": "node scripts/export-art.mjs",
-    "art:ui": "python3 scripts/crop-ui-kit.py"
+    "art:ui": "python3 scripts/crop-ui-kit.py",
+    "art:world": "node scripts/world-art.mjs",
+    "art:world:prepare": "node scripts/world-art.mjs prepare",
+    "art:world:status": "node scripts/world-art.mjs status",
+    "art:world:validate": "node scripts/world-art.mjs validate",
+    "art:world:test": "node --test scripts/world-art.test.mjs"
   },
   "dependencies": {
     "@series-inc/rundot-game-sdk": "^5.24.0",

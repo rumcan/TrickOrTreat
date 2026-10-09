@@ -1,0 +1,49 @@
+{
+  "key": "bleachers",
+  "spec": {
+    "key": "bleachers",
+    "file": "props/bleachers.png",
+    "category": "prop",
+    "w": 276,
+    "h": 208,
+    "anchor": [
+      138,
+      124
+    ],
+    "footprint": [
+      3,
+      1
+    ],
+    "desc": "Aluminum bleachers, 3x1",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). Four rows of silver aluminum bleacher benches on a frame. Footprint 3x1 tile(s); footprint centre on pixel (138,124)."
+  },
+  "id": "f7efdb922a37eb8d",
+  "rawFile": "art/world/raw/bleachers-ee6280c87f739b1c.png",
+  "stagedFile": "art/world/staged/bleachers-f7efdb922a37eb8d.png",
+  "savedPromptFile": "art/world/raw/bleachers-ee6280c87f739b1c.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "ee6280c87f739b1ced754fa56f5be0c297784b865bcf2f9fd43b4f584404a048",
+  "packedHash": "f7efdb922a37eb8d243ab3802a7b11d7c7851d63c6caddc79fb98e1d4aaccf71",
+  "promptHash": "199395fcc54bfddd7f9387cf272f7481873a20ee253cb9683cc1853bf2b2ee5c",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1445,
+    1088
+  ],
+  "outputSize": [
+    1104,
+    832
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:48:12.937Z",
+  "fingerprint": "028a899b9bffb10dd087b39452a835a3edbfd759d34de2f64f4d62a9d81175fe",
+  "activationFile": "art/world/activations/bleachers-1791539592820.json",
+  "gameFile": "generated/world/bleachers-f7efdb922a37eb8d.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). Four rows of silver aluminum bleacher benches on a frame. Footprint 3x1 tile(s); footprint centre on pixel (138,124).\nAtlas entry: bleachers. Aluminum bleachers, 3x1\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 276x208; render 1104x832 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (138,124), rendered (552,496). All contact positions stay fixed to the layout guide.\nFootprint: exactly 3x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/bleachers.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

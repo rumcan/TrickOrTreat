@@ -1,0 +1,49 @@
+{
+  "key": "bush_1",
+  "spec": {
+    "key": "bush_1",
+    "file": "props/bush_1.png",
+    "category": "prop",
+    "w": 128,
+    "h": 110,
+    "anchor": [
+      64,
+      74
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Round garden shrub",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A round dark-green garden shrub about 80px wide, 50px tall. Footprint 1x1 tile(s); footprint centre on pixel (64,74)."
+  },
+  "id": "b7b93238c62530c8",
+  "rawFile": "art/world/raw/bush_1-ce772b688c3377eb.png",
+  "stagedFile": "art/world/staged/bush_1-b7b93238c62530c8.png",
+  "savedPromptFile": "art/world/raw/bush_1-ce772b688c3377eb.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "ce772b688c3377eb822847a666c21fce2f5e1061b7e0b552e3e88e0a25e7b882",
+  "packedHash": "b7b93238c62530c8e9167ac8fe40d401d2ed3cd90d2904945217cb3cf26360ae",
+  "promptHash": "f931b6d4df78bba903a1b5963dc71fc1ad3a5a9a00f803933a6a70043d6c7bca",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1353,
+    1162
+  ],
+  "outputSize": [
+    512,
+    440
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:48:13.372Z",
+  "fingerprint": "36d75625915a33b03688a24a7d9259c39592444b8c752fa509c2ee95db76bb52",
+  "activationFile": "art/world/activations/bush_1-1791539592915.json",
+  "gameFile": "generated/world/bush_1-b7b93238c62530c8.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A round dark-green garden shrub about 80px wide, 50px tall. Footprint 1x1 tile(s); footprint centre on pixel (64,74).\nAtlas entry: bush_1. Round garden shrub\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x110; render 512x440 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (64,74), rendered (256,296). All contact positions stay fixed to the layout guide.\nFootprint: exactly 1x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/bush_1.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

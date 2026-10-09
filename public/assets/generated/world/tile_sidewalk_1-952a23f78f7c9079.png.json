@@ -1,0 +1,47 @@
+{
+  "key": "tile_sidewalk_1",
+  "spec": {
+    "key": "tile_sidewalk_1",
+    "file": "tiles/tile_sidewalk_1.png",
+    "category": "tile",
+    "w": 128,
+    "h": 64,
+    "desc": "Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges (variant 2/3)",
+    "prompt": "Seamless isometric 2:1 diamond ground tile, 128x64 px, transparent outside the diamond, top-down 3/4 Diablo II / Commandos style hand-painted pixel art, Halloween night lit by cold blue moonlight, no shadows cast by objects, edges must tile seamlessly with copies of itself. Content: Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges."
+  },
+  "id": "952a23f78f7c9079",
+  "rawFile": "art/world/raw/tile_sidewalk_1-88a2f1d3599aceb0.png",
+  "stagedFile": "art/world/staged/tile_sidewalk_1-952a23f78f7c9079.png",
+  "savedPromptFile": "art/world/raw/tile_sidewalk_1-88a2f1d3599aceb0.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "88a2f1d3599aceb0711e419c7a71d03b09eb181b17c7d1ff27064a24c589f037",
+  "packedHash": "952a23f78f7c9079e473ada867b80aa9c2cca4bdbabc87316ed6133fce9f2f69",
+  "promptHash": "1044a78d2bfe9a7d272d26f1399b7e96281534419a0fb30080147690a039862b",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "tileTrim": [
+    45,
+    0,
+    1728,
+    886
+  ],
+  "importedAt": "2026-10-09T10:05:07.310Z",
+  "fingerprint": "78d29232b233827afbfcb766de9e9df19e0e0eec1f2106fc6708a13d296d924b",
+  "activationFile": "art/world/activations/tile_sidewalk_1-1791540368680.json",
+  "gameFile": "generated/world/tile_sidewalk_1-952a23f78f7c9079.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production tile sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Seamless isometric 2:1 diamond ground tile, 128x64 px, transparent outside the diamond, top-down 3/4 Diablo II / Commandos style hand-painted, Halloween night lit by cold blue moonlight, no shadows cast by objects, edges must tile seamlessly with copies of itself. Content: Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges.\nAtlas entry: tile_sidewalk_1. Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges (variant 2/3)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x64; render 512x256 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nTerrain: fill the entire 2:1 diamond right to all four edges, transparent outside. Flat surface with no side walls. Matching opposite edges for seamless repeats; no directional lighting gradients, isolated large objects or strong focal features. Keep variants compatible.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n\nSOLID TERRAIN: the diamond interior is one fully opaque surface. Render opaque soil/lawn under every blade and pebble, with absolutely no alpha gaps between details. Extend the solid diamond to all four canvas midpoints with zero surrounding padding. Alpha is only outside the diamond.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/tile_sidewalk_1.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}
