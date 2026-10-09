@@ -1,14 +1,24 @@
 import { makeCanvas, ellipse } from './draw';
-import { asset, Img } from '../assets';
+import { sheetAsset, Img } from '../assets';
 
 export interface Sheet {
   img: Img;
+  /** frame size in game pixels */
   fw: number;
   fh: number;
-  frames: number;
+  /** image pixels per game pixel (2 for hi-res sprite files) */
+  scale: number;
   rows: number;
-  ax: number; // anchor (feet) inside frame
+  /** frames present in each row */
+  rowFrames: number[];
+  ax: number; // anchor (feet) inside frame, game pixels
   ay: number;
+}
+
+/** Blit frame f (wrapping) of a sheet row with the feet anchor at (x, y), in game pixels. */
+export function blitFrame(ctx: CanvasRenderingContext2D, s: Sheet, img: Img, row: number, f: number, x: number, y: number) {
+  const k = s.scale;
+  ctx.drawImage(img, (f % (s.rowFrames[row] || 1)) * s.fw * k, row * s.fh * k, s.fw * k, s.fh * k, x - s.ax, y - s.ay, s.fw, s.fh);
 }
 
 const STYLE =
@@ -49,19 +59,19 @@ function limb(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number,
 }
 
 function buildSheet(
-  key: string, desc: string, prompt: string, fw: number, fh: number, frames: number, rowNames: string[], ax: number, ay: number,
+  key: string, folder: string, desc: string, prompt: string, fw: number, fh: number, frames: number, rowNames: string[], rowFrames: number[], ax: number, ay: number,
   draw: (ctx: CanvasRenderingContext2D, cx: number, fy: number, f: number, row: number) => void
 ): Sheet {
   const rows = rowNames.length;
-  const img = asset(
+  const e = sheetAsset(
     {
-      key, file: `sprites/${key}.webp`, category: 'sheet', w: fw * frames, h: fh * rows, frameW: fw, frameH: fh, frames, rows: rowNames, anchor: [ax, ay], desc,
-      prompt: `${STYLE} ${prompt} Grid: ${frames} columns x ${rows} rows of ${fw}x${fh}px frames. Rows: ${rowNames.join(' | ')}. Feet anchor at (${ax},${ay}) in each frame.`,
+      key, file: `${folder}/${key}.png`, category: 'sheet', w: fw * frames, h: fh * rows, frameW: fw, frameH: fh, frames, rows: rowNames, rowFrames, anchor: [ax, ay], desc,
+      prompt: `${STYLE} ${prompt} Grid: ${frames} columns x ${rows} rows of ${fw}x${fh}px frames (any whole multiple of that size works, e.g. ${fw * 4}x${fh * 4}). Rows: ${rowNames.join(' | ')}. Feet anchor at (${ax},${ay}) in each frame.`,
     },
     () => {
       const { c, ctx } = makeCanvas(fw * frames, fh * rows);
       for (let r = 0; r < rows; r++)
-        for (let f = 0; f < frames; f++) {
+        for (let f = 0; f < rowFrames[r]; f++) {
           ctx.save();
           ctx.beginPath();
           ctx.rect(f * fw, r * fh, fw, fh);
@@ -72,19 +82,31 @@ function buildSheet(
       return c;
     }
   );
-  return { img, fw, fh, frames, rows, ax, ay };
+  return { img: e.img, fw, fh, scale: e.scale, rows, rowFrames: e.rowFrames, ax, ay };
 }
 
 // ================= HEROES =================
 export interface HeroPal {
-  top: string; topD: string; pants: string; hair: string; skin: string; shoe: string; hat?: string; glasses?: boolean; ponytail?: boolean; cap?: string;
+  top: string; topD: string; pants: string; hair: string; skin: string; shoe: string;
+  glasses?: boolean;
+  /** dark sunglasses */
+  shades?: boolean;
+  /** open jacket over a T-shirt of this colour (instead of a hoodie) */
+  tee?: string;
+  /** home-made proton pack on the back */
+  pack?: boolean;
+  curly?: boolean;
+  longHair?: boolean;
+  /** pointy witch hat with a band of this colour */
+  witchHat?: string;
 }
 
 // ================= COSTUME LAYERS =================
-interface K { cx: number; by: number; fy: number; hy: number; back: boolean; sw: number; as: number; ph: number }
+interface K { cx: number; by: number; fy: number; hy: number; back: boolean; sw: number; as: number; ph: number; shades: boolean }
 interface CostumeArt {
   pal?: Partial<HeroPal>;
   hideHead?: boolean;
+  /** costume headwear replaces the kid's own hat */
   noHat?: boolean;
   behind?: (ctx: CanvasRenderingContext2D, k: K) => void; // before legs/torso
   body?: (ctx: CanvasRenderingContext2D, k: K) => void; // after torso, before arms
@@ -149,10 +171,13 @@ const COSTUME_ART: Record<string, CostumeArt> = {
       ctx.moveTo(cx + 9, hy + 14); ctx.quadraticCurveTo(cx + 13, hy + 34, cx + 11, fy - 14);
       ctx.stroke();
       if (!back) {
-        ellipse(ctx, cx - 6, hy, 3.5, 4.5, '#120c18');
-        ellipse(ctx, cx + 6, hy, 3.5, 4.5, '#120c18');
-        ci(ctx, cx - 5, hy - 1, 1, '#fff', false);
-        ci(ctx, cx + 7, hy - 1, 1, '#fff', false);
+        if (k.shades) shades(ctx, cx, hy); // too cool to cut eye holes
+        else {
+          ellipse(ctx, cx - 6, hy, 3.5, 4.5, '#120c18');
+          ellipse(ctx, cx + 6, hy, 3.5, 4.5, '#120c18');
+          ci(ctx, cx - 5, hy - 1, 1, '#fff', false);
+          ci(ctx, cx + 7, hy - 1, 1, '#fff', false);
+        }
         // candy pail peeking out of the sheet
         rr(ctx, cx - 24, fy - 30 + k.as, 13, 10, 4, '#f07a1c');
       }
@@ -198,14 +223,9 @@ const COSTUME_ART: Record<string, CostumeArt> = {
       ctx.fillStyle = '#7dff5a'; ctx.fillRect(k.cx - 12, k.by - 26, 24, 3);
     },
     head: (ctx, k) => {
-      const { cx, hy, ph } = k;
-      ctx.fillStyle = '#231232';
-      ctx.beginPath(); ctx.ellipse(cx, hy - 9, 22, 6, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = OL; ctx.lineWidth = 2; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx - 11, hy - 10); ctx.quadraticCurveTo(cx + 2, hy - 30, cx + 14 + Math.sin(ph) * 2, hy - 46); ctx.quadraticCurveTo(cx + 8, hy - 26, cx + 11, hy - 10); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#7dff5a'; ctx.fillRect(cx - 10, hy - 16, 21, 4);
+      witchHat(ctx, k.cx, k.hy, k.ph, '#7dff5a', '#231232');
       ctx.fillStyle = '#ffe14a';
-      ctx.font = 'bold 9px sans-serif'; ctx.fillText('★', cx + 2, hy - 22);
+      ctx.font = 'bold 9px sans-serif'; ctx.fillText('★', k.cx + 2, k.hy - 22);
     },
   },
   hero: {
@@ -357,9 +377,68 @@ const COSTUME_ART: Record<string, CostumeArt> = {
   },
 };
 
+function shades(ctx: CanvasRenderingContext2D, cx: number, y: number) {
+  ctx.fillStyle = '#0d0b10';
+  ctx.beginPath();
+  ctx.roundRect(cx - 11, y - 3, 10, 7, [1, 1, 4, 4]);
+  ctx.roundRect(cx + 1, y - 3, 10, 7, [1, 1, 4, 4]);
+  ctx.fill();
+  ctx.fillRect(cx - 2, y - 2, 4, 1.6);
+  ctx.strokeStyle = '#0d0b10';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(cx - 11, y - 2); ctx.lineTo(cx - 14, y - 3); ctx.moveTo(cx + 11, y - 2); ctx.lineTo(cx + 14, y - 3); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  ctx.fillRect(cx - 9, y - 1.5, 3, 1.2);
+  ctx.fillRect(cx + 3, y - 1.5, 3, 1.2);
+}
+
+function witchHat(ctx: CanvasRenderingContext2D, cx: number, hy: number, ph: number, band: string, felt = '#1d1626') {
+  ctx.fillStyle = felt;
+  ctx.beginPath(); ctx.ellipse(cx, hy - 9, 22, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = OL; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - 11, hy - 10); ctx.quadraticCurveTo(cx + 2, hy - 30, cx + 14 + Math.sin(ph) * 2, hy - 46); ctx.quadraticCurveTo(cx + 8, hy - 26, cx + 11, hy - 10); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = band; ctx.fillRect(cx - 10, hy - 16, 21, 4);
+}
+
+function curls(ctx: CanvasRenderingContext2D, cx: number, hy: number, col: string, back: boolean) {
+  const blobs: [number, number, number][] = [];
+  for (let i = -3; i <= 3; i++) blobs.push([cx + i * 4.6, hy - 10 + Math.abs(i) * 1.7, 5.4]);
+  for (const s of [-1, 1]) blobs.push([cx + s * 13.5, hy - 1, 4.4]);
+  if (back) for (let i = -2; i <= 2; i++) blobs.push([cx + i * 5.5, hy + 3 + Math.abs(i), 5]);
+  for (const [pass, grow] of [[OL, 1.6], [col, 0]] as [string, number][]) {
+    ctx.fillStyle = pass;
+    ctx.beginPath();
+    for (const [x, y, r] of blobs) { ctx.moveTo(x + r + grow, y); ctx.arc(x, y, r + grow, 0, Math.PI * 2); }
+    ctx.fill();
+  }
+}
+
+function protonPack(ctx: CanvasRenderingContext2D, cx: number, by: number, back: boolean) {
+  if (!back) {
+    // behind the kid: the frame shows past the shoulders, the glowing tube over the right shoulder
+    rr(ctx, cx - 15, by - 50, 30, 24, 4, '#4a4f58');
+    rr(ctx, cx + 9, by - 70, 6, 22, 2, '#5aff6a');
+    ctx.fillStyle = 'rgba(220,255,220,0.75)';
+    ctx.fillRect(cx + 10.5, by - 67, 1.5, 15);
+    rr(ctx, cx + 8, by - 73, 8, 4, 1, '#2a2d33');
+    return;
+  }
+  ctx.strokeStyle = OL; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(cx - 10, by - 28); ctx.quadraticCurveTo(cx - 21, by - 24, cx - 16, by - 13); ctx.stroke();
+  ctx.strokeStyle = '#3d8a3a'; ctx.lineWidth = 2; ctx.stroke();
+  rr(ctx, cx - 12, by - 52, 24, 30, 4, '#555b66');
+  rr(ctx, cx - 9, by - 47, 18, 8, 2, '#3a3f48');
+  ci(ctx, cx - 4, by - 43, 2.2, '#ff4a4a', false);
+  ci(ctx, cx + 4, by - 43, 2.2, '#7dff5a', false);
+  rr(ctx, cx + 7, by - 72, 6, 30, 2, '#5aff6a');
+  ctx.fillStyle = 'rgba(220,255,220,0.75)';
+  ctx.fillRect(cx + 8.5, by - 68, 1.5, 22);
+  rr(ctx, cx + 6, by - 75, 8, 4, 1, '#2a2d33');
+}
+
 function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: number, row: number, p0: HeroPal, costume?: string) {
   const C = costume ? COSTUME_ART[costume] : undefined;
-  const p: HeroPal = C ? { ...p0, ...(C.pal || {}), ...(C.noHat ? { hat: undefined, cap: undefined, ponytail: false } : {}) } : p0;
+  const p: HeroPal = C ? { ...p0, ...(C.pal || {}), ...(C.noHat ? { witchHat: undefined } : {}) } : p0;
   const walking = row === 1 || row === 3;
   const back = row >= 2;
   const n = walking ? 6 : 4;
@@ -367,7 +446,10 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
   const sw = walking ? Math.sin(ph) : 0;
   const bob = walking ? Math.abs(Math.cos(ph)) * 2.5 : Math.sin(ph) * 0.8 + 0.8;
   const by = fy - bob;
-  const K0: K = { cx, by, fy, hy: by - 60, back, sw, as: walking ? -sw * 4 : 0, ph };
+  const as = walking ? -sw * 4 : 0;
+  const hy = by - 60;
+  const K0: K = { cx, by, fy, hy, back, sw, as, ph, shades: !!p.shades };
+  if (p.pack && !back && costume !== 'ghost') protonPack(ctx, cx, by, false);
   if (C?.behind) C.behind(ctx, K0);
   // legs
   const l1 = Math.max(0, sw) * 4, l2 = Math.max(0, -sw) * 4;
@@ -375,8 +457,6 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
   limb(ctx, cx + 5, by - 22, cx + 5 + sw * 1.5, fy - 4 - l2, 6, p.pants);
   rr(ctx, cx - 10 - sw * 1.5, fy - 7 - l1, 9, 6, 3, p.shoe);
   rr(ctx, cx + 1 + sw * 1.5, fy - 7 - l2, 9, 6, 3, p.shoe);
-  // back arm
-  const as = walking ? -sw * 4 : 0;
   // torso
   rr(ctx, cx - 12, by - 46, 24, 26, 8, p.top);
   ctx.fillStyle = p.topD;
@@ -384,15 +464,27 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
   ctx.fillRect(cx - 9, by - 42, 4, 18);
   if (!back) {
-    // hoodie pocket + strings
-    rr(ctx, cx - 7, by - 31, 14, 7, 3, p.topD, false);
-    ctx.strokeStyle = '#eee';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(cx - 3, by - 44); ctx.lineTo(cx - 3, by - 37); ctx.moveTo(cx + 3, by - 44); ctx.lineTo(cx + 3, by - 37); ctx.stroke();
-  } else {
-    // hood
-    rr(ctx, cx - 10, by - 50, 20, 10, 5, p.topD);
-  }
+    if (p.tee) {
+      // open jacket over a T-shirt
+      ctx.fillStyle = p.tee;
+      ctx.fillRect(cx - 4, by - 45, 8, 23);
+      ctx.fillStyle = p.topD;
+      ctx.fillRect(cx - 5, by - 45, 1.5, 23);
+      ctx.fillRect(cx + 3.5, by - 45, 1.5, 23);
+    } else {
+      // hoodie pocket + strings
+      rr(ctx, cx - 7, by - 31, 14, 7, 3, p.topD, false);
+      ctx.strokeStyle = '#eee';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx - 3, by - 44); ctx.lineTo(cx - 3, by - 37); ctx.moveTo(cx + 3, by - 44); ctx.lineTo(cx + 3, by - 37); ctx.stroke();
+    }
+    if (p.pack) {
+      ctx.fillStyle = '#2a2d33';
+      ctx.fillRect(cx - 9, by - 46, 3, 22);
+      ctx.fillRect(cx + 6, by - 46, 3, 22);
+    }
+  } else if (p.tee) rr(ctx, cx - 8, by - 49, 16, 5, 2, p.topD); // jacket collar
+  else rr(ctx, cx - 10, by - 50, 20, 10, 5, p.topD); // hood
   if (C?.body) C.body(ctx, K0);
   // arms
   limb(ctx, cx - 12, by - 42, cx - 15, by - 27 + as, 6, p.top);
@@ -409,23 +501,28 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
     ctx.fillRect(px - 4, py, 2, 2); ctx.fillRect(px + 2, py, 2, 2); ctx.fillRect(px - 3, py + 3, 6, 1.5);
   }
   // head
-  const hy = by - 60;
   if (C?.hideHead) {
     C.head?.(ctx, K0);
     C.over?.(ctx, K0);
     return;
   }
-  if (p.ponytail && back) rr(ctx, cx - 4, hy + 2, 8, 16, 4, p.hair);
+  if (p.longHair && !back) rr(ctx, cx - 16, hy - 8, 32, 30, 10, p.hair); // falls past the shoulders, behind the face
   ci(ctx, cx, hy, 14, p.skin);
   if (!back) {
-    // hair fringe
-    ctx.fillStyle = p.hair;
-    ctx.beginPath(); ctx.arc(cx, hy - 2, 14.5, Math.PI * 1.05, Math.PI * 1.95); ctx.quadraticCurveTo(cx + 6, hy - 6, cx, hy - 8); ctx.quadraticCurveTo(cx - 8, hy - 4, cx - 14, hy - 4); ctx.fill();
+    if (p.curly) curls(ctx, cx, hy, p.hair, false);
+    else {
+      // hair fringe
+      ctx.fillStyle = p.hair;
+      ctx.beginPath(); ctx.arc(cx, hy - 2, 14.5, Math.PI * 1.05, Math.PI * 1.95); ctx.quadraticCurveTo(cx + 6, hy - 6, cx, hy - 8); ctx.quadraticCurveTo(cx - 8, hy - 4, cx - 14, hy - 4); ctx.fill();
+    }
     // eyes
-    ci(ctx, cx - 5, hy + 1, 2.6, '#1a1020', false);
-    ci(ctx, cx + 5, hy + 1, 2.6, '#1a1020', false);
-    ci(ctx, cx - 4.2, hy, 0.9, '#fff', false);
-    ci(ctx, cx + 5.8, hy, 0.9, '#fff', false);
+    if (p.shades) shades(ctx, cx, hy + 1);
+    else {
+      ci(ctx, cx - 5, hy + 1, 2.6, '#1a1020', false);
+      ci(ctx, cx + 5, hy + 1, 2.6, '#1a1020', false);
+      ci(ctx, cx - 4.2, hy, 0.9, '#fff', false);
+      ci(ctx, cx + 5.8, hy, 0.9, '#fff', false);
+    }
     ellipse(ctx, cx - 9, hy + 6, 2.5, 1.4, 'rgba(255,90,90,0.45)');
     ellipse(ctx, cx + 9, hy + 6, 2.5, 1.4, 'rgba(255,90,90,0.45)');
     ctx.strokeStyle = '#5a2a2a'; ctx.lineWidth = 1.2;
@@ -438,25 +535,13 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
     ctx.fillStyle = p.hair;
     ctx.beginPath(); ctx.arc(cx, hy, 14, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = OL; ctx.lineWidth = 2; ctx.stroke();
+    if (p.curly) curls(ctx, cx, hy, p.hair, true);
+    else if (p.longHair) rr(ctx, cx - 14, hy - 4, 28, 32, 10, p.hair);
     ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx - 3, hy - 3, 8, Math.PI, Math.PI * 1.6); ctx.stroke();
   }
-  if (p.hat) {
-    ctx.fillStyle = p.hat;
-    ctx.beginPath(); ctx.arc(cx, hy - 4, 14.5, Math.PI, 0); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = OL; ctx.lineWidth = 2; ctx.stroke();
-    ci(ctx, cx, hy - 19, 3.5, '#fff');
-    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-    ctx.fillRect(cx - 14, hy - 7, 28, 3);
-  }
-  if (p.cap) {
-    ctx.fillStyle = p.cap;
-    ctx.beginPath(); ctx.arc(cx, hy - 5, 14, Math.PI, 0); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = OL; ctx.lineWidth = 2; ctx.stroke();
-    if (!back) rr(ctx, cx - 12, hy - 7, 24, 5, 2, p.cap);
-    else rr(ctx, cx - 6, hy - 22, 12, 5, 2, p.cap);
-  }
-  if (p.ponytail && !back) rr(ctx, cx + 11, hy - 6, 6, 14, 3, p.hair);
+  if (p.witchHat) witchHat(ctx, cx, hy, ph, p.witchHat);
+  if (p.pack && back && costume !== 'ghost') protonPack(ctx, cx, by, true);
   C?.head?.(ctx, K0);
   C?.over?.(ctx, K0);
 }
@@ -464,9 +549,21 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
 export const COSTUME_ART_IDS = Object.keys(COSTUME_ART);
 
 export const HEROES = [
-  { id: 'tommy', name: 'Tommy', pal: { top: '#c8312d', topD: '#8f1f1d', pants: '#2f4a7a', hair: '#5a3418', skin: '#f2c39a', shoe: '#f2f2f2', cap: '#1f3c8a' } as HeroPal },
-  { id: 'sam', name: 'Sam', pal: { top: '#3c7a3a', topD: '#285427', pants: '#4a3a2a', hair: '#1b1410', skin: '#a8714a', shoe: '#333', glasses: true } as HeroPal },
-  { id: 'jess', name: 'Jess', pal: { top: '#7a3fb0', topD: '#562a80', pants: '#2b2b36', hair: '#e0a040', skin: '#f6d2b5', shoe: '#e94d6a', hat: '#e8c23a', ponytail: true } as HeroPal },
+  {
+    id: 'tommy', name: 'Tommy',
+    look: 'An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack',
+    pal: { top: '#c8312d', topD: '#8f1f1d', pants: '#2b3550', hair: '#6a3a1c', skin: '#f2c39a', shoe: '#3a2a22', tee: '#f1ece0', shades: true } as HeroPal,
+  },
+  {
+    id: 'sam', name: 'Sam',
+    look: 'An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)',
+    pal: { top: '#cdb98e', topD: '#9c8a62', pants: '#b9a67c', hair: '#1b1410', skin: '#a8714a', shoe: '#3a332c', glasses: true, curly: true, pack: true } as HeroPal,
+  },
+  {
+    id: 'jess', name: 'Jess',
+    look: 'An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket',
+    pal: { top: '#4b2f72', topD: '#33204f', pants: '#2b2b36', hair: '#b4542a', skin: '#f6d2b5', shoe: '#2a2030', witchHat: '#9b5cf0', longHair: true } as HeroPal,
+  },
 ];
 
 const COSTUME_PROMPT: Record<string, string> = {
@@ -485,14 +582,11 @@ export function heroSheet(i: number, costume?: string | null): Sheet {
   const c = costume || '';
   return buildSheet(
     c ? `hero_${h.id}_${c}` : `hero_${h.id}`,
+    'characters',
     c ? `Kid "${h.name}" in the ${c} costume (same grid/anchor as base sheet)` : `Playable kid "${h.name}" - idle & walk, facing camera and facing away (left/right via horizontal flip)`,
-    c ? `The same 11-year-old kid "${h.name}" ${COSTUME_PROMPT[c]}, trick-or-treating, holding an orange plastic jack-o-lantern candy pail.` : `A normal 11-year-old American kid in everyday clothes (${h.pal.top} hoodie/jacket) carrying an orange plastic jack-o-lantern candy pail.`,
-    64, 96, 6, ['idle front (4f)', 'walk front (6f)', 'idle back (4f)', 'walk back (6f)'], 32, 90,
-    (ctx, cx, fy, f, row) => {
-      const n = row === 1 || row === 3 ? 6 : 4;
-      if (f >= n) return;
-      drawKid(ctx, cx, fy, f, row, h.pal, c || undefined);
-    }
+    c ? `The same 11-year-old kid "${h.name}" (${h.look}) ${COSTUME_PROMPT[c]}, trick-or-treating, holding an orange plastic jack-o-lantern candy pail.` : `${h.look}, carrying an orange plastic jack-o-lantern candy pail.`,
+    64, 96, 6, ['idle front (4f)', 'walk front (6f)', 'idle back (4f)', 'walk back (6f)'], [4, 6, 4, 6], 32, 90,
+    (ctx, cx, fy, f, row) => drawKid(ctx, cx, fy, f, row, h.pal, c || undefined)
   );
 }
 
@@ -791,7 +885,7 @@ const EN_DEFS: Record<string, { fw: number; fh: number; frames: number; ax: numb
 
 export function enemySheet(type: string): Sheet {
   const d = EN_DEFS[type];
-  return buildSheet(`enemy_${type}`, d.desc, d.prompt, d.fw, d.fh, d.frames, ['walk/float facing camera (flip horizontally for left/right)'], d.ax, d.ay, (ctx, cx, fy, f) => d.draw(ctx, cx, fy, f));
+  return buildSheet(`enemy_${type}`, 'monsters', d.desc, d.prompt, d.fw, d.fh, d.frames, ['walk/float facing camera (flip horizontally for left/right)'], [d.frames], d.ax, d.ay, (ctx, cx, fy, f) => d.draw(ctx, cx, fy, f));
 }
 
 export const ENEMY_TYPES = Object.keys(EN_DEFS);

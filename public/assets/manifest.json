@@ -1,4 +1,5 @@
 {
-  "_readme": "Map asset keys (see the in-game Asset Atlas) to files inside /assets. Listed files replace the procedural art. Example: \"tile_grass_0\": \"tiles/tile_grass_0.webp\"",
+  "_readme": "Maps asset keys (see Collection / Asset Atlas in-game) to files inside /assets. Listed files replace the procedural art. A value can be a path (PNG sprite sheet, animated PNG, or WEBP at any whole-number scale) or an object: { \"file\", \"frames\": n | [per row] | [\"frame files\"], \"rows\": [one strip/APNG/frame list per row], \"scale\", \"anchor\": [x, y] }. Images bigger than maxScale x the game size are downsampled once at load. See ASSET_SPEC.md.",
+  "maxScale": 2,
   "overrides": {}
 }

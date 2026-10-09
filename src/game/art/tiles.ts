@@ -272,7 +272,7 @@ export function getTile(g: G, v: number): Img {
   return asset(
     {
       key: `tile_${d.name}_${vv}`,
-      file: `tiles/tile_${d.name}_${vv}.webp`,
+      file: `tiles/tile_${d.name}_${vv}.png`,
       category: 'tile',
       w: TW,
       h: TH,
@@ -378,25 +378,25 @@ const OVL_STYLE = 'Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/W
 
 export function getCurb(e: number) {
   return asset(
-    { key: `ovl_curb_${EDGE_NAMES[e]}`, file: `overlays/ovl_curb_${EDGE_NAMES[e]}.webp`, category: 'overlay', w: TW, h: TH, desc: `Concrete curb strip along the ${EDGE_NAMES[e].toUpperCase()} edge of a sidewalk tile (road is on that side)`, prompt: `${OVL_STYLE} A raised light-grey concrete curb running exactly along the ${EDGE_NAMES[e].toUpperCase()} diamond edge, ~9px wide.` },
+    { key: `ovl_curb_${EDGE_NAMES[e]}`, file: `overlays/ovl_curb_${EDGE_NAMES[e]}.png`, category: 'overlay', w: TW, h: TH, desc: `Concrete curb strip along the ${EDGE_NAMES[e].toUpperCase()} edge of a sidewalk tile (road is on that side)`, prompt: `${OVL_STYLE} A raised light-grey concrete curb running exactly along the ${EDGE_NAMES[e].toUpperCase()} diamond edge, ~9px wide.` },
     () => genCurb(e)
   );
 }
 export function getFringe(e: number) {
   return asset(
-    { key: `ovl_grass_${EDGE_NAMES[e]}`, file: `overlays/ovl_grass_${EDGE_NAMES[e]}.webp`, category: 'overlay', w: TW, h: TH, desc: `Grass blades overhanging onto a hard tile from the ${EDGE_NAMES[e].toUpperCase()} edge`, prompt: `${OVL_STYLE} Tufts of dark lawn grass spilling over the ${EDGE_NAMES[e].toUpperCase()} diamond edge.` },
+    { key: `ovl_grass_${EDGE_NAMES[e]}`, file: `overlays/ovl_grass_${EDGE_NAMES[e]}.png`, category: 'overlay', w: TW, h: TH, desc: `Grass blades overhanging onto a hard tile from the ${EDGE_NAMES[e].toUpperCase()} edge`, prompt: `${OVL_STYLE} Tufts of dark lawn grass spilling over the ${EDGE_NAMES[e].toUpperCase()} diamond edge.` },
     () => genGrassFringe(e)
   );
 }
 export function getRoadLine(e: number) {
   return asset(
-    { key: `ovl_roadline_${EDGE_NAMES[e]}`, file: `overlays/ovl_roadline_${EDGE_NAMES[e]}.webp`, category: 'overlay', w: TW, h: TH, desc: `Dashed yellow road centre line on the ${EDGE_NAMES[e].toUpperCase()} edge`, prompt: `${OVL_STYLE} Worn dashed yellow road centre line along the ${EDGE_NAMES[e].toUpperCase()} diamond edge.` },
+    { key: `ovl_roadline_${EDGE_NAMES[e]}`, file: `overlays/ovl_roadline_${EDGE_NAMES[e]}.png`, category: 'overlay', w: TW, h: TH, desc: `Dashed yellow road centre line on the ${EDGE_NAMES[e].toUpperCase()} edge`, prompt: `${OVL_STYLE} Worn dashed yellow road centre line along the ${EDGE_NAMES[e].toUpperCase()} diamond edge.` },
     () => genRoadLine(e)
   );
 }
 export function getCrosswalk(axis: 'x' | 'y') {
   return asset(
-    { key: `ovl_crosswalk_${axis}`, file: `overlays/ovl_crosswalk_${axis}.webp`, category: 'overlay', w: TW, h: TH, desc: `Zebra crosswalk stripes for a road running along the world ${axis.toUpperCase()} axis`, prompt: `${OVL_STYLE} Four worn white zebra crossing stripes, iso-projected.` },
+    { key: `ovl_crosswalk_${axis}`, file: `overlays/ovl_crosswalk_${axis}.png`, category: 'overlay', w: TW, h: TH, desc: `Zebra crosswalk stripes for a road running along the world ${axis.toUpperCase()} axis`, prompt: `${OVL_STYLE} Four worn white zebra crossing stripes, iso-projected.` },
     () => genCrosswalk(axis)
   );
 }

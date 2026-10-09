@@ -7,6 +7,8 @@ import {
 } from './data';
 
 export interface Bubble { x: number; y: number; lift: number; text: string; life: number; max: number; who: 'kid' | 'door' | 'trick'; follow?: boolean }
+export interface Toast { id: number; text: string; t: number }
+export type BannerKind = 'info' | 'danger' | 'loot' | 'win';
 export interface TotState { house: HouseInst; t: number; dur: number; stage: number; lines: { at: number; who: 'kid' | 'door' | 'trick'; text: string }[] }
 export type ChoiceMode = 'level' | 'shop' | 'house';
 
@@ -146,7 +148,13 @@ export class Game {
   bossSpawned = false;
   bossKilled = false;
   endless = false;
-  banner: { text: string; sub: string; t: number; kind: 'info' | 'danger' | 'loot' } | null = null;
+  banner: { text: string; sub: string; t: number; kind: BannerKind } | null = null;
+  /** walkie-talkie heads-ups shown under the minimap */
+  toasts: Toast[] = [];
+  private toastId = 1;
+  private warned = new Set<number>();
+  /** M / Tab: big map overlay */
+  bigMap = false;
   interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'costume' | 'house'; ref: Pickup | PropInst | HouseInst } | null = null;
   nearbyWeapon: Weapon | null = null;
   nearbyCostume: string | null = null;
@@ -246,8 +254,18 @@ export class Game {
     this.bubbles.push({ x, y, lift, text, life, max: life, who, follow });
   }
 
-  setBanner(text: string, sub = '', kind: 'info' | 'danger' | 'loot' = 'info') {
+  setBanner(text: string, sub = '', kind: BannerKind = 'info') {
     this.banner = { text, sub, t: 3.5, kind };
+  }
+  toast(text: string) {
+    this.toasts.push({ id: this.toastId++, text, t: 4.5 });
+    if (this.toasts.length > 3) this.toasts.shift();
+  }
+  /** true exactly once, `lead` seconds before `at` (allocation-free on every other frame) */
+  private soon(key: number, at: number, lead: number) {
+    if (this.time < at - lead || this.time >= at || this.warned.has(key)) return false;
+    this.warned.add(key);
+    return true;
   }
 
   get weapon() {
@@ -279,6 +297,7 @@ export class Game {
     }
     const dt = Math.min(dtRaw, 1 / 30);
     this.time += dt;
+    if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
     this.updatePlayer(dt);
     this.rebuildGrid();
     this.updateWeapon(dt);
@@ -297,6 +316,10 @@ export class Game {
     if (this.banner) {
       this.banner.t -= dt;
       if (this.banner.t <= 0) this.banner = null;
+    }
+    if (this.toasts.length) {
+      for (const q of this.toasts) q.t -= dt;
+      if (this.toasts[0].t <= 0) this.toasts = this.toasts.filter((q) => q.t > 0);
     }
     if (this.pendingLevels > 0 && this.state === 'play') this.openLevelUp('level');
     inp.endFrame();
@@ -872,7 +895,7 @@ export class Game {
       this.hitStop = 0.25;
       for (let i = 0; i < 3; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner('THE PUMPKIN KING IS SMASHED!', 'You saved Halloween... for now');
+      this.setBanner('THE PUMPKIN KING IS SMASHED!', 'You saved Halloween... for now', 'win');
       setTimeout(() => {
         if (this.state === 'play' && !this.endless) {
           this.soulEarned = Math.floor(this.kills / 8 + this.time / 6 + 120);
@@ -1420,6 +1443,7 @@ export class Game {
     this.choices = rollScrolls(this.choiceN, this.scrolls, this.choiceLuck);
   }
   choose(id: string) {
+    this.input.pressed.clear(); // the key that picked the card must not also swap weapons
     this.scrolls[id] = (this.scrolls[id] || 0) + 1;
     this.scrollOrder.push(id);
     this.recalcStats();
@@ -1466,6 +1490,7 @@ export class Game {
     this.openLevelUp('shop');
   }
   closeShop() {
+    this.input.pressed.clear(); // Esc/E closed the shop: don't also pause or re-open it
     this.state = 'play';
     this.p.invuln = 0.8;
   }
@@ -1514,6 +1539,7 @@ export class Game {
     }
     // hordes
     for (const ht of [60, 120, 180, 240, 360, 420]) {
+      if (this.soon(ht, ht, 5)) this.toast('A new wave is coming!');
       if (t >= ht && !this.hordes.has(ht)) {
         this.hordes.add(ht);
         this.setBanner('HORDE INCOMING!', 'They are surrounding you', 'danger');
@@ -1532,7 +1558,7 @@ export class Game {
       const pos = this.spawnPos(false);
       if (pos) {
         this.spawnEnemy('werewolf', pos.x, pos.y);
-        this.setBanner('A WEREWOLF HOWLS', 'Elite monster - drops a Treat Bag');
+        this.setBanner('A WEREWOLF HOWLS', 'Elite monster - drops a Treat Bag', 'danger');
       }
     }
     // chests
@@ -1550,6 +1576,7 @@ export class Game {
     }
     // district gates
     for (const gate of this.map.gates) {
+      if (!gate.opened && this.soon(1000 + gate.id, gate.openAt, 10)) this.toast(`The road to ${gate.name} opens in 10 seconds!`);
       if (gate.opened || t < gate.openAt) continue;
       gate.opened = true;
       for (const [cx, cy] of gate.cells) this.map.coll[cy * CW + cx] = 0;
@@ -1559,6 +1586,7 @@ export class Game {
       for (let i = 0; i < 30; i++) this.particle(gate.x, gate.y, 0.3, rand(-3, 3), rand(-3, 3), rand(2, 6), 1, ['#7CFF64', '#FFC453', '#F9781B'][i % 3], 5, i % 2 ? 'glow' : 'sq');
     }
     // boss
+    if (!this.bossSpawned && this.soon(-1, 300, 10)) this.toast('Something huge is stirring in the pumpkin patch…');
     if (t >= 300 && !this.bossSpawned) {
       this.bossSpawned = true;
       const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
@@ -1611,6 +1639,7 @@ export class Game {
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
       housesLeft: this.map.houses.filter((h) => !h.visited).length, housesTotal: this.map.houses.length,
       banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
+      bossIn: this.bossSpawned || this.endless ? null : Math.max(0, 300 - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
     };
   }
 }

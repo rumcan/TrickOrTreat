@@ -1,11 +1,31 @@
 import { TW, TH, HW, HH } from '../config';
 
+let ART_SCALE = 1;
+/** Run a procedural art generator at k× resolution (the PNG exporter uses this; game code never does). */
+export function withArtScale<T>(k: number, fn: () => T): T {
+  const prev = ART_SCALE;
+  ART_SCALE = k;
+  try {
+    return fn();
+  } finally {
+    ART_SCALE = prev;
+  }
+}
+
+/** Canvas sized in game pixels. Generators draw in game pixels; withArtScale() supersamples them. */
 export function makeCanvas(w: number, h: number) {
+  const c = rawCanvas(w * ART_SCALE, h * ART_SCALE);
+  const ctx = c.getContext('2d')!;
+  if (ART_SCALE !== 1) ctx.scale(ART_SCALE, ART_SCALE);
+  return { c, ctx };
+}
+
+/** Canvas sized in real pixels (pixel copies, runtime buffers). */
+export function rawCanvas(w: number, h: number) {
   const c = document.createElement('canvas');
   c.width = Math.max(1, Math.ceil(w));
   c.height = Math.max(1, Math.ceil(h));
-  const ctx = c.getContext('2d')!;
-  return { c, ctx };
+  return c;
 }
 
 export function hexToRgb(hex: string) {
@@ -98,9 +118,10 @@ export function radialGlow(size: number, color: string, inner = 1) {
   return c;
 }
 
-/** solid-colour silhouette of a canvas (for hit flashes and x-ray outlines) */
-export function tinted(src: HTMLCanvasElement | HTMLImageElement, color: string, alpha = 1) {
-  const { c, ctx } = makeCanvas(src.width, src.height);
+/** solid-colour silhouette of an image (for hit flashes and x-ray outlines) */
+export function tinted(src: HTMLCanvasElement | HTMLImageElement | ImageBitmap, color: string, alpha = 1) {
+  const c = rawCanvas(src.width, src.height);
+  const ctx = c.getContext('2d')!;
   ctx.drawImage(src, 0, 0);
   ctx.globalCompositeOperation = 'source-in';
   ctx.globalAlpha = alpha;

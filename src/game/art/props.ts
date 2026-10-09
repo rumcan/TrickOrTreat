@@ -1,16 +1,23 @@
 import { TW, HW, HH, makeRng } from '../config';
-import { makeCanvas, projector, poly, isoBox, faceQuad, shade, rgba, ellipse, circle, Proj } from './draw';
-import { asset, Img } from '../assets';
+import { makeCanvas, rawCanvas, projector, poly, isoBox, faceQuad, shade, rgba, ellipse, circle, Proj } from './draw';
+import { propAsset, Img } from '../assets';
 
 export interface PropLight { x: number; y: number; r: number; color: string; i: number }
 export interface PropSprite {
   img: Img;
+  /** anchor (footprint centre) and drawn size, in game pixels */
   ax: number;
   ay: number;
+  w: number;
+  h: number;
+  /** footprint in tiles */
   fw: number;
   fh: number;
   lights: PropLight[];
 }
+
+/** buildings get their own folder in /assets so they're easy to find and replace */
+const BUILDINGS = new Set(['crypt', 'candy_stand', 'school', 'arcade', 'diner', 'video', 'watertower']);
 
 const STYLE =
   'Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows).';
@@ -26,7 +33,8 @@ function cached(key: string, make: () => PropSprite) {
 }
 
 function flipCanvas(src: Img) {
-  const { c, ctx } = makeCanvas(src.width, src.height);
+  const c = rawCanvas(src.width, src.height);
+  const ctx = c.getContext('2d')!;
   ctx.translate(src.width, 0);
   ctx.scale(-1, 1);
   ctx.drawImage(src, 0, 0);
@@ -106,7 +114,7 @@ function smallPumpkin(ctx: CanvasRenderingContext2D, x: number, y: number, s: nu
   ctx.fillRect(x - 1.5, y - s * 1.2, 3, s * 0.3);
 }
 
-function genHouse(v: number): PropSprite {
+function genHouse(v: number) {
   const H = HOUSES[v];
   const r = makeRng(900 + v * 31);
   const { fw, fh } = H;
@@ -271,32 +279,40 @@ function genHouse(v: number): PropSprite {
     ctx.fill();
   }
   const [ax, ay] = P(fw / 2, fh / 2, 0);
-  return { img: c, ax, ay, fw, fh, lights };
+  return { c, ax, ay, fw, fh, lights };
 }
 
 export function getHouse(v: number, flip: boolean): PropSprite {
   const base = cached('house' + v, () => {
     const g = genHouse(v);
-    const img = asset(
+    const e = propAsset(
       {
-        key: `house_${v}`, file: `props/house_${v}.webp`, category: 'prop', w: g.img.width, h: g.img.height,
+        key: `house_${v}`, file: `buildings/house_${v}.png`, category: 'prop', w: g.c.width, h: g.c.height,
         anchor: [Math.round(g.ax), Math.round(g.ay)], footprint: [g.fw, g.fh],
         desc: `${HOUSES[v].st === 2 ? 'Two' : 'One'}-storey suburban house, footprint ${g.fw}x${g.fh} tiles, gable roof ridge along world X, front door + porch on the visible lower-left face`,
         prompt: `${STYLE} A ${HOUSES[v].st === 2 ? 'two' : 'one'}-storey wooden-siding suburban house (wall colour ${HOUSES[v].wall}), gable roof, footprint exactly ${g.fw} tiles (along lower-right axis) by ${g.fh} tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (${Math.round(g.ax)},${Math.round(g.ay)}).`,
       },
-      () => g.img as HTMLCanvasElement
+      () => genHouse(v).c,
+      g.c
     );
-    return { ...g, img };
+    return { img: e.img, ax: e.anchor[0], ay: e.anchor[1], w: e.w, h: e.h, fw: g.fw, fh: g.fh, lights: g.lights };
   });
   if (!flip) return base;
-  return cached('houseF' + v, () => ({
+  return cached('houseF' + v, () => mirrored(base));
+}
+
+/** a prop mirrored left-right: the footprint swaps axes */
+function mirrored(base: PropSprite): PropSprite {
+  return {
     img: flipCanvas(base.img),
-    ax: base.img.width - base.ax,
+    ax: base.w - base.ax,
     ay: base.ay,
+    w: base.w,
+    h: base.h,
     fw: base.fh,
     fh: base.fw,
     lights: base.lights.map((l) => ({ ...l, x: l.y, y: l.x })),
-  }));
+  };
 }
 
 // =============== SMALL PROP HELPERS ===============
@@ -311,11 +327,12 @@ function small(W: number, Hh: number, draw: (ctx: CanvasRenderingContext2D, P: P
 function reg(key: string, desc: string, prompt: string, fw: number, fh: number, make: () => { c: HTMLCanvasElement; ax: number; ay: number }, lights: PropLight[] = []): PropSprite {
   return cached(key, () => {
     const m = make();
-    const img = asset(
-      { key, file: `props/${key}.webp`, category: 'prop', w: m.c.width, h: m.c.height, anchor: [m.ax, m.ay], footprint: [fw, fh], desc, prompt: `${STYLE} ${prompt} Footprint ${fw}x${fh} tile(s); footprint centre on pixel (${m.ax},${m.ay}).` },
-      () => m.c
+    const e = propAsset(
+      { key, file: `${BUILDINGS.has(key) ? 'buildings' : 'props'}/${key}.png`, category: 'prop', w: m.c.width, h: m.c.height, anchor: [m.ax, m.ay], footprint: [fw, fh], desc, prompt: `${STYLE} ${prompt} Footprint ${fw}x${fh} tile(s); footprint centre on pixel (${m.ax},${m.ay}).` },
+      () => make().c,
+      m.c
     );
-    return { img, ax: m.ax, ay: m.ay, fw, fh, lights };
+    return { img: e.img, ax: e.anchor[0], ay: e.anchor[1], w: e.w, h: e.h, fw, fh, lights };
   });
 }
 
@@ -632,7 +649,7 @@ export function getCar(v: number, flip: boolean): PropSprite {
     return { c, ax, ay };
   });
   if (!flip) return base;
-  return cached('carF' + v, () => ({ img: flipCanvas(base.img), ax: base.img.width - base.ax, ay: base.ay, fw: 1, fh: 2, lights: [] }));
+  return cached('carF' + v, () => mirrored(base));
 }
 
 export function getShop() {
@@ -651,7 +668,7 @@ export function getShop() {
     const tp = P(0.55, 1.75, 30);
     ctx.save();
     ctx.translate(tp[0], tp[1]);
-    ctx.transform(1, -0.5, 0, 1, 0, 0);
+    ctx.transform(1, 0.5, 0, 1, 0, 0);
     ctx.fillText('TREATS', 0, 0);
     ctx.restore();
     // jars
@@ -738,7 +755,7 @@ function signText(ctx: CanvasRenderingContext2D, P: Proj, face: 'L' | 'R', plane
   const p = face === 'L' ? P(u, plane, z) : P(plane, u, z);
   ctx.save();
   ctx.translate(p[0], p[1]);
-  ctx.transform(1, face === 'L' ? -0.5 : 0.5, 0, 1, 0, 0);
+  ctx.transform(1, face === 'L' ? 0.5 : -0.5, 0, 1, 0, 0); // follow the wall: +Y faces run down-right, +X faces up-right
   ctx.fillStyle = color;
   ctx.font = `900 ${size}px sans-serif`;
   ctx.textAlign = 'center';
@@ -788,7 +805,7 @@ export function getSchool() {
     ctx.beginPath(); ctx.arc(cp[0], cp[1], 9, 0, Math.PI * 2); ctx.fillStyle = '#f4f0e2'; ctx.fill(); ctx.strokeStyle = '#1a1020'; ctx.lineWidth = 2; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cp[0], cp[1]); ctx.lineTo(cp[0], cp[1] - 6); ctx.moveTo(cp[0], cp[1]); ctx.lineTo(cp[0] + 4, cp[1] + 1); ctx.stroke();
     poly(ctx, [P(du - 1.0, 0.4, 206), P(du + 1.0, 0.4, 206), P(du, 0.4, 226)], '#b0340c', 'rgba(0,0,0,0.6)');
-    signText(ctx, P, 'L', fh + 0.02, du, 96, 'MAPLE FALLS ELEMENTARY', '#f4e8d5', 11);
+    signText(ctx, P, 'L', fh + 0.02, du, 82, 'MAPLE FALLS ELEMENTARY', '#f4e8d5', 10); // between the door and the upper windows
     // flag pole
     const fp = P(fw - 0.4, fh + 0.7, 0);
     ctx.strokeStyle = '#c8ccd8'; ctx.lineWidth = 2;
@@ -910,7 +927,7 @@ export function getWaterTower() {
     const fw = 2, fh = 2;
     const W = (fw + fh) * HW + 60, Hh = 380;
     const { c, ctx } = makeCanvas(W, Hh);
-    const P = projector(fh * HW + 30, 350);
+    const P = projector(fh * HW + 30, 254); // legs reach y≈370: keep them inside the 380px canvas
     // legs
     for (const [x, y] of [[0.2, 0.2], [1.8, 0.2], [0.2, 1.8], [1.8, 1.8]]) {
       const a = P(x, y, 0), b = P(0.5 + x * 0.5, 0.5 + y * 0.5, 170);
