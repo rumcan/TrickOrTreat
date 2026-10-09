@@ -5,7 +5,7 @@ import { gameAudio } from './audio';
 import { hasFullGame } from './expansion';
 import { Build, rollCrit, rateOverflow, overflow } from './build';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
   COSTUMES, COSTUME_BY_ID, GIVE_LINES,
 } from './data';
 
@@ -165,6 +165,8 @@ export class Game {
   choices: Scroll[] = [];
   /** trick-or-treat bowls can also hold guns (rare or better), shown after the treat cards */
   gunChoices: Weapon[] = [];
+  /** free game only: a full-game treat or gun shown as a locked, read-only extra card, to tease the unlock */
+  lockedChoice: { scroll: Scroll | null; weapon: Weapon | null } | null = null;
   choiceMode: ChoiceMode = 'level';
   choiceGiver = '';
   tot: TotState | null = null;
@@ -2129,6 +2131,7 @@ export class Game {
   }
   /** Houses only hand out the good stuff: rare, epic or legendary, and each card can be a treat or a gun. */
   private rollChoices() {
+    this.rollLocked();
     const n = this.choiceN, luck = this.choiceLuck;
     if (this.choiceMode !== 'house') {
       this.gunChoices = [];
@@ -2140,6 +2143,14 @@ export class Game {
     guns = Math.min(guns, n - 1); // always at least one treat on offer
     this.choices = rollScrolls(n - guns, this.scrolls, luck, 2);
     this.gunChoices = Array.from({ length: n - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, 2)));
+  }
+  private rollLocked() {
+    this.lockedChoice = null;
+    if (hasFullGame()) return;
+    const scrolls = LOCKED_SCROLLS();
+    const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, 2)) : null;
+    if (gun) this.lockedChoice = { scroll: null, weapon: gun };
+    else if (scrolls.length) this.lockedChoice = { scroll: scrolls[Math.floor(Math.random() * scrolls.length)], weapon: null };
   }
   reroll() {
     if (this.rerolls <= 0) return;
@@ -2200,7 +2211,7 @@ export class Game {
       return;
     }
     this.pendingLevels--;
-    if (this.pendingLevels > 0) this.choices = rollScrolls(3, this.scrolls, this.stats.luck);
+    if (this.pendingLevels > 0) { this.choiceN = 3; this.choiceLuck = this.stats.luck; this.rollChoices(); }
     else {
       this.state = 'play';
       this.p.invuln = 1;

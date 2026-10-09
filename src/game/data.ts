@@ -152,6 +152,15 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   return out;
 }
 
+/** a full-game gun built only to be shown (locked) to free players: the teaser card on level-ups and houses */
+export function makeLockedWeapon(rarity: number): Weapon | null {
+  const pool = WEAPONS.filter((w) => w.premium);
+  if (!pool.length) return null;
+  const def = pool[Math.floor(Math.random() * pool.length)];
+  const w: Weapon = { uid: uidc++, def, rarity, level: 1, traits: rollInscriptions(def, rarity), ammo: 0, reloadT: 0, cd: 0 };
+  w.ammo = weaponStats(w, baseStats()).mag;
+  return w;
+}
 export function makeWeapon(defId: string | null, rarity: number, level = 1): Weapon {
   const weaponPool = WEAPONS.filter((w) => !w.premium || hasFullGame());
   const chosen = defId ? WEAPON_BY_ID[defId] : weaponPool[Math.floor(Math.random() * weaponPool.length)];
@@ -256,6 +265,7 @@ SCROLLS.push(
 );
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 
+export const LOCKED_SCROLLS = () => SCROLLS.filter((s) => s.premium);
 export function rollScrolls(n: number, owned: Record<string, number>, luck: number, minRarity = 0): Scroll[] {
   const out: Scroll[] = [];
   const weights = [60, 30, 14 + luck * 3, 6 + luck * 2, 2 + luck];

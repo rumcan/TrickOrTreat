@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon } from 'lucide-react';
+import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock } from 'lucide-react';
 import { Game } from '../game/engine';
-import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps } from '../game/data';
+import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
@@ -283,6 +283,32 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
 
 /** a treat's retro card illustration */
 
+/** Free game: a full-game treat or gun on show behind glass. Read-only, never pickable; it teases the unlock. */
+function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: Weapon | null; game: Game }) {
+  const rarity = weapon ? weapon.rarity : scroll?.rarity ?? 2;
+  const rc = RARITY_KIT[rarity];
+  const st = weapon ? weaponStats(weapon, game.stats) : null;
+  return (
+    <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled="true" role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. Unlock the full game to find it.`}>
+      <div className={`hm-pick-art ${weapon ? 'hm-pick-gun' : ''}`} style={{ ['--glow' as string]: rc }}>
+        {weapon ? <img src={weaponUrl(weapon.def.id)} alt="" draggable={false} className="relative h-[62%] w-auto [image-rendering:pixelated]" /> : scroll && <TreatArt id={scroll.id} />}
+        <span className="hm-lock" aria-hidden="true"><Lock size={26} strokeWidth={2.5} /></span>
+        <span className="hm-stamp">Full game</span>
+      </div>
+      <div className="flex flex-1 flex-col p-3.5">
+        <div className="hm-label !text-[#8f8676]">{RARITY_NAMES[rarity]} {weapon ? 'gun' : 'treat'} · locked</div>
+        <div className="hm-pick-name mt-1">{weapon ? weapon.def.name : scroll?.name}</div>
+        {scroll?.quote && <div className="hm-pick-quote">“{scroll.quote}”</div>}
+        {weapon && <div className="hm-pick-quote">{weapon.def.desc}</div>}
+        <div className="hm-label mt-3">{weapon ? 'Firepower' : 'Effect'}</div>
+        <div className="hm-pick-desc">{weapon && st ? <span className="font-num">{weaponDps(weapon, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</span> : scroll?.desc}</div>
+        {weapon && <Inscriptions w={weapon} compact />}
+        <div className="hm-locked-foot mt-auto pt-3"><Lock size={12} strokeWidth={3} /> Unlock the full game to find this</div>
+      </div>
+    </div>
+  );
+}
+
 // ================= LEVEL UP =================
 export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const [, force] = useState(0);
@@ -305,13 +331,15 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
     ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: extra pick' : 'no costume = stingy treats'}${houseNote}`
     : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;
   const n = game.choices.length + game.gunChoices.length;
+  const locked = game.lockedChoice;
+  const cards = n + (locked ? 1 : 0);
   return (
     <div className="hm-backdrop">
       <div className="hm-modal kit-pop">
         <div className="paper-kicker">{kicker}</div>
         <h2 className="hm-modal-title">{title}</h2>
         <span className="hm-rule" />
-        <div className={`mt-6 grid grid-cols-1 gap-5 ${n >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : n === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
+        <div className={`mt-6 grid grid-cols-1 gap-5 ${cards >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : cards === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
           {game.choices.map((c, i) => {
             const rc = RARITY_KIT[c.rarity], owned = game.scrolls[c.id] || 0;
             return (
@@ -359,6 +387,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
               </button>
             );
           })}
+          {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} />}
         </div>
         <div className="hm-foot">
           <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack, and stacks never cap</span>
