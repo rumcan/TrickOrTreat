@@ -69,6 +69,9 @@ function TimerPlate({ s }: { s: HudSnap }) {
         <span className="flex items-center gap-1.5 text-[#f2e6c9]"><CoinIcon size={16} />{s.coins}</span>
         <span className="flex items-center gap-1.5 text-[#f2e6c9]"><CandyIcon size={17} />{s.doorsRung}/{s.housesTotal}</span>
         {s.bossIn !== null && <span className="flex items-center gap-1.5 text-[#fb8016]" title="The Pumpkin King arrives"><HouseIcon size={16} />{fmtTime(s.bossIn)}</span>}
+        {s.wave > 0 && <span className="flex items-center gap-1.5 text-[#ff5a6e]" title="Endless Night: monsters grow every wave">WAVE {s.wave} · {Math.ceil(s.waveIn)}s</span>}
+        {s.momentum > 0 && <span className="flex items-center gap-1 text-[#ff5a6e]" title="Kill · Momentum">💀{s.momentum}</span>}
+        {s.streak > 0 && <span className="flex items-center gap-1 text-[#ffe14a]" title="Crit · Lucky Streak">🎯{s.streak}</span>}
       </div>
     </div>
   );
@@ -121,7 +124,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
       {/* boss */}
       {s.boss && (
         <div className="absolute left-1/2 top-[152px] w-[min(540px,86vw)] -translate-x-1/2 sm:top-[104px]">
-          <KitTitle className="mb-1 text-center text-xl tracking-[0.2em]">The Pumpkin King</KitTitle>
+          <KitTitle className="mb-1 text-center text-xl tracking-[0.2em]">{s.boss.name}</KitTitle>
           <Bar value={s.boss.hp} max={s.boss.max} color="linear-gradient(90deg,#b0340c,#fb8016,#ffc453)" h={16} label={false} />
         </div>
       )}
@@ -176,9 +179,39 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
         </div>
       )}
 
+      {/* rescuing a friend / being revived */}
+      {s.rescue && (
+        <div className="absolute bottom-[118px] left-1/2 flex w-[min(420px,90vw)] -translate-x-1/2 flex-col items-center gap-2 sm:bottom-[134px]">
+          <div className="kit-panel flex w-full items-center gap-3 px-3.5 py-2.5" style={{ borderColor: '#b58bff', boxShadow: '0 0 0 1px #000, 0 0 18px rgba(181,139,255,0.4)' }}>
+            {!s.rescue.downed && <Keycap>E</Keycap>}
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{s.rescue.label}</div>
+              {s.rescue.progress >= 0 && <Bar value={s.rescue.progress * 100} max={100} color="linear-gradient(90deg,#7b4dd6,#b58bff,#e6d4ff)" h={8} label={false} className="mt-1.5" />}
+            </div>
+          </div>
+          {!s.rescue.downed && s.rescue.progress <= 0 && !/Defeat/.test(s.rescue.label) && <div className="font-cond2 text-[12px] font-bold uppercase tracking-wider text-[#c9b8e8]" style={{ textShadow: '0 1px 2px #000' }}>Tap E and stay close · hits only pause it</div>}
+        </div>
+      )}
+
+      {/* manning a Candy Cannon */}
+      {s.turret && (
+        <div className="absolute bottom-[118px] left-1/2 w-[min(400px,90vw)] -translate-x-1/2 sm:bottom-[134px]">
+          <div className="kit-panel px-3.5 py-2.5" style={{ borderColor: s.turret.over > 0 ? '#ff5a3a' : '#fb8016' }}>
+            <div className="mb-1.5 flex items-center justify-between gap-3">
+              <span className="font-cond text-lg uppercase leading-none text-[#fb8016]">Candy Cannon</span>
+              <span className={`font-cond2 text-[12px] font-bold uppercase tracking-wider ${s.turret.over > 0 ? 'text-[#ff5a3a]' : 'text-[#9aa0a6]'}`}>{s.turret.over > 0 ? 'Overheated!' : 'Heat'}</span>
+            </div>
+            <Bar value={s.turret.heat * 100} max={100} color={s.turret.over > 0 ? '#ff5a3a' : 'linear-gradient(90deg,#2ec4b0,#ffd23a 60%,#ff5a3a)'} h={9} label={false} />
+            <div className="mt-1.5 flex items-center gap-2 font-cond2 text-[12px] font-bold uppercase tracking-wider text-[#c9bda6]">
+              <Keycap className="!h-5 !text-[11px]">E</Keycap> climb down · hold mouse to aim · auto-fires at the nearest monster
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* interaction + compare */}
-      {s.interact && (
-        <div className="absolute bottom-[118px] left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 sm:bottom-[134px]">
+      {s.interact && !s.turret && (
+        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[118px] left-1/2 -translate-x-1/2 items-center sm:bottom-[134px]'}`}>
           {s.nearbyCostume && (
             <div className="hidden items-end gap-2 md:flex">
               {s.costume && <div className="opacity-70"><CostumeCard id={s.costume} hero={hero} title="Wearing" /></div>}
@@ -186,12 +219,12 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             </div>
           )}
           {s.nearbyWeapon && (
-            <div className="hidden items-end gap-2 md:flex">
+            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-440px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-end">
               {cur && <div className="opacity-75"><WeaponCard w={cur.w} stats={game.stats} title="Equipped" compact /></div>}
-              <WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact />
+              <div className="order-first xl:order-last"><WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact /></div>
             </div>
           )}
-          <div className="kit-panel flex max-w-[92vw] items-center gap-2.5 px-3.5 py-2" style={{ borderColor: '#fb8016', boxShadow: '0 0 0 1px #000, 0 0 16px rgba(251,128,22,0.35)' }}>
+          <div className={`kit-panel flex items-center gap-2.5 px-3.5 py-2 ${s.nearbyWeapon ? 'max-w-full' : 'max-w-[92vw]'}`} style={{ borderColor: '#fb8016', boxShadow: '0 0 0 1px #000, 0 0 16px rgba(251,128,22,0.35)' }}>
             <Keycap>E</Keycap>
             <span className="truncate font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{s.interact}</span>
           </div>

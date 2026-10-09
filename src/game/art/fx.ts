@@ -26,6 +26,13 @@ const ICONS: Record<string, { desc: string; draw: (ctx: CanvasRenderingContext2D
   slingshot: { desc: 'Wrist Slingshot - wooden Y with rubber band', draw: (c) => { c.strokeStyle = OL; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.moveTo(16, 28); c.lineTo(28, 16); c.moveTo(28, 16); c.lineTo(44, 6); c.moveTo(28, 16); c.lineTo(46, 24); c.stroke(); c.strokeStyle = '#a0682e'; c.lineWidth = 3.5; c.stroke(); c.strokeStyle = '#e04a4a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(44, 6); c.lineTo(54, 15); c.lineTo(46, 24); c.stroke(); circle(c, 54, 15, 3, '#ccc'); } },
 };
 
+for (const [id, desc, color] of [
+  ['gloom', 'Gloom Drum: purple homemade toy blaster with a round spectral drum magazine', '#87618e'],
+  ['marshmallow', 'Marshmallow Mortar: cream cardboard tube launcher with a fluffy marshmallow at its mouth', '#dccaa8'],
+  ['bubblegum', 'Bubblegum Rail: pink toy railgun with a transparent bubblegum energy reservoir', '#b65f85'],
+  ['acorn', 'Acorn Repeater: wooden toy repeater with an acorn hopper and green barrel', '#829150'],
+]) ICONS[id] = { desc, draw: c => { box(c, 12, 18, 8, 11, '#503929'); box(c, 8, 9, 38, 13, color, 4); box(c, 44, 13, 15, 6, '#473c45'); circle(c, 30, 20, 8, color); } };
+
 export function weaponIcon(id: string): Img {
   const d = ICONS[id];
   return asset({ key: `icon_${id}`, file: `icons/icon_${id}.png`, category: 'icon', w: 64, h: 32, anchor: [16, 20], desc: d.desc, prompt: `${ICON_STYLE} ${d.desc}.` }, () => {
@@ -81,8 +88,10 @@ export function lightSprite() {
   if (!lightMask) {
     const { c, ctx } = makeCanvas(256, 256);
     const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    // solid core: inside a light's radius the night is fully cut away, only the rim fades back to dark
     g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.45, 'rgba(255,255,255,0.65)');
+    g.addColorStop(0.55, 'rgba(255,255,255,1)');
+    g.addColorStop(0.8, 'rgba(255,255,255,0.55)');
     g.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 256, 256);
@@ -91,5 +100,16 @@ export function lightSprite() {
   return lightMask;
 }
 
+export const TREAT_ICON_IDS = ['walkie', 'firstaid', 'friendship'];
+export function treatIcon(id: string): Img {
+  const descriptions: Record<string, string> = { walkie: 'A worn teal toy walkie-talkie with a short antenna and amber indicator', firstaid: 'A small cream pocket first-aid pouch with a muted red cloth cross', friendship: 'Two handmade woven friendship bracelets, dusty pink and teal, looped together' };
+  return asset({ key: `treat_${id}`, file: `icons/treat_${id}.png`, category: 'icon', w: 48, h: 48, anchor: [24, 24], desc: descriptions[id], prompt: `Single hand-painted Halloween ARPG inventory icon, transparent background, no lettering, no cast shadow. ${descriptions[id]}. Centered inside 48x48 pixels with a clear readable silhouette and 4px safe margins.` }, () => {
+    const { c, ctx } = makeCanvas(48, 48);
+    if (id === 'walkie') { box(ctx, 13, 15, 22, 28, '#397b78', 4); box(ctx, 15, 4, 4, 14, '#30313c'); }
+    else if (id === 'firstaid') { box(ctx, 6, 13, 36, 28, '#e2ceb0', 5); ctx.fillStyle = '#ad514e'; ctx.fillRect(20, 19, 8, 16); ctx.fillRect(16, 23, 16, 8); }
+    else { ctx.strokeStyle = '#ad7b9c'; ctx.lineWidth = 7; ctx.beginPath(); ctx.ellipse(19, 24, 12, 15, 0.2, 0, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = '#548c85'; ctx.beginPath(); ctx.ellipse(30, 24, 10, 13, -0.2, 0, Math.PI * 2); ctx.stroke(); }
+    return c;
+  });
+}
 export const WEAPON_ICON_IDS = Object.keys(ICONS);
 export const PICKUP_IDS = Object.keys(PICK);

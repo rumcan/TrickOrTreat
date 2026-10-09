@@ -1,0 +1,334 @@
+{
+  "music": [
+    {
+      "id": "grid-01-cannon-fodder",
+      "station": "grid",
+      "duration": 150,
+      "title": "Cannon Fodder",
+      "prompt": "Instrumental heavy metal racing anthem. Fast double-kick drums at 168 BPM, chugging palm-muted electric guitars, a soaring lead guitar melody, galloping bass. Relentless forward energy for a goblin marble race on wooden roller coaster tracks. No vocals, no lyrics, consistent energy so it loops well, no long fade-in."
+    },
+    {
+      "id": "grid-02-goblin-gallop",
+      "station": "grid",
+      "duration": 150,
+      "title": "Goblin Gallop",
+      "prompt": "Instrumental power metal with a folk twist: galloping triplet rhythm at 150 BPM, twin harmony lead guitars, a mischievous fiddle and tin whistle hook like a goblin tavern jig, pounding drums. Fun, cheeky and fast. No vocals, no lyrics, steady energy throughout."
+    },
+    {
+      "id": "grid-03-iron-downhill",
+      "station": "grid",
+      "duration": 150,
+      "title": "Iron Downhill",
+      "prompt": "Instrumental stoner hard rock groove, heavy fuzzy riffs, swaggering mid-tempo 120 BPM drums with big cymbals, a wah-wah lead, rumbling bass. Feels like steel marbles thundering downhill. No vocals, no lyrics, consistent energy, loopable."
+    },
+    {
+      "id": "grid-04-spark-and-steel",
+      "station": "grid",
+      "duration": 150,
+      "title": "Spark and Steel",
+      "prompt": "Instrumental speed metal meets surf rock: reverb-drenched tremolo-picked guitar melody over thrash drums at 180 BPM, punchy bass runs, playful and high-octane racing music. No vocals, no lyrics, no breakdown silences, loopable."
+    },
+    {
+      "id": "grid-05-neon-forge",
+      "station": "grid",
+      "duration": 150,
+      "title": "Neon Forge",
+      "prompt": "Instrumental synth metal: heavy downtuned guitar riffs layered with retro analog synth arpeggios, driving four-on-the-floor drums with metal fills at 140 BPM, epic and modern, arcade racing energy. No vocals, no lyrics, steady intensity, loopable."
+    },
+    {
+      "id": "grid-06-final-lap",
+      "station": "grid",
+      "duration": 150,
+      "title": "Final Lap",
+      "prompt": "Instrumental epic symphonic metal: crunching guitars, thunderous drums at 160 BPM, a heroic brass and choir-pad melody (wordless, no lyrics), sense of a decisive final lap and a crowd roaring. No vocals singing words, consistent energy, loopable."
+    },
+    {
+      "id": "sky-01-dawn-ridge",
+      "station": "infinity",
+      "mood": "day",
+      "duration": 180,
+      "title": "Dawn Ridge",
+      "prompt": "Instrumental soundtrack for an endless, flowing downhill marble ride through painted pine forests at sunrise. Uplifting cinematic adventure: soft plucked harp and celtic flute melody over warm string pads, light hand percussion and a gentle steady pulse around 92 BPM. Calm but always moving forward, hopeful. No vocals, no sudden stops, consistent energy so it loops well.",
+      "biomes": [
+        "meadow",
+        "forest"
+      ]
+    },
+    {
+      "id": "sky-02-floating-isles",
+      "station": "infinity",
+      "mood": "day",
+      "duration": 180,
+      "title": "Floating Isles",
+      "prompt": "Instrumental airy fantasy adventure music for gliding past floating sky islands, goblin castles and airships. Shimmering celesta and marimba patterns, wide orchestral strings, a lyrical solo violin melody, soft brushed drums at 100 BPM, sense of wonder and open sky. No vocals, steady flow, loopable.",
+      "biomes": [
+        "valley",
+        "lake"
+      ]
+    },
+    {
+      "id": "sky-03-river-run",
+      "station": "infinity",
+      "mood": "day",
+      "duration": 180,
+      "title": "River Run",
+      "prompt": "Instrumental warm folk-adventure travel music: fingerpicked acoustic guitar, mandolin and accordion melody, upright bass, light cajon groove around 104 BPM, carefree and rolling, like an endless sunny journey through valleys and waterfalls. No vocals, consistent energy, loopable.",
+      "biomes": [
+        "meadow",
+        "valley"
+      ]
+    },
+    {
+      "id": "sky-04-cloud-glide",
+      "station": "infinity",
+      "mood": "day",
+      "duration": 180,
+      "title": "Cloud Glide",
+      "prompt": "Instrumental chillhop with cinematic warmth: mellow electric piano chords, soft vinyl texture, gentle boom-bap beat at 85 BPM, a dreamy flute and string melody floating on top. Relaxed, focused, endlessly rolling forward through clouds. No vocals, loopable.",
+      "biomes": [
+        "valley",
+        "autumn"
+      ]
+    },
+    {
+      "id": "sky-05-starlit-pines",
+      "station": "infinity",
+      "mood": "night",
+      "duration": 180,
+      "title": "Starlit Pines",
+      "prompt": "Instrumental calm night journey music for rolling through dark pine forests under stars and lanterns. Soft music-box and glockenspiel melody, warm low string pads, distant ambient synth shimmer, very gentle slow pulse around 76 BPM. Peaceful, magical, never sleepy-stopping. No vocals, loopable.",
+      "biomes": [
+        "night"
+      ]
+    },
+    {
+      "id": "sky-06-moon-canyon",
+      "station": "infinity",
+      "mood": "night",
+      "duration": 180,
+      "title": "Moon Canyon",
+      "prompt": "Instrumental nocturnal ambient adventure: deep warm synth pads, a lonely duduk-like woodwind melody, soft frame drum heartbeat around 80 BPM, echoing guitar harmonics, moonlit canyon with glowing crystals. Mysterious but comforting, steady flow, no vocals, loopable.",
+      "biomes": [
+        "night"
+      ]
+    },
+    {
+      "id": "sky-07-pine-cathedral",
+      "station": "infinity",
+      "mood": "day",
+      "biomes": [
+        "forest"
+      ],
+      "duration": 180,
+      "title": "Pine Cathedral",
+      "prompt": "Instrumental mystical forest journey music for rolling endlessly through towering ancient pine woods. Warm low strings, a soft wordless choir pad, gentle woodblock and frame drum pulse around 88 BPM, a wooden flute melody echoing between the trees. Reverent and adventurous, always moving forward. No vocals or lyrics, consistent energy, loopable."
+    },
+    {
+      "id": "sky-08-ember-hills",
+      "station": "infinity",
+      "mood": "day",
+      "biomes": [
+        "autumn"
+      ],
+      "duration": 180,
+      "title": "Ember Hills",
+      "prompt": "Instrumental warm autumn travel music through golden rolling hills and falling leaves. Fingerpicked acoustic guitar, a singing cello melody, fiddle harmonies, soft brushed drums at 96 BPM, nostalgic and cosy but moving forward. No vocals, consistent energy, loopable."
+    },
+    {
+      "id": "sky-09-mirror-lake",
+      "station": "infinity",
+      "mood": "day",
+      "biomes": [
+        "lake"
+      ],
+      "duration": 180,
+      "title": "Mirror Lake",
+      "prompt": "Instrumental serene lakeside journey music: gentle rippling piano arpeggios, harp glissandos like water, soft warm synth pads, a light shaker and soft kick pulse at 82 BPM, calm and shimmering, endless gliding along still water at dawn. No vocals, consistent flow, loopable."
+    },
+    {
+      "id": "sky-10-snowfields",
+      "station": "infinity",
+      "mood": "day",
+      "biomes": [
+        "snow"
+      ],
+      "duration": 180,
+      "title": "Snowfields",
+      "prompt": "Instrumental crystalline winter adventure music for gliding across bright snowfields: celesta and glockenspiel sparkle, airy high strings, soft sleigh-bell shimmer, a warm horn melody, gentle steady pulse at 90 BPM. Cold air but a warm heart, always moving. No vocals, loopable."
+    },
+    {
+      "id": "sky-11-firefly-waltz",
+      "station": "infinity",
+      "mood": "night",
+      "biomes": [
+        "night"
+      ],
+      "duration": 180,
+      "title": "Firefly Waltz",
+      "prompt": "Instrumental gentle night waltz in 3/4 for rolling through a meadow full of fireflies under the stars: music box melody, soft pizzicato strings, warm accordion pad, a lullaby-like but flowing pulse around 84 BPM. Magical, peaceful, never stopping. No vocals, loopable."
+    },
+    {
+      "id": "pit-01-wrench-groove",
+      "station": "pit",
+      "duration": 120,
+      "title": "Wrench Groove",
+      "prompt": "Instrumental laid-back funk-rock workshop groove: clean wah guitar, slap bass, tight dry drums at 96 BPM, a little organ. The vibe of goblin mechanics tinkering in a cosy garage between races. No vocals, loopable."
+    },
+    {
+      "id": "pit-02-tavern-tune-up",
+      "station": "pit",
+      "duration": 120,
+      "title": "Tavern Tune-Up",
+      "prompt": "Instrumental cheerful goblin tavern folk-rock: bouncy accordion, fiddle and banjo over a stomping rock beat at 110 BPM, mischievous and warm, menu music for a fantasy racing game. No vocals, loopable."
+    },
+    {
+      "id": "pit-03-oil-and-lofi",
+      "station": "pit",
+      "duration": 120,
+      "title": "Oil and Lofi",
+      "prompt": "Instrumental lofi hip hop with a rock edge: dusty drums at 82 BPM, warm overdriven guitar licks, mellow Rhodes chords, soft workshop clinks as percussion texture. Chill, cosy, background for building race tracks. No vocals, loopable."
+    },
+    {
+      "id": "pit-04-blueprint-blues",
+      "station": "pit",
+      "duration": 120,
+      "title": "Blueprint Blues",
+      "prompt": "Instrumental relaxed blues rock shuffle: slide guitar melody, honky-tonk piano, brushed shuffle drums at 92 BPM, walking bass. Easygoing, friendly, perfect for browsing a garage and shop. No vocals, loopable."
+    },
+    {
+      "id": "tale-01-scrapyard-dreams",
+      "station": "story",
+      "duration": 120,
+      "title": "Scrapyard Dreams",
+      "prompt": "Instrumental heartfelt storybook underscore for a young goblin who dreams of racing: gentle piano and plucked strings, hopeful solo cello melody, soft glockenspiel, slow build of warmth, 84 BPM. Quiet enough to sit under dialogue. No vocals, loopable."
+    },
+    {
+      "id": "tale-02-rivals",
+      "station": "story",
+      "duration": 120,
+      "title": "Rivals",
+      "prompt": "Instrumental playful tension underscore for meeting cocky racing rivals: pizzicato strings, low brass stabs, ticking percussion, a sly clarinet motif, light rock drums at 100 BPM. Cheeky and competitive, quiet enough for dialogue. No vocals, loopable."
+    },
+    {
+      "id": "tale-03-champions-road",
+      "station": "story",
+      "duration": 120,
+      "title": "Champion's Road",
+      "prompt": "Instrumental triumphant adventure theme: rising strings and French horns, rock drums, a heroic electric guitar melody joining the orchestra, determined and proud, 108 BPM. Quiet enough to sit under dialogue at the start, swelling later. No vocals, loopable."
+    }
+  ],
+  "stingers": [
+    {
+      "id": "win-fanfare",
+      "duration": 7,
+      "prompt": "Short triumphant heavy metal victory fanfare: blazing guitar riff, crash cymbals and a brass hit, ending on a big sustained power chord. Celebrating first place in a race. Instrumental."
+    },
+    {
+      "id": "podium-jingle",
+      "duration": 5,
+      "prompt": "Short upbeat rock jingle for finishing on the podium: bright guitar lick, drum fill, happy brass stab, ends cleanly. Instrumental."
+    },
+    {
+      "id": "finish-jingle",
+      "duration": 4,
+      "prompt": "Short neutral race-finished rock jingle: a quick guitar strum and a drum hit, ends cleanly, upbeat but modest. Instrumental."
+    },
+    {
+      "id": "ko-jingle",
+      "duration": 4,
+      "prompt": "Short comical sad trombone wah-wah-wah with a deflating tuba note and a cymbal choke, cartoon failure sting. Instrumental."
+    },
+    {
+      "id": "level-up",
+      "duration": 4,
+      "prompt": "Short magical level-up sting: rising sparkling harp glissando into a bright brass and guitar chord, triumphant reward feeling. Instrumental."
+    },
+    {
+      "id": "chapter-complete",
+      "duration": 6,
+      "prompt": "Short orchestral story chapter complete sting: warm strings swell, a horn melody and a soft timpani roll, satisfying and heartfelt resolution. Instrumental."
+    },
+    {
+      "id": "trophy",
+      "duration": 8,
+      "prompt": "Grand championship trophy fanfare: full orchestra with heavy metal guitars and drums, majestic brass, cymbal crashes and a crowd roar, ending on a huge final chord. Instrumental."
+    }
+  ],
+  "sfx": [
+    {
+      "id": "swoosh",
+      "prompt": "A single short soft cloth-and-air swoosh for a Halloween kid dashing. Warm airy movement with audible lower-mid texture around 300 to 1400 Hz, subtly brighter than a bass rumble. Gentle smooth attack and tail, quiet and rounded, no shrill hiss, metallic scrape, piercing treble, hard snap, voice or music. Start immediately; one clean game sound only.",
+      "duration": 0.5
+    },
+    {
+      "id": "click",
+      "prompt": "A single quiet rounded toy-blaster mechanism click: felt-damped plastic lever and a warm wooden contact. Clear but soft lower-mid detail, not a sub-bass thump. Gentle 10 to 15 millisecond onset and short smooth decay, no metallic ping, harsh snap, high-pitched beep, distortion, voice or music. Start immediately; one clean game sound only.",
+      "duration": 0.5
+    },
+    {
+      "id": "tick",
+      "prompt": "A single small soft dry wooden tick for candy pickup and toy-blaster firing feedback. A delicate rounded tap with audible warm lower-mid character, slightly brighter than a bass pulse, very quiet. Softened 10 millisecond onset and clean short decay; no sharp treble, metal, bell, piercing click, voice, music or sub-bass drone. Start immediately; one clean game sound only.",
+      "duration": 0.5
+    },
+    {
+      "id": "shot",
+      "prompt": "A single soft low toy-blaster pulse, rounded sub-bass thump with a short muffled brown-noise body. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 0.5
+    },
+    {
+      "id": "impact",
+      "prompt": "Soft padded monster impact, a restrained deep woody thud and low rumbling decay. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 0.5
+    },
+    {
+      "id": "reload",
+      "prompt": "Quiet soft fabric and padded mechanism movement, low resonant muted roll, no click. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 0.8
+    },
+    {
+      "id": "pickup",
+      "prompt": "Gentle warm bass swell for collecting Halloween candy, subtle soft low breath, no bell or chime. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 0.8
+    },
+    {
+      "id": "door",
+      "prompt": "Old wooden door gently moving with deep muffled creak and low rounded knock. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 1.5
+    },
+    {
+      "id": "hurt",
+      "prompt": "Quiet low throbbing rumble for taking damage, padded brown-noise pulse. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 0.8
+    },
+    {
+      "id": "dash",
+      "prompt": "Soft passing breath of low wind, warm filtered brown-noise whoosh. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 0.5
+    },
+    {
+      "id": "skill",
+      "prompt": "A deep restrained magical pressure wave, softly rising bass with muffled brown-noise rumble. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 1.5
+    },
+    {
+      "id": "revive",
+      "prompt": "A warm deep rising swell of reassurance, subtle sub-bass pulse and soft air. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 2.5
+    },
+    {
+      "id": "guardian",
+      "prompt": "Distant deep creature movement and earth rumble, restrained bass, no screaming. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 2
+    },
+    {
+      "id": "unlock",
+      "prompt": "A low warm wooden resonance followed by soft bass release, subtle reward sound. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 1.5
+    },
+    {
+      "id": "victory",
+      "prompt": "Quiet warm deep cinematic resolution, rounded low drone and soft brown-noise breath. Game SFX only. Deep subtle brown-noise timbre; smooth 30ms or longer attack and decay. No sharp or bright sounds, no metallic transients, clicks, hissing, ringing, high-pitched tones, voices, music or hard clipping.",
+      "duration": 3
+    }
+  ]
+}

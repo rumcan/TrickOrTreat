@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
+import { expansion, hasFullGame } from '../game/expansion';
 import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, COSTUMES } from '../game/data';
 import { makeRng } from '../game/config';
 import { ChevronLeft, RotateCcw } from 'lucide-react';
@@ -7,7 +8,8 @@ import { CandyIcon } from './common';
 
 type NodeState = 'maxed' | 'owned' | 'available' | 'locked';
 
-export function TalentTree({ save, onBack }: { save: Save; onBack: () => void }) {
+export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBack: () => void; onAgain?: () => void; earned?: number }) {
+  useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const [, force] = useState(0);
   const [sel, setSel] = useState<string>('sharp');
   const [hover, setHover] = useState<string | null>(null);
@@ -20,6 +22,7 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
   }, []);
 
   const stateOf = (t: Talent): NodeState => {
+    if (t.premium && !hasFullGame()) return 'locked';
     const l = ranks[t.id] || 0;
     if (l >= t.max) return 'maxed';
     if (l > 0) return 'owned';
@@ -66,14 +69,14 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
   const fst = stateOf(focus);
 
   return (
-    <div className="absolute inset-0 flex flex-col overflow-hidden bg-[#0E1117] text-[#F4E8D5] lg:flex-row">
+    <div className="absolute inset-0 flex flex-col overflow-y-auto bg-[#0E1117] pt-14 text-[#F4E8D5] lg:flex-row">
       {/* ===== tree ===== */}
-      <div className="relative min-h-0 flex-1">
-        <div className="absolute left-5 top-4 z-10">
+      <div className="relative min-h-[440px] flex-1 lg:min-h-0">
+        <div className="absolute left-5 top-0 z-10">
           <KitTitle className="text-4xl">Talent constellations</KitTitle>
           <div className="font-cond2 text-xs font-semibold uppercase tracking-widest text-[#9aa3b8]">Click a star to invest Soul Candy · each star unlocks the stars it links to</div>
         </div>
-        <svg viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full select-none">
+        <svg viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet" className="absolute inset-x-0 bottom-0 top-16 h-[calc(100%-4rem)] w-full select-none">
           <defs>
             <filter id="tglow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="5" result="b" />
@@ -208,10 +211,12 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
 
       {/* ===== side panel ===== */}
       <div className="relative z-10 flex w-full shrink-0 flex-col gap-4 border-t border-[#3a3f4d] bg-[#0e0f13]/95 p-5 lg:w-[340px] lg:border-l lg:border-t-0">
+        {earned !== undefined && <section className="kit-panel p-3"><KitTitle className="text-2xl">Make the next run stronger</KitTitle><p className="mt-1 text-sm text-[#b98aff]">+{earned} Soul Candy earned this run</p><p className="text-xs text-[#9aa0a6]">Spend your permanent talent XP below. Run levels reset; these skills stay.</p></section>}
         <div className="flex items-center justify-between">
           <Chip icon={<CandyIcon size={22} />} className="!text-2xl" color="#b98aff">{save.soul}</Chip>
           <KitButton variant="cream" size="sm" icon={ChevronLeft} onClick={onBack}>Back</KitButton>
         </div>
+        {onAgain && <KitButton onClick={onAgain}>Play again with these talents</KitButton>}
         <div className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]">Soul Candy is earned at the end of every run (kills, time survived, boss).</div>
 
         <div className="kit-panel p-4" style={{ borderColor: TALENT_COLORS[focus.branch], boxShadow: `0 0 0 1px #000, 0 0 30px ${TALENT_COLORS[focus.branch]}22` }}>

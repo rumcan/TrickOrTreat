@@ -1,12 +1,13 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy } from './engine';
+import { Game, Enemy, Turret } from './engine';
+import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES } from './art/characters';
 import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
-import { tinted, makeCanvas } from './art/draw';
+import { tinted, makeCanvas, rawCanvas } from './art/draw';
 import { G } from './art/tiles';
 import { Img } from './assets';
-import { weaponStats, COSTUME_BY_ID } from './data';
+import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 
 interface Item {
@@ -16,6 +17,34 @@ interface Item {
 }
 
 const Z = 40; // px per world height unit
+// Held guns are half the inventory icon size. Anchor their (16,20) grip at
+// the kid's waist, rather than centering the whole icon near their head.
+const HELD_GUN_W = 32;
+const HELD_GUN_H = 16;
+const HELD_GUN_GRIP_X = 8;
+const HELD_GUN_GRIP_Y = 10;
+const KID_WAIST_HEIGHT = 22;
+
+/** first opaque row of a sprite (fraction of its height), measured once: generated PNGs often carry empty headroom */
+const opaqueTop = new WeakMap<object, number>();
+function spriteTop(img: Img): number {
+  let t = opaqueTop.get(img);
+  if (t === undefined) {
+    t = 0;
+    const w = img.width, h = img.height;
+    if (w > 0 && h > 0) {
+      const c = rawCanvas(w, h), ctx = c.getContext('2d', { willReadFrequently: true })!;
+      ctx.drawImage(img, 0, 0);
+      const d = ctx.getImageData(0, 0, w, h).data;
+      let y = 0;
+      outer: for (; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 40) break outer;
+      t = y / h;
+      c.width = c.height = 0;
+    }
+    opaqueTop.set(img, t);
+  }
+  return t;
+}
 
 export class Renderer {
   canvas: HTMLCanvasElement;
@@ -54,7 +83,7 @@ export class Renderer {
   private buildMinimap(g: Game) {
     const s = 3;
     const { c, ctx } = makeCanvas((MAP_W + MAP_H) * s, ((MAP_W + MAP_H) * s) / 2);
-    const col: Record<number, string> = { [G.GRASS]: '#2c4626', [G.ROAD]: '#2a2a31', [G.SIDEWALK]: '#77787b', [G.DIRT]: '#3d2c22', [G.GRAVEL]: '#4a4744', [G.DARKGRASS]: '#1f3324', [G.DRIVEWAY]: '#6a6b6e', [G.FLAGSTONE]: '#3a5a32' };
+    const col: Record<number, string> = { [G.GRASS]: '#2c4626', [G.ROAD]: '#2a2a31', [G.SIDEWALK]: '#77787b', [G.DIRT]: '#3d2c22', [G.GRAVEL]: '#4a4744', [G.DARKGRASS]: '#1f3324', [G.DRIVEWAY]: '#6a6b6e', [G.FLAGSTONE]: '#3a5a32', [G.FIELD]: '#2f5a2a' };
     const P = (x: number, y: number): [number, number] => [(x - y) * s + MAP_H * s, ((x + y) * s) / 2];
     for (let y = 0; y < MAP_H; y++)
       for (let x = 0; x < MAP_W; x++) {
@@ -142,21 +171,31 @@ export class Renderer {
 
     // decals
     for (const d of g.decals) {
+      if (d.gore && settings.gore === 'off') continue;
       const sx = isoX(d.x, d.y), sy = isoY(d.x, d.y);
+      if (!inView(sx - d.r * HW * 2, sy - d.r * HH * 2, sx + d.r * HW * 2, sy + d.r * HH * 2)) continue;
       ctx.save();
       ctx.globalAlpha = Math.min(1, d.life / 5);
       ctx.translate(sx, sy);
       ctx.scale(1, 0.5);
       ctx.rotate(d.rot);
-      ctx.fillStyle = d.color;
+      ctx.fillStyle = d.gore ? settings.gore === 'red' ? 'rgba(97,17,28,0.7)' : 'rgba(37,76,25,0.7)' : d.color;
       ctx.beginPath();
       const R = d.r * HW * 1.4;
-      for (let k = 0; k < 8; k++) {
-        const a = (k / 8) * Math.PI * 2, rr = R * (0.7 + ((k * 37) % 10) / 25);
+      const vertices = d.gore ? 16 : 8;
+      for (let k = 0; k < vertices; k++) {
+        const a = (k / vertices) * Math.PI * 2, rr = R * (0.5 + (Math.sin(k * 19.3 + d.rot * 7) + 1) * 0.2);
         if (k === 0) ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
         else ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
       }
       ctx.fill();
+      if (d.gore) {
+        // Organic satellite droplets, without textures, allocations or bright glows.
+        for (let k = 0; k < 3; k++) {
+          const angle = k * 2.1 + d.rot, radius = R * (0.08 + k * 0.035);
+          ctx.beginPath(); ctx.ellipse(Math.cos(angle) * R * 1.1, Math.sin(angle) * R, radius, radius * 0.7, angle, 0, Math.PI * 2); ctx.fill();
+        }
+      }
       ctx.restore();
     }
 
@@ -171,9 +210,13 @@ export class Renderer {
       if (pr.big) {
         const s = 1.1 * pr.shadow, x0 = pr.x0, y0 = pr.y0, x1 = x0 + pr.fw, y1 = y0 + pr.fh;
         const pts: [number, number][] = [[x0, y0], [x1, y0], [x1 + s, y0 + s * 0.15], [x1 + s, y1 + s * 0.15], [x0 + s, y1 + s * 0.15], [x0, y1]];
+        // the shadow fades with its building, so an x-rayed house doesn't leave a dark slab behind
+        const fa = pr.fade ?? 1;
+        if (fa < 0.999) ctx.globalAlpha = fa;
         ctx.beginPath();
         pts.forEach(([a, b], k) => (k ? ctx.lineTo(isoX(a, b), isoY(a, b)) : ctx.moveTo(isoX(a, b), isoY(a, b))));
         ctx.fill();
+        if (fa < 0.999) ctx.globalAlpha = 1;
       } else if (pr.shadow > 0) {
         ctx.beginPath();
         ctx.ellipse(ax + 6, ay + 2, pr.shadow * HW, pr.shadow * HH, 0, 0, Math.PI * 2);
@@ -203,8 +246,8 @@ export class Renderer {
     const sh = (x: number, y: number, r: number) => {
       ctx.beginPath(); ctx.ellipse(isoX(x, y), isoY(x, y), r * HW * 1.3, r * HH * 1.3, 0, 0, Math.PI * 2); ctx.fill();
     };
-    sh(p.x, p.y, p.r);
-    for (const e of g.enemies) if (inView(isoX(e.x, e.y) - 60, isoY(e.x, e.y) - 60, isoX(e.x, e.y) + 60, isoY(e.x, e.y) + 20)) sh(e.x, e.y, e.def.fly ? e.r * 0.6 : e.r);
+    if (g.mounted < 0) sh(p.x, p.y, p.r);
+    for (const e of g.enemies) if (!e.dead && inView(isoX(e.x, e.y) - 60, isoY(e.x, e.y) - 60, isoX(e.x, e.y) + 60, isoY(e.x, e.y) + 20)) sh(e.x, e.y, e.def.fly ? e.r * 0.6 : e.r);
 
     // ===== sorted pass =====
     const items: Item[] = [];
@@ -214,6 +257,7 @@ export class Renderer {
       const cx = pr.x0 + pr.fw / 2, cy = pr.y0 + pr.fh / 2;
       const ax = isoX(cx, cy), ay = isoY(cx, cy);
       const sp = pr.sp;
+      const tur = pr.kind === 'junglegym' ? g.turrets.find((t) => t.gym === pr) : undefined;
       const it: Item = {
         key: cx + cy, x: cx, y: cy, prop: pr, bx0: ax - sp.ax, by0: ay - sp.ay, bx1: ax - sp.ax + sp.w, by1: ay - sp.ay + sp.h,
         draw: () => {
@@ -221,6 +265,7 @@ export class Renderer {
           if (a < 0.999) ctx.globalAlpha = a;
           ctx.drawImage(sp.img, ax - sp.ax, ay - sp.ay, sp.w, sp.h);
           if (a < 0.999) ctx.globalAlpha = 1;
+          if (tur) this.drawTurret(g, tur);
         },
       };
       if (pr.big) { it.big = pr; bigs.push(it); } else items.push(it);
@@ -229,9 +274,41 @@ export class Renderer {
     {
       const sx = isoX(p.x, p.y), sy = isoY(p.x, p.y);
       playerItem = { key: p.x + p.y, x: p.x, y: p.y, bx0: sx - 22, by0: sy - 90, bx1: sx + 22, by1: sy, draw: () => this.drawPlayer(g, sx, sy) };
-      items.push(playerItem);
+      // up on a jungle gym the kid is drawn with the cannon, on the deck
+      if (g.mounted < 0) items.push(playerItem);
+    }
+    if (g.campaign) for (const friend of g.friends) {
+      if (g.state !== 'intro' && friend.status === 'rescued' && friend.hero !== g.activeFriend) continue;
+      const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
+      const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
+      if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
+      const sheet = heroSheet(friend.hero);
+      const down = g.state !== 'intro' && (friend.status !== 'rescued' || friend.hp <= 0);
+      items.push({ key: pos.x + pos.y, x: pos.x, y: pos.y, bx0: sx - 32, by0: sy - 100, bx1: sx + 32, by1: sy + 10,
+        draw: () => {
+          ctx.save(); ctx.translate(sx, sy);
+          ctx.fillStyle = friend.status === 'rescued' ? 'rgba(65,210,180,0.25)' : 'rgba(155,75,190,0.25)';
+          ctx.beginPath(); ctx.ellipse(0, 0, 22, 10, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.save();
+          if (down) { ctx.translate(-12, -10); ctx.rotate(-Math.PI / 2); ctx.globalAlpha = 0.8; }
+          if (friend.flip) ctx.scale(-1, 1);
+          const drawFriendGun = () => {
+            if (!down && g.state !== 'intro') ctx.drawImage(weaponIcon(friend.weapon.def.id), -HELD_GUN_GRIP_X, -KID_WAIST_HEIGHT - HELD_GUN_GRIP_Y, HELD_GUN_W, HELD_GUN_H);
+          };
+          if (friend.back) drawFriendGun();
+          blitFrame(ctx, sheet, sheet.img, down || g.state === 'intro' ? 0 : friend.back ? 3 : 1, Math.floor(friend.anim), 0, 0);
+          if (!friend.back) drawFriendGun();
+          ctx.restore();
+          ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f2e6c9';
+          ctx.strokeStyle = '#100c12'; ctx.lineWidth = 3;
+          const label = `${HERO_INFO[friend.hero].name}${down ? ' · needs help' : ''}`;
+          ctx.strokeText(label, 0, -95); ctx.fillText(label, 0, -95);
+          if (friend.status === 'rescued' && g.state !== 'intro') { ctx.fillStyle = '#211a25'; ctx.fillRect(-20, -87, 40, 4); ctx.fillStyle = '#66d2b7'; ctx.fillRect(-20, -87, 40 * friend.hp / friend.maxHp, 4); }
+          ctx.restore();
+        } });
     }
     for (const e of g.enemies) {
+      if (e.dead) continue;
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
       const es = this.en[e.type].s;
       const sc = e.elite && !e.def.elite ? 1.25 : 1;
@@ -344,21 +421,42 @@ export class Renderer {
       order = before.concat([B], moved, order.slice(pos));
     }
     // fading of occluders in front of the player (the "mask" effect)
+    // A building only fades when the kid's body is actually inside its silhouette (footprint + walls as a hexagon),
+    // not merely inside its sprite's bounding box: standing beside a house must not dim it.
+    const psx = isoX(p.x, p.y), psy = isoY(p.x, p.y);
+    const covers = (it: Item, pr: PropInst) => {
+      const x0 = pr.x0, y0 = pr.y0, x1 = x0 + pr.fw, y1 = y0 + pr.fh;
+      const lift = isoY(x0, y0) - (it.by0 + spriteTop(pr.sp.img) * pr.sp.h); // wall height: back corner up to the roof
+      const hx = [isoX(x0, y1), isoX(x1, y1), isoX(x1, y0), isoX(x1, y0), isoX(x0, y0), isoX(x0, y1)];
+      const hy = [isoY(x0, y1), isoY(x1, y1), isoY(x1, y0), isoY(x1, y0) - lift, isoY(x0, y0) - lift, isoY(x0, y1) - lift];
+      // clearly inside: at least 10px from every edge, so brushing past a corner doesn't flicker the house
+      const inside = (px: number, py: number) => {
+        for (let k = 0; k < 6; k++) {
+          const j = (k + 1) % 6, ex = hx[j] - hx[k], ey = hy[j] - hy[k];
+          if (ex * (py - hy[k]) - ey * (px - hx[k]) > -10 * Math.hypot(ex, ey)) return false;
+        }
+        return true;
+      };
+      return inside(psx, psy - 40) || inside(psx, psy - 70);
+    };
     let occluded = false;
-    for (const it of [...bigs, ...items]) {
+    const fadeStep = Math.min(1, dt * 10);
+    const fadeIt = (it: Item) => {
       const pr = it.prop;
-      if (!pr) continue;
+      if (!pr) return;
       const tall = pr.big || pr.kind === 'tree' || pr.kind === 'lamp' || pr.kind === 'vending';
-      if (!tall) continue;
+      if (!tall) return;
       let hide = false;
-      if (overlap(it, playerItem)) {
-        if (pr.big) hide = behind(playerItem, pr);
+      if (g.mounted < 0 && overlap(it, playerItem)) {
+        if (pr.big) hide = behind(playerItem, pr) && covers(it, pr);
         else hide = playerItem.key < it.key - 0.2 && playerItem.by0 < it.by1 - 40;
       }
       if (hide) occluded = true;
-      const target = hide ? (pr.big ? 0.45 : 0.55) : 1;
-      pr.fade = (pr.fade ?? 1) + (target - (pr.fade ?? 1)) * Math.min(1, dt * 10);
-    }
+      const target = hide ? (pr.big ? 0.32 : 0.55) : 1;
+      pr.fade = (pr.fade ?? 1) + (target - (pr.fade ?? 1)) * fadeStep;
+    };
+    for (const it of bigs) fadeIt(it);
+    for (const it of items) fadeIt(it);
     for (const it of order) it.draw();
 
     // orbit blades & lobs
@@ -423,6 +521,27 @@ export class Renderer {
       ctx.globalAlpha = 0.16 * L.i;
       const rx = L.r * HW * 1.4, ry = L.r * HH * 1.4;
       ctx.drawImage(glow(L.color, 128), sx - rx, sy - ry, rx * 2, ry * 2);
+    }
+    // loot beams: guns on the ground shine in their rarity colour through the night (taller + wider with rarity)
+    for (const k of g.pickups) {
+      if (k.kind !== 'weapon' || !k.weapon) continue;
+      const sx = isoX(k.x, k.y), sy = isoY(k.x, k.y), r = k.weapon.rarity, col = RARITY[r].glow;
+      const H = 70 + r * 38, W2 = 4 + r * 2.5;
+      if (!inView(sx - 40, sy - H, sx + 40, sy + 20)) continue;
+      const pulse = 0.75 + Math.sin(this.t * 3 + k.x) * 0.25;
+      ctx.globalAlpha = (r ? 0.55 : 0.28) * pulse;
+      const gr = ctx.createLinearGradient(0, sy - H, 0, sy);
+      gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.7, col); gr.addColorStop(1, '#ffffff');
+      ctx.fillStyle = gr;
+      ctx.fillRect(sx - W2, sy - H, W2 * 2, H);
+      ctx.globalAlpha = (r ? 0.75 : 0.4) * pulse;
+      ctx.drawImage(glow(col, 64), sx - 34 - r * 4, sy - 16 - r * 2, 68 + r * 8, 32 + r * 4);
+      if (r >= 3) for (let i = 0; i < 2 + r; i++) {
+        const a = this.t * (1.2 + i * 0.3) + i * 2.1, h = ((this.t * 40 + i * 37) % H);
+        ctx.globalAlpha = 0.9 * (1 - h / H);
+        ctx.fillStyle = col;
+        ctx.fillRect(sx + Math.cos(a) * (W2 + 6) - 1.5, sy - h, 3, 3);
+      }
     }
     ctx.globalAlpha = 1;
     for (const b of g.bullets) {
@@ -523,11 +642,14 @@ export class Renderer {
     }
     // square particles (lit-ish)
     for (const q of g.particles) {
-      if (q.kind !== 'sq') continue;
+      if (q.kind !== 'sq' && q.kind !== 'gore') continue;
+      if (q.kind === 'gore' && settings.gore === 'off') continue;
       const sx = isoX(q.x, q.y), sy = isoY(q.x, q.y) - q.z * Z;
       ctx.globalAlpha = Math.min(1, (q.life / q.max) * 2);
-      ctx.fillStyle = q.color;
-      ctx.fillRect(sx - q.size / 2, sy - q.size / 2, q.size, q.size);
+      ctx.fillStyle = q.kind === 'gore' ? settings.gore === 'red' ? '#b12b3a' : '#6db543' : q.color;
+      if (q.kind === 'gore') {
+        ctx.beginPath(); ctx.ellipse(sx, sy, q.size * 0.65, q.size * 0.4, q.vx, 0, Math.PI * 2); ctx.fill();
+      } else ctx.fillRect(sx - q.size / 2, sy - q.size / 2, q.size, q.size);
     }
     ctx.globalAlpha = 1;
 
@@ -663,7 +785,7 @@ export class Renderer {
     }
 
     // interaction marker
-    if (g.interact) {
+    if (g.interact && g.mounted < 0) {
       const r = g.interact.ref as { x?: number; y?: number; x0?: number; y0?: number; fw?: number; fh?: number };
       let wx = 0, wy = 0;
       const door = (g.interact.ref as { door?: { x: number; y: number } }).door;
@@ -836,9 +958,10 @@ export class Renderer {
     const p = g.p;
     for (const s of g.map.lights) {
       const fl = s.flicker ? 0.85 + Math.sin(this.t * 13 + s.x * 7) * 0.08 + Math.sin(this.t * 31 + s.y) * 0.05 : 1;
-      light(s.x, s.y, s.r, s.i * fl);
+      // street lamps, porch lights and lit windows clear the dark (almost) completely, dim ones just a bit less
+      light(s.x, s.y, s.r, (0.6 + s.i * 0.45) * fl);
     }
-    light(p.x, p.y, 3.4, 0.95, 20);
+    light(p.x, p.y, 3.4, 1, 20);
     // flashlight cone
     {
       const [sx, sy] = toS(isoX(p.x, p.y), isoY(p.x, p.y) - 30);
@@ -871,7 +994,7 @@ export class Renderer {
       else if (e.type === 'ghost') light(e.x, e.y, 1.0, 0.35);
     }
     for (const q of g.particles) if (q.kind === 'glow' && q.size > 10) light(q.x, q.y, 1.0, (q.life / q.max) * 0.6);
-    for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') light(k2.x, k2.y, 1.4, 0.6);
+    for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') light(k2.x, k2.y, 1.3 + (k2.weapon?.rarity ?? 0) * 0.25, 0.65 + (k2.weapon?.rarity ?? 0) * 0.07);
     L.globalAlpha = 1;
     L.globalCompositeOperation = 'source-over';
     const ctx = this.ctx;
@@ -895,15 +1018,15 @@ export class Renderer {
     const blink = p.invuln > 0 && p.dashT <= 0 && Math.floor(this.t * 20) % 2 === 0;
     const w = g.weapon;
     const drawWeapon = () => {
-      if (!w) return;
+      if (!w || g.mounted >= 0) return;
       const a = Math.atan2(isoY(p.aimX, p.aimY), isoX(p.aimX, p.aimY));
       ctx.save();
-      ctx.translate(sx + Math.cos(a) * 6, sy - 36 + Math.sin(a) * 4);
+      ctx.translate(sx + Math.cos(a) * 4, sy - KID_WAIST_HEIGHT + Math.sin(a) * 2);
       ctx.rotate(a);
       if (Math.cos(a) < 0) ctx.scale(1, -1);
-      ctx.translate(-p.recoil * 5, 0);
+      ctx.translate(-p.recoil * 3, 0);
       if (w.reloadT > 0) ctx.rotate(Math.sin(this.t * 14) * 0.25 - 0.4);
-      ctx.drawImage(weaponIcon(w.def.id), -12, -20, 64, 32);
+      ctx.drawImage(weaponIcon(w.def.id), -HELD_GUN_GRIP_X, -HELD_GUN_GRIP_Y, HELD_GUN_W, HELD_GUN_H);
       ctx.restore();
     };
     if (p.dashT > 0) {
@@ -978,9 +1101,30 @@ export class Renderer {
     ctx.fillRect(-s * 0.6, s * 0.4, s * 1.2, s * 0.6);
   }
 
+  /** a Candy Cannon on its jungle-gym deck (+ the kid manning it) */
+  private drawTurret(g: Game, t: Turret) {
+    const ctx = this.ctx, sheet = getTurretSheet();
+    const sx = isoX(t.x, t.y), sy = isoY(t.x, t.y) - GYM_DECK_Z;
+    const a = Math.atan2(t.aimX + t.aimY, t.aimX - t.aimY); // aim on the screen, before the 2:1 squash
+    const f = (((Math.round((a / (Math.PI * 2)) * TURRET_DIRS)) % TURRET_DIRS) + TURRET_DIRS) % TURRET_DIRS;
+    const ca = Math.cos(a), sa = Math.sin(a) * 0.55;
+    const manned = g.mounted >= 0 && g.turrets[g.mounted] === t;
+    const kid = () => this.drawPlayer(g, sx - ca * 30 - sa * 22, sy - sa * 30 + 4); // behind the grips, a little to the side so both read
+    if (manned && sa > 0) kid(); // barrel toward the camera: the kid stands behind it
+    blitFrame(ctx, sheet, sheet.img, 0, f, sx - ca * t.recoil * 3, sy - sa * t.recoil * 3);
+    if (t.heat > 0.45) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.min(1, (t.heat - 0.45) * 1.8) * (t.over > 0 ? 0.6 + Math.sin(this.t * 20) * 0.3 : 0.7);
+      ctx.drawImage(glow('#ff4a1a', 64), sx + ca * 26 - 22, sy - 22 + sa * 26 - 22, 44, 44);
+      ctx.restore();
+    }
+    if (manned && sa <= 0) kid();
+  }
+
   private drawBullet(b: Game['bullets'][number], sx: number, sy: number) {
     const ctx = this.ctx;
-    const y = sy - 24;
+    const y = sy - 24 - (b.z ?? 0);
     const a = Math.atan2(isoY(b.vx, b.vy), isoX(b.vx, b.vy));
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.beginPath(); ctx.ellipse(sx, sy, 4, 2, 0, 0, Math.PI * 2); ctx.fill();
@@ -1039,6 +1183,17 @@ export class Renderer {
         ctx.restore();
         break;
       }
+      case 'candy':
+        // wrapped sweet from the Candy Cannon
+        ctx.save(); ctx.translate(sx, y); ctx.rotate(a);
+        ctx.fillStyle = b.color;
+        ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-12, -5); ctx.lineTo(-12, 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(12, -5); ctx.lineTo(12, 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 0, 7.5, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#140c12'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.fillRect(-3, -3, 4, 2);
+        ctx.restore();
+        break;
       case 'bone':
         ctx.save(); ctx.translate(sx, y); ctx.rotate(b.spin);
         ctx.strokeStyle = '#eee8d8'; ctx.lineWidth = 3; ctx.lineCap = 'round';

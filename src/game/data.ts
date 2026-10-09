@@ -1,5 +1,6 @@
 import * as storage from './storage';
 import { Elem, RARITY } from './config';
+import { hasFullGame } from './expansion';
 
 // ================= STATS =================
 export interface Stats {
@@ -11,6 +12,9 @@ export interface Stats {
   orbit: number; familiar: number; dashCharges: number; dashFire: number;
   luck: number; revive: number; rerolls: number; coinGain: number; xpGain: number; startCoins: number; startRarity: number;
   totSpeed: number; totChoices: number; startCostume: number; dodge: number;
+  companionDmg: number; reviveSpeed: number; companionArmor: number;
+  /** occult-scroll style treats (Gunfire Reborn): conditional, run-wide */
+  sixth: number; fullBag: number; skate: number; statue: number; bluff: number; execute: number; owl: number;
 }
 
 export function baseStats(): Stats {
@@ -23,13 +27,16 @@ export function baseStats(): Stats {
     orbit: 0, familiar: 0, dashCharges: 2, dashFire: 0,
     luck: 0, revive: 0, rerolls: 1, coinGain: 1, xpGain: 1, startCoins: 0, startRarity: 0,
     totSpeed: 1, totChoices: 0, startCostume: 0, dodge: 0,
+    companionDmg: 1, reviveSpeed: 1, companionArmor: 0,
+    sixth: 0, fullBag: 0, skate: 0, statue: 0, bluff: 0, execute: 0, owl: 0,
   };
 }
 
 // ================= WEAPONS =================
-export type BulletKind = 'pea' | 'dart' | 'corn' | 'fire' | 'water' | 'balloon' | 'rocket' | 'beam' | 'stone' | 'hex' | 'bone';
+export type BulletKind = 'pea' | 'dart' | 'corn' | 'fire' | 'water' | 'balloon' | 'rocket' | 'beam' | 'stone' | 'hex' | 'bone' | 'candy';
 
 export interface WeaponDef {
+  premium?: boolean;
   id: string; name: string; desc: string;
   dmg: number; rate: number; mag: number; reload: number; speed: number; spread: number; pellets: number; range: number;
   pierce: number; bounce: number; elem?: Elem; elemChance: number; explode: number; kind: BulletKind; color: string; critBonus: number; shake: number;
@@ -46,26 +53,72 @@ export const WEAPONS: WeaponDef[] = [
   { id: 'laser', name: 'Ghost-Buster Flashlight', desc: 'Instant piercing light beams. Shocks spirits.', dmg: 17, rate: 3, mag: 15, reload: 1.4, speed: 0, spread: 0.0, pellets: 1, range: 10, pierce: 99, bounce: 0, elem: 'shock', elemChance: 0.2, explode: 0, kind: 'beam', color: '#cfeaff', critBonus: 0.05, shake: 1 },
   { id: 'slingshot', name: 'Wrist Slingshot', desc: 'Heavy piercing stones. Big crits.', dmg: 42, rate: 1.5, mag: 5, reload: 1.2, speed: 19, spread: 0.01, pellets: 1, range: 11, pierce: 1, bounce: 0, elemChance: 0, explode: 0, kind: 'stone', color: '#d8d0c0', critBonus: 0.2, shake: 2 },
 ];
+WEAPONS.push(
+  { id: 'gloom', premium: true, name: 'Gloom Drum', desc: 'A deep sonic toy cannon. Wide piercing pressure pulses.', dmg: 23, rate: 2.4, mag: 10, reload: 1.8, speed: 12, spread: 0.12, pellets: 2, range: 8, pierce: 2, bounce: 0, elem: 'ecto', elemChance: 0.35, explode: 0, kind: 'water', color: '#8971ba', critBonus: 0, shake: 1.2 },
+  { id: 'marshmallow', premium: true, name: 'Marshmallow Mortar', desc: 'Slow soft projectiles with a huge sticky splash.', dmg: 38, rate: 1.3, mag: 5, reload: 1.8, speed: 7, spread: 0.06, pellets: 1, range: 10, pierce: 0, bounce: 0, elem: 'ecto', elemChance: 0.7, explode: 2, kind: 'balloon', color: '#f1d8be', critBonus: 0, shake: 2 },
+  { id: 'bubblegum', premium: true, name: 'Bubblegum Rail', desc: 'A precise spectral beam. Pierces the whole horde.', dmg: 35, rate: 1.8, mag: 8, reload: 1.5, speed: 0, spread: 0, pellets: 1, range: 12, pierce: 99, bounce: 0, elem: 'ecto', elemChance: 0.5, explode: 0, kind: 'beam', color: '#db87bb', critBonus: 0.1, shake: 0.8 },
+  { id: 'acorn', premium: true, name: 'Acorn Repeater', desc: 'Rapid bouncing acorns from a handmade wooden blaster.', dmg: 10, rate: 8, mag: 28, reload: 1.4, speed: 16, spread: 0.09, pellets: 1, range: 10, pierce: 0, bounce: 2, elemChance: 0, explode: 0, kind: 'stone', color: '#ce9c55', critBonus: 0.08, shake: 0.4 },
+);
 export const WEAPON_BY_ID = Object.fromEntries(WEAPONS.map((w) => [w.id, w])) as Record<string, WeaponDef>;
 
-export interface Trait { id: string; name: string; desc: string; minRarity: number }
+/**
+ * Weapon INSCRIPTIONS (Gunfire Reborn style): rolled lines on every gun, more and stronger with rarity.
+ *  ● stat       plain numbers, always on
+ *  ◆ trigger    conditional: first shot, kills, combos, standing still…
+ *  ★ unique     changes how the gun behaves (epic+; a legendary always has one)
+ *  ✦ deal       a "Spooky Deal": a big bonus with a catch (rare+, purple)
+ * Static numbers live in weaponStats(); the triggers are handled by the engine (see Game.insc*).
+ */
+export type InscTier = 'stat' | 'trigger' | 'unique' | 'deal';
+export interface Trait { id: string; name: string; desc: string; minRarity: number; tier: InscTier }
 export const TRAITS: Trait[] = [
-  { id: 'dmg', name: 'Sugar-Coated', desc: '+15% damage', minRarity: 1 },
-  { id: 'rate', name: 'Hyper', desc: '+15% fire rate', minRarity: 1 },
-  { id: 'mag', name: 'Overstuffed', desc: '+40% magazine', minRarity: 1 },
-  { id: 'reload', name: 'Fidgety', desc: '-25% reload time', minRarity: 1 },
-  { id: 'crit', name: 'Lucky', desc: '+8% crit chance', minRarity: 1 },
-  { id: 'pierce', name: 'Pointy', desc: '+1 pierce', minRarity: 2 },
-  { id: 'bounce', name: 'Bouncy', desc: '+1 ricochet', minRarity: 2 },
-  { id: 'fire', name: 'Spicy', desc: '+15% Burn chance', minRarity: 1 },
-  { id: 'shock', name: 'Staticky', desc: '+15% Shock chance', minRarity: 1 },
-  { id: 'ecto', name: 'Gooey', desc: '+15% Ecto chance', minRarity: 1 },
-  { id: 'twin', name: 'Twin Shot', desc: '+1 projectile', minRarity: 3 },
-  { id: 'vamp', name: 'Fanged', desc: 'Crits heal 1 HP', minRarity: 3 },
+  // ● stat lines
+  { id: 'dmg', tier: 'stat', name: 'Sugar-Coated', desc: '+15% damage', minRarity: 0 },
+  { id: 'rate', tier: 'stat', name: 'Hyper', desc: '+15% fire rate', minRarity: 0 },
+  { id: 'mag', tier: 'stat', name: 'Overstuffed', desc: '+40% magazine', minRarity: 0 },
+  { id: 'reload', tier: 'stat', name: 'Fidgety', desc: '-25% reload time', minRarity: 0 },
+  { id: 'crit', tier: 'stat', name: 'Lucky', desc: '+8% crit chance', minRarity: 0 },
+  { id: 'critdmg', tier: 'stat', name: "Jack-o'-Grin", desc: '+50% crit damage', minRarity: 1 },
+  { id: 'speed', tier: 'stat', name: 'Broomstick Express', desc: '+60% shot speed, +20% range', minRarity: 0 },
+  { id: 'fire', tier: 'stat', name: 'Spicy', desc: '+15% Burn chance', minRarity: 1 },
+  { id: 'shock', tier: 'stat', name: 'Staticky', desc: '+15% Shock chance', minRarity: 1 },
+  { id: 'ecto', tier: 'stat', name: 'Gooey', desc: '+15% Ecto chance', minRarity: 1 },
+  { id: 'pierce', tier: 'stat', name: 'Pointy', desc: '+1 pierce', minRarity: 2 },
+  { id: 'bounce', tier: 'stat', name: 'Bouncy', desc: '+1 ricochet', minRarity: 2 },
+  // ◆ triggers
+  { id: 'opener', tier: 'trigger', name: 'Trick Shot', desc: 'First shot of every magazine deals +100% damage', minRarity: 1 },
+  { id: 'fresh', tier: 'trigger', name: 'Fresh Batch', desc: 'Reloading an empty magazine: +40% damage for 4s', minRarity: 1 },
+  { id: 'seconds', tier: 'trigger', name: 'Seconds, Please!', desc: 'Kills: 30% chance to refund 2 ammo and +30% fire rate for 3s', minRarity: 1 },
+  { id: 'combo', tier: 'trigger', name: 'Candy Corn Combo', desc: 'Each hit +3% damage, stacking without limit; all lost after 2s without a hit', minRarity: 2 },
+  { id: 'scaredy', tier: 'trigger', name: 'Scaredy-Cat', desc: 'Below 35% HP: +35% fire rate', minRarity: 1 },
+  { id: 'freeze', tier: 'trigger', name: 'Freeze Tag', desc: 'After standing still for 1s: +30% damage', minRarity: 1 },
+  { id: 'trot', tier: 'trigger', name: 'Trick-or-Treat Trot', desc: 'While moving: +15% fire rate', minRarity: 1 },
+  { id: 'bigkid', tier: 'trigger', name: 'Big Kid Energy', desc: '+40% damage to bosses and elites', minRarity: 2 },
+  { id: 'sixth', tier: 'trigger', name: 'Sixth Sense', desc: 'Every 6th shot deals +80% damage', minRarity: 2 },
+  // ★ uniques
+  { id: 'twin', tier: 'unique', name: 'Twin Shot', desc: '+1 projectile', minRarity: 3 },
+  { id: 'vamp', tier: 'unique', name: 'Fanged', desc: 'Crits heal 1 HP', minRarity: 3 },
+  { id: 'pinata', tier: 'unique', name: 'Piñata Pop', desc: 'Kills burst for 60% damage around the monster', minRarity: 3 },
+  { id: 'haunted', tier: 'unique', name: 'Haunted', desc: 'Shots curve toward monsters', minRarity: 3 },
+  { id: 'split', tier: 'unique', name: 'Two-for-One', desc: 'Shots split in two on their first hit (45% damage each)', minRarity: 3 },
+  { id: 'socks', tier: 'unique', name: 'Fuzzy Socks', desc: 'Hits zap a nearby monster for 50% damage (25% chance)', minRarity: 3 },
+  // ✦ spooky deals
+  { id: 'tummy', tier: 'deal', name: 'Tummy Ache', desc: '+40% damage, but -15% move speed while held', minRarity: 2 },
+  { id: 'glasspump', tier: 'deal', name: 'Glass Pumpkin', desc: '+60% crit damage, but take +15% damage while held', minRarity: 2 },
+  { id: 'crash', tier: 'deal', name: 'Sugar Crash', desc: '+50% fire rate, but +50% reload time', minRarity: 2 },
 ];
 export const TRAIT_BY_ID = Object.fromEntries(TRAITS.map((t) => [t.id, t])) as Record<string, Trait>;
+export const INSCRIPTIONS = TRAITS;
+export const INSC_STYLE: Record<InscTier, { glyph: string; color: string; label: string }> = {
+  stat: { glyph: '●', color: '#8fdc7a', label: 'Inscription' },
+  trigger: { glyph: '◆', color: '#3fd0e0', label: 'Trigger' },
+  unique: { glyph: '★', color: '#ffb43c', label: 'Unique' },
+  deal: { glyph: '✦', color: '#c08cff', label: 'Spooky deal' },
+};
 
-export interface Weapon { uid: number; def: WeaponDef; rarity: number; level: number; traits: string[]; ammo: number; reloadT: number; cd: number }
+/** per-gun runtime state used by trigger inscriptions */
+export interface WeaponFx { shots: number; combo: number; comboT: number; fresh: number; hasty: number }
+export interface Weapon { uid: number; def: WeaponDef; rarity: number; level: number; traits: string[]; ammo: number; reloadT: number; cd: number; fx?: WeaponFx }
 
 let uidc = 1;
 export function rollRarity(luck: number, minR = 0) {
@@ -78,21 +131,38 @@ export function rollRarity(luck: number, minR = 0) {
   return Math.max(minR, 0);
 }
 
+/** Inscription lines per rarity: common 0-1 · uncommon 1 · rare 2 · epic 3 (25% one unique) · legendary 3 + a unique */
+export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
+  const ok = (t: Trait) => t.minRarity <= rarity && (!['fire', 'shock', 'ecto'].includes(t.id) || !def.elem || def.elem === t.id || Math.random() < 0.3)
+    && !(t.id === 'speed' && def.kind === 'beam') && !(t.id === 'haunted' && def.kind === 'beam') && !(t.id === 'split' && def.kind === 'beam');
+  const take = (pool: Trait[], out: string[]) => {
+    const p = pool.filter((t) => ok(t) && !out.includes(t.id));
+    if (p.length) out.push(p[Math.floor(Math.random() * p.length)].id);
+  };
+  const out: string[] = [];
+  const stats = TRAITS.filter((t) => t.tier === 'stat'), triggers = TRAITS.filter((t) => t.tier === 'trigger');
+  const uniques = TRAITS.filter((t) => t.tier === 'unique'), deals = TRAITS.filter((t) => t.tier === 'deal');
+  const n = [Math.random() < 0.5 ? 1 : 0, 1, 2, 3, 3][rarity] ?? 0;
+  const unique = rarity >= 4 || (rarity === 3 && Math.random() < 0.25);
+  let trig = rarity >= 1 && Math.random() < (rarity === 1 ? 0.35 : 0.6) ? 1 : 0;
+  if (rarity >= 3 && Math.random() < 0.5) trig++;
+  for (let i = 0; i < n; i++) take(i < trig ? triggers : stats, out);
+  if (rarity >= 2 && Math.random() < 0.22) { out.pop(); take(deals, out); }
+  if (unique) take(uniques, out);
+  return out;
+}
+
 export function makeWeapon(defId: string | null, rarity: number, level = 1): Weapon {
-  const def = defId ? WEAPON_BY_ID[defId] : WEAPONS[Math.floor(Math.random() * WEAPONS.length)];
-  const traits: string[] = [];
-  const pool = TRAITS.filter((t) => t.minRarity <= rarity && (!['fire', 'shock', 'ecto'].includes(t.id) || !def.elem || def.elem === t.id || Math.random() < 0.3));
-  for (let i = 0; i < rarity && pool.length; i++) {
-    const k = Math.floor(Math.random() * pool.length);
-    traits.push(pool[k].id);
-    pool.splice(k, 1);
-  }
+  const weaponPool = WEAPONS.filter((w) => !w.premium || hasFullGame());
+  const chosen = defId ? WEAPON_BY_ID[defId] : weaponPool[Math.floor(Math.random() * weaponPool.length)];
+  const def = chosen && (!chosen.premium || hasFullGame()) ? chosen : WEAPON_BY_ID.pea;
+  const traits = rollInscriptions(def, rarity);
   const w: Weapon = { uid: uidc++, def, rarity, level, traits, ammo: 0, reloadT: 0, cd: 0 };
   w.ammo = weaponStats(w, baseStats()).mag;
   return w;
 }
 
-export interface WStats { dmg: number; rate: number; mag: number; reload: number; pierce: number; bounce: number; pellets: number; crit: number; fire: number; shock: number; ecto: number; vamp: boolean; range: number }
+export interface WStats { dmg: number; rate: number; mag: number; reload: number; pierce: number; bounce: number; pellets: number; crit: number; fire: number; shock: number; ecto: number; vamp: boolean; range: number; critMul: number; speed: number }
 
 export function weaponStats(w: Weapon, s: Stats): WStats {
   const d = w.def;
@@ -101,10 +171,10 @@ export function weaponStats(w: Weapon, s: Stats): WStats {
   const lvlMul = 1 + (w.level - 1) * 0.14;
   const ch = (e: Elem) => (d.elem === e ? d.elemChance : 0) + has(e) * 0.15 + (s as unknown as Record<string, number>)[e === 'fire' ? 'burn' : e];
   return {
-    dmg: d.dmg * rarMul * lvlMul * (1 + has('dmg') * 0.15) * s.dmg,
-    rate: d.rate * (1 + has('rate') * 0.15) * s.rate * (1 + (w.level - 1) * 0.03),
+    dmg: d.dmg * rarMul * lvlMul * (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4) * s.dmg,
+    rate: d.rate * (1 + has('rate') * 0.15) * (1 + has('crash') * 0.5) * s.rate * (1 + (w.level - 1) * 0.03),
     mag: Math.max(1, Math.round(d.mag * (1 + has('mag') * 0.4) * s.mag)),
-    reload: d.reload * (1 - has('reload') * 0.25) * s.reload,
+    reload: d.reload * (1 - has('reload') * 0.25) * (1 + has('crash') * 0.5) * s.reload,
     pierce: d.pierce + has('pierce') + s.pierce,
     bounce: d.bounce + has('bounce') + s.bounce,
     pellets: d.pellets + has('twin') + s.pellets,
@@ -113,7 +183,9 @@ export function weaponStats(w: Weapon, s: Stats): WStats {
     shock: ch('shock'),
     ecto: ch('ecto'),
     vamp: has('vamp') > 0,
-    range: d.range,
+    range: d.range * (1 + has('speed') * 0.2),
+    critMul: s.critDmg + has('critdmg') * 0.5 + has('glasspump') * 0.6,
+    speed: d.speed * (1 + has('speed') * 0.6),
   };
 }
 
@@ -126,11 +198,11 @@ export function upgradeCost(w: Weapon) {
 export function weaponDps(w: Weapon, s: Stats) {
   const st = weaponStats(w, s);
   const cycle = st.mag / st.rate + st.reload;
-  return Math.round(((st.dmg * st.pellets * st.mag) / cycle) * (1 + st.crit * (s.critDmg - 1)) * (w.def.explode ? 1.6 : 1));
+  return Math.round(((st.dmg * st.pellets * st.mag) / cycle) * (1 + st.crit * (st.critMul - 1)) * (w.def.explode ? 1.6 : 1));
 }
 
 // ================= SCROLLS (Treats) =================
-export interface Scroll { id: string; name: string; icon: string; rarity: number; desc: string; max: number; apply: (s: Stats) => void }
+export interface Scroll { id: string; name: string; icon: string; rarity: number; desc: string; max: number; premium?: boolean; apply: (s: Stats) => void }
 
 export const SCROLLS: Scroll[] = [
   { id: 'sugar', name: 'Sugar Rush', icon: '🍭', rarity: 0, desc: '+15% fire rate', max: 8, apply: (s) => (s.rate *= 1.15) },
@@ -166,19 +238,39 @@ export const SCROLLS: Scroll[] = [
   { id: 'bang', name: 'Bigger Bang', icon: '💥', rarity: 1, desc: '+35% skill power & radius', max: 3, apply: (s) => (s.skillPow *= 1.35) },
   { id: 'jackpot', name: 'Jackpot', icon: '🎰', rarity: 4, desc: '+1 projectile and +15% fire rate', max: 1, apply: (s) => { s.pellets += 1; s.rate *= 1.15; } },
 ];
+// occult-scroll style treats: conditional or double-edged (after Gunfire Reborn's scrolls)
+SCROLLS.push(
+  { id: 'lucky6', name: 'Lucky Number Six', icon: '🎲', rarity: 1, desc: 'Every 6th shot deals +60% damage', max: 1, apply: (s) => (s.sixth = 1) },
+  { id: 'fullbag', name: 'Full Pillowcase', icon: '🛍️', rarity: 1, desc: '+40% damage while your magazine is over 80% full', max: 1, apply: (s) => (s.fullBag = 1) },
+  { id: 'skate', name: 'Skateboard Trick', icon: '🛹', rarity: 2, desc: 'Dashing instantly refills your magazine', max: 1, apply: (s) => (s.skate = 1) },
+  { id: 'statue', name: 'Statue Game', icon: '🗿', rarity: 1, desc: '+35% damage after standing still for 1s', max: 1, apply: (s) => (s.statue = 1) },
+  { id: 'bluff', name: 'Brave Face', icon: '😤', rarity: 0, desc: '+25% damage while at full HP', max: 1, apply: (s) => (s.bluff = 1) },
+  { id: 'bedtime', name: 'Past Your Bedtime', icon: '🛏️', rarity: 3, desc: 'Normal monsters under 12% HP are popped instantly', max: 1, apply: (s) => (s.execute = 1) },
+  { id: 'owl', name: 'Owl Eyes', icon: '🦉', rarity: 2, desc: '+100% crit damage, but -25% damage on non-crits', max: 1, apply: (s) => { s.owl = 1; s.critDmg += 1; } },
+  { id: 'cursed', name: 'Cursed Candy', icon: '🍬', rarity: 4, desc: '+60% damage, but -50% max HP', max: 1, apply: (s) => { s.dmg *= 1.6; s.maxHp *= 0.5; } },
+);
+SCROLLS.push(
+  { id: 'walkie', premium: true, name: 'Walkie-Talkie Pact', icon: '📻', rarity: 1, desc: '+25% companion damage', max: 4, apply: (s) => (s.companionDmg *= 1.25) },
+  { id: 'firstaid', premium: true, name: 'Pocket First Aid', icon: '🩹', rarity: 2, desc: 'Revives are 25% faster', max: 3, apply: (s) => (s.reviveSpeed *= 1.25) },
+  { id: 'friendship', premium: true, name: 'Friendship Bracelet', icon: '🧶', rarity: 2, desc: 'Companion takes 15% less damage', max: 3, apply: (s) => (s.companionArmor = 1 - (1 - s.companionArmor) * 0.85) },
+);
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 
 export function rollScrolls(n: number, owned: Record<string, number>, luck: number): Scroll[] {
   const out: Scroll[] = [];
   const weights = [60, 30, 14 + luck * 3, 6 + luck * 2, 2 + luck];
-  const avail = SCROLLS.filter((s) => (owned[s.id] || 0) < s.max);
+  // No hard caps: stacking treats can be taken past their usual max ("overstack"), just less often.
+  // One-off treats (max 1) are switches, so they stay single.
+  const over = (s: Scroll) => (owned[s.id] || 0) >= s.max;
+  const avail = SCROLLS.filter((s) => (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
+  const weight = (s: Scroll) => weights[s.rarity] * (over(s) ? 0.3 : 1);
   for (let i = 0; i < n && avail.length; i++) {
     let tot = 0;
-    for (const s of avail) tot += weights[s.rarity];
+    for (const s of avail) tot += weight(s);
     let r = Math.random() * tot;
     let k = 0;
     for (; k < avail.length; k++) {
-      r -= weights[avail[k].rarity];
+      r -= weight(avail[k]);
       if (r <= 0) break;
     }
     k = Math.min(k, avail.length - 1);
@@ -190,6 +282,7 @@ export function rollScrolls(n: number, owned: Record<string, number>, luck: numb
 
 // ================= TALENTS (meta progression) =================
 export interface Talent {
+  premium?: boolean;
   id: string; branch: 0 | 1 | 2; name: string; icon: string; max: number; cost: (lvl: number) => number; desc: string; apply: (s: Stats, lvl: number) => void;
   /** position in the tree canvas (viewBox 1000 x 900) */
   x: number; y: number;
@@ -227,15 +320,26 @@ export const TALENTS: Talent[] = [
   { id: 'reroll', branch: 2, x: 735, y: 720, req: ['allowance'], name: 'Second Opinion', icon: '🎲', max: 3, cost: (l) => 30 + l * 25, desc: '+1 treat reroll per run per rank', apply: (s, l) => (s.rerolls += l) },
   { id: 'legend', branch: 2, x: 500, y: 830, req: ['sweet'], capstone: true, name: 'Neighbourhood Legend', icon: '🏡', max: 1, cost: () => 220, desc: 'CAPSTONE · Every house offers +1 extra treat choice', apply: (s, l) => (s.totChoices += l) },
 ];
+TALENTS.push(
+  { id: 'heavy', premium: true, branch: 0, x: 95, y: 325, req: ['trigger'], name: 'Heavy Treats', icon: '🍫', max: 4, cost: (l) => 60 + l * 40, desc: '+8% damage per rank', apply: (s, l) => (s.dmg *= 1 + l * 0.08) },
+  { id: 'sharpshot', premium: true, branch: 0, x: 65, y: 200, req: ['heavy'], name: 'Secret Aim', icon: '🎯', max: 3, cost: (l) => 80 + l * 45, desc: '+5% crit chance per rank', apply: (s, l) => (s.crit += l * 0.05) },
+  { id: 'bestfriends', premium: true, branch: 0, x: 80, y: 80, req: ['sharpshot'], capstone: true, name: 'Partners in Mischief', icon: '🤝', max: 3, cost: (l) => 130 + l * 60, desc: '+20% companion damage per rank', apply: (s, l) => (s.companionDmg *= 1 + l * 0.2) },
+  { id: 'stitched', premium: true, branch: 1, x: 905, y: 325, req: ['pads'], name: 'Double Stitched', icon: '🧵', max: 4, cost: (l) => 60 + l * 40, desc: '+15 HP and shield per rank', apply: (s, l) => { s.maxHp += l * 15; s.maxShield += l * 15; } },
+  { id: 'fieldmedic', premium: true, branch: 1, x: 935, y: 200, req: ['stitched'], name: 'Field Medic', icon: '🩹', max: 3, cost: (l) => 80 + l * 45, desc: '+20% revive speed per rank', apply: (s, l) => (s.reviveSpeed *= 1 + l * 0.2) },
+  { id: 'guardians', premium: true, branch: 1, x: 920, y: 80, req: ['fieldmedic'], capstone: true, name: 'Watch Each Other', icon: '🛡️', max: 3, cost: (l) => 130 + l * 60, desc: 'Companion takes 10% less damage per rank', apply: (s, l) => (s.companionArmor = 1 - (1 - s.companionArmor) * (1 - l * 0.1)) },
+  { id: 'studygroup', premium: true, branch: 2, x: 150, y: 600, req: ['pockets'], name: 'Study Group', icon: '📚', max: 4, cost: (l) => 60 + l * 40, desc: '+10% run XP per rank', apply: (s, l) => (s.xpGain *= 1 + l * 0.1) },
+  { id: 'paperroute', premium: true, branch: 2, x: 100, y: 745, req: ['studygroup'], name: 'Paper Route', icon: '🗞️', max: 3, cost: (l) => 80 + l * 45, desc: '+20% coin gain per rank', apply: (s, l) => (s.coinGain *= 1 + l * 0.2) },
+  { id: 'seeker', premium: true, branch: 2, x: 85, y: 855, req: ['paperroute'], capstone: true, name: 'Master Seeker', icon: '🔦', max: 3, cost: (l) => 130 + l * 60, desc: '+15% pickup radius and 4% move speed per rank', apply: (s, l) => { s.magnet *= 1 + l * 0.15; s.move *= 1 + l * 0.04; } },
+);
 export const TALENT_BY_ID = Object.fromEntries(TALENTS.map((t) => [t.id, t])) as Record<string, Talent>;
 export function talentUnlocked(t: Talent, ranks: Record<string, number>) {
-  return t.req.length === 0 || t.req.some((r) => (ranks[r] || 0) > 0);
+  return (!t.premium || hasFullGame()) && (t.req.length === 0 || t.req.some((r) => (ranks[r] || 0) > 0));
 }
 
 // ================= COSTUMES =================
-export interface CostumeDef { id: string; name: string; icon: string; color: string; power: string; perks: string; line: string; apply: (s: Stats) => void }
+export interface CostumeDef { id: string; name: string; icon: string; color: string; power: string; perks: string; line: string; premium?: boolean; apply: (s: Stats) => void }
 export const COSTUMES: CostumeDef[] = [
-  { id: 'ghost', name: 'Bedsheet Ghost', icon: '👻', color: '#dfe8ff', power: 'Phase: walk straight through fences, hedges & graves', perks: '+15% chance to dodge hits', line: 'Eek! A real ghost?!', apply: (s) => (s.dodge += 0.15) },
+  { id: 'ghost', name: 'Bedsheet Ghost', icon: '👻', color: '#dfe8ff', power: 'Phase: walk through garden fences, hedges & graves (not district locks)', perks: '+15% chance to dodge hits', line: 'Eek! A real ghost?!', apply: (s) => (s.dodge += 0.15) },
   { id: 'vampire', name: 'Vampire', icon: '🧛', color: '#e0304a', power: 'Bloodsucker: every kill heals 1 HP', perks: '+30% crit damage', line: "A vampire! Please don't bite me!", apply: (s) => (s.critDmg += 0.3) },
   { id: 'witch', name: 'Little Witch', icon: '🧙', color: '#b44dff', power: 'Hex Bolts: auto-casts a homing hex every 1.2s', perks: '+25% skill power', line: 'What a wicked little witch!', apply: (s) => (s.skillPow *= 1.25) },
   { id: 'hero', name: 'Super Kid', icon: '🦸', color: '#4f8aff', power: 'Cape Dash: dashing through monsters damages & knocks them away', perks: '+1 dash, +12% move speed', line: 'Our hero! Here to save Halloween?', apply: (s) => { s.dashCharges += 1; s.move *= 1.12; } },
@@ -244,16 +348,26 @@ export const COSTUMES: CostumeDef[] = [
   { id: 'astronaut', name: 'Space Cadet', icon: '🧑‍🚀', color: '#cfe6ff', power: 'Force Field: shield recharges twice as fast and sooner', perks: '+60 max shield', line: 'One small step for candy-kind!', apply: (s) => { s.maxShield += 60; s.shieldDelay *= 0.5; } },
   { id: 'dino', name: 'T-Rex Hoodie', icon: '🦖', color: '#5fd84a', power: 'Stomp: every 4s a shockwave stuns & hurts nearby monsters', perks: '+40 max HP', line: 'RAWR! A dinosaur at my door!', apply: (s) => (s.maxHp += 40) },
 ];
+COSTUMES.push(
+  { id: 'knight', premium: true, name: 'Cardboard Knight', icon: '🛡️', color: '#d0ac76', power: 'Guard: 20% damage reduction', perks: '+50 max shield', line: 'A brave knight at my door!', apply: (s) => { s.maxShield += 50; s.armor = 1 - (1 - s.armor) * 0.8; } },
+  { id: 'moth', premium: true, name: 'Moon Moth', icon: '🦋', color: '#b7adce', power: 'Moon Wings: +1 dash and +20% dodge', perks: '+15% movement speed', line: 'Follow the porchlight, little moth!', apply: (s) => { s.dashCharges += 1; s.dodge += 0.2; s.move *= 1.15; } },
+);
 export const COSTUME_BY_ID = Object.fromEntries(COSTUMES.map((c) => [c.id, c])) as Record<string, CostumeDef>;
 export const HOMEOWNERS = ['Mrs. Henderson', 'Mr. Kowalski', 'Old Man Jenkins', 'The Nguyens', 'Ms. Petrova', 'Grandma Rose', 'Coach Miller', 'Dr. Alvarez', 'The Johnsons', 'Mrs. Okafor', 'Mr. Bellamy', 'Aunt Dottie'];
 export const GIVE_LINES = ['Here you go, sweetie!', 'Take two, I won\'t tell!', 'Full-size bars this year!', 'Careful out there tonight…', 'Happy Halloween, dear!', 'Ooh, last of the good stuff!'];
 
 const SAVE_KEY = 'tot_survivors_save_v1';
-export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number }
+export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number }
 export function loadSave(): Save {
   try {
     const s = JSON.parse(storage.getItem(SAVE_KEY) || '');
-    return { soul: s.soul || 0, talents: s.talents || {}, best: s.best || 0, hero: s.hero || 0 };
+    const finite = (v: unknown) => typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+    const talents: Record<string, number> = {};
+    for (const tal of TALENTS) {
+      const rank = Math.min(tal.max, finite(s.talents?.[tal.id]));
+      if (rank) talents[tal.id] = rank;
+    }
+    return { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave) };
   } catch {
     return { soul: 60, talents: {}, best: 0, hero: 0 };
   }
@@ -263,7 +377,7 @@ export function storeSave(s: Save) {
 }
 
 export function applyTalents(s: Stats, t: Record<string, number>) {
-  for (const tal of TALENTS) if (t[tal.id]) tal.apply(s, t[tal.id]);
+  for (const tal of TALENTS) if (t[tal.id] && (!tal.premium || hasFullGame())) tal.apply(s, Math.min(tal.max, Math.max(0, t[tal.id])));
 }
 
 // ================= HEROES (skills) =================
@@ -271,6 +385,8 @@ export const HERO_INFO = [
   { name: 'Tommy', title: 'The Troublemaker', passive: '+10% damage', skill: 'Pumpkin Bomb', skillDesc: 'Lob an explosive jack-o-lantern that bursts into flames.', cd: 6, apply: (s: Stats) => (s.dmg *= 1.1) },
   { name: 'Sam', title: 'The Science Kid', passive: '+30 max shield', skill: 'TP Tornado', skillDesc: 'Summon a toilet-paper twister that pulls in and shreds monsters.', cd: 10, apply: (s: Stats) => (s.maxShield += 30) },
   { name: 'Jess', title: 'The Brave One', passive: '+8% crit chance', skill: 'Camera Flash', skillDesc: 'A blinding flash that stuns and damages everything in a wide cone.', cd: 7, apply: (s: Stats) => (s.crit += 0.08) },
+  { name: 'Maya', title: 'The Fixer', passive: '20% faster reloads', skill: 'Repair Pulse', skillDesc: 'Restore health and shields to you and your active friend, and refill your magazine.', cd: 12, apply: (s: Stats) => (s.reload *= 0.8) },
+  { name: 'Leo', title: 'The Night Scout', passive: '+12% movement speed', skill: 'Night Beacon', skillDesc: 'A low moonlit pulse slows nearby monsters and marks a safe escape.', cd: 9, apply: (s: Stats) => (s.move *= 1.12) },
 ];
 
 export const rarityColor = (r: number) => RARITY[r].color;

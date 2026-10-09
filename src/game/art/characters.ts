@@ -546,6 +546,16 @@ function drawKid(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: numbe
   C?.over?.(ctx, K0);
 }
 
+COSTUME_ART.knight = {
+  noHat: true, pal: { top: '#b9905e', topD: '#765534' },
+  body: (ctx, k) => rr(ctx, k.cx - 13, k.by - 47, 26, 28, 3, '#c7a172'),
+  head: (ctx, k) => { rr(ctx, k.cx - 17, k.hy - 17, 34, 26, 4, '#bca17a'); if (!k.back) rr(ctx, k.cx - 12, k.hy - 4, 24, 5, 1, '#30271d'); },
+};
+COSTUME_ART.moth = {
+  noHat: true, pal: { top: '#a498b5', topD: '#665979' },
+  behind: (ctx, k) => cape(ctx, k, '#b6a8c7', '#655270', -10),
+  head: (ctx, k) => { limb(ctx, k.cx - 7, k.hy - 12, k.cx - 14, k.hy - 24, 3, '#a498b5'); limb(ctx, k.cx + 7, k.hy - 12, k.cx + 14, k.hy - 24, 3, '#a498b5'); },
+};
 export const COSTUME_ART_IDS = Object.keys(COSTUME_ART);
 
 export const HEROES = [
@@ -566,7 +576,13 @@ export const HEROES = [
   },
 ];
 
+HEROES.push(
+  { id: 'maya', name: 'Maya', look: 'An 11-year-old resourceful girl with warm brown skin, dark braided hair, an amber utility jacket over a cream tee, navy trousers and a small tool belt', pal: { top: '#d49a39', topD: '#906620', pants: '#293a4a', hair: '#29201b', skin: '#ba8057', shoe: '#47382b', tee: '#f0e3c9', longHair: true } as HeroPal },
+  { id: 'leo', name: 'Leo', look: 'An 11-year-old adventurous boy with olive skin, short dark hair, a teal hooded jacket, dark charcoal trousers, a backpack and a small brass flashlight', pal: { top: '#368e8b', topD: '#235f61', pants: '#283038', hair: '#28221d', skin: '#c99972', shoe: '#453b30' } as HeroPal },
+);
 const COSTUME_PROMPT: Record<string, string> = {
+  knight: 'wearing homemade cardboard knight armour with taped brown chest plates and a cardboard helmet with a dark visor slit, face visible',
+  moth: 'wearing a dusty lavender moth costume with soft patterned wing cape and two fuzzy antennae, face visible',
   ghost: 'wearing a homemade white bedsheet ghost costume with two cut-out eye holes that covers them down to the knees (sneakers visible)',
   vampire: 'wearing a Dracula costume: black cape with red lining, high collar, slicked-back hair, plastic fangs',
   witch: 'wearing a purple witch robe and a huge crooked pointy hat with a green band',
@@ -873,6 +889,9 @@ function pumpkinKing(ctx: CanvasRenderingContext2D, cx: number, fy: number, f: n
 }
 
 const EN_DEFS: Record<string, { fw: number; fh: number; frames: number; ax: number; ay: number; draw: (c: CanvasRenderingContext2D, x: number, y: number, f: number) => void; desc: string; prompt: string }> = {
+  hex: { fw: 200, fh: 210, frames: 6, ax: 100, ay: 202, draw: (ctx, x, y, f) => { ctx.save(); ctx.translate(x, y); ctx.scale(1.8, 1.8); witch(ctx, 0, 0, f); ctx.restore(); }, desc: 'BOSS: Headmistress Hex', prompt: 'A towering elderly witch headmistress, plum academic robes, broad hooked witch hat, stern green face, iron school bell in one hand and a glowing spellbook in the other. Distinct six-frame breathing and robe-sway cycle, full body, feet anchored.' },
+  alpha: { fw: 200, fh: 210, frames: 6, ax: 100, ay: 202, draw: (ctx, x, y, f) => { ctx.save(); ctx.translate(x, y); ctx.scale(1.5, 1.5); werewolf(ctx, 0, 0, f); ctx.restore(); }, desc: 'BOSS: Howler Alpha', prompt: 'An enormous silver-grey werewolf pack leader with broad muscular shoulders, shaggy fur, glowing amber eyes, ragged varsity jacket and broken heavy chain necklace. Hunched charging pose, six-frame stalking walk, no weapons, full body, feet anchored.' },
+  warden: { fw: 200, fh: 210, frames: 6, ax: 100, ay: 202, draw: (ctx, x, y, f) => { ctx.save(); ctx.translate(x, y); ctx.scale(1.9, 1.9); skeleton(ctx, 0, 0, f); ctx.restore(); }, desc: 'BOSS: Graveyard Warden', prompt: 'A towering skeletal cemetery warden wearing corroded iron armour, a tattered moss-covered blue cloak, spectral teal eyes and carrying a massive grave shovel. Six-frame heavy marching cycle, full body, boots anchored. No crown, pumpkins or school clothing.' },
   zombie: { fw: 64, fh: 96, frames: 6, ax: 32, ay: 90, draw: zombie, desc: 'Shambling suburban zombie (walk cycle)', prompt: 'A green-skinned shambling zombie in a torn blue shirt, arms reaching forward, glowing yellow eyes, walk cycle facing camera.' },
   skeleton: { fw: 64, fh: 96, frames: 6, ax: 32, ay: 90, draw: skeleton, desc: 'Skeleton with bone club (walk cycle)', prompt: 'A cartoon skeleton with red pinprick eyes holding a bone club, chattering jaw, walk cycle facing camera.' },
   ghost: { fw: 64, fh: 96, frames: 6, ax: 32, ay: 90, draw: ghost, desc: 'Bedsheet ghost (float cycle, semi-transparent)', prompt: 'A classic bedsheet ghost, translucent pale blue-white, black hollow eyes and mouth, wavy hem, floating cycle.' },
