@@ -1,0 +1,45 @@
+{
+  "key": "pickup_heal",
+  "spec": {
+    "key": "pickup_heal",
+    "file": "icons/pickup_heal.png",
+    "category": "icon",
+    "w": 32,
+    "h": 32,
+    "anchor": [
+      16,
+      28
+    ],
+    "desc": "Full-size chocolate bar (heal)",
+    "prompt": "Side-view toy weapon icon, transparent background, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 32x32 px. Full-size chocolate bar (heal)."
+  },
+  "id": "ab773b04b4fc0c8a",
+  "rawFile": "art/world/raw/pickup_heal-e02705426ca72ae5.png",
+  "stagedFile": "art/world/staged/pickup_heal-ab773b04b4fc0c8a.png",
+  "savedPromptFile": "art/world/raw/pickup_heal-e02705426ca72ae5.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "e02705426ca72ae546b768119ca2890dbd125b7df9828ada97f4f4fc6d1973b8",
+  "packedHash": "ab773b04b4fc0c8a4428d4dc0c99370e234c93e89a941fedeb11878fe5b877d5",
+  "promptHash": "cdbdda9d1bf557eeb5d23d6496b34a162e4da474c81e17f737ab7348fe05dfd8",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "outputSize": [
+    128,
+    128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T10:03:19.991Z",
+  "fingerprint": "7a74391e2ad0be3066d46fd496785145136d1d49efe295442f564ab1c5e15f0e",
+  "activationFile": "art/world/activations/pickup_heal-1791540366576.json",
+  "gameFile": "generated/world/pickup_heal-ab773b04b4fc0c8a.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 32x32 px. Full-size chocolate bar (heal).\nAtlas entry: pickup_heal. Full-size chocolate bar (heal)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 32x32; render 128x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,28), rendered (64,112). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/pickup_heal.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

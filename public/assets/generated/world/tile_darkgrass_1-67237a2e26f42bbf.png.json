@@ -1,0 +1,47 @@
+{
+  "key": "tile_darkgrass_1",
+  "spec": {
+    "key": "tile_darkgrass_1",
+    "file": "tiles/tile_darkgrass_1.png",
+    "category": "tile",
+    "w": 128,
+    "h": 64,
+    "desc": "Overgrown dark cemetery / woods grass, darker and bluer than lawn (variant 2/3)",
+    "prompt": "Seamless isometric 2:1 diamond ground tile, 128x64 px, transparent outside the diamond, top-down 3/4 Diablo II / Commandos style hand-painted pixel art, Halloween night lit by cold blue moonlight, no shadows cast by objects, edges must tile seamlessly with copies of itself. Content: Overgrown dark cemetery / woods grass, darker and bluer than lawn."
+  },
+  "id": "67237a2e26f42bbf",
+  "rawFile": "art/world/raw/tile_darkgrass_1-ceb9f269249cc624.png",
+  "stagedFile": "art/world/staged/tile_darkgrass_1-67237a2e26f42bbf.png",
+  "savedPromptFile": "art/world/raw/tile_darkgrass_1-ceb9f269249cc624.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "ceb9f269249cc624d430240816144c3330d7ed7c3476ce4a8c79a2f4a02a2d4f",
+  "packedHash": "67237a2e26f42bbfa7a80d083e5b0cbad977221fe7672d2ea3a989be9051b71a",
+  "promptHash": "479c8b98bcac11ded7ff616541308ae5dccf31d4a751664baeb084e022afc126",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "tileTrim": [
+    43,
+    0,
+    1732,
+    886
+  ],
+  "importedAt": "2026-10-09T10:05:04.362Z",
+  "fingerprint": "0c47a557e7e094b3cd18d9c1503ddd2688a9f048b1a38277c2904c9f58e242ab",
+  "activationFile": "art/world/activations/tile_darkgrass_1-1791540367358.json",
+  "gameFile": "generated/world/tile_darkgrass_1-67237a2e26f42bbf.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production tile sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Seamless isometric 2:1 diamond ground tile, 128x64 px, transparent outside the diamond, top-down 3/4 Diablo II / Commandos style hand-painted, Halloween night lit by cold blue moonlight, no shadows cast by objects, edges must tile seamlessly with copies of itself. Content: Overgrown dark cemetery / woods grass, darker and bluer than lawn.\nAtlas entry: tile_darkgrass_1. Overgrown dark cemetery / woods grass, darker and bluer than lawn (variant 2/3)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x64; render 512x256 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nTerrain: fill the entire 2:1 diamond right to all four edges, transparent outside. Flat surface with no side walls. Matching opposite edges for seamless repeats; no directional lighting gradients, isolated large objects or strong focal features. Keep variants compatible.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/tile_darkgrass_1.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

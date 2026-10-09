@@ -1,0 +1,45 @@
+{
+  "key": "icon_pea",
+  "spec": {
+    "key": "icon_pea",
+    "file": "icons/icon_pea.png",
+    "category": "icon",
+    "w": 64,
+    "h": 32,
+    "anchor": [
+      16,
+      20
+    ],
+    "desc": "Pea Shooter - green toy pistol",
+    "prompt": "Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 64x32 px. Pea Shooter - green toy pistol."
+  },
+  "id": "086f426c9eb4ce5b",
+  "rawFile": "art/world/raw/icon_pea-7f4cc68b1931adca.png",
+  "stagedFile": "art/world/staged/icon_pea-086f426c9eb4ce5b.png",
+  "savedPromptFile": "art/world/raw/icon_pea-7f4cc68b1931adca.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "7f4cc68b1931adca49e12791c57aa7dc03cbc6cfffd0fbae9cfb3278a32b67f7",
+  "packedHash": "086f426c9eb4ce5bb68f50d209a193b622655d2912dcaa9df2ceeb702de7b210",
+  "promptHash": "8e89b0829f385378c940b23295880877f1427ab5ce1a0267a1e708dd9f3cd8e2",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    256,
+    128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:54:54.299Z",
+  "fingerprint": "7a3691a41e79bfef28d97a5aca5f4cd61d28d0f707bc6634c4f068c11c479c5a",
+  "activationFile": "art/world/activations/icon_pea-1791540186345.json",
+  "gameFile": "generated/world/icon_pea-086f426c9eb4ce5b.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 64x32 px. Pea Shooter - green toy pistol.\nAtlas entry: icon_pea. Pea Shooter - green toy pistol\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 64x32; render 256x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,20), rendered (64,80). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/icon_pea.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

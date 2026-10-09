@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "reference": "art/reference/style-target.webp",
+  "scope": ["prop", "tile", "overlay"],
+  "style": "Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.",
+  "palette": "Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.",
+  "lighting": "Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.",
+  "projection": "Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).",
+  "avoid": "HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.",
+  "priority": ["candy_stand", "house_0", "house_1", "house_2", "house_3", "house_4", "house_5", "tree_oak_0", "streetlamp", "tile_grass_0", "tile_road_0", "tile_sidewalk_0"]
+}

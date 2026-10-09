@@ -1,0 +1,49 @@
+{
+  "key": "grave_0",
+  "spec": {
+    "key": "grave_0",
+    "file": "props/grave_0.png",
+    "category": "prop",
+    "w": 128,
+    "h": 130,
+    "anchor": [
+      64,
+      94
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Rounded headstone",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A weathered grey cemetery gravestone with moss, engraved RIP, facing lower-left. Footprint 1x1 tile(s); footprint centre on pixel (64,94)."
+  },
+  "id": "739feee14fff77ef",
+  "rawFile": "art/world/raw/grave_0-5f6a9707ea97eb90.png",
+  "stagedFile": "art/world/staged/grave_0-739feee14fff77ef.png",
+  "savedPromptFile": "art/world/raw/grave_0-5f6a9707ea97eb90.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "5f6a9707ea97eb900097073736185b0547910a949233293837d6d22fd2def89e",
+  "packedHash": "739feee14fff77efb30c5a1c91926c6460ec6b48d8f09a0eab7ac50a3ae1c515",
+  "promptHash": "effee4cc5c57bf3163c44f2acd56c44db79ad0575b9067afe05ba1dff136ee4e",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1244,
+    1265
+  ],
+  "outputSize": [
+    512,
+    520
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:54:35.471Z",
+  "fingerprint": "8745da098c3b4c024ac4e11781b8acbf6999784b24d2068c7d6a13c07346bb94",
+  "activationFile": "art/world/activations/grave_0-1791540183757.json",
+  "gameFile": "generated/world/grave_0-739feee14fff77ef.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A weathered grey cemetery gravestone with moss, engraved RIP, facing lower-left. Footprint 1x1 tile(s); footprint centre on pixel (64,94).\nAtlas entry: grave_0. Rounded headstone\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 128x130; render 512x520 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (64,94), rendered (256,376). All contact positions stay fixed to the layout guide.\nFootprint: exactly 1x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/grave_0.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

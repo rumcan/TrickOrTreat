@@ -1,0 +1,45 @@
+{
+  "key": "icon_balloon",
+  "spec": {
+    "key": "icon_balloon",
+    "file": "icons/icon_balloon.png",
+    "category": "icon",
+    "w": 64,
+    "h": 32,
+    "anchor": [
+      16,
+      20
+    ],
+    "desc": "Static Balloon Launcher - pump launcher with charged balloons",
+    "prompt": "Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 64x32 px. Static Balloon Launcher - pump launcher with charged balloons."
+  },
+  "id": "dc3ee35d99dd5051",
+  "rawFile": "art/world/raw/icon_balloon-bdbd63e247e72039.png",
+  "stagedFile": "art/world/staged/icon_balloon-dc3ee35d99dd5051.png",
+  "savedPromptFile": "art/world/raw/icon_balloon-bdbd63e247e72039.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "bdbd63e247e7203908c0cced00b4dacd9481ca21096a3d6581ece83a16751598",
+  "packedHash": "dc3ee35d99dd50511336b1d7adb38ec3426fdde27f0daa92bb3285df8a19ad49",
+  "promptHash": "892dbf459026110271d3e6f57fc80dceb94ca1b7fe80301ae91bbe5ae6b40b9c",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    256,
+    128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:54:53.260Z",
+  "fingerprint": "ada7bc822c5b16770a5964b7d311196b09da032980dd1169c819bc65afc6f310",
+  "activationFile": "art/world/activations/icon_balloon-1791540186149.json",
+  "gameFile": "generated/world/icon_balloon-dc3ee35d99dd5051.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 64x32 px. Static Balloon Launcher - pump launcher with charged balloons.\nAtlas entry: icon_balloon. Static Balloon Launcher - pump launcher with charged balloons\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 64x32; render 256x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,20), rendered (64,80). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/icon_balloon.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

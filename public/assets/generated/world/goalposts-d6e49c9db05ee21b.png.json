@@ -1,0 +1,49 @@
+{
+  "key": "goalposts",
+  "spec": {
+    "key": "goalposts",
+    "file": "props/goalposts.png",
+    "category": "prop",
+    "w": 90,
+    "h": 210,
+    "anchor": [
+      45,
+      205
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Yellow football goalpost",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A tall yellow H-style football goalpost. Footprint 1x1 tile(s); footprint centre on pixel (45,205)."
+  },
+  "id": "d6e49c9db05ee21b",
+  "rawFile": "art/world/raw/goalposts-7978ed2e6d61756b.png",
+  "stagedFile": "art/world/staged/goalposts-d6e49c9db05ee21b.png",
+  "savedPromptFile": "art/world/raw/goalposts-7978ed2e6d61756b.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "7978ed2e6d61756bbfd8ba11bbdb5dde9d1d7ece0ce3a95f8130ac8f02597a12",
+  "packedHash": "d6e49c9db05ee21b684d4cbda8cfa3bf564667e0020c408cb4a194dade8c9641",
+  "promptHash": "fe45fb5e6085d8381fb71252dcfdbfa9c88a09cdb0aeba4816e5d8a568941983",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    821,
+    1916
+  ],
+  "outputSize": [
+    360,
+    840
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:54:35.310Z",
+  "fingerprint": "215fc52b6ba43ece77951de8ec1fa8dd597acdbb7c807342b82bf5f0e81b7da6",
+  "activationFile": "art/world/activations/goalposts-1791540183662.json",
+  "gameFile": "generated/world/goalposts-d6e49c9db05ee21b.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A tall yellow H-style football goalpost. Footprint 1x1 tile(s); footprint centre on pixel (45,205).\nAtlas entry: goalposts. Yellow football goalpost\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 90x210; render 360x840 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (45,205), rendered (180,820). All contact positions stay fixed to the layout guide.\nFootprint: exactly 1x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/goalposts.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

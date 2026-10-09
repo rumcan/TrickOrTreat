@@ -1,0 +1,45 @@
+{
+  "key": "icon_slingshot",
+  "spec": {
+    "key": "icon_slingshot",
+    "file": "icons/icon_slingshot.png",
+    "category": "icon",
+    "w": 64,
+    "h": 32,
+    "anchor": [
+      16,
+      20
+    ],
+    "desc": "Wrist Slingshot - wooden Y with rubber band",
+    "prompt": "Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 64x32 px. Wrist Slingshot - wooden Y with rubber band."
+  },
+  "id": "7dfeee5b650ebe13",
+  "rawFile": "art/world/raw/icon_slingshot-ff74f0d8b3c67855.png",
+  "stagedFile": "art/world/staged/icon_slingshot-7dfeee5b650ebe13.png",
+  "savedPromptFile": "art/world/raw/icon_slingshot-ff74f0d8b3c67855.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "ff74f0d8b3c67855dc4201ea1d810aaaeb2c0108d57a75928daee5a17a800bcc",
+  "packedHash": "7dfeee5b650ebe13b062b3108cd6fb480ca3f8d70015934d0a6be52f7b752d40",
+  "promptHash": "df8d6ea6e8df251b081e1518a23c7e09a77ca37e98c36c8df57603eaa3769955",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    256,
+    128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:54:54.883Z",
+  "fingerprint": "9c78af30ca416d329aac2043f06b1cdf4372376dcac726cc776ac6b3d9f87de9",
+  "activationFile": "art/world/activations/icon_slingshot-1791540186637.json",
+  "gameFile": "generated/world/icon_slingshot-7dfeee5b650ebe13.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 64x32 px. Wrist Slingshot - wooden Y with rubber band.\nAtlas entry: icon_slingshot. Wrist Slingshot - wooden Y with rubber band\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 64x32; render 256x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,20), rendered (64,80). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/icon_slingshot.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

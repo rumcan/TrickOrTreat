@@ -108,6 +108,16 @@ Add a manifest entry pointing at your PNG; the Atlas shows each key's exact size
   Tiles, overlays and icons are always resampled to their exact size.
 
 ## Re-exporting the procedural art
+
+### Reference-guided world artwork
+
+`npm run art:world:prepare` exports the live Atlas's buildings, props, terrain and
+overlays into a generation queue. Each job pairs `art/reference/style-target.webp`
+with a procedural layout guide, using the screenshot's painted style while
+preserving projection, dimensions and footprint anchors. `npm run art:world -- next`
+prints the next generation brief. Import generated transparent PNGs, inspect the
+alignment preview, then activate versioned manifest entries. See
+[art/world/README.md](art/world/README.md) for commands, validation and restoration.
 `node scripts/export-art.mjs` (with `npm run dev` running, and Playwright installed) re-renders the vector art: missing files in
 `public/assets/` are written and registered in the manifest (existing ones are **kept** unless `--force`), and `art/reference/` is
 refreshed. `--scale 4` sets the reference resolution, `--all-sheets` adds full costume sheets, `--buildings 2` adds 2× building renders.

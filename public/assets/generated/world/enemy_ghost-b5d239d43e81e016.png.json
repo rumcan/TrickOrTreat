@@ -1,0 +1,55 @@
+{
+  "key": "enemy_ghost",
+  "spec": {
+    "key": "enemy_ghost",
+    "file": "monsters/enemy_ghost.png",
+    "category": "sheet",
+    "w": 384,
+    "h": 96,
+    "frameW": 64,
+    "frameH": 96,
+    "frames": 6,
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "desc": "Bedsheet ghost (float cycle, semi-transparent)",
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A classic bedsheet ghost, translucent pale blue-white, black hollow eyes and mouth, wavy hem, floating cycle. Grid: 6 columns x 1 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (32,90) in each frame."
+  },
+  "id": "b5d239d43e81e016",
+  "rawFile": "art/world/raw/enemy_ghost-f6d18269b073a101.png",
+  "stagedFile": "art/world/staged/enemy_ghost-b5d239d43e81e016.png",
+  "savedPromptFile": "art/world/raw/enemy_ghost-f6d18269b073a101.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "f6d18269b073a101a5c9867b4120a311b65b62e8f16227e16ccf29547641e80a",
+  "packedHash": "b5d239d43e81e0163840852f96add3c9fc05d8ab0169ac5dffd8deb13281eca2",
+  "promptHash": "0e12110a91ef0d61f976d6f2c7591b8cf7f65e11ddaae68b0431132eedeaddf7",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "outputSize": [
+    1536,
+    384
+  ],
+  "sourceAnchor": null,
+  "gridAlignment": "uniform frame packing, shared feet baseline",
+  "importedAt": "2026-10-09T09:40:20.712Z",
+  "fingerprint": "19f7b9c0a529a166906ea98ba6585e6a055cad78ef4f3e6e817d88cf3d4469e6",
+  "activationFile": "art/world/activations/enemy_ghost-1791539167011.json",
+  "gameFile": "generated/world/enemy_ghost-b5d239d43e81e016.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production sheet sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted with clean painted edges, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A classic bedsheet ghost, translucent pale blue-white, black hollow eyes and mouth, wavy hem, floating cycle. Feet anchor at (32,90) in each frame.\nAtlas entry: enemy_ghost. Bedsheet ghost (float cycle, semi-transparent)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 192x192; render 768x768 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: feet within EVERY frame at native (32,90), rendered (128,360). All contact positions stay fixed to the layout guide.\nSPRITE SHEET: EXACTLY 3 columns and 2 rows of equal 256x384 pixel cells. No grid lines, labels, frames or borders. Each pose remains inside its own cell with feet at the same local anchor, no overlapping neighbours. Every occupied cell depicts the SAME character, body size, face, clothing and lighting. Preserve frame-by-frame pose movement in Image 2. Transparent gutters and empty cells stay empty. No weapon held unless part of the atlas design; runtime draws equipped weapons.\nThis is ONE 6 frame animation rearranged into 3x2 for generation. Read frames left-to-right, then top-to-bottom. The importer repacks it to the engine's original horizontal strip. Draw every frame; do not invent a different animation row.\nAvoid: HUD, menus, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one complete animation sheet of the requested character. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/enemy_ghost.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

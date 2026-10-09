@@ -2,6 +2,15 @@ node_modules
 dist
 *.local
 .DS_Store
+art/world/atlas.json
+art/world/queue.json
+art/world/layout/
+art/world/prompts/
+art/world/raw/
+art/world/staged/
+art/world/checks/
+art/world/activations/
+art/world/.pipeline.lock
 
 # Art regen working files (results land in public/assets)
 art/regen/raw/

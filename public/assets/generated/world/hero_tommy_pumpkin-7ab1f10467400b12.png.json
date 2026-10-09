@@ -1,0 +1,60 @@
+{
+  "key": "hero_tommy_pumpkin",
+  "spec": {
+    "key": "hero_tommy_pumpkin",
+    "file": "characters/hero_tommy_pumpkin.png",
+    "category": "sheet",
+    "w": 384,
+    "h": 384,
+    "frameW": 64,
+    "frameH": 96,
+    "frames": 6,
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "desc": "Kid \"Tommy\" in the pumpkin costume (same grid/anchor as base sheet)",
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing an oversized carved jack-o-lantern head mask with a glowing face and an orange sweatshirt, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "id": "7ab1f10467400b12",
+  "rawFile": "art/world/raw/hero_tommy_pumpkin-afdcc2e7bdc32b3c.png",
+  "stagedFile": "art/world/staged/hero_tommy_pumpkin-7ab1f10467400b12.png",
+  "savedPromptFile": "art/world/raw/hero_tommy_pumpkin-afdcc2e7bdc32b3c.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "afdcc2e7bdc32b3c34117cecfeb6744873b1738567d0670c26ccae6baf3a63b6",
+  "packedHash": "7ab1f10467400b12e35deb1093fe6eb8a5a79b73381a602a04f40029f0439acf",
+  "promptHash": "8250a13e89492f8568e05276c0b9a6ca29946971d82a86d5c8db63734cb4e586",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "outputSize": [
+    1536,
+    1536
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:46:13.499Z",
+  "fingerprint": "b2222f2761e582e9f1b095ad6b1bcac8626e6166c949e4d0cabe1b8a7788524b",
+  "activationFile": "art/world/activations/hero_tommy_pumpkin-1791539222246.json",
+  "gameFile": "generated/world/hero_tommy_pumpkin-7ab1f10467400b12.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production sheet sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted with clean painted edges, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing an oversized carved jack-o-lantern head mask with a glowing face and an orange sweatshirt, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame.\nAtlas entry: hero_tommy_pumpkin. Kid \"Tommy\" in the pumpkin costume (same grid/anchor as base sheet)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 384x384; render 1536x1536 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: feet within EVERY frame at native (32,90), rendered (128,360). All contact positions stay fixed to the layout guide.\nSPRITE SHEET: EXACTLY 6 columns and 4 rows of equal 256x384 pixel cells. No grid lines, labels, frames or borders. Each pose remains inside its own cell with feet at the same local anchor, no overlapping neighbours. Every occupied cell depicts the SAME character, body size, face, clothing and lighting. Preserve frame-by-frame pose movement in Image 2. Transparent gutters and empty cells stay empty. No weapon held unless part of the atlas design; runtime draws equipped weapons.\nAnimation rows top to bottom: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Occupied cells per row: 4/6/4/6. For 4-frame idle rows, last two cells are EMPTY; walking rows use all six. Front rows face camera; back rows show the character's BACK, not another front pose. Same facial identity throughout.\nAvoid: HUD, menus, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one complete animation sheet of the requested character. No finished scene. Atlas geometry has priority over scene composition.\n\nImage 3 is CHARACTER IDENTITY reference: preserve this kid's face, hair, skin, body proportions and painted rendering. Change only the specified Halloween costume. Follow Image 2 for costume silhouette and animation layout.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/hero_tommy_pumpkin.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

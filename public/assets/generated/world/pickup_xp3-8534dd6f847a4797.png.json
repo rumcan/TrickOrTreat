@@ -1,0 +1,48 @@
+{
+  "key": "pickup_xp3",
+  "spec": {
+    "key": "pickup_xp3",
+    "file": "icons/pickup_xp3.png",
+    "category": "icon",
+    "w": 32,
+    "h": 32,
+    "anchor": [
+      16,
+      28
+    ],
+    "desc": "Big gold candy (XP)",
+    "prompt": "Side-view toy weapon icon, transparent background, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 32x32 px. Big gold candy (XP)."
+  },
+  "id": "8534dd6f847a4797",
+  "rawFile": "art/world/raw/pickup_xp3-934cdf4c7f1021da.png",
+  "stagedFile": "art/world/staged/pickup_xp3-8534dd6f847a4797.png",
+  "savedPromptFile": "art/world/raw/pickup_xp3-934cdf4c7f1021da.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "934cdf4c7f1021dab6107e48a94fe4f4bfe5d1e97181b489e612d3d775a8e03e",
+  "packedHash": "8534dd6f847a47974266be5ac3d54e49bb51a2bd2c0cd2f13e4ed78b3470eb51",
+  "promptHash": "7d18afea8ecad97121f806d763d94075b4fc822167518bef95044e027bbcc00a",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1402,
+    1122
+  ],
+  "outputSize": [
+    128,
+    128
+  ],
+  "sourceAnchor": [
+    701,
+    887
+  ],
+  "importedAt": "2026-10-09T10:05:07.653Z",
+  "fingerprint": "3b3a5186da591dc363d833ab63de6fc151acaaaa3ae55c27d2f56cd62ca9b465",
+  "activationFile": "art/world/activations/pickup_xp3-1791540366738.json",
+  "gameFile": "generated/world/pickup_xp3-8534dd6f847a4797.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Side-view toy weapon icon, transparent background, chunky hand-painted with clean painted edges, grip/hand pivot at pixel (16,20), 32x32 px. Big gold candy (XP).\nAtlas entry: pickup_xp3. Big gold candy (XP)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 32x32; render 128x128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (16,28), rendered (64,112). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/pickup_xp3.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

@@ -1,0 +1,49 @@
+{
+  "key": "house_1",
+  "spec": {
+    "key": "house_1",
+    "file": "buildings/house_1.png",
+    "category": "prop",
+    "w": 508,
+    "h": 532,
+    "anchor": [
+      254,
+      390
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "desc": "Two-storey suburban house, footprint 4x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A two-storey wooden-siding suburban house (wall colour #3f6b6a), gable roof, footprint exactly 4 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (254,390)."
+  },
+  "id": "64a7a02f64f5d458",
+  "rawFile": "art/world/raw/house_1-8b8fe1e8df36f661.png",
+  "stagedFile": "art/world/staged/house_1-64a7a02f64f5d458.png",
+  "savedPromptFile": "art/world/raw/house_1-8b8fe1e8df36f661.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "8b8fe1e8df36f661486c4d30f1aab20f1d893ff2288859554a64d72b1b2099f0",
+  "packedHash": "64a7a02f64f5d458b42f7f26ab48f1d5ade51ed0b03ac2e2df0a226fa2319654",
+  "promptHash": "765c9194f0803702e75834dffc2f0b70d645f0f22dc31c7b8371cb4051707273",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1225,
+    1284
+  ],
+  "outputSize": [
+    2032,
+    2128
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T09:36:27.701Z",
+  "fingerprint": "6db336f533e0609fd9141b7833566ae2c4bafb0d854964e4c471e14d502fe7c1",
+  "activationFile": "art/world/activations/house_1-1791538636243.json",
+  "gameFile": "generated/world/house_1-64a7a02f64f5d458.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A two-storey wooden-siding suburban house (wall colour #3f6b6a), gable roof, footprint exactly 4 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (254,390).\nAtlas entry: house_1. Two-storey suburban house, footprint 4x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 508x532; render 2032x2128 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (254,390), rendered (1016,1560). All contact positions stay fixed to the layout guide.\nFootprint: exactly 4x3 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/house_1.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}
