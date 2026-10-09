@@ -3,6 +3,7 @@ import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X,
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
+import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
 import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, HeroPreview, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon } from './common';
 import { ART, FACES, HERO_COLORS } from './art';
@@ -154,7 +155,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
           <KitButton
             variant="red" size="sm" icon={RotateCw}
-            onClick={() => { if (!armed) setArmed(true); else { localStorage.clear(); location.reload(); } }}
+            onClick={() => { if (!armed) setArmed(true); else { storage.clearAll().then(() => location.reload()); } }}
           >
             {armed ? 'Click again to wipe' : 'Reset progress'}
           </KitButton>
