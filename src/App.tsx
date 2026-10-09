@@ -93,7 +93,7 @@ export default function App() {
     Promise.all([preloadAll((p, label) => setProg({ p, label })), preloadUiArt()]).then(() => {
       setScreen('title');
       // ?export: lets scripts/export-art.mjs pull PNGs of the procedural art
-      if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => ((window as unknown as { __totExport: unknown }).__totExport = m.exportArt));
+      if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => Object.assign(window, { __totExport: m.exportArt, __totRegen: m.exportRegen }));
     });
   }, []);
 

@@ -49,3 +49,17 @@ export function exportArt(refScale = 4, sheets: 'base' | 'all' = 'base', buildin
   files.push({ path: 'art/reference/specs.json', data: text64(JSON.stringify(specs, null, 2) + '\n') });
   return files;
 }
+
+/**
+ * Every asset in the Collection / Asset Atlas (all categories, overrides ignored) with its spec, AI prompt and a 1×
+ * procedural render. scripts/regen-art.py feeds the render to the image generator as the layout guide (exact
+ * canvas, frame grid and anchor) next to the style reference.
+ */
+export function exportRegen() {
+  return allAssets()
+    .filter((e) => e.spec.prompt && e.spec.category !== 'fx')
+    .map((e) => {
+      const { key, file, category, w, h, frameW, frameH, rows, rowFrames, anchor, footprint, desc, prompt } = e.spec;
+      return { key, file, category, w, h, frameW, frameH, rows, rowFrames, anchor, footprint, desc, prompt, render: b64(withArtScale(1, e.gen)) };
+    });
+}

@@ -2,3 +2,7 @@ node_modules
 dist
 *.local
 .DS_Store
+
+# Art regen working files (results land in public/assets)
+art/regen/raw/
+art/regen/layout/
