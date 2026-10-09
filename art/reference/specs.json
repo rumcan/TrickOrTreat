@@ -1,0 +1,1238 @@
+{
+  "house_0": {
+    "file": "buildings/house_0.png",
+    "group": "buildings",
+    "desc": "One-storey suburban house, footprint 4x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "size": [
+      508,
+      476
+    ],
+    "anchor": [
+      254,
+      334
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A one-storey wooden-siding suburban house (wall colour #5e4f7e), gable roof, footprint exactly 4 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (254,334)."
+  },
+  "house_1": {
+    "file": "buildings/house_1.png",
+    "group": "buildings",
+    "desc": "Two-storey suburban house, footprint 4x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "size": [
+      508,
+      532
+    ],
+    "anchor": [
+      254,
+      390
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A two-storey wooden-siding suburban house (wall colour #3f6b6a), gable roof, footprint exactly 4 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (254,390)."
+  },
+  "house_2": {
+    "file": "buildings/house_2.png",
+    "group": "buildings",
+    "desc": "Two-storey suburban house, footprint 3x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "size": [
+      444,
+      500
+    ],
+    "anchor": [
+      222,
+      374
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A two-storey wooden-siding suburban house (wall colour #a07c3e), gable roof, footprint exactly 3 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (222,374)."
+  },
+  "house_3": {
+    "file": "buildings/house_3.png",
+    "group": "buildings",
+    "desc": "One-storey suburban house, footprint 4x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "size": [
+      508,
+      476
+    ],
+    "anchor": [
+      254,
+      334
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A one-storey wooden-siding suburban house (wall colour #7a443d), gable roof, footprint exactly 4 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (254,334)."
+  },
+  "house_4": {
+    "file": "buildings/house_4.png",
+    "group": "buildings",
+    "desc": "One-storey suburban house, footprint 3x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "size": [
+      444,
+      444
+    ],
+    "anchor": [
+      222,
+      318
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A one-storey wooden-siding suburban house (wall colour #57626e), gable roof, footprint exactly 3 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (222,318)."
+  },
+  "house_5": {
+    "file": "buildings/house_5.png",
+    "group": "buildings",
+    "desc": "Two-storey suburban house, footprint 4x3 tiles, gable roof ridge along world X, front door + porch on the visible lower-left face",
+    "size": [
+      508,
+      532
+    ],
+    "anchor": [
+      254,
+      390
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A two-storey wooden-siding suburban house (wall colour #6f7650), gable roof, footprint exactly 4 tiles (along lower-right axis) by 3 tiles, decorated for Halloween: string lights, cobwebs, carved pumpkins on porch, warm lit windows. Footprint centre must sit on pixel (254,390)."
+  },
+  "crypt": {
+    "file": "buildings/crypt.png",
+    "group": "buildings",
+    "desc": "Stone mausoleum / crypt, 3x2 tiles, columns and pediment on the lower-left face",
+    "size": [
+      360,
+      360
+    ],
+    "anchor": [
+      180,
+      250
+    ],
+    "footprint": [
+      3,
+      2
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A gothic stone mausoleum with four columns, triangular pediment, iron door glowing faint green inside, moss and cracks. Footprint 3x2 tile(s); footprint centre on pixel (180,250)."
+  },
+  "candy_stand": {
+    "file": "buildings/candy_stand.png",
+    "group": "buildings",
+    "desc": "Candy Lady's treat stand (shop), 2x2",
+    "size": [
+      296,
+      318
+    ],
+    "anchor": [
+      148,
+      234
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A wooden Halloween treat stand with an orange-and-black striped awning, glowing 'TREATS' sign, candy jars on the counter, string lights. Footprint 2x2 tile(s); footprint centre on pixel (148,234)."
+  },
+  "school": {
+    "file": "buildings/school.png",
+    "group": "buildings",
+    "desc": "Brick elementary school, 6x4 tiles, clock pediment, double doors, glowing windows",
+    "size": [
+      700,
+      580
+    ],
+    "anchor": [
+      350,
+      390
+    ],
+    "footprint": [
+      6,
+      4
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A two-storey red-brick American elementary school with a white clock pediment, tall multi-pane windows, concrete steps and double doors on the lower-left face, a small flag pole. Footprint 6x4 tile(s); footprint centre on pixel (350,390)."
+  },
+  "arcade": {
+    "file": "buildings/arcade.png",
+    "group": "buildings",
+    "desc": "Neon 80s video arcade, 4x3, glowing ARCADE sign",
+    "size": [
+      508,
+      454
+    ],
+    "anchor": [
+      254,
+      312
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A dark 80s arcade building with a huge glowing neon ARCADE sign in cyan and magenta, marquee bulbs, tinted windows leaking pink and blue light, black facade. Footprint 4x3 tile(s); footprint centre on pixel (254,312)."
+  },
+  "diner": {
+    "file": "buildings/diner.png",
+    "group": "buildings",
+    "desc": "Chrome 50s diner, 4x3, neon DINER sign",
+    "size": [
+      508,
+      424
+    ],
+    "anchor": [
+      254,
+      282
+    ],
+    "footprint": [
+      4,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A retro chrome-and-red American diner with a rounded roof band, huge warm-lit windows, a vertical neon DINER sign and checkerboard trim. Footprint 4x3 tile(s); footprint centre on pixel (254,282)."
+  },
+  "video": {
+    "file": "buildings/video.png",
+    "group": "buildings",
+    "desc": "80s video rental store, 3x3, purple VIDEO neon",
+    "size": [
+      434,
+      382
+    ],
+    "anchor": [
+      217,
+      256
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A small 80s video rental store with a purple neon VIDEO sign, glowing poster lightboxes and blue-tinted windows. Footprint 3x3 tile(s); footprint centre on pixel (217,256)."
+  },
+  "watertower": {
+    "file": "buildings/watertower.png",
+    "group": "buildings",
+    "desc": "Wooden water tower reading MAPLE FALLS, 2x2",
+    "size": [
+      316,
+      380
+    ],
+    "anchor": [
+      158,
+      318
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A tall wooden-legged water tower with a banded steel tank painted MAPLE FALLS, ladder and railing, moonlit. Footprint 2x2 tile(s); footprint centre on pixel (158,318)."
+  },
+  "hero_tommy": {
+    "file": "characters/hero_tommy.png",
+    "group": "characters",
+    "desc": "Playable kid \"Tommy\" - idle & walk, facing camera and facing away (left/right via horizontal flip)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack, carrying an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam": {
+    "file": "characters/hero_sam.png",
+    "group": "characters",
+    "desc": "Playable kid \"Sam\" - idle & walk, facing camera and facing away (left/right via horizontal flip)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube), carrying an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess": {
+    "file": "characters/hero_jess.png",
+    "group": "characters",
+    "desc": "Playable kid \"Jess\" - idle & walk, facing camera and facing away (left/right via horizontal flip)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket, carrying an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_ghost": {
+    "file": "characters/hero_tommy_ghost.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the ghost costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a homemade white bedsheet ghost costume with two cut-out eye holes that covers them down to the knees (sneakers visible), trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_vampire": {
+    "file": "characters/hero_tommy_vampire.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the vampire costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a Dracula costume: black cape with red lining, high collar, slicked-back hair, plastic fangs, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_witch": {
+    "file": "characters/hero_tommy_witch.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the witch costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a purple witch robe and a huge crooked pointy hat with a green band, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_hero": {
+    "file": "characters/hero_tommy_hero.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the hero costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a homemade blue superhero suit with a red cape, yellow lightning emblem and black eye mask, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_skeleton": {
+    "file": "characters/hero_tommy_skeleton.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the skeleton costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a black skeleton onesie with white printed bones and skull face paint, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_pumpkin": {
+    "file": "characters/hero_tommy_pumpkin.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the pumpkin costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing an oversized carved jack-o-lantern head mask with a glowing face and an orange sweatshirt, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_astronaut": {
+    "file": "characters/hero_tommy_astronaut.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the astronaut costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a white astronaut costume with a bubble glass helmet and chest control panel, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_tommy_dino": {
+    "file": "characters/hero_tommy_dino.png",
+    "group": "characters",
+    "desc": "Kid \"Tommy\" in the dino costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Tommy\" (An 11-year-old troublemaker with messy brown hair and black sunglasses, a red jacket over a white T-shirt, dark jeans and a backpack) wearing a green T-Rex hoodie with a toothy hood, yellow back spikes and a floppy tail, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_ghost": {
+    "file": "characters/hero_sam_ghost.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the ghost costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a homemade white bedsheet ghost costume with two cut-out eye holes that covers them down to the knees (sneakers visible), trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_vampire": {
+    "file": "characters/hero_sam_vampire.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the vampire costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a Dracula costume: black cape with red lining, high collar, slicked-back hair, plastic fangs, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_witch": {
+    "file": "characters/hero_sam_witch.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the witch costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a purple witch robe and a huge crooked pointy hat with a green band, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_hero": {
+    "file": "characters/hero_sam_hero.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the hero costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a homemade blue superhero suit with a red cape, yellow lightning emblem and black eye mask, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_skeleton": {
+    "file": "characters/hero_sam_skeleton.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the skeleton costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a black skeleton onesie with white printed bones and skull face paint, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_pumpkin": {
+    "file": "characters/hero_sam_pumpkin.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the pumpkin costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing an oversized carved jack-o-lantern head mask with a glowing face and an orange sweatshirt, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_astronaut": {
+    "file": "characters/hero_sam_astronaut.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the astronaut costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a white astronaut costume with a bubble glass helmet and chest control panel, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_sam_dino": {
+    "file": "characters/hero_sam_dino.png",
+    "group": "characters",
+    "desc": "Kid \"Sam\" in the dino costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Sam\" (An 11-year-old science kid with curly black hair, round glasses and brown skin, in a beige ghost-hunter jumpsuit with a home-made proton pack (glowing green tube)) wearing a green T-Rex hoodie with a toothy hood, yellow back spikes and a floppy tail, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_ghost": {
+    "file": "characters/hero_jess_ghost.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the ghost costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a homemade white bedsheet ghost costume with two cut-out eye holes that covers them down to the knees (sneakers visible), trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_vampire": {
+    "file": "characters/hero_jess_vampire.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the vampire costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a Dracula costume: black cape with red lining, high collar, slicked-back hair, plastic fangs, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_witch": {
+    "file": "characters/hero_jess_witch.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the witch costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a purple witch robe and a huge crooked pointy hat with a green band, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_hero": {
+    "file": "characters/hero_jess_hero.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the hero costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a homemade blue superhero suit with a red cape, yellow lightning emblem and black eye mask, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_skeleton": {
+    "file": "characters/hero_jess_skeleton.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the skeleton costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a black skeleton onesie with white printed bones and skull face paint, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_pumpkin": {
+    "file": "characters/hero_jess_pumpkin.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the pumpkin costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing an oversized carved jack-o-lantern head mask with a glowing face and an orange sweatshirt, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_astronaut": {
+    "file": "characters/hero_jess_astronaut.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the astronaut costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a white astronaut costume with a bubble glass helmet and chest control panel, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "hero_jess_dino": {
+    "file": "characters/hero_jess_dino.png",
+    "group": "characters",
+    "desc": "Kid \"Jess\" in the dino costume (same grid/anchor as base sheet)",
+    "size": [
+      384,
+      384
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "idle front (4f)",
+      "walk front (6f)",
+      "idle back (4f)",
+      "walk back (6f)"
+    ],
+    "rowFrames": [
+      4,
+      6,
+      4,
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). The same 11-year-old kid \"Jess\" (An 11-year-old brave girl with long wavy auburn hair, a black witch hat with a purple band and a purple jacket) wearing a green T-Rex hoodie with a toothy hood, yellow back spikes and a floppy tail, trick-or-treating, holding an orange plastic jack-o-lantern candy pail. Grid: 6 columns x 4 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: idle front (4f) | walk front (6f) | idle back (4f) | walk back (6f). Feet anchor at (32,90) in each frame."
+  },
+  "enemy_zombie": {
+    "file": "monsters/enemy_zombie.png",
+    "group": "monsters",
+    "desc": "Shambling suburban zombie (walk cycle)",
+    "size": [
+      384,
+      96
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A green-skinned shambling zombie in a torn blue shirt, arms reaching forward, glowing yellow eyes, walk cycle facing camera. Grid: 6 columns x 1 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (32,90) in each frame."
+  },
+  "enemy_skeleton": {
+    "file": "monsters/enemy_skeleton.png",
+    "group": "monsters",
+    "desc": "Skeleton with bone club (walk cycle)",
+    "size": [
+      384,
+      96
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A cartoon skeleton with red pinprick eyes holding a bone club, chattering jaw, walk cycle facing camera. Grid: 6 columns x 1 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (32,90) in each frame."
+  },
+  "enemy_ghost": {
+    "file": "monsters/enemy_ghost.png",
+    "group": "monsters",
+    "desc": "Bedsheet ghost (float cycle, semi-transparent)",
+    "size": [
+      384,
+      96
+    ],
+    "frame": [
+      64,
+      96
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      32,
+      90
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A classic bedsheet ghost, translucent pale blue-white, black hollow eyes and mouth, wavy hem, floating cycle. Grid: 6 columns x 1 rows of 64x96px frames (any whole multiple of that size works, e.g. 256x384). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (32,90) in each frame."
+  },
+  "enemy_bat": {
+    "file": "monsters/enemy_bat.png",
+    "group": "monsters",
+    "desc": "Vampire bat (flap cycle, flying)",
+    "size": [
+      256,
+      56
+    ],
+    "frame": [
+      64,
+      56
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      4
+    ],
+    "anchor": [
+      32,
+      52
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A small purple vampire bat with red eyes and tiny fangs, wing-flap cycle seen from the front. Grid: 4 columns x 1 rows of 64x56px frames (any whole multiple of that size works, e.g. 256x224). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (32,52) in each frame."
+  },
+  "enemy_pumpkin": {
+    "file": "monsters/enemy_pumpkin.png",
+    "group": "monsters",
+    "desc": "Hopping jack-o-lantern bomber (explodes)",
+    "size": [
+      384,
+      80
+    ],
+    "frame": [
+      64,
+      80
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      32,
+      76
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A small living jack-o-lantern with vine legs hopping, glowing jagged grin, hop cycle. Grid: 6 columns x 1 rows of 64x80px frames (any whole multiple of that size works, e.g. 256x320). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (32,76) in each frame."
+  },
+  "enemy_witch": {
+    "file": "monsters/enemy_witch.png",
+    "group": "monsters",
+    "desc": "Witch caster (ranged)",
+    "size": [
+      432,
+      112
+    ],
+    "frame": [
+      72,
+      112
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      36,
+      106
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A green-skinned witch in a purple cloak and pointed hat holding a staff with a glowing green orb, idle-float cycle. Grid: 6 columns x 1 rows of 72x112px frames (any whole multiple of that size works, e.g. 288x448). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (36,106) in each frame."
+  },
+  "enemy_werewolf": {
+    "file": "monsters/enemy_werewolf.png",
+    "group": "monsters",
+    "desc": "Werewolf elite (large)",
+    "size": [
+      576,
+      128
+    ],
+    "frame": [
+      96,
+      128
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      48,
+      122
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A hulking brown werewolf in torn jeans, red glowing eyes, claws, prowling walk cycle. Grid: 6 columns x 1 rows of 96x128px frames (any whole multiple of that size works, e.g. 384x512). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (48,122) in each frame."
+  },
+  "enemy_king": {
+    "file": "monsters/enemy_king.png",
+    "group": "monsters",
+    "desc": "BOSS: The Pumpkin King",
+    "size": [
+      1200,
+      210
+    ],
+    "frame": [
+      200,
+      210
+    ],
+    "rows": [
+      "walk/float facing camera (flip horizontally for left/right)"
+    ],
+    "rowFrames": [
+      6
+    ],
+    "anchor": [
+      100,
+      202
+    ],
+    "prompt": "Sprite sheet, transparent background, isometric 3/4 top-down ARPG view (Diablo II scale: character ~90px tall), chunky readable hand-painted pixel art with 2px dark outline, Halloween night palette. Frames laid out left-to-right in a strict grid, character feet on the anchor pixel of every frame, no drop shadow (engine draws it). A giant crowned jack-o-lantern boss with a blazing carved face, vine arms and root legs, menacing idle cycle. Grid: 6 columns x 1 rows of 200x210px frames (any whole multiple of that size works, e.g. 800x840). Rows: walk/float facing camera (flip horizontally for left/right). Feet anchor at (100,202) in each frame."
+  }
+}

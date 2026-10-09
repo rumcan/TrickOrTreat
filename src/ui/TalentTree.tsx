@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, COSTUMES } from '../game/data';
 import { makeRng } from '../game/config';
-import { Btn } from './common';
+import { ChevronLeft, RotateCcw } from 'lucide-react';
+import { KitButton, KitTitle, Chip } from './kit';
+import { CandyIcon } from './common';
 
 type NodeState = 'maxed' | 'owned' | 'available' | 'locked';
 
@@ -68,7 +70,7 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
       {/* ===== tree ===== */}
       <div className="relative min-h-0 flex-1">
         <div className="absolute left-5 top-4 z-10">
-          <h2 className="font-cond text-4xl uppercase tracking-wide text-[#F9781B]" style={{ textShadow: '3px 3px 0 #000, 0 0 18px rgba(249,120,27,0.5)' }}>Talent Constellations</h2>
+          <KitTitle className="text-4xl">Talent constellations</KitTitle>
           <div className="font-cond2 text-xs font-semibold uppercase tracking-widest text-[#9aa3b8]">Click a star to invest Soul Candy · each star unlocks the stars it links to</div>
         </div>
         <svg viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full select-none">
@@ -205,14 +207,14 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
       </div>
 
       {/* ===== side panel ===== */}
-      <div className="relative z-10 flex w-full shrink-0 flex-col gap-4 border-t border-[#3a3f4d] bg-[#0E1117]/95 p-5 lg:w-[340px] lg:border-l lg:border-t-0">
+      <div className="relative z-10 flex w-full shrink-0 flex-col gap-4 border-t border-[#3a3f4d] bg-[#0e0f13]/95 p-5 lg:w-[340px] lg:border-l lg:border-t-0">
         <div className="flex items-center justify-between">
-          <div className="kit-clip border-2 border-[#7A45F2] bg-black/50 px-4 py-2 font-cond text-2xl text-[#b79bff]">🍬 {save.soul}</div>
-          <Btn onClick={onBack}>Back</Btn>
+          <Chip icon={<CandyIcon size={22} />} className="!text-2xl" color="#b98aff">{save.soul}</Chip>
+          <KitButton variant="cream" size="sm" icon={ChevronLeft} onClick={onBack}>Back</KitButton>
         </div>
-        <div className="font-cond2 text-[11px] font-semibold text-[#9aa3b8]">Soul Candy is earned at the end of every run (kills, time survived, boss).</div>
+        <div className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]">Soul Candy is earned at the end of every run (kills, time survived, boss).</div>
 
-        <div className="kit-clip border-2 bg-[#171b24] p-4" style={{ borderColor: TALENT_COLORS[focus.branch] + '88', boxShadow: `0 0 30px ${TALENT_COLORS[focus.branch]}22` }}>
+        <div className="kit-panel p-4" style={{ borderColor: TALENT_COLORS[focus.branch], boxShadow: `0 0 0 1px #000, 0 0 30px ${TALENT_COLORS[focus.branch]}22` }}>
           <div className="flex items-center gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-[6px] border-2 bg-[#0E1117] text-3xl" style={{ borderColor: TALENT_COLORS[focus.branch] }}>{focus.icon}</div>
             <div>
@@ -238,19 +240,14 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
             </div>
           )}
           {focus.id === 'master' && <div className="mt-2 font-cond2 text-[11px] font-semibold text-[#9aa3b8]">Costumes: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
-          <button
-            disabled={!canBuy(focus)}
-            onClick={() => buy(focus.id)}
-            className="kit-clip mt-4 w-full border-2 px-4 py-2.5 font-cond text-sm uppercase tracking-wider text-[#F4E8D5] transition enabled:hover:brightness-125 disabled:opacity-40"
-            style={{ borderColor: TALENT_COLORS[focus.branch], background: TALENT_COLORS[focus.branch] + '33' }}
-          >
+          <KitButton disabled={!canBuy(focus)} onClick={() => buy(focus.id)} className="mt-4 w-full">
             {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? '🔒 Locked' : `Invest · 🍬 ${focus.cost(fl)}`}
-          </button>
+          </KitButton>
         </div>
 
         <div className="grid grid-cols-3 gap-2 text-center">
           {TALENT_BRANCHES.map((b, i) => (
-            <div key={b} className="kit-clip border border-[#3a3f4d] bg-[#171b24] p-2">
+            <div key={b} className="kit-tile p-2">
               <div className="font-cond2 text-[10px] font-bold uppercase tracking-wider" style={{ color: TALENT_COLORS[i] }}>{b}</div>
               <div className="font-cond text-xl text-[#F4E8D5]">{spent(i)}</div>
             </div>
@@ -259,7 +256,7 @@ export function TalentTree({ save, onBack }: { save: Save; onBack: () => void })
         <div className="mt-auto flex flex-col gap-2 font-cond2 text-[11px] font-semibold text-[#5a6070]">
           <div className="flex items-center gap-2"><span className="inline-block h-3 w-3 rounded-full border-2 border-[#F9781B]" /> Pulsing ring = you can afford it</div>
           <div className="flex items-center gap-2"><span className="inline-block h-0 w-6 border-t-2 border-dashed border-[#4fb3ff]" /> Dashed path = unlocked, not bought</div>
-          <Btn variant="ghost" onClick={refund} className="text-xs">↺ Refund all points</Btn>
+          <KitButton variant="dark" size="sm" icon={RotateCcw} onClick={refund}>Refund all points</KitButton>
         </div>
       </div>
     </div>

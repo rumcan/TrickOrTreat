@@ -1,7 +1,7 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
 import { Game, Enemy } from './engine';
 import { PropInst } from './map';
-import { heroSheet, enemySheet, Sheet, ENEMY_TYPES } from './art/characters';
+import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES } from './art/characters';
 import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
 import { tinted, makeCanvas } from './art/draw';
 import { G } from './art/tiles';
@@ -109,7 +109,7 @@ export class Renderer {
     g.camY += (ty - g.camY) * Math.min(1, dt * 8);
     g.zoom = zoom; g.vw = vw; g.vh = vh;
     g.viewR = Math.max(vw / 2 / zoom / 90.5, vh / 2 / zoom / 45.25) + 1;
-    const shk = settings.shake ? g.shake : 0;
+    const shk = g.shake * settings.shake;
     const shx = (Math.random() - 0.5) * shk, shy = (Math.random() - 0.5) * shk;
     const camX = g.camX + shx, camY = g.camY + shy;
     const toS = (wx: number, wy: number): [number, number] => [(wx - camX) * zoom + vw / 2, (wy - camY) * zoom + vh / 2];
@@ -166,8 +166,7 @@ export class Renderer {
     for (const pr of m.props) {
       if (pr.removed) continue;
       const ax = isoX(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2), ay = isoY(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2);
-      const img = pr.sp.img;
-      if (!inView(ax - pr.sp.ax, ay - pr.sp.ay, ax - pr.sp.ax + img.width, ay - pr.sp.ay + img.height)) continue;
+      if (!inView(ax - pr.sp.ax, ay - pr.sp.ay, ax - pr.sp.ax + pr.sp.w, ay - pr.sp.ay + pr.sp.h)) continue;
       visProps.push(pr);
       if (pr.big) {
         const s = 1.1 * pr.shadow, x0 = pr.x0, y0 = pr.y0, x1 = x0 + pr.fw, y1 = y0 + pr.fh;
@@ -214,13 +213,13 @@ export class Renderer {
     for (const pr of visProps) {
       const cx = pr.x0 + pr.fw / 2, cy = pr.y0 + pr.fh / 2;
       const ax = isoX(cx, cy), ay = isoY(cx, cy);
-      const img = pr.sp.img;
+      const sp = pr.sp;
       const it: Item = {
-        key: cx + cy, x: cx, y: cy, prop: pr, bx0: ax - pr.sp.ax, by0: ay - pr.sp.ay, bx1: ax - pr.sp.ax + img.width, by1: ay - pr.sp.ay + img.height,
+        key: cx + cy, x: cx, y: cy, prop: pr, bx0: ax - sp.ax, by0: ay - sp.ay, bx1: ax - sp.ax + sp.w, by1: ay - sp.ay + sp.h,
         draw: () => {
           const a = pr.fade ?? 1;
           if (a < 0.999) ctx.globalAlpha = a;
-          ctx.drawImage(img, ax - pr.sp.ax, ay - pr.sp.ay);
+          ctx.drawImage(sp.img, ax - sp.ax, ay - sp.ay, sp.w, sp.h);
           if (a < 0.999) ctx.globalAlpha = 1;
         },
       };
@@ -285,7 +284,7 @@ export class Renderer {
             ctx.translate(sx, sy - 10 - z + bob);
             ctx.scale(Math.max(0.15, Math.abs(spin)) * 0.75, 0.75);
             ctx.globalAlpha = 0.92;
-            ctx.drawImage(cs.img, 0, row * cs.fh, cs.fw, cs.fh, -cs.ax, -cs.ay, cs.fw, cs.fh);
+            blitFrame(ctx, cs, cs.img, row, 0, 0, 0);
             ctx.restore();
             ctx.font = '900 11px system-ui';
             ctx.textAlign = 'center';
@@ -316,7 +315,7 @@ export class Renderer {
       items.push({ key: f.x + f.y, x: f.x, y: f.y, bx0: sx - 20, by0: sy - 80, bx1: sx + 20, by1: sy, draw: () => {
         const gs = this.en.ghost.s;
         ctx.save(); ctx.globalAlpha = 0.75; ctx.translate(sx, sy - 30 + Math.sin(this.t * 3) * 5); ctx.scale(0.6, 0.6);
-        ctx.drawImage(gs.img, (Math.floor(this.t * 6) % gs.frames) * gs.fw, 0, gs.fw, gs.fh, -gs.ax, -gs.ay, gs.fw, gs.fh);
+        blitFrame(ctx, gs, gs.img, 0, Math.floor(this.t * 6), 0, 0);
         ctx.restore();
       } });
     }
@@ -599,7 +598,7 @@ export class Renderer {
         ctx.textBaseline = 'middle';
         ctx.fillText('🍬', sx, sy - 110 + bob);
         ctx.fillStyle = 'rgba(255,207,106,0.9)';
-        ctx.font = '900 9px system-ui';
+        ctx.font = '11px Anton, Impact, sans-serif';
         ctx.fillText('TRICK OR TREAT', sx, sy - 92 + bob);
       }
     }
@@ -630,7 +629,7 @@ export class Renderer {
       ctx.globalAlpha = a;
       ctx.translate(sx, sy);
       ctx.scale(pop, pop);
-      ctx.font = `900 ${b.who === 'trick' ? 15 : 13}px system-ui, sans-serif`;
+      ctx.font = `700 ${b.who === 'trick' ? 17 : 15}px "Barlow Condensed", system-ui, sans-serif`;
       const words = b.text.split(' ');
       const lines: string[] = [];
       let cur = '';
@@ -640,13 +639,14 @@ export class Renderer {
       }
       if (cur) lines.push(cur);
       const lh = 16, pw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 22, ph = lines.length * lh + 14;
-      const bg = b.who === 'kid' ? '#ffffff' : b.who === 'trick' ? '#2a0d14' : '#fff4dc';
-      const fg = b.who === 'trick' ? '#ff5a5a' : '#1a1020';
+      // kit bubbles: the kid talks in cream, grown-ups behind doors in dark plates
+      const bg = b.who === 'kid' ? '#f5e5bf' : b.who === 'trick' ? '#2a0d14' : '#15161a';
+      const fg = b.who === 'kid' ? '#1a1020' : b.who === 'trick' ? '#ff5a5a' : '#f2e6c9';
       const tailX = b.who === 'kid' ? 0 : -pw * 0.25;
       ctx.fillStyle = 'rgba(0,0,0,0.35)';
       ctx.beginPath(); ctx.roundRect(-pw / 2 + 3, -ph + 3, pw, ph, 10); ctx.fill();
       ctx.fillStyle = bg;
-      ctx.strokeStyle = b.who === 'trick' ? '#ff3b3b' : '#1a1020';
+      ctx.strokeStyle = b.who === 'trick' ? '#ff3b3b' : b.who === 'kid' ? '#1a1020' : '#8a8f8c';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.roundRect(-pw / 2, -ph, pw, ph, 10);
@@ -671,12 +671,15 @@ export class Renderer {
       else if (r.x !== undefined && r.y !== undefined) { wx = r.x; wy = r.y; }
       else if (r.x0 !== undefined) { wx = r.x0 + (r.fw || 1) / 2; wy = r.y0! + (r.fh || 1) / 2; }
       const sx = isoX(wx, wy), sy = isoY(wx, wy) - 70 + Math.sin(this.t * 5) * 4;
-      ctx.fillStyle = 'rgba(10,8,20,0.85)';
-      ctx.strokeStyle = '#ffcf6a';
+      // cream keycap from the kit
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.beginPath(); ctx.roundRect(sx - 13, sy - 11, 28, 28, 5); ctx.fill();
+      ctx.fillStyle = '#fef5d8';
+      ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.roundRect(sx - 14, sy - 14, 28, 28, 6); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#ffcf6a';
-      ctx.font = 'bold 16px system-ui, sans-serif';
+      ctx.beginPath(); ctx.roundRect(sx - 14, sy - 14, 28, 28, 5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#2a221a';
+      ctx.font = '700 18px "Barlow Condensed", system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('E', sx, sy + 1);
@@ -691,7 +694,7 @@ export class Renderer {
       const a = Math.min(1, t.life * 3);
       const pop = t.life > 0.65 ? 1 + (t.life - 0.65) * 3 : 1;
       ctx.globalAlpha = a;
-      ctx.font = `900 ${Math.round(t.size * pop)}px system-ui, sans-serif`;
+      ctx.font = `${Math.round(t.size * pop * 1.08)}px Anton, Impact, sans-serif`;
       ctx.lineWidth = 3.5;
       ctx.strokeStyle = 'rgba(0,0,0,0.85)';
       ctx.strokeText(t.text, sx, sy);
@@ -751,35 +754,54 @@ export class Renderer {
       ctx.fillRect(0, 0, cv.width, cv.height);
     }
 
-    // minimap
+    // minimap (kit: dark plate, gold frame). M / Tab blows it up into a full map.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (this.minimap) {
-      const mw = Math.min(230, vw * 0.22), sc = mw / this.minimap.width, mh = this.minimap.height * sc;
-      const mx = vw - mw - 16, my = 16;
-      ctx.fillStyle = 'rgba(8,6,16,0.6)';
-      ctx.beginPath(); ctx.roundRect(mx - 8, my - 8, mw + 16, mh + 16, 10); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,170,60,0.35)'; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.globalAlpha = 0.9;
+      const big = g.bigMap;
+      const mw = big ? Math.min(vw * 0.72, vh * 1.5) : Math.min(230, vw * 0.22), sc = mw / this.minimap.width, mh = this.minimap.height * sc;
+      const mx = big ? (vw - mw) / 2 : vw - mw - 18, my = big ? (vh - mh) / 2 : 18;
+      const k = big ? 2 : 1;
+      if (big) {
+        ctx.fillStyle = 'rgba(5,6,10,0.6)';
+        ctx.fillRect(0, 0, vw, vh);
+      }
+      ctx.fillStyle = 'rgba(12,13,17,0.9)';
+      ctx.fillRect(mx - 8, my - 8, mw + 16, mh + 16);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 5;
+      ctx.strokeRect(mx - 8, my - 8, mw + 16, mh + 16);
+      ctx.strokeStyle = '#d9af50'; ctx.lineWidth = 2;
+      ctx.strokeRect(mx - 8, my - 8, mw + 16, mh + 16);
       ctx.drawImage(this.minimap, mx, my, mw, mh);
-      ctx.globalAlpha = 1;
       const s = 3 * sc;
       const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + MAP_H * s), my + ((x + y) * s) / 2];
       ctx.fillStyle = '#ff4a4a';
-      for (const e of g.enemies) { const [a, b] = MP(e.x, e.y); ctx.fillRect(a - 1, b - 1, e.elite ? 4 : 2, e.elite ? 4 : 2); }
-      for (const k of g.pickups) if (k.kind === 'chest' || k.kind === 'weapon') { const [a, b] = MP(k.x, k.y); ctx.fillStyle = k.kind === 'chest' ? '#ffcf3a' : RARITY[k.weapon!.rarity].color; ctx.fillRect(a - 2, b - 2, 4, 4); }
-      for (const shp of m.shops) { const [a, b] = MP(shp.x, shp.y); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(a, b, 3, 0, Math.PI * 2); ctx.fill(); }
+      for (const e of g.enemies) { const [a, b] = MP(e.x, e.y); const z = (e.elite ? 4 : 2) * k; ctx.fillRect(a - z / 2, b - z / 2, z, z); }
+      for (const q of g.pickups) if (q.kind === 'chest' || q.kind === 'weapon') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = q.kind === 'chest' ? '#ffcf3a' : RARITY[q.weapon!.rarity].color; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
+      for (const shp of m.shops) { const [a, b] = MP(shp.x, shp.y); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(a, b, 3 * k, 0, Math.PI * 2); ctx.fill(); }
+      ctx.fillStyle = '#fff1b8';
+      ctx.globalAlpha = 0.6 + Math.sin(this.t * 4) * 0.4;
       for (const h of m.houses) {
         if (h.visited) continue;
         const [a, b] = MP(h.door.x, h.door.y);
-        ctx.fillStyle = '#fff1b8';
-        ctx.globalAlpha = 0.6 + Math.sin(this.t * 4) * 0.4;
-        ctx.beginPath(); ctx.moveTo(a, b - 4); ctx.lineTo(a + 3, b); ctx.lineTo(a, b + 4); ctx.lineTo(a - 3, b); ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.moveTo(a, b - 4 * k); ctx.lineTo(a + 3 * k, b); ctx.lineTo(a, b + 4 * k); ctx.lineTo(a - 3 * k, b); ctx.fill();
       }
-      for (const k of g.pickups) if (k.kind === 'costume') { const [a, b] = MP(k.x, k.y); ctx.fillStyle = '#c46bff'; ctx.fillRect(a - 2, b - 2, 4, 4); }
+      ctx.globalAlpha = 1;
+      for (const q of g.pickups) if (q.kind === 'costume') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = '#c46bff'; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
+      if (g.boss) { const [a, b] = MP(g.boss.x, g.boss.y); ctx.fillStyle = '#ff8a1e'; ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); }
       const [pa, pb] = MP(p.x, p.y);
-      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(pa, pb, 3.5, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(pa, pb, 3.5 * k, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+      if (big) {
+        ctx.font = '22px Anton, Impact, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#fb8016';
+        ctx.fillText('MAPLE FALLS', mx, my - 18);
+        ctx.font = '700 14px "Barlow Condensed", system-ui, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#9aa0a6';
+        ctx.fillText('M  ·  CLOSE MAP', mx + mw, my - 18);
+      }
     }
 
     // crosshair
@@ -799,7 +821,7 @@ export class Renderer {
     const k = (lc.width / vw);
     L.setTransform(1, 0, 0, 1, 0, 0);
     L.globalCompositeOperation = 'source-over';
-    L.fillStyle = 'rgba(5,7,24,0.78)';
+    L.fillStyle = `rgba(5,7,24,${(0.78 * (1 - settings.bright * 0.45)).toFixed(3)})`;
     L.fillRect(0, 0, lc.width, lc.height);
     L.globalCompositeOperation = 'destination-out';
     const spr = lightSprite();
@@ -859,14 +881,12 @@ export class Renderer {
   }
 
   private drawHeroFrame(img: Img, g: Game, sx: number, sy: number) {
-    const p = g.p, s = this.hero, ctx = this.ctx;
+    const p = g.p, ctx = this.ctx;
     const row = p.back ? (p.moving ? 3 : 2) : p.moving ? 1 : 0;
-    const n = p.moving ? 6 : 4;
-    const f = Math.floor(p.anim) % n;
     ctx.save();
     ctx.translate(sx, sy);
     if (p.flip) ctx.scale(-1, 1);
-    ctx.drawImage(img, f * s.fw, row * s.fh, s.fw, s.fh, -s.ax, -s.ay, s.fw, s.fh);
+    blitFrame(ctx, this.hero, img, row, Math.floor(p.anim), 0, 0);
     ctx.restore();
   }
 
@@ -916,7 +936,7 @@ export class Renderer {
   private drawEnemy(e: Enemy, sx: number, sy: number, sc: number) {
     const ctx = this.ctx;
     const E = this.en[e.type], s = E.s;
-    const f = Math.floor(e.anim) % s.frames;
+    const f = Math.floor(e.anim);
     ctx.save();
     let rise = 0;
     if (e.spawnT > 0) {
@@ -929,14 +949,14 @@ export class Renderer {
     if (e.def.fly) ctx.translate(0, -26 + Math.sin(e.anim) * 3);
     ctx.scale(e.flip ? -sc : sc, sc);
     if (e.type === 'ghost') ctx.globalAlpha = 0.82;
-    ctx.drawImage(s.img, f * s.fw, 0, s.fw, s.fh, -s.ax, -s.ay, s.fw, s.fh);
+    blitFrame(ctx, s, s.img, 0, f, 0, 0);
     if (e.ectoT > 0) {
       ctx.globalAlpha = 0.35;
-      ctx.drawImage(E.green, f * s.fw, 0, s.fw, s.fh, -s.ax, -s.ay, s.fw, s.fh);
+      blitFrame(ctx, s, E.green, 0, f, 0, 0);
     }
     if (e.hit > 0) {
       ctx.globalAlpha = Math.min(1, e.hit * 10);
-      ctx.drawImage(E.white, f * s.fw, 0, s.fw, s.fh, -s.ax, -s.ay, s.fw, s.fh);
+      blitFrame(ctx, s, E.white, 0, f, 0, 0);
     }
     ctx.restore();
     if (e.stunT > 0) {

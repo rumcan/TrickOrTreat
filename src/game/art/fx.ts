@@ -28,7 +28,7 @@ const ICONS: Record<string, { desc: string; draw: (ctx: CanvasRenderingContext2D
 
 export function weaponIcon(id: string): Img {
   const d = ICONS[id];
-  return asset({ key: `icon_${id}`, file: `icons/icon_${id}.webp`, category: 'icon', w: 64, h: 32, anchor: [16, 20], desc: d.desc, prompt: `${ICON_STYLE} ${d.desc}.` }, () => {
+  return asset({ key: `icon_${id}`, file: `icons/icon_${id}.png`, category: 'icon', w: 64, h: 32, anchor: [16, 20], desc: d.desc, prompt: `${ICON_STYLE} ${d.desc}.` }, () => {
     const { c, ctx } = makeCanvas(64, 32);
     d.draw(ctx);
     return c;
@@ -57,7 +57,7 @@ function wrapped(c: CanvasRenderingContext2D, col: string, s: number) {
 
 export function pickupIcon(kind: string): Img {
   const d = PICK[kind];
-  return asset({ key: `pickup_${kind}`, file: `icons/pickup_${kind}.webp`, category: 'icon', w: 32, h: 32, anchor: [16, 28], desc: d.desc, prompt: `${ICON_STYLE.replace('64x32 px', '32x32 px').replace('pointing RIGHT, ', '')} ${d.desc}.` }, () => {
+  return asset({ key: `pickup_${kind}`, file: `icons/pickup_${kind}.png`, category: 'icon', w: 32, h: 32, anchor: [16, 28], desc: d.desc, prompt: `${ICON_STYLE.replace('64x32 px', '32x32 px').replace('pointing RIGHT, ', '')} ${d.desc}.` }, () => {
     const { c, ctx } = makeCanvas(32, 32);
     d.draw(ctx);
     return c;

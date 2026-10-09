@@ -4,7 +4,8 @@ import { Renderer } from './game/render';
 import { preloadAll } from './game/preload';
 import { loadSave, storeSave, Save } from './game/data';
 import { Hud } from './ui/Hud';
-import { LogoImg } from './ui/common';
+import { LogoImg } from './ui/kit';
+import { ART, preloadUiArt } from './ui/art';
 import { Title, CharSelect, LevelUp, Shop, Pause, EndScreen } from './ui/Menus';
 import { TalentTree } from './ui/TalentTree';
 import { Atlas } from './ui/Atlas';
@@ -24,15 +25,25 @@ function GameView({ save, onExit, onTalents }: { save: Save; onExit: () => void;
     const game = new Game(save.hero, save, input);
     const renderer = new Renderer(cv, save.hero);
     gameRef.current = game;
+    if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) (window as unknown as { __tot: unknown }).__tot = { game, renderer };
     let raf = 0, last = performance.now(), hudT = 0;
+    // while a menu covers the game, the scene is frozen: draw it once, then stop (resizes still redraw)
+    let frozen = false, lastState = game.state, cw = 0, ch = 0;
     const loop = (t: number) => {
       const dt = Math.min(0.05, (t - last) / 1000);
       last = t;
       game.update(dt);
-      renderer.render(game, game.state === 'play' ? dt : 0.0001);
+      const playing = game.state === 'play';
+      if (playing || !frozen || cv.clientWidth !== cw || cv.clientHeight !== ch) {
+        renderer.render(game, playing ? dt : 0.0001);
+        frozen = !playing;
+        cw = cv.clientWidth;
+        ch = cv.clientHeight;
+      }
       hudT += dt;
-      if (hudT > 0.08) {
+      if ((playing && hudT > 0.08) || game.state !== lastState) {
         hudT = 0;
+        lastState = game.state;
         setSnap(game.snapshot());
       }
       raf = requestAnimationFrame(loop);
@@ -79,7 +90,11 @@ export default function App() {
   const [save, setSave] = useState<Save>(() => loadSave());
 
   useEffect(() => {
-    preloadAll((p, label) => setProg({ p, label })).then(() => setScreen('title'));
+    Promise.all([preloadAll((p, label) => setProg({ p, label })), preloadUiArt()]).then(() => {
+      setScreen('title');
+      // ?export: lets scripts/export-art.mjs pull PNGs of the procedural art
+      if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => ((window as unknown as { __totExport: unknown }).__totExport = m.exportArt));
+    });
   }, []);
 
   const setHero = (h: number) => {
@@ -92,22 +107,22 @@ export default function App() {
 
   if (screen === 'loading') {
     return (
-      <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-[#0E1117] text-[#F4E8D5]">
-        <div className="absolute inset-0 bg-cover bg-center opacity-40" style={{ backgroundImage: 'url(./images/title_hero.jpg)' }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0E1117] via-[#0E1117]/60 to-[#0E1117]/80" />
+      <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
+        <img src={ART.keyart} alt="" className="absolute inset-0 h-full w-full object-cover object-bottom opacity-35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0e0f13] via-[#0e0f13]/50 to-[#0e0f13]/80" />
         <div className="relative flex flex-col items-center px-6">
-          <LogoImg className="kit-bob w-[min(520px,80vw)]" />
-          <div className="mt-8 h-2.5 w-[min(340px,80vw)] overflow-hidden rounded-[3px] border border-black bg-[#171b24]">
-            <div className="h-full bg-gradient-to-r from-[#7A45F2] to-[#F9781B]" style={{ width: `${prog.p * 100}%` }} />
+          <LogoImg className="kit-bob w-[min(620px,86vw)]" />
+          <div className="mt-8 h-4 w-[min(380px,80vw)] border-[1.5px] border-black bg-[#1c1e24] shadow-[0_0_0_1px_rgba(255,255,255,0.1),inset_0_2px_4px_rgba(0,0,0,0.7)]">
+            <div className="h-full origin-left bg-[#fb8016] shadow-[inset_0_-3px_0_rgba(0,0,0,0.25),inset_0_2px_0_rgba(255,255,255,0.25)]" style={{ transform: `scaleX(${prog.p})` }} />
           </div>
-          <div className="mt-2 font-cond2 text-xs font-semibold uppercase tracking-widest text-[#9aa3b8]">{prog.label}</div>
+          <div className="mt-2.5 font-cond2 text-xs font-bold uppercase tracking-[0.2em] text-[#9aa0a6]">{prog.label}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#0E1117]">
+    <div className="relative h-screen w-screen overflow-hidden bg-[#0e0f13]">
       {screen === 'title' && <Title save={save} onPlay={() => setScreen('game')} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => setScreen('game')} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}
