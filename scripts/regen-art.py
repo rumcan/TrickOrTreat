@@ -76,12 +76,13 @@ def generate(spec, render, force):
            '--out', str(raw)]
     if not cut:
         cmd += ['--remove-background', '--remove-background-model', 'birefnet']
-    for attempt in range(3):
+    for attempt in range(8):
         p = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace')
         if p.returncode == 0 and raw.exists():
             return raw
-        log(f"  retry {spec['key']} ({attempt + 1}): {(p.stderr or p.stdout).strip().splitlines()[-1:]}")
-        time.sleep(10)
+        err = (p.stderr or p.stdout).strip()
+        log(f"  retry {spec['key']} ({attempt + 1}): {err.splitlines()[-1:]}")
+        time.sleep(65 if 'Rate limited' in err else 15)  # the image API rate-limits for 60 s
     raise RuntimeError('generation failed')
 
 def fit(spec, render, raw):
@@ -101,7 +102,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--only', default='')
     ap.add_argument('--cat', default='')
-    ap.add_argument('--workers', type=int, default=3)
+    ap.add_argument('--workers', type=int, default=2)
     ap.add_argument('--force', action='store_true')
     ap.add_argument('--no-apply', action='store_true')
     a = ap.parse_args()
