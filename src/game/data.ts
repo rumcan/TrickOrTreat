@@ -152,6 +152,15 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   return out;
 }
 
+/** a full-game gun built only to be shown (locked) to free players: the teaser card on level-ups and houses */
+export function makeLockedWeapon(rarity: number): Weapon | null {
+  const pool = WEAPONS.filter((w) => w.premium);
+  if (!pool.length) return null;
+  const def = pool[Math.floor(Math.random() * pool.length)];
+  const w: Weapon = { uid: uidc++, def, rarity, level: 1, traits: rollInscriptions(def, rarity), ammo: 0, reloadT: 0, cd: 0 };
+  w.ammo = weaponStats(w, baseStats()).mag;
+  return w;
+}
 export function makeWeapon(defId: string | null, rarity: number, level = 1): Weapon {
   const weaponPool = WEAPONS.filter((w) => !w.premium || hasFullGame());
   const chosen = defId ? WEAPON_BY_ID[defId] : weaponPool[Math.floor(Math.random() * weaponPool.length)];
@@ -202,67 +211,68 @@ export function weaponDps(w: Weapon, s: Stats) {
 }
 
 // ================= SCROLLS (Treats) =================
-export interface Scroll { id: string; name: string; icon: string; rarity: number; desc: string; max: number; premium?: boolean; apply: (s: Stats) => void }
+export interface Scroll { id: string; name: string; quote?: string; icon: string; rarity: number; desc: string; max: number; premium?: boolean; apply: (s: Stats) => void }
 
 export const SCROLLS: Scroll[] = [
-  { id: 'sugar', name: 'Sugar Rush', icon: '🍭', rarity: 0, desc: '+15% fire rate', max: 8, apply: (s) => (s.rate *= 1.15) },
-  { id: 'king', name: 'King-Size Bar', icon: '🍫', rarity: 0, desc: '+18% damage', max: 8, apply: (s) => (s.dmg *= 1.18) },
-  { id: 'sour', name: 'Sour Patch', icon: '🍬', rarity: 0, desc: '+8% crit chance', max: 6, apply: (s) => (s.crit += 0.08) },
-  { id: 'jaw', name: 'Jawbreaker', icon: '🔮', rarity: 1, desc: '+40% crit damage', max: 5, apply: (s) => (s.critDmg += 0.4) },
-  { id: 'bag', name: 'Pillowcase Bag', icon: '🎒', rarity: 0, desc: '+35% magazine size', max: 5, apply: (s) => (s.mag *= 1.35) },
-  { id: 'sticky', name: 'Sticky Fingers', icon: '🖐️', rarity: 0, desc: '-20% reload time', max: 4, apply: (s) => (s.reload *= 0.8) },
-  { id: 'shoes', name: 'Light-Up Sneakers', icon: '👟', rarity: 0, desc: '+10% move speed', max: 5, apply: (s) => (s.move *= 1.1) },
-  { id: 'pad', name: 'Costume Padding', icon: '🛡️', rarity: 0, desc: '+25 max shield', max: 6, apply: (s) => (s.maxShield += 25) },
-  { id: 'lasagna', name: "Mom's Lasagna", icon: '🍝', rarity: 0, desc: '+25 max HP', max: 6, apply: (s) => (s.maxHp += 25) },
-  { id: 'magnet', name: 'Fridge Magnet', icon: '🧲', rarity: 0, desc: '+40% pickup radius', max: 4, apply: (s) => (s.magnet *= 1.4) },
-  { id: 'cane', name: 'Pointy Candy Cane', icon: '🦯', rarity: 1, desc: '+1 pierce for all weapons', max: 3, apply: (s) => (s.pierce += 1) },
-  { id: 'bouncy', name: 'Super Bouncy Ball', icon: '⚾', rarity: 1, desc: '+1 ricochet for all weapons', max: 3, apply: (s) => (s.bounce += 1) },
-  { id: 'bubble', name: 'Double Bubble', icon: '🫧', rarity: 3, desc: '+1 projectile, -10% damage', max: 3, apply: (s) => { s.pellets += 1; s.dmg *= 0.9; } },
-  { id: 'fireball', name: 'Atomic Fireball', icon: '🔥', rarity: 1, desc: '+20% Burn chance on hit', max: 4, apply: (s) => (s.burn += 0.2) },
-  { id: 'pop', name: 'Pop Rocks', icon: '⚡', rarity: 1, desc: '+20% Shock chance on hit', max: 4, apply: (s) => (s.shock += 0.2) },
-  { id: 'gummy', name: 'Gummy Slime', icon: '🟢', rarity: 1, desc: '+20% Ecto chance on hit', max: 4, apply: (s) => (s.ecto += 0.2) },
-  { id: 'pepper', name: 'Ghost Pepper', icon: '🌶️', rarity: 2, desc: 'Burn deals +60% damage', max: 3, apply: (s) => (s.burnDmg *= 1.6) },
-  { id: 'sweater', name: 'Static Sweater', icon: '🧶', rarity: 2, desc: 'Shock chains to +2 more enemies', max: 3, apply: (s) => (s.chain += 2) },
-  { id: 'taffy', name: 'Toxic Taffy', icon: '☣️', rarity: 2, desc: 'Ecto enemies take +15% more damage', max: 3, apply: (s) => (s.ectoAmp += 0.15) },
-  { id: 'fangs', name: 'Vampire Teeth', icon: '🧛', rarity: 1, desc: '10% chance to heal 2 HP on kill', max: 4, apply: (s) => (s.vamp += 0.1) },
-  { id: 'trick', name: 'Trick-or-Treat Bag', icon: '👜', rarity: 0, desc: 'Monsters drop chocolate bars more often', max: 3, apply: (s) => (s.healDrop += 0.012) },
-  { id: 'energy', name: 'Energy Drink', icon: '🥤', rarity: 1, desc: '-20% skill cooldown', max: 3, apply: (s) => (s.skillCd *= 0.8) },
-  { id: 'orbit', name: 'Candy Corn Orbit', icon: '🌀', rarity: 2, desc: '+1 orbiting candy-corn blade', max: 5, apply: (s) => (s.orbit += 1) },
-  { id: 'buddy', name: 'Ghost Buddy', icon: '👻', rarity: 3, desc: 'A friendly ghost follows you and shoots monsters', max: 3, apply: (s) => (s.familiar += 1) },
-  { id: 'glass', name: 'Glass Cannon Costume', icon: '💎', rarity: 4, desc: '+45% damage, -30% max HP', max: 1, apply: (s) => { s.dmg *= 1.45; s.maxHp *= 0.7; } },
-  { id: 'clover', name: 'Four-Leaf Clover', icon: '🍀', rarity: 2, desc: 'Better loot rarity', max: 3, apply: (s) => (s.luck += 1) },
-  { id: 'firesneak', name: 'Fire Sneakers', icon: '🥾', rarity: 2, desc: 'Dashing leaves a burning trail', max: 1, apply: (s) => (s.dashFire = 1) },
-  { id: 'helmet', name: 'Bike Helmet', icon: '⛑️', rarity: 1, desc: 'Take 12% less damage', max: 3, apply: (s) => (s.armor = 1 - (1 - s.armor) * 0.88) },
-  { id: 'piggy', name: 'Piggy Bank', icon: '🐷', rarity: 0, desc: '+40% coins', max: 3, apply: (s) => (s.coinGain *= 1.4) },
-  { id: 'homework', name: 'Homework Done', icon: '📚', rarity: 0, desc: '+20% XP gain', max: 3, apply: (s) => (s.xpGain *= 1.2) },
-  { id: 'bang', name: 'Bigger Bang', icon: '💥', rarity: 1, desc: '+35% skill power & radius', max: 3, apply: (s) => (s.skillPow *= 1.35) },
-  { id: 'jackpot', name: 'Jackpot', icon: '🎰', rarity: 4, desc: '+1 projectile and +15% fire rate', max: 1, apply: (s) => { s.pellets += 1; s.rate *= 1.15; } },
+  { id: 'sugar', name: "Up, Up, Down, Down…", quote: "Cheat code entered. Fingers go brrr.", icon: '🍭', rarity: 0, desc: '+15% fire rate', max: 8, apply: (s) => (s.rate *= 1.15) },
+  { id: 'king', name: "Blessing of the Barbarian Prince", quote: "Raise the sword. You have the power.", icon: '🍫', rarity: 0, desc: '+18% damage', max: 8, apply: (s) => (s.dmg *= 1.18) },
+  { id: 'sour', name: "Eye of the Tiger", quote: "Rising up to the challenge of your rival.", icon: '🍬', rarity: 0, desc: '+8% crit chance', max: 6, apply: (s) => (s.crit += 0.08) },
+  { id: 'jaw', name: "Crane Kick", quote: "If do right, no can defend.", icon: '🔮', rarity: 1, desc: '+40% crit damage', max: 5, apply: (s) => (s.critDmg += 0.4) },
+  { id: 'bag', name: "Unlicensed Nuclear Accelerator", quote: "Bigger pack. Don't ask where it came from.", icon: '🎒', rarity: 0, desc: '+35% magazine size', max: 5, apply: (s) => (s.mag *= 1.35) },
+  { id: 'sticky', name: "Duct-Tape Genius Mullet", quote: "Business up front, reload in the back.", icon: '🖐️', rarity: 0, desc: '-20% reload time', max: 4, apply: (s) => (s.reload *= 0.8) },
+  { id: 'shoes', name: "Self-Lacing Sneakers", quote: "Power laces, alright!", icon: '👟', rarity: 0, desc: '+10% move speed', max: 5, apply: (s) => (s.move *= 1.1) },
+  { id: 'pad', name: "Cyborg Cop Plating", quote: "Dead or alive, the candy's coming with me.", icon: '🛡️', rarity: 0, desc: '+25 max shield', max: 6, apply: (s) => (s.maxShield += 25) },
+  { id: 'lasagna', name: "Raw-Egg Breakfast", quote: "Five raw eggs, then up the museum steps.", icon: '🍝', rarity: 0, desc: '+25 max HP', max: 6, apply: (s) => (s.maxHp += 25) },
+  { id: 'magnet', name: "Tractor Beam", quote: "Candy goes up. You get it.", icon: '🧲', rarity: 0, desc: '+40% pickup radius', max: 4, apply: (s) => (s.magnet *= 1.4) },
+  { id: 'cane', name: "Laser Sword", quote: "Vrrmm. Swish. Through two of them.", icon: '🦯', rarity: 1, desc: '+1 pierce for all weapons', max: 3, apply: (s) => (s.pierce += 1) },
+  { id: 'bouncy', name: "Pinball Wizard", quote: "Tilt? Never heard of it.", icon: '⚾', rarity: 1, desc: '+1 ricochet for all weapons', max: 3, apply: (s) => (s.bounce += 1) },
+  { id: 'bubble', name: "Two-Player Mode", quote: "Insert another quarter.", icon: '🫧', rarity: 3, desc: '+1 projectile, -10% damage', max: 3, apply: (s) => { s.pellets += 1; s.dmg *= 0.9; } },
+  { id: 'fireball', name: "Firestarter Stare", quote: "Don't make her angry.", icon: '🔥', rarity: 1, desc: '+20% Burn chance on hit', max: 4, apply: (s) => (s.burn += 0.2) },
+  { id: 'pop', name: "Short-Circuit Spark", quote: "Malfunction! Need input!", icon: '⚡', rarity: 1, desc: '+20% Shock chance on hit', max: 4, apply: (s) => (s.shock += 0.2) },
+  { id: 'gummy', name: "Slimed!", quote: "It's all over you. And them.", icon: '🟢', rarity: 1, desc: '+20% Ecto chance on hit', max: 4, apply: (s) => (s.ecto += 0.2) },
+  { id: 'pepper', name: "Bug-Hunt Flamethrower", quote: "Get away from her!", icon: '🌶️', rarity: 2, desc: 'Burn deals +60% damage', max: 3, apply: (s) => (s.burnDmg *= 1.6) },
+  { id: 'sweater', name: "1.21 Jigawatts", quote: "Great Scott! Lightning never strikes once.", icon: '🧶', rarity: 2, desc: 'Shock chains to +2 more enemies', max: 3, apply: (s) => (s.chain += 2) },
+  { id: 'taffy', name: "Sewer Ooze Canister", quote: "Glows in the dark. Mutates everything else.", icon: '☣️', rarity: 2, desc: 'Ecto enemies take +15% more damage', max: 3, apply: (s) => (s.ectoAmp += 0.15) },
+  { id: 'fangs', name: "Lost-Boy Fangs", quote: "Sleep all day. Party all night.", icon: '🧛', rarity: 1, desc: '10% chance to heal 2 HP on kill', max: 4, apply: (s) => (s.vamp += 0.1) },
+  { id: 'trick', name: "Thermos Lunchbox", quote: "Mom packed extra snacks.", icon: '👜', rarity: 0, desc: 'Monsters drop chocolate bars more often', max: 3, apply: (s) => (s.healDrop += 0.012) },
+  { id: 'energy', name: "Training Montage", quote: "Cue the synths. Fast-forward.", icon: '🥤', rarity: 1, desc: '-20% skill cooldown', max: 3, apply: (s) => (s.skillCd *= 0.8) },
+  { id: 'orbit', name: "Five-Bladed Glaive", quote: "Throw it like the fate of the realm depends on it.", icon: '🌀', rarity: 2, desc: '+1 orbiting candy-corn blade', max: 5, apply: (s) => (s.orbit += 1) },
+  { id: 'buddy', name: "Pocket Ghost Pal", quote: "He's friendly. Mostly.", icon: '👻', rarity: 3, desc: 'A friendly ghost follows you and shoots monsters', max: 3, apply: (s) => (s.familiar += 1) },
+  { id: 'glass', name: "There Can Be Only One", quote: "Sword up. Health down. Lightning optional.", icon: '💎', rarity: 4, desc: '+45% damage, -30% max HP', max: 1, apply: (s) => { s.dmg *= 1.45; s.maxHp *= 0.7; } },
+  { id: 'clover', name: "One-Eyed Pirate's Map", quote: "Never say die. X marks the loot.", icon: '🍀', rarity: 2, desc: 'Better loot rarity', max: 3, apply: (s) => (s.luck += 1) },
+  { id: 'firesneak', name: "88 MPH Fire Trails", quote: "Where we're going, we don't need roads.", icon: '🥾', rarity: 2, desc: 'Dashing leaves a burning trail', max: 1, apply: (s) => (s.dashFire = 1) },
+  { id: 'helmet', name: "Half-Shell Armour", quote: "Heroes in a… shell.", icon: '⛑️', rarity: 1, desc: 'Take 12% less damage', max: 3, apply: (s) => (s.armor = 1 - (1 - s.armor) * 0.88) },
+  { id: 'piggy', name: "Greed Is Good Briefcase", quote: "Lunch is for wimps.", icon: '🐷', rarity: 0, desc: '+40% coins', max: 3, apply: (s) => (s.coinGain *= 1.4) },
+  { id: 'homework', name: "Wax On, Wax Off", quote: "Every chore was practice.", icon: '📚', rarity: 0, desc: '+20% XP gain', max: 3, apply: (s) => (s.xpGain *= 1.2) },
+  { id: 'bang', name: "Yippee-Ki-Yay", quote: "Come out to the coast, we'll get together…", icon: '💥', rarity: 1, desc: '+35% skill power & radius', max: 3, apply: (s) => (s.skillPow *= 1.35) },
+  { id: 'jackpot', name: "Arcade High Score", quote: "Enter your initials.", icon: '🎰', rarity: 4, desc: '+1 projectile and +15% fire rate', max: 1, apply: (s) => { s.pellets += 1; s.rate *= 1.15; } },
 ];
 // occult-scroll style treats: conditional or double-edged (after Gunfire Reborn's scrolls)
 SCROLLS.push(
-  { id: 'lucky6', name: 'Lucky Number Six', icon: '🎲', rarity: 1, desc: 'Every 6th shot deals +60% damage', max: 1, apply: (s) => (s.sixth = 1) },
-  { id: 'fullbag', name: 'Full Pillowcase', icon: '🛍️', rarity: 1, desc: '+40% damage while your magazine is over 80% full', max: 1, apply: (s) => (s.fullBag = 1) },
-  { id: 'skate', name: 'Skateboard Trick', icon: '🛹', rarity: 2, desc: 'Dashing instantly refills your magazine', max: 1, apply: (s) => (s.skate = 1) },
-  { id: 'statue', name: 'Statue Game', icon: '🗿', rarity: 1, desc: '+35% damage after standing still for 1s', max: 1, apply: (s) => (s.statue = 1) },
-  { id: 'bluff', name: 'Brave Face', icon: '😤', rarity: 0, desc: '+25% damage while at full HP', max: 1, apply: (s) => (s.bluff = 1) },
-  { id: 'bedtime', name: 'Past Your Bedtime', icon: '🛏️', rarity: 3, desc: 'Normal monsters under 12% HP are popped instantly', max: 1, apply: (s) => (s.execute = 1) },
-  { id: 'owl', name: 'Owl Eyes', icon: '🦉', rarity: 2, desc: '+100% crit damage, but -25% damage on non-crits', max: 1, apply: (s) => { s.owl = 1; s.critDmg += 1; } },
-  { id: 'cursed', name: 'Cursed Candy', icon: '🍬', rarity: 4, desc: '+60% damage, but -50% max HP', max: 1, apply: (s) => { s.dmg *= 1.6; s.maxHp *= 0.5; } },
+  { id: 'lucky6', name: "Feeling Lucky, Punk?", quote: "Six shots, or only five?", icon: '🎲', rarity: 1, desc: 'Every 6th shot deals +60% damage', max: 1, apply: (s) => (s.sixth = 1) },
+  { id: 'fullbag', name: "The Trap Is Full", quote: "Whatever you do, don't cross the streams.", icon: '🛍️', rarity: 1, desc: '+40% damage while your magazine is over 80% full', max: 1, apply: (s) => (s.fullBag = 1) },
+  { id: 'skate', name: "Hoverboard Grind", quote: "Doesn't work on water.", icon: '🛹', rarity: 2, desc: 'Dashing instantly refills your magazine', max: 1, apply: (s) => (s.skate = 1) },
+  { id: 'statue', name: "Unstoppable Cyborg Stance", quote: "Stand still. Hit harder. It'll be back.", icon: '🗿', rarity: 1, desc: '+35% damage after standing still for 1s', max: 1, apply: (s) => (s.statue = 1) },
+  { id: 'bluff', name: "Danger-Zone Aviators", quote: "You can be my wingman any time.", icon: '😤', rarity: 0, desc: '+25% damage while at full HP', max: 1, apply: (s) => (s.bluff = 1) },
+  { id: 'bedtime', name: "Elm Street Bedtime", quote: "Whatever you do… don't fall asleep.", icon: '🛏️', rarity: 3, desc: 'Normal monsters under 12% HP are popped instantly', max: 1, apply: (s) => (s.execute = 1) },
+  { id: 'owl', name: "Heat-Vision Hunter", quote: "If it bleeds, you can crit it.", icon: '🦉', rarity: 2, desc: '+100% crit damage, but -25% damage on non-crits', max: 1, apply: (s) => { s.owl = 1; s.critDmg += 1; } },
+  { id: 'cursed', name: "Fed After Midnight", quote: "Three rules. You broke the last one.", icon: '🍬', rarity: 4, desc: '+60% damage, but -50% max HP', max: 1, apply: (s) => { s.dmg *= 1.6; s.maxHp *= 0.5; } },
 );
 SCROLLS.push(
-  { id: 'walkie', premium: true, name: 'Walkie-Talkie Pact', icon: '📻', rarity: 1, desc: '+25% companion damage', max: 4, apply: (s) => (s.companionDmg *= 1.25) },
-  { id: 'firstaid', premium: true, name: 'Pocket First Aid', icon: '🩹', rarity: 2, desc: 'Revives are 25% faster', max: 3, apply: (s) => (s.reviveSpeed *= 1.25) },
-  { id: 'friendship', premium: true, name: 'Friendship Bracelet', icon: '🧶', rarity: 2, desc: 'Companion takes 15% less damage', max: 3, apply: (s) => (s.companionArmor = 1 - (1 - s.companionArmor) * 0.85) },
+  { id: 'walkie', premium: true, name: "Never-Say-Die Walkies", quote: "Over and out, buddy.", icon: '📻', rarity: 1, desc: '+25% companion damage', max: 4, apply: (s) => (s.companionDmg *= 1.25) },
+  { id: 'firstaid', premium: true, name: "Wilderness Survival Kit", quote: "Four friends, one long walk along the tracks.", icon: '🩹', rarity: 2, desc: 'Revives are 25% faster', max: 3, apply: (s) => (s.reviveSpeed *= 1.25) },
+  { id: 'friendship', premium: true, name: "Wolf Pack Bracelets", quote: "Friends forever. BMX gang rules.", icon: '🧶', rarity: 2, desc: 'Companion takes 15% less damage', max: 3, apply: (s) => (s.companionArmor = 1 - (1 - s.companionArmor) * 0.85) },
 );
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 
-export function rollScrolls(n: number, owned: Record<string, number>, luck: number): Scroll[] {
+export const LOCKED_SCROLLS = () => SCROLLS.filter((s) => s.premium);
+export function rollScrolls(n: number, owned: Record<string, number>, luck: number, minRarity = 0): Scroll[] {
   const out: Scroll[] = [];
   const weights = [60, 30, 14 + luck * 3, 6 + luck * 2, 2 + luck];
   // No hard caps: stacking treats can be taken past their usual max ("overstack"), just less often.
   // One-off treats (max 1) are switches, so they stay single.
   const over = (s: Scroll) => (owned[s.id] || 0) >= s.max;
-  const avail = SCROLLS.filter((s) => (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
+  const avail = SCROLLS.filter((s) => s.rarity >= minRarity && (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
   const weight = (s: Scroll) => weights[s.rarity] * (over(s) ? 0.3 : 1);
   for (let i = 0; i < n && avail.length; i++) {
     let tot = 0;

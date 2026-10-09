@@ -1,11 +1,11 @@
-import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM } from './config';
+import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
 import { buildMap, GameMap, cellAt, lineOfSight, PropInst, HouseInst } from './map';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { hasFullGame } from './expansion';
 import { Build, rollCrit, rateOverflow, overflow } from './build';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
   COSTUMES, COSTUME_BY_ID, GIVE_LINES,
 } from './data';
 
@@ -163,6 +163,10 @@ export class Game {
   kills = 0;
   pendingLevels = 0;
   choices: Scroll[] = [];
+  /** trick-or-treat bowls can also hold guns (rare or better), shown after the treat cards */
+  gunChoices: Weapon[] = [];
+  /** free game only: a full-game treat or gun shown as a locked, read-only extra card, to tease the unlock */
+  lockedChoice: { scroll: Scroll | null; weapon: Weapon | null } | null = null;
   choiceMode: ChoiceMode = 'level';
   choiceGiver = '';
   tot: TotState | null = null;
@@ -224,7 +228,7 @@ export class Game {
   private flowT = 0;
   private flowCell = -1;
   private spawnAcc = 0;
-  private nextChest = 18;
+  private nextChest = 30;
   private nextElite = 150;
   private hordes = new Set<number>();
   private familiarT = 0;
@@ -1445,13 +1449,14 @@ export class Game {
       this.dropPickup(e.x, e.y, 'xp2', 0);
       this.pickups[this.pickups.length - 1].friendOnly = true;
     }
-    if (e.elite && !e.def.boss) this.dropPickup(e.x, e.y, 'chest', 0);
+    // werewolves (real elites) always carry a bag; buffed "elite" variants of normal monsters only sometimes
+    if (e.elite && !e.def.boss && (e.def.elite || Math.random() < 0.1)) this.dropPickup(e.x, e.y, 'chest', 0);
     if (Math.random() < s.vamp) { this.p.hp = Math.min(s.maxHp, this.p.hp + 2); }
     if (this.p.costume === 'vampire' && this.p.hp < s.maxHp) {
       this.p.hp = Math.min(s.maxHp, this.p.hp + 1);
       if (Math.random() < 0.3) this.particle(e.x, e.y, 0.5, (this.p.x - e.x) * 2, (this.p.y - e.y) * 2, 0.5, 0.5, '#e0304a', 6, 'glow');
     }
-    if (e.elite && !e.def.boss && Math.random() < 0.35) this.dropCostume(e.x, e.y, this.randomCostume());
+    if (e.def.elite && !e.def.boss && Math.random() < 0.15) this.dropCostume(e.x, e.y, this.randomCostume());
     // fx
     const n = settings.gore === 'off' ? 0 : settings.lowFx ? 4 : e.def.boss ? 24 : 8;
     for (let i = 0; i < n; i++) {
@@ -1470,6 +1475,7 @@ export class Game {
       this.bossRound++;
       this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
+      this.relightHouses();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
       for (const creature of this.enemies) creature.dead = true;
       this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
@@ -1479,7 +1485,7 @@ export class Game {
       this.nextBossAt = Math.max([90, 170, 245, 320][this.bossRound] ?? Infinity, this.time + 45);
       this.state = 'shop';
       this.hitStop = 0.25;
-      for (let i = 0; i < 3; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
+      for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
       this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, 'The streets are clear. Spend coins and upgrade before continuing.', 'win');
       gameAudio.play('victory', 0.45);
@@ -1817,6 +1823,39 @@ export class Game {
     const a = rand(0, Math.PI * 2), sp = rand(0.5, 2);
     this.pickups.push({ x, y, z: 0.2, vz: rand(2, 4), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, kind, value, mag: false, t: 0, dead: false });
   }
+  /**
+   * A treat bag rolls ONE kind of haul (plus a little candy), so bags stay surprising and guns stay special:
+   * a gun · a free treat · a level for the gun in hand · a candy hoard · first aid · a costume.
+   */
+  private openBag(x: number, y: number) {
+    const table: [string, number][] = [['gun', 30], ['treat', 22], ['upgrade', 14], ['hoard', 14], ['aid', 10], ['costume', 10]];
+    let r = Math.random() * table.reduce((a, b) => a + b[1], 0), kind = 'gun';
+    for (const [k, w] of table) { r -= w; if (r <= 0) { kind = k; break; } }
+    const w = this.weapon;
+    if (kind === 'upgrade' && !w) kind = 'gun';
+    for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'coin', 2);
+    for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'xp2', 2);
+    if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
+    else if (kind === 'treat') {
+      const sc = rollScrolls(1, this.scrolls, this.stats.luck + 1)[0];
+      if (sc) {
+        this.scrolls[sc.id] = (this.scrolls[sc.id] || 0) + 1; this.scrollOrder.push(sc.id); this.recalcStats();
+        this.setBanner(`TREAT BAG: ${sc.name.toUpperCase()}`, sc.desc, 'loot');
+        gameAudio.play('unlock', 0.5);
+      }
+    } else if (kind === 'upgrade' && w) {
+      w.level++;
+      this.text(this.p.x, this.p.y, `${w.def.name} +1 LEVEL`, '#ffc453', 16);
+      this.setBanner('GUN UPGRADE!', `${w.def.name} is now level ${w.level}`, 'loot');
+    } else if (kind === 'hoard') {
+      for (let i = 0; i < 14; i++) this.dropPickup(x, y, 'coin', 3);
+      for (let i = 0; i < 8; i++) this.dropPickup(x, y, 'xp3', 4);
+    } else if (kind === 'aid') {
+      for (let i = 0; i < 2; i++) this.dropPickup(x, y, 'heal', 25);
+      this.p.shield = this.stats.maxShield;
+      this.text(this.p.x, this.p.y, 'SHIELD FULL', '#7fd8ff', 14);
+    } else this.dropCostume(x, y, this.randomCostume());
+  }
   /** fan everything dropped since `first` out in a ring so a treat bag's haul is easy to read */
   private scatterLoot(x: number, y: number, first: number) {
     const loot = this.pickups.slice(first), n = loot.length;
@@ -1951,11 +1990,7 @@ export class Game {
         const k = best.ref as Pickup;
         k.dead = true;
         const first = this.pickups.length;
-        const r = rollRarity(this.stats.luck + 1, 1);
-        this.dropWeapon(k.x, k.y, makeWeapon(null, r));
-        for (let i = 0; i < 8; i++) this.dropPickup(k.x, k.y, 'coin', 2);
-        for (let i = 0; i < 6; i++) this.dropPickup(k.x, k.y, 'xp2', 2);
-        if (Math.random() < 0.2) this.dropCostume(k.x + 0.5, k.y, this.randomCostume());
+        this.openBag(k.x, k.y);
         this.scatterLoot(k.x, k.y, first);
         for (let i = 0; i < 20; i++) this.particle(k.x, k.y, 0.3, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.8, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
         this.pickups = this.pickups.filter((x) => !x.dead);
@@ -2076,8 +2111,8 @@ export class Game {
     for (let i = 0; i < (costumed ? 10 : 5); i++) this.dropPickup(dx, dy, 'coin', 2);
     for (let i = 0; i < (costumed ? 8 : 4); i++) this.dropPickup(dx, dy, 'xp2', 2);
     if (Math.random() < 0.25) this.dropPickup(dx, dy, 'heal', 25);
-    if (Math.random() < (costumed ? 0.3 : 0.15)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, 1)));
-    if (Math.random() < (costumed ? 0.2 : 0.65)) this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
+    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, 1)));
+    if (Math.random() < (costumed ? 0.1 : 0.32)) this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
     for (let i = 0; i < 24; i++) this.particle(dx, dy, 0.6, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.9, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
     this.bubble(this.p.x, this.p.y, 115, costumed ? 'Thank you!!' : 'Aww… thanks.', 'kid', 1.4, true);
     this.choiceGiver = h.owner;
@@ -2091,17 +2126,76 @@ export class Game {
     this.choiceMode = mode;
     this.choiceN = n;
     this.choiceLuck = luck;
-    this.choices = rollScrolls(n, this.scrolls, luck);
+    this.rollChoices();
     this.state = 'levelup';
+  }
+  /** Houses only hand out the good stuff: rare, epic or legendary, and each card can be a treat or a gun. */
+  private rollChoices() {
+    this.rollLocked();
+    const n = this.choiceN, luck = this.choiceLuck;
+    if (this.choiceMode !== 'house') {
+      this.gunChoices = [];
+      this.choices = rollScrolls(n, this.scrolls, luck);
+      return;
+    }
+    let guns = 0;
+    for (let i = 0; i < n; i++) if (Math.random() < 0.4) guns++;
+    guns = Math.min(guns, n - 1); // always at least one treat on offer
+    this.choices = rollScrolls(n - guns, this.scrolls, luck, 2);
+    this.gunChoices = Array.from({ length: n - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, 2)));
+  }
+  private rollLocked() {
+    this.lockedChoice = null;
+    if (hasFullGame()) return;
+    const scrolls = LOCKED_SCROLLS();
+    const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, 2)) : null;
+    if (gun) this.lockedChoice = { scroll: null, weapon: gun };
+    else if (scrolls.length) this.lockedChoice = { scroll: scrolls[Math.floor(Math.random() * scrolls.length)], weapon: null };
   }
   reroll() {
     if (this.rerolls <= 0) return;
     this.rerolls--;
-    this.choices = rollScrolls(this.choiceN, this.scrolls, this.choiceLuck);
+    this.rollChoices();
+  }
+  /** take a gun from a trick-or-treat bowl: straight into a free slot, else inspect it and pick the slot */
+  chooseGun(i: number) {
+    const w = this.gunChoices[i];
+    if (!w || this.choiceMode !== 'house') return;
+    gameAudio.play('unlock');
+    this.input.pressed.clear();
+    this.gunChoices = [];
+    this.choiceMode = 'level';
+    this.p.invuln = 1;
+    const p = this.p;
+    const free = p.weapons.findIndex((x) => !x);
+    if (free >= 0 && free < 2) {
+      p.weapons[free] = w;
+      p.cur = free;
+      this.setBanner('NEW WEAPON!', `${w.def.name} · ${RARITY[w.rarity].name}`, 'loot');
+      this.state = 'play';
+      return;
+    }
+    this.dropWeapon(p.x, p.y, w);
+    const k = this.pickups[this.pickups.length - 1];
+    k.z = 0; k.vz = 0;
+    this.inspecting = k;
+    this.state = 'inspect';
+  }
+  /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
+  private relightHouses() {
+    const hs = this.map.houses;
+    for (const h of hs) {
+      h.visited = false;
+      h.trick = false;
+      if (h.light) h.light.i = h.lightI;
+    }
+    for (let i = 0; i < Math.max(1, Math.floor(hs.length / 6)); i++) hs[Math.floor(Math.random() * hs.length)].trick = true;
+    this.toast('The porch lights are back on: every house has fresh treats');
   }
   choose(id: string) {
     gameAudio.play('unlock');
     this.input.pressed.clear(); // the key that picked the card must not also swap weapons
+    this.gunChoices = [];
     this.scrolls[id] = (this.scrolls[id] || 0) + 1;
     this.scrollOrder.push(id);
     this.recalcStats();
@@ -2117,7 +2211,7 @@ export class Game {
       return;
     }
     this.pendingLevels--;
-    if (this.pendingLevels > 0) this.choices = rollScrolls(3, this.scrolls, this.stats.luck);
+    if (this.pendingLevels > 0) { this.choiceN = 3; this.choiceLuck = this.stats.luck; this.rollChoices(); }
     else {
       this.state = 'play';
       this.p.invuln = 1;
@@ -2260,7 +2354,7 @@ export class Game {
     }
     // chests
     if (t >= this.nextChest) {
-      this.nextChest += 42;
+      this.nextChest += 84; // a treat bag every ~1.5 min (was 42s)
       for (let i = 0; i < 20; i++) {
         const a = rand(0, Math.PI * 2), d = rand(4, 8);
         const x = this.p.x + Math.cos(a) * d, y = this.p.y + Math.sin(a) * d;

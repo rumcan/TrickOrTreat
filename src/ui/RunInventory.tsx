@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Game } from '../game/engine';
 import { baseStats, COSTUME_BY_ID, HERO_INFO, SCROLL_BY_ID } from '../game/data';
 import { KitButton, KitTitle } from './kit';
-import { HeroPreview, RARITY_KIT, WeaponCard } from './common';
-import { treatIcon } from '../game/art/fx';
-import { imgUrl } from '../game/assets';
+import { HeroPreview, RARITY_KIT, WeaponCard, TreatArt } from './common';
 import { SynergyPanel, DamageMath, TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 
@@ -49,7 +47,7 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
                 for (let n = 0; n < count; n++) item.apply(stacked);
                 const changed = Object.keys(stacked).filter((key) => stacked[key as keyof typeof stacked] !== initial[key as keyof typeof initial]);
                 return <article key={id} className="kit-panel flex gap-3 p-4" style={{ borderColor: RARITY_KIT[item.rarity] }}>
-                  {item.premium ? <img src={imgUrl(treatIcon(id))} alt="" className="h-12 w-12 shrink-0 object-contain" /> : <span className="text-3xl" aria-hidden="true">{item.icon}</span>}<div className="min-w-0 flex-1"><h2 className="font-cond2 text-lg font-bold" style={{ color: RARITY_KIT[item.rarity] }}>{item.name} <span className="text-[#f2e6c9]">×{count}</span></h2><p className="text-sm">{item.desc} per copy</p><TagChips tags={SCROLL_TAGS[id] ?? []} className="mt-1 !justify-start" /><p className="mt-2 text-xs text-[#9aa0a6]">{count}/{item.max} stacks{count > item.max ? ' (overstacked)' : ''} · {changed.map((key) => `${key}: ${Number(stacked[key as keyof typeof stacked].toFixed(2))}`).join(' · ')} on baseline</p></div>
+                  <span className="hm-thumb h-[68px] w-[120px] shrink-0 !aspect-auto" style={{ borderColor: RARITY_KIT[item.rarity] }}><TreatArt id={id} /></span><div className="min-w-0 flex-1"><h2 className="font-cond2 text-lg font-bold" style={{ color: RARITY_KIT[item.rarity] }}>{item.name} <span className="text-[#f2e6c9]">×{count}</span></h2><p className="text-sm">{item.desc} per copy</p><TagChips tags={SCROLL_TAGS[id] ?? []} className="mt-1 !justify-start" /><p className="mt-2 text-xs text-[#9aa0a6]">{count}/{item.max} stacks{count > item.max ? ' (overstacked)' : ''} · {changed.map((key) => `${key}: ${Number(stacked[key as keyof typeof stacked].toFixed(2))}`).join(' · ')} on baseline</p></div>
                 </article>;
               })}
             </div>

@@ -38,6 +38,8 @@ export interface HouseInst {
   visited: boolean;
   trick: boolean;
   owner: string;
+  /** porch-light brightness before the visit (restored when houses re-open after a boss) */
+  lightI: number;
 }
 
 export interface GameMap {
@@ -171,7 +173,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
         const pl = house.lights[0];
         const door = { x: hx + pl.x, y: hy + pl.y };
         occupy(Math.floor(door.x), Math.floor(door.y), 1, 1);
-        houses.push({ prop: hp, door, light: lights[lightStart] || null, visited: false, trick: false, owner: OWNERS[houses.length % OWNERS.length] });
+        houses.push({ prop: hp, door, light: lights[lightStart] || null, visited: false, trick: false, owner: OWNERS[houses.length % OWNERS.length], lightI: lights[lightStart]?.i ?? 1 });
         // flower bed along front + path
         if (!flip) {
           const doorX = hx + (fw >= 4 ? 1 : 1);

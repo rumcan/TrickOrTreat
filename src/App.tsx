@@ -75,11 +75,9 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
 
   return (
     <div className="ingame absolute inset-0 cursor-none bg-black">
-      <header className="absolute bottom-3 left-3 z-50 cursor-auto"><RadioPill compact /></header>
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       {g && snap && <Hud s={snap} game={g} />}
       {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 text-xs text-[#9aa0a6] cursor-auto" onClick={() => { g.introTime = 18; }}>Space / Enter · skip intro</button></div></div>}
-      {g?.campaign && snap && snap.state !== 'intro' && <div className="paper-panel paper-panel--side absolute bottom-16 left-3 max-w-xs text-sm text-[#f2e6c9]"><div className="paper-kicker !mb-1">Friends saved: {g.friends.filter(f => f.status === 'rescued').length}/4</div>{g.friends.filter(f => f.status !== 'rescued').map(f => <div key={f.hero}>{HERO_INFO[f.hero].name} · {g.map.gates[f.gate].name}{!g.map.gates[f.gate].opened ? ' (locked)' : ''}</div>)}{g.activeFriend !== null && <div className="mt-1 text-[#66d2b7]">Helper: {HERO_INFO[g.activeFriend].name} · pause to switch / share guns</div>}</div>}
       {g && snap?.state === 'levelup' && <div className="cursor-auto"><LevelUp game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /></div>}

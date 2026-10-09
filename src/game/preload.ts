@@ -5,6 +5,7 @@ import {
 } from './art/props';
 import { heroSheet, enemySheet, ENEMY_TYPES, HEROES, COSTUME_ART_IDS } from './art/characters';
 import { weaponIcon, pickupIcon, treatIcon, TREAT_ICON_IDS, WEAPON_ICON_IDS, PICKUP_IDS } from './art/fx';
+import { treatArt, TREAT_ART_IDS } from './art/treats';
 import { loadOverrides } from './assets';
 
 const nextFrame = () => new Promise<void>((r) => setTimeout(r, 0));
@@ -35,6 +36,7 @@ async function boot(progress: (p: number, label: string) => void) {
   for (const t of ENEMY_TYPES) jobs.push(['Summoning monsters', () => enemySheet(t)]);
   jobs.push(['Loading toy guns', () => { WEAPON_ICON_IDS.forEach(weaponIcon); PICKUP_IDS.forEach(pickupIcon); }]);
   jobs.push(['Packing friend treats', () => TREAT_ICON_IDS.forEach(treatIcon)]);
+  for (let i = 0; i < TREAT_ART_IDS.length; i += 8) jobs.push(['Rewinding the VHS tapes', () => TREAT_ART_IDS.slice(i, i + 8).forEach(treatArt)]);
   for (let i = 0; i < jobs.length; i++) {
     progress(0.05 + (0.95 * i) / jobs.length, jobs[i][0] + '…');
     jobs[i][1]();
