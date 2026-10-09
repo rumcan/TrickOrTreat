@@ -9,6 +9,7 @@ import { preloadUiArt } from './ui/art';
 import { Title, CharSelect, LevelUp, Shop, Pause, EndScreen } from './ui/Menus';
 import { TalentTree } from './ui/TalentTree';
 import { Atlas } from './ui/Atlas';
+import { WeaponInspect } from './ui/Inspect';
 import { RunInventory } from './ui/RunInventory';
 import RadioPill from './ui/RadioPill';
 import { radio } from './game/sound/radio';
@@ -73,13 +74,14 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
   const restart = useCallback(() => setRunId((n) => n + 1), []);
 
   return (
-    <div className="absolute inset-0 cursor-none bg-black">
-      <header className={`absolute z-50 cursor-auto ${snap && !['play', 'intro', 'downed'].includes(snap.state) ? 'right-3 top-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2' : 'left-1/2 top-[158px] -translate-x-1/2 sm:top-[88px]'}`}><RadioPill compact /></header>
+    <div className="ingame absolute inset-0 cursor-none bg-black">
+      <header className="absolute bottom-3 left-3 z-50 cursor-auto"><RadioPill compact /></header>
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       {g && snap && <Hud s={snap} game={g} />}
       {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 text-xs text-[#9aa0a6] cursor-auto" onClick={() => { g.introTime = 18; }}>Space / Enter · skip intro</button></div></div>}
-      {g?.campaign && snap && snap.state !== 'intro' && <div className="absolute bottom-36 left-4 max-w-xs rounded bg-black/70 p-3 text-sm text-[#f2e6c9]"><div className="text-[#ffc453]">Friends saved: {g.friends.filter(f => f.status === 'rescued').length}/4</div>{g.friends.filter(f => f.status !== 'rescued').map(f => <div key={f.hero}>{HERO_INFO[f.hero].name} · {g.map.gates[f.gate].name}{!g.map.gates[f.gate].opened ? ' (locked)' : ''}</div>)}{g.activeFriend !== null && <div className="mt-1 text-[#66d2b7]">Helper: {HERO_INFO[g.activeFriend].name} · pause to switch / share guns</div>}</div>}
+      {g?.campaign && snap && snap.state !== 'intro' && <div className="paper-panel paper-panel--side absolute bottom-16 left-3 max-w-xs text-sm text-[#f2e6c9]"><div className="paper-kicker !mb-1">Friends saved: {g.friends.filter(f => f.status === 'rescued').length}/4</div>{g.friends.filter(f => f.status !== 'rescued').map(f => <div key={f.hero}>{HERO_INFO[f.hero].name} · {g.map.gates[f.gate].name}{!g.map.gates[f.gate].opened ? ' (locked)' : ''}</div>)}{g.activeFriend !== null && <div className="mt-1 text-[#66d2b7]">Helper: {HERO_INFO[g.activeFriend].name} · pause to switch / share guns</div>}</div>}
       {g && snap?.state === 'levelup' && <div className="cursor-auto"><LevelUp game={g} onDone={refresh} /></div>}
+      {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /></div>}
       {g && snap?.state === 'pause' && (
         <div className="cursor-auto">
@@ -150,7 +152,7 @@ export default function App() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#0e0f13]">
-      {screen !== 'game' && <header className="absolute left-1/2 top-3 z-50 -translate-x-1/2"><RadioPill /></header>}
+      {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
       {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}

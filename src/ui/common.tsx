@@ -4,7 +4,7 @@ import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
 import { RARITY } from '../game/config';
-import { Weapon, weaponStats, Stats, TRAIT_BY_ID, weaponDps, HERO_INFO } from '../game/data';
+import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO } from '../game/data';
 import { ART, PORTRAITS, HERO_COLORS } from './art';
 import { Keycap, KitTitle } from './kit';
 
@@ -84,7 +84,7 @@ export function HeroPreview({ hero, size = 2, walking = true, costume = null }: 
 }
 
 // ============ CARDS ============
-export function WeaponCard({ w, stats, compare, title, compact }: { w: Weapon; stats: Stats; compare?: Weapon | null; title?: string; compact?: boolean }) {
+export function WeaponCard({ w, stats, compare, title, compact, bigInsc, className = '' }: { w: Weapon; stats: Stats; compare?: Weapon | null; title?: string; compact?: boolean; bigInsc?: boolean; className?: string }) {
   const st = weaponStats(w, stats);
   const rc = RARITY_KIT[w.rarity];
   const dps = weaponDps(w, stats);
@@ -96,7 +96,7 @@ export function WeaponCard({ w, stats, compare, title, compact }: { w: Weapon; s
     </div>
   );
   return (
-    <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+    <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
       <div className="flex items-center gap-3">
         <div className="flex h-14 w-20 shrink-0 items-center justify-center">
@@ -131,15 +131,28 @@ export function WeaponCard({ w, stats, compare, title, compact }: { w: Weapon; s
         {st.shock > 0 && <Row k="Shock" v={<span className="text-[#7fd8ff]">{Math.round(st.shock * 100)}%</span>} />}
         {st.ecto > 0 && <Row k="Ecto" v={<span className="text-[#7cff64]">{Math.round(st.ecto * 100)}%</span>} />}
       </div>
-      {w.traits.length > 0 && (
-        <div className="mt-2 space-y-0.5">
-          {w.traits.map((t, i) => (
-            <div key={i} className="text-[11px] leading-snug">
-              <span className="font-bold text-[#ffc453]">◆ {TRAIT_BY_ID[t].name}</span> <span className="text-[#9aa0a6]">{TRAIT_BY_ID[t].desc}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      <Inscriptions w={w} compact={compact} big={bigInsc} />
+    </div>
+  );
+}
+
+/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, colour-coded by tier */
+export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean; big?: boolean }) {
+  if (!w.traits.length) return compact ? null : <div className="mt-2 font-cond2 text-[11px] font-bold uppercase tracking-wider text-[#5f6470]">No inscriptions</div>;
+  return (
+    <div className={`mt-2 ${big ? 'space-y-1.5' : 'space-y-0.5'}`}>
+      {w.traits.map((t, i) => {
+        const tr = TRAIT_BY_ID[t];
+        if (!tr) return null;
+        const st = INSC_STYLE[tr.tier];
+        return (
+          <div key={i} className={`${big ? 'border-l-[3px] pl-2.5 text-[13px]' : 'text-[11px]'} leading-snug`} style={{ borderColor: st.color }}>
+            <span className="font-bold" style={{ color: st.color }}>{st.glyph} {tr.name}</span>
+            {big && <span className="ml-1.5 font-cond2 text-[10px] font-bold uppercase tracking-widest text-[#6c7280]">{st.label}</span>}
+            {big ? <div className="text-[#d8cfbb]">{tr.desc}</div> : <span className="text-[#9aa0a6]"> {tr.desc}</span>}
+          </div>
+        );
+      })}
     </div>
   );
 }

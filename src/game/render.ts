@@ -522,6 +522,27 @@ export class Renderer {
       const rx = L.r * HW * 1.4, ry = L.r * HH * 1.4;
       ctx.drawImage(glow(L.color, 128), sx - rx, sy - ry, rx * 2, ry * 2);
     }
+    // loot beams: guns on the ground shine in their rarity colour through the night (taller + wider with rarity)
+    for (const k of g.pickups) {
+      if (k.kind !== 'weapon' || !k.weapon) continue;
+      const sx = isoX(k.x, k.y), sy = isoY(k.x, k.y), r = k.weapon.rarity, col = RARITY[r].glow;
+      const H = 70 + r * 38, W2 = 4 + r * 2.5;
+      if (!inView(sx - 40, sy - H, sx + 40, sy + 20)) continue;
+      const pulse = 0.75 + Math.sin(this.t * 3 + k.x) * 0.25;
+      ctx.globalAlpha = (r ? 0.55 : 0.28) * pulse;
+      const gr = ctx.createLinearGradient(0, sy - H, 0, sy);
+      gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.7, col); gr.addColorStop(1, '#ffffff');
+      ctx.fillStyle = gr;
+      ctx.fillRect(sx - W2, sy - H, W2 * 2, H);
+      ctx.globalAlpha = (r ? 0.75 : 0.4) * pulse;
+      ctx.drawImage(glow(col, 64), sx - 34 - r * 4, sy - 16 - r * 2, 68 + r * 8, 32 + r * 4);
+      if (r >= 3) for (let i = 0; i < 2 + r; i++) {
+        const a = this.t * (1.2 + i * 0.3) + i * 2.1, h = ((this.t * 40 + i * 37) % H);
+        ctx.globalAlpha = 0.9 * (1 - h / H);
+        ctx.fillStyle = col;
+        ctx.fillRect(sx + Math.cos(a) * (W2 + 6) - 1.5, sy - h, 3, 3);
+      }
+    }
     ctx.globalAlpha = 1;
     for (const b of g.bullets) {
       const sx = isoX(b.x, b.y), sy = isoY(b.x, b.y) - 24;
@@ -973,7 +994,7 @@ export class Renderer {
       else if (e.type === 'ghost') light(e.x, e.y, 1.0, 0.35);
     }
     for (const q of g.particles) if (q.kind === 'glow' && q.size > 10) light(q.x, q.y, 1.0, (q.life / q.max) * 0.6);
-    for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') light(k2.x, k2.y, 1.4, 0.6);
+    for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') light(k2.x, k2.y, 1.3 + (k2.weapon?.rarity ?? 0) * 0.25, 0.65 + (k2.weapon?.rarity ?? 0) * 0.07);
     L.globalAlpha = 1;
     L.globalCompositeOperation = 'source-over';
     const ctx = this.ctx;

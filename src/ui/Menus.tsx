@@ -35,6 +35,9 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () 
 }
 
 // ================= TITLE =================
+/** the art Atlas ("Collection") is a dev/art tool: hidden from players on the live game (open it with ?atlas) */
+const SHOW_ATLAS = import.meta.env.DEV || new URLSearchParams(location.search).has('atlas');
+
 export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
@@ -43,16 +46,15 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
-      <div className="relative flex h-full flex-col justify-between gap-6 overflow-y-auto p-3 pt-16 sm:p-8 sm:pt-16">
-        <header aria-label="Game header" className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-2">
-            <LogoImg className="kit-bob w-[min(180px,40vw)] sm:w-[min(420px,40vw)]" />
-            <div className="flex flex-wrap items-center gap-2">
-              <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
-              {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
-            </div>
+      <div className="relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 pt-[150px] sm:p-8 sm:pt-12 lg:pt-12">
+        <header aria-label="Game header" className="flex flex-col items-center gap-2">
+          {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
+          <div className="absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
+          <LogoImg className="kit-bob w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
+            {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
           </div>
-          <ExpansionUnlock compact onPlay={onCampaign} />
         </header>
         <div className="mx-auto mt-auto w-full max-w-4xl space-y-3">
           <section aria-label="Character selection" className="kit-panel bg-[#0e0f13]/90 p-3 sm:p-4">
@@ -81,7 +83,7 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
           <nav className="flex flex-wrap items-center justify-center gap-2">
             <KitButton size="sm" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
             <KitButton size="sm" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
-            <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>
+            {SHOW_ATLAS && <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>}
             <KitButton size="sm" variant="dark" icon={Gamepad2} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
             <KitButton size="sm" variant="dark" icon={Gear} iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
           </nav>

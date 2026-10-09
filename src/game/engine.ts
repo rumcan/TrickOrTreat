@@ -96,6 +96,8 @@ export interface Bullet {
   crit: number; fire: number; shock: number; ecto: number; explode: number; hit: number[]; vamp: boolean; dead: boolean; spin: number; home?: boolean;
   /** drawn height in px (shots fired from up on a jungle gym drop toward the ground as they fly) */
   z?: number;
+  /** the gun that fired it (inscription triggers) · gentler homing strength · split-off child shot */
+  src?: Weapon; homeK?: number; child?: boolean;
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
 export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
@@ -106,7 +108,7 @@ export interface Zone { kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn'; x:
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
 
-export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'dead' | 'victory' | 'pause' | 'inventory';
+export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect';
 
 export interface RescueFriend {
   hero: number; x: number; y: number; r: number; gate: number;
@@ -190,7 +192,13 @@ export class Game {
   /** Candy Cannons on the playground jungle gyms; `mounted` is the index of the one the kid is manning (-1: on foot) */
   turrets: Turret[] = [];
   mounted = -1;
+  /** the gun whose shot is landing right now, so on-hit / on-kill inscriptions know their source */
+  private hitSrc: Weapon | null = null;
+  /** seconds the kid has stood still (Freeze Tag) */
+  private stillT = 0;
   nearbyWeapon: Weapon | null = null;
+  /** a gun on the ground being inspected (game paused) before it goes into a slot */
+  inspecting: Pickup | null = null;
   nearbyCostume: string | null = null;
   // camera (written by renderer)
   camX = 0; camY = 0; zoom = 1; vw = 1; vh = 1; shake = 0; viewR = 11;
@@ -628,6 +636,7 @@ export class Game {
       return;
     }
     p.moving = !!(sx || sy);
+    this.stillT = p.moving ? 0 : this.stillT + dt;
     let mx = 0, my = 0;
     if (p.moving) {
       const d = screenDirToWorld(sx, sy);
@@ -643,6 +652,7 @@ export class Game {
       p.dashCharges--;
       p.dashRecharge = 0;
       p.dashT = 0.2;
+      if (s.skate && this.weapon) { const ww = this.weapon; ww.reloadT = 0; ww.ammo = weaponStats(ww, s).mag; }
       gameAudio.play('dash', 0.5);
       p.invuln = Math.max(p.invuln, 0.3);
       const dx = p.moving ? mx : p.aimX, dy = p.moving ? my : p.aimY;
@@ -650,7 +660,7 @@ export class Game {
       this.dashHit.clear();
       for (let i = 0; i < 12; i++) this.particle(p.x, p.y, 0.1, rand(-1, 1), rand(-1, 1), rand(0.5, 1.5), 0.4, '#e8f0ff', 3, 'sq');
     }
-    let speed = 3.4 * s.move;
+    let speed = 3.4 * s.move * (this.ins(this.weapon, 'tummy') ? 0.85 : 1);
     if (p.dashT > 0) {
       p.dashT -= dt;
       mx = p.dashX; my = p.dashY;
@@ -761,6 +771,7 @@ export class Game {
     const p = this.p;
     if (p.invuln > 0 || this.state !== 'play') return;
     if (this.mounted >= 0) dmg *= 1 - TURRET.armor; // high ground
+    if (this.ins(this.weapon, 'glasspump')) dmg *= 1.15;
     if (Math.random() < this.stats.dodge) {
       this.text(p.x, p.y, 'DODGE', '#dfe8ff', 14);
       p.invuln = 0.25;
@@ -838,8 +849,41 @@ export class Game {
     return best;
   }
 
+  // ---------- inscriptions ----------
+  private ins(w: Weapon | null | undefined, id: string) { return !!w && w.traits.includes(id); }
+  private fxOf(w: Weapon) { return (w.fx ??= { shots: 0, combo: 0, comboT: 0, fresh: 0, hasty: 0 }); }
+  /** trigger-inscription damage multiplier for the shot about to leave the barrel */
+  private shotMul(w: Weapon) {
+    const fx = this.fxOf(w);
+    let m = 1;
+    if (this.ins(w, 'opener') && fx.shots === 0) m *= 2;
+    if (this.ins(w, 'fresh') && fx.fresh > 0) m *= 1.4;
+    if (this.ins(w, 'combo')) m *= 1 + 0.03 * fx.combo;
+    if (this.ins(w, 'freeze') && this.stillT >= 1) m *= 1.3;
+    if (this.ins(w, 'sixth') && (fx.shots + 1) % 6 === 0) m *= 1.8;
+    // run-wide treats
+    const s = this.stats;
+    if (s.sixth && (fx.shots + 1) % 6 === 0) m *= 1.6;
+    if (s.fullBag && w.ammo >= weaponStats(w, s).mag * 0.8) m *= 1.4;
+    if (s.statue && this.stillT >= 1) m *= 1.35;
+    if (s.bluff && this.p.hp >= s.maxHp - 0.5) m *= 1.25;
+    return m;
+  }
+  private rateMul(w: Weapon) {
+    const fx = this.fxOf(w);
+    let m = 1;
+    if (this.ins(w, 'trot') && this.p.moving) m *= 1.15;
+    if (this.ins(w, 'scaredy') && this.p.hp < this.stats.maxHp * 0.35) m *= 1.35;
+    if (this.ins(w, 'seconds') && fx.hasty > 0) m *= 1.3;
+    return m;
+  }
   private updateWeapon(dt: number) {
     const p = this.p, w = this.weapon, s = this.stats;
+    for (const ww of p.weapons) if (ww?.fx) {
+      const fx = ww.fx;
+      fx.fresh -= dt; fx.hasty -= dt; fx.comboT -= dt;
+      if (fx.comboT <= 0) fx.combo = 0;
+    }
     if (!w) return;
     const st = weaponStats(w, s);
     w.cd -= dt;
@@ -861,7 +905,11 @@ export class Game {
     }
     if (w.reloadT > 0) {
       w.reloadT -= dt;
-      if (w.reloadT <= 0) w.ammo = st.mag;
+      if (w.reloadT <= 0) {
+        const fx = this.fxOf(w);
+        if (w.ammo <= 0 && this.ins(w, 'fresh')) { fx.fresh = 4; this.text(p.x, p.y, 'FRESH BATCH!', '#3fd0e0', 12); }
+        w.ammo = st.mag; fx.shots = 0;
+      }
       return;
     }
     if (this.tot) return; // hands are full of candy bag - can't shoot while trick-or-treating
@@ -871,16 +919,20 @@ export class Game {
       return;
     }
     if (w.cd <= 0 && (manual || target)) {
-      w.cd = 1 / st.rate;
+      w.cd = 1 / (st.rate * this.rateMul(w));
       w.ammo--;
       this.fire(w, st);
       if (w.ammo <= 0) w.reloadT = st.reload;
     }
   }
 
-  private fire(w: Weapon, st: ReturnType<typeof weaponStats>) {
+  private fire(w: Weapon, st0: ReturnType<typeof weaponStats>) {
     gameAudio.play('shot');
     const p = this.p, d = w.def;
+    const mul = this.shotMul(w);
+    this.fxOf(w).shots++;
+    const st = mul === 1 ? st0 : { ...st0, dmg: st0.dmg * mul };
+    if (mul >= 1.75) this.particle(p.x + p.aimX * 0.5, p.y + p.aimY * 0.5, 0.5, 0, 0, 0, 0.18, '#3fd0e0', 30, 'glow');
     const base = Math.atan2(p.aimY, p.aimX);
     const n = st.pellets;
     p.recoil = 1;
@@ -891,7 +943,9 @@ export class Game {
     if (d.kind === 'beam') {
       for (let i = 0; i < n; i++) {
         const a = base + (n > 1 ? (i - (n - 1) / 2) * 0.12 : 0);
+        this.hitSrc = w;
         this.hitscan(mx, my, Math.cos(a), Math.sin(a), st, d.color);
+        this.hitSrc = null;
       }
       return;
     }
@@ -902,12 +956,13 @@ export class Game {
         a += n > 1 ? (i / (n - 1) - 0.5) * spreadTot : 0;
         a += rand(-0.04, 0.04);
       } else a += rand(-d.spread, d.spread) * 0.5;
-      const sp = d.speed * rand(0.92, 1.08);
+      const sp = st.speed * rand(0.92, 1.08);
       const crit = Math.random() < st.crit;
+      const haunted = this.ins(w, 'haunted');
       this.bullets.push({
-        x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, dmg: st.dmg * (crit ? this.stats.critDmg : 1), r: d.kind === 'rocket' || d.kind === 'balloon' ? 0.2 : 0.12,
+        x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, dmg: st.dmg * (crit ? st.critMul : this.stats.owl ? 0.75 : 1), r: d.kind === 'rocket' || d.kind === 'balloon' ? 0.2 : 0.12,
         life: st.range / sp + 0.05, pierce: st.pierce, bounce: st.bounce, kind: d.kind, color: d.color, crit: crit ? 1 : 0, fire: st.fire, shock: st.shock, ecto: st.ecto,
-        explode: d.explode * this.stats.skillPow ** 0.3, hit: [], vamp: st.vamp, dead: false, spin: rand(0, 6),
+        explode: d.explode * this.stats.skillPow ** 0.3, hit: [], vamp: st.vamp, dead: false, spin: rand(0, 6), src: w, home: haunted || undefined, homeK: haunted ? 2.4 : undefined,
       });
     }
   }
@@ -932,7 +987,7 @@ export class Game {
     for (const [, e] of hits) {
       if (pierce-- <= 0) break;
       const crit = Math.random() < st.crit;
-      this.applyHit(e, st.dmg * (crit ? this.stats.critDmg : 1), crit, st.fire, st.shock, st.ecto, dx, dy, st.vamp);
+      this.applyHit(e, st.dmg * (crit ? st.critMul : this.stats.owl ? 0.75 : 1), crit, st.fire, st.shock, st.ecto, dx, dy, st.vamp);
     }
     this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: 5 });
   }
@@ -941,12 +996,29 @@ export class Game {
   applyHit(e: Enemy, dmg: number, crit: boolean, fire: number, shock: number, ecto: number, kx: number, ky: number, vamp = false, quiet = false) {
     if (e.dead) return;
     const s = this.stats;
+    const src = this.hitSrc;
+    if (src) {
+      if (this.ins(src, 'bigkid') && (e.def.boss || e.elite)) dmg *= 1.4;
+      if (this.ins(src, 'combo')) { const fx = this.fxOf(src); fx.combo = Math.min(10, fx.combo + 1); fx.comboT = 2; }
+      if (this.ins(src, 'socks') && Math.random() < 0.25) {
+        let best: Enemy | null = null, bd = 9;
+        for (const o of this.enemies) { if (o === e || o.dead) continue; const d = (o.x - e.x) ** 2 + (o.y - e.y) ** 2; if (d < bd) { bd = d; best = o; } }
+        if (best) {
+          const o = best as Enemy;
+          this.beams.push({ x0: e.x, y0: e.y, x1: o.x, y1: o.y, color: '#bfe8ff', life: 0.15, max: 0.15, zig: true, w: 3 });
+          this.hitSrc = null; // no chains of chains
+          this.damageEnemy(o, dmg * 0.5, '#bfe8ff', false, quiet);
+          this.hitSrc = src;
+        }
+      }
+    }
     if (Math.random() < ecto) {
       if (e.ectoT <= 0) this.text(e.x, e.y, 'ECTO', ELEM.ecto.color, 11);
       e.ectoT = 4;
     }
     if (e.ectoT > 0) dmg *= 1 + s.ectoAmp;
     this.damageEnemy(e, dmg, crit ? '#ffe14a' : '#ffffff', crit, quiet);
+    if (s.execute && !e.dead && !e.def.boss && !e.elite && e.hp < e.maxHp * 0.12) { this.text(e.x, e.y, 'BEDTIME!', '#c08cff', 11); this.damageEnemy(e, e.hp + 1, '#c08cff', false, true); }
     if (crit && vamp) this.p.hp = Math.min(s.maxHp, this.p.hp + 1);
     if (crit && this.p.costume === 'skeleton') {
       for (let i = 0; i < 2; i++) {
@@ -1223,6 +1295,19 @@ export class Game {
     e.dead = true;
     this.kills++;
     const s = this.stats;
+    const src = this.hitSrc;
+    if (src) {
+      if (this.ins(src, 'seconds') && Math.random() < 0.3) {
+        const fx = this.fxOf(src);
+        src.ammo = Math.min(weaponStats(src, s).mag, src.ammo + 2); fx.hasty = 3;
+      }
+      if (this.ins(src, 'pinata')) {
+        this.hitSrc = null; // a piñata's kills don't pop more piñatas
+        for (let i = 0; i < 10; i++) this.particle(e.x, e.y, 0.4, rand(-3, 3), rand(-3, 3), rand(2, 4), 0.6, ['#ff4d6d', '#ffd23a', '#7dff5a', '#21d0ff', '#b44dff'][i % 5], 4, 'sq');
+        this.explode(e.x, e.y, 1.4, weaponStats(src, s).dmg * 0.6, null, true);
+        this.hitSrc = src;
+      }
+    }
     // drops
     const xp = e.def.xp * (e.elite && !e.def.elite ? 3 : 1);
     if (xp >= 20) for (let i = 0; i < Math.min(15, xp / 5); i++) this.dropPickup(e.x, e.y, 'xp3', 5);
@@ -1459,13 +1544,13 @@ export class Game {
           const t = best as Enemy;
           const sp = Math.hypot(b.vx, b.vy);
           const dx = t.x - b.x, dy = t.y - b.y, l = Math.hypot(dx, dy) || 1;
-          const k = Math.min(1, dt * 7);
+          const k = Math.min(1, dt * (b.homeK ?? 7));
           b.vx += ((dx / l) * sp - b.vx) * k;
           b.vy += ((dy / l) * sp - b.vy) * k;
           const nl = Math.hypot(b.vx, b.vy) || 1;
           b.vx = (b.vx / nl) * sp; b.vy = (b.vy / nl) * sp;
         }
-        if (Math.random() < 0.5) this.particle(b.x, b.y, 0.5, 0, 0, 0.3, 0.3, '#c46bff', 5, 'glow');
+        if (!b.homeK && Math.random() < 0.5) this.particle(b.x, b.y, 0.5, 0, 0, 0.3, 0.3, '#c46bff', 5, 'glow');
       }
       if (b.kind === 'water' || b.kind === 'fire') if (Math.random() < 0.3) this.particle(b.x, b.y, 0.4, 0, 0, -0.5, 0.25, b.color, 4, 'glow');
       if (b.kind === 'rocket') this.particle(px, py, 0.45, rand(-0.3, 0.3), rand(-0.3, 0.3), 0.5, 0.4, '#bbb', 5, 'sq');
@@ -1491,13 +1576,21 @@ export class Game {
         if ((e.x - b.x) ** 2 + (e.y - b.y) ** 2 > rr * rr) return;
         b.hit.push(e.id);
         const l = Math.hypot(b.vx, b.vy) || 1;
+        this.hitSrc = b.src ?? null;
         if (b.explode > 0) {
           this.explode(b.x, b.y, b.explode, b.dmg, b.shock > 0.5 ? 'shock' : b.fire > 0 ? 'fire' : null, true, !!b.crit);
           if (b.shock > 0 && Math.random() < b.shock) this.chain(e, b.dmg * 0.5);
+          this.hitSrc = null;
           b.dead = true;
           return;
         }
         this.applyHit(e, b.dmg, !!b.crit, b.fire, b.shock, b.ecto, b.vx / l, b.vy / l, b.vamp);
+        this.hitSrc = null;
+        if (b.src && !b.child && b.hit.length === 1 && this.ins(b.src, 'split')) {
+          // Two-for-One: the shot splits into two smaller ones on its first hit
+          const a0 = Math.atan2(b.vy, b.vx);
+          for (const da of [-0.55, 0.55]) this.bullets.push({ ...b, vx: Math.cos(a0 + da) * l, vy: Math.sin(a0 + da) * l, dmg: b.dmg * 0.45, hit: [...b.hit], child: true, pierce: 0, life: Math.max(0.3, b.life * 0.7) });
+        }
         for (let i = 0; i < 3; i++) this.particle(b.x, b.y, 0.4, rand(-2, 2), rand(-2, 2), rand(0.5, 2), 0.25, b.color, 3, 'sq');
         if (b.pierce > 0) b.pierce--;
         else if (b.bounce > 0) {
@@ -1595,6 +1688,20 @@ export class Game {
     const a = rand(0, Math.PI * 2), sp = rand(0.5, 2);
     this.pickups.push({ x, y, z: 0.2, vz: rand(2, 4), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, kind, value, mag: false, t: 0, dead: false });
   }
+  /** fan everything dropped since `first` out in a ring so a treat bag's haul is easy to read */
+  private scatterLoot(x: number, y: number, first: number) {
+    const loot = this.pickups.slice(first), n = loot.length;
+    const big = loot.filter((it) => it.kind === 'weapon' || it.kind === 'costume');
+    const off = rand(0, Math.PI * 2);
+    loot.forEach((it, i) => {
+      const special = it.kind === 'weapon' || it.kind === 'costume';
+      // guns and costumes land well apart (opposite sides); candy and coins fill the ring between them
+      const a = special ? off + (big.indexOf(it) / Math.max(1, big.length)) * Math.PI * 2 : off + ((i + 0.5) / n) * Math.PI * 2 + rand(-0.25, 0.25);
+      const d = special ? 2.2 : rand(1.2, 2.8);
+      it.x = x; it.y = y; it.vx = Math.cos(a) * d * 3; it.vy = Math.sin(a) * d * 3; it.z = 0.3; it.vz = special ? 5 : rand(3, 5.5);
+      it.t = 0;
+    });
+  }
   dropWeapon(x: number, y: number, w: Weapon) {
     this.pickups.push({ x, y, z: 0.5, vz: 3, vx: 0, vy: 0, kind: 'weapon', value: 0, weapon: w, mag: false, t: 0, dead: false });
   }
@@ -1615,7 +1722,7 @@ export class Game {
       if (cellAt(this.map, nx, ny) === 0) { k.x = nx; k.y = ny; }
       if (k.kind === 'weapon' || k.kind === 'chest' || k.kind === 'costume') continue;
       const dx = p.x - k.x, dy = p.y - k.y, d = Math.hypot(dx, dy);
-      if (d < magR || k.mag) {
+      if ((d < magR && k.t > 0.6) || k.mag) { // freshly dropped loot rests a moment so you can see it
         k.mag = true;
         const sp = 9 + k.t;
         k.x += (dx / (d || 1)) * sp * dt;
@@ -1671,7 +1778,7 @@ export class Game {
       const d = (k.x - p.x) ** 2 + (k.y - p.y) ** 2;
       if (d < bd) {
         bd = d;
-        best = k.kind === 'weapon' ? { kind: 'weapon', label: `Pick up ${k.weapon!.def.name}`, ref: k }
+        best = k.kind === 'weapon' ? { kind: 'weapon', label: `Inspect ${k.weapon!.def.name}`, ref: k }
           : k.kind === 'costume' ? { kind: 'costume', label: `Put on ${COSTUME_BY_ID[k.costume!].name} costume`, ref: k }
           : { kind: 'chest', label: 'Open Treat Bag', ref: k };
       }
@@ -1707,34 +1814,47 @@ export class Game {
         if (old) this.dropCostume(p.x, p.y, old);
         this.pickups = this.pickups.filter((x) => !x.dead);
       } else if (best.kind === 'weapon') {
+        // inspect first (the world pauses), then the player picks the slot
         gameAudio.play('click', 0.35);
-        const k = best.ref as Pickup;
-        k.dead = true;
-        const empty = p.weapons.findIndex((w) => !w);
-        if (empty >= 0) { p.weapons[empty] = k.weapon!; p.cur = empty; }
-        else {
-          const old = p.weapons[p.cur]!;
-          old.reloadT = 0;
-          this.dropWeapon(p.x, p.y, old);
-          p.weapons[p.cur] = k.weapon!;
-        }
-        this.text(p.x, p.y, k.weapon!.def.name, '#fff', 14);
-        if (k.weapon!.rarity >= 2) this.setBanner('NEW WEAPON!', `${k.weapon!.def.name} · ${['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'][k.weapon!.rarity]}`, 'loot');
-        this.pickups = this.pickups.filter((x) => !x.dead);
+        this.inspecting = best.ref as Pickup;
+        this.state = 'inspect';
       } else if (best.kind === 'chest') {
         const k = best.ref as Pickup;
         k.dead = true;
+        const first = this.pickups.length;
         const r = rollRarity(this.stats.luck + 1, 1);
         this.dropWeapon(k.x, k.y, makeWeapon(null, r));
         for (let i = 0; i < 8; i++) this.dropPickup(k.x, k.y, 'coin', 2);
         for (let i = 0; i < 6; i++) this.dropPickup(k.x, k.y, 'xp2', 2);
         if (Math.random() < 0.2) this.dropCostume(k.x + 0.5, k.y, this.randomCostume());
+        this.scatterLoot(k.x, k.y, first);
         for (let i = 0; i < 20; i++) this.particle(k.x, k.y, 0.3, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.8, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
         this.pickups = this.pickups.filter((x) => !x.dead);
       } else {
         this.state = 'shop';
       }
     }
+  }
+
+  // ---------- weapon inspect ----------
+  takeInspected(slot: number) {
+    const k = this.inspecting, p = this.p;
+    if (!k || k.dead || !k.weapon || slot < 0 || slot > 1) { this.closeInspect(); return; }
+    k.dead = true;
+    const old = p.weapons[slot];
+    if (old) { old.reloadT = 0; this.dropWeapon(p.x, p.y, old); }
+    p.weapons[slot] = k.weapon;
+    p.cur = slot;
+    gameAudio.play('pickup', 0.5);
+    this.text(p.x, p.y, k.weapon.def.name, '#fff', 14);
+    if (k.weapon.rarity >= 2) this.setBanner('NEW WEAPON!', `${k.weapon.def.name} · ${['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'][k.weapon.rarity]}`, 'loot');
+    this.pickups = this.pickups.filter((x) => !x.dead);
+    this.closeInspect();
+  }
+  closeInspect() {
+    this.inspecting = null;
+    if (this.state === 'inspect') this.state = 'play';
+    this.input.pressed.clear();
   }
 
   // ---------- level up / shop ----------

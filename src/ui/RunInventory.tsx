@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Game } from '../game/engine';
-import { baseStats, COSTUME_BY_ID, HERO_INFO, SCROLL_BY_ID, TRAIT_BY_ID } from '../game/data';
+import { baseStats, COSTUME_BY_ID, HERO_INFO, SCROLL_BY_ID } from '../game/data';
 import { KitButton, KitTitle } from './kit';
 import { HeroPreview, RARITY_KIT, WeaponCard } from './common';
 import { treatIcon } from '../game/art/fx';
@@ -53,7 +53,7 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
           </section>
           <aside className="space-y-4">
             <section className="kit-panel p-4"><div className="flex items-center gap-3"><HeroPreview hero={game.hero} size={0.65} costume={game.p.costume} /><div><KitTitle className="text-2xl">{hero.name}</KitTitle><p className="text-sm">{hero.passive}</p></div></div>{costume && <div className="mt-3 border-t border-white/10 pt-3"><h2 style={{ color: costume.color }}>{costume.icon} {costume.name}</h2><p className="text-sm">{costume.power}</p><p className="text-sm text-[#7cff64]">{costume.perks}</p></div>}</section>
-            {game.p.weapons.map((weapon, slot) => weapon ? <section key={weapon.uid}><WeaponCard w={weapon} stats={s} title={`Slot ${slot + 1}${slot === game.p.cur ? ' · Equipped' : ''}`} /><div className="mt-1 text-xs text-[#9aa0a6]">{weapon.traits.map((id) => TRAIT_BY_ID[id]?.desc).filter(Boolean).join(' · ') || 'No weapon inscriptions'}</div></section> : <p key={slot} className="text-sm text-[#9aa0a6]">Weapon slot {slot + 1} empty</p>)}
+            {game.p.weapons.map((weapon, slot) => weapon ? <section key={weapon.uid}><WeaponCard w={weapon} stats={s} title={`Slot ${slot + 1}${slot === game.p.cur ? ' · Equipped' : ''}`} /></section> : <p key={slot} className="text-sm text-[#9aa0a6]">Weapon slot {slot + 1} empty</p>)}
             <section className="kit-panel p-4"><h2 className="mb-2 font-cond2 text-xl font-bold">Applied totals</h2><p className="mb-3 text-xs text-[#9aa0a6]">Hero + persistent talents + costume + all collected treats. Weapon-specific modifiers are shown on the weapon cards.</p><dl className="space-y-1">{stats.map(([label, value]) => <div key={label} className="flex justify-between gap-3 text-sm"><dt className="text-[#9aa0a6]">{label}</dt><dd>{value}</dd></div>)}</dl></section>
           </aside>
         </div>
