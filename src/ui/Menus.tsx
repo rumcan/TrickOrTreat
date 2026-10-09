@@ -401,7 +401,7 @@ export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { g
     <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/80 p-4">
       <div className="w-full max-w-xl">
         <img src={ART.kitLogo} alt="" draggable={false} className="mx-auto mb-3 w-[min(300px,70vw)]" />
-        <Banner kind={win || game.victorious ? 'mission' : 'died'} title={game.victorious ? `Wave ${game.wave}` : win ? 'Mission complete' : 'You died'} sub={game.victorious ? `You beat the night, then held out to wave ${game.wave}${(game.save.bestWave ?? 0) <= game.wave ? ' · new best!' : ` · best ${game.save.bestWave}`}` : win ? 'The Pumpkin King has been smashed' : 'The monsters got you this time'} size="lg" className="kit-pop" />
+        <Banner kind={win || game.victorious ? 'mission' : 'died'} title={game.victorious ? `Wave ${game.wave}` : win ? 'Mission complete' : 'You died'} sub={game.victorious ? `Night beaten · endless best ${game.save.bestWave ?? game.wave}${(game.save.bestWave ?? 0) <= game.wave ? ' · new record!' : ''}` : win ? 'The Pumpkin King has been smashed' : 'The monsters got you this time'} size="lg" className="kit-pop" />
         <div className="kit-panel mt-4 p-5">
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             <Stat icon={<ClockIcon size={18} />} label="Survived" v={fmtTime(game.time)} />
