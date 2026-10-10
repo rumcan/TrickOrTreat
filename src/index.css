@@ -608,6 +608,32 @@ button.kit-tile:not(:disabled):hover {
   .title-nav .kit-btn span { overflow: hidden; text-overflow: ellipsis; }
 }
 
+/* ── Talent constellations: painted night sky on the left, a dark-paper column on the right ── */
+.talent-screen { position: absolute; inset: 0; display: flex; flex-direction: column; overflow-y: auto; background: #07060d; color: var(--pp-text); }
+.talent-sky { position: relative; flex: 0 0 auto; height: min(92vw, 62dvh); min-height: 320px; overflow: hidden; }
+.talent-sky-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.talent-sky::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(7, 6, 13, .35), rgba(7, 6, 13, .72)); pointer-events: none; }
+/* starts below the radio and back keys that sit in the top corners */
+.talent-svg { position: absolute; inset: 46px 0 0; z-index: 1; width: 100%; height: calc(100% - 46px); user-select: none; -webkit-user-select: none; }
+.talent-side { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px 16px; background: var(--pp-paper-bg); border-top: 5px solid var(--pp-orange); box-shadow: inset 0 1px 0 var(--pp-hairline); }
+.talent-wallet { flex: 1; display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--pp-bar); border: 2px solid var(--pp-frame); box-shadow: var(--pp-shadow-card); }
+.talent-wallet .label { color: var(--pp-mute); font: 700 10px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.talent-wallet b { display: block; color: #d9a8ff; font: 400 30px/1 "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
+.talent-focus-art { flex: 0 0 auto; display: grid; place-items: center; width: 72px; height: 72px; border: 3px solid; background: radial-gradient(circle, #241a38, #07060d); box-shadow: var(--pp-shadow-card); }
+.talent-focus-art img { width: 60px; height: 60px; object-fit: contain; }
+/* no black frames in this column: a light hairline, and the branch colour on one edge does the framing */
+.talent-side .paper-card { border: 1px solid rgba(242, 232, 212, .16); box-shadow: 0 8px 22px rgba(0, 0, 0, .3); }
+.talent-side .talent-wallet { border: 1px solid rgba(217, 168, 255, .4); box-shadow: 0 8px 22px rgba(0, 0, 0, .3); }
+.talent-side .talent-focus-art { box-shadow: 0 6px 16px rgba(0, 0, 0, .35); }
+.talent-side .talent-rank { border: 1px solid rgba(242, 232, 212, .18); }
+.talent-side .hm-btn { cursor: pointer; }
+.talent-side .hm-btn.talent-replay { min-height: 56px; font-size: 18px; }
+@media (min-width: 1024px) {
+  .talent-screen { flex-direction: row; overflow: hidden; }
+  .talent-sky { flex: 1 1 auto; height: auto; min-height: 0; }
+  .talent-side { flex: 0 0 372px; overflow-y: auto; border-top: 0; border-left: 5px solid var(--pp-orange); padding: 22px 20px 18px; box-shadow: -18px 0 50px rgba(0, 0, 0, .55); }
+}
+
 /* ── HexMatch-style modals (pause, level-up, shop), dark paper ── */
 .hm-backdrop { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 16px; background: rgba(2, 5, 7, .74); backdrop-filter: blur(4px); }
 .hm-modal { width: min(1060px, 100%); max-width: 100%; margin: auto; background: var(--pp-paper-bg); border: 3px solid #06090b; border-top: 5px solid #ef7c17; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 4px 0 rgba(0, 0, 0, .45), 0 25px 80px rgba(0, 0, 0, .6); padding: 26px 30px 22px; color: #f2e8d4; }

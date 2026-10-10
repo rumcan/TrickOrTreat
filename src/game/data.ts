@@ -311,7 +311,8 @@ export interface Talent {
 
 export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts'];
 export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility'];
-export const TALENT_COLORS = ['#ff5a4a', '#4fb3ff', '#5fe37a'];
+/** saturated neon, one per branch: they sit on a busy painted night sky */
+export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a'];
 export const TALENT_ROOT = { x: 500, y: 450 };
 export const TALENTS: Talent[] = [
   // ---- Mischief (upper-left) ----
