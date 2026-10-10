@@ -1,10 +1,10 @@
 // ===== BUILDCRAFT: tags, resonance, overflow =====
 // Every build piece (treat, inscription on the gun in hand, costume, talent, kid) carries TAGS.
-// Every 3 of a tag is one RESONANCE TIER. Tiers have no ceiling: each one compounds that tag's multiplier,
-// and tiers 1/2/3 unlock KEYSTONES that wire one system into another (crits explode, explosions chain,
-// chains count as hits, kills feed damage...). Numbers never hard-cap: past their natural limit they
-// OVERFLOW into something else (crit > 100% = extra crit layers, element chance > 100% = stronger effect,
-// fire rate past what a gun can physically shoot = extra projectiles or damage).
+// Every 3 of a tag is one RESONANCE TIER. Each tier compounds that tag's multiplier, and tiers 1/2/3 unlock
+// KEYSTONES that wire one system into another (crits explode, explosions chain, chains count as hits, kills
+// feed damage...). Stats past their natural limit OVERFLOW into something else (crit > 100% = overcrit layers,
+// element chance > 100% = stronger effect, fire rate past what a gun can shoot = extra projectiles or damage),
+// but every self-feeding stack has a CEILING (see the *_MAX constants below): nothing may grow exponentially.
 // See BUILDCRAFT.md for the full math and example builds.
 import type { Stats, Weapon } from './data';
 
@@ -19,21 +19,21 @@ export interface TagDef {
 
 export const TAG_DEFS: Record<Tag, TagDef> = {
   crit: { name: 'Crit', icon: '🎯', color: '#ffe14a', scaling: '×1.15 crit damage per tier',
-    keystones: ['Lucky Streak · every crit +2% crit chance for 3s (stacks without limit)', 'Critical Mass · crits explode for 30% of the hit (can crit, can chain)', 'Snap · every crit takes 0.15s off your skill cooldown'] },
+    keystones: ['Lucky Streak · every crit +2% crit chance for 3s (up to +50%)', 'Critical Mass · crits explode for 30% of the hit (can crit, can chain)', 'Snap · every crit takes 0.15s off your skill cooldown'] },
   fire: { name: 'Fire', icon: '🔥', color: '#ff7a1a', scaling: '×1.25 burn damage per tier',
-    keystones: ['Searing · burn ticks can crit (and overcrit)', 'Wildfire · burning monsters pass their burn on when they die', 'Inferno · burns stack up instead of only keeping the strongest'] },
+    keystones: ['Searing · burn ticks can crit (and overcrit)', 'Wildfire · burning monsters pass their burn on when they die', 'Inferno · burns stack up (to 5 deep) instead of only keeping the strongest'] },
   shock: { name: 'Shock', icon: '⚡', color: '#7fd8ff', scaling: '×1.25 chain damage and +1 jump per tier',
     keystones: ['Conductive · chain jumps count as hits: they apply elements and trigger your gun’s inscriptions', 'Overload · +2 jumps, and a chain hitting a burning monster detonates the rest of its burn', 'Storm Front · chains fork in two at every jump'] },
   ecto: { name: 'Ecto', icon: '🟢', color: '#7cff64', scaling: '+25% ecto amplification per tier',
-    keystones: ['Haunting · every hit on an ecto’d monster makes it take +4% more damage, forever, stacking', 'Plague · ecto jumps to nearby monsters when its host dies', 'Possessed · ecto amplification also boosts burn and chain damage'] },
+    keystones: ['Haunting · every hit on an ecto’d monster makes it take +4% more damage, stacking to +100%', 'Plague · ecto jumps to nearby monsters when its host dies', 'Possessed · ecto amplification also boosts burn and chain damage'] },
   blast: { name: 'Blast', icon: '💥', color: '#ffb347', scaling: '×1.2 explosion damage per tier',
     keystones: ['Bigger Booms · explosions +35% radius', 'Elemental Payload · explosions carry your gun’s burn/shock/ecto chances', 'Chain Reaction · monsters killed by an explosion explode too (50%)'] },
   kill: { name: 'Kill', icon: '💀', color: '#ff5a6e', scaling: '+25% momentum per kill per tier',
-    keystones: ['Momentum · every kill +1% damage for 4s; the timer refreshes and stacks never cap', 'Scavenger · kills refund 1 ammo', 'Bloodlust · kills shave 0.2s off skill cooldown and dash recharge'] },
+    keystones: ['Momentum · every kill +1% damage for 4s; the timer refreshes, up to 100 stacks', 'Scavenger · kills refund 1 ammo', 'Bloodlust · kills shave 0.2s off skill cooldown and dash recharge'] },
   sugar: { name: 'Sugar', icon: '🍭', color: '#ff7ad9', scaling: '×1.08 fire rate per tier',
-    keystones: ['Overclock · fire rate past 12/s becomes extra projectiles instead of wasted damage', 'Sugar High · every % of bonus move speed is also bonus damage', 'Hyperactive · every 20th shot also fires a ring of 8 shots'] },
+    keystones: ['Overclock · fire rate past 12/s becomes extra projectiles instead of wasted damage', 'Sugar High · every % of bonus move speed is also bonus damage (up to +100%)', 'Hyperactive · every 20th shot also fires a ring of 8 shots'] },
   tank: { name: 'Tank', icon: '🛡️', color: '#9fb4ff', scaling: '×1.06 max HP per tier',
-    keystones: ['Juggernaut · +1% damage per 5 max HP above 100', 'Spiky Costume · monsters that hit you take 50% of your max HP', 'Bulwark · +1% damage per 5 max shield'] },
+    keystones: ['Juggernaut · +1% damage per 5 max HP above 100 (up to +100%)', 'Spiky Costume · monsters that hit you take 20% of your max HP', 'Bulwark · +1% damage per 5 max shield (up to +100%)'] },
   summon: { name: 'Summon', icon: '👻', color: '#c9b8ff', scaling: '×1.3 summon damage per tier',
     keystones: ['Pack Leader · orbit blades, ghost buddy, companion and Candy Cannon deal +50%', 'Shared Tricks · summon hits carry your gun’s burn/shock/ecto chances', 'Army of Ghosts · +2 orbit blades and the ghost buddy fires twice as often'] },
 };
@@ -98,7 +98,7 @@ export class Build {
   tier(t: Tag) { return this.tiers[t]; }
   /** keystone k (1..3) of a tag is active */
   ks(t: Tag, k: 1 | 2 | 3) { return this.tiers[t] >= k; }
-  /** compounding per-tier multiplier (base^tier) — never capped */
+  /** compounding per-tier multiplier (base^tier) */
   pow(t: Tag, base: number) { return Math.pow(base, this.tiers[t]); }
 
   // ---- the numbers each tag compounds ----
@@ -128,18 +128,35 @@ export class Build {
 }
 
 /**
- * Overcrit: crit chance has no ceiling. Every full 100% is a guaranteed crit layer; the remainder is the chance of
- * one more. Each layer multiplies by the crit multiplier again (2 layers at ×2.3 crit damage = ×5.29).
+ * Ceilings on every stack that feeds itself. Before these, Lucky Streak raised crit chance without limit and each
+ * 100% of crit chance multiplied damage by the crit multiplier AGAIN (critMul ^ layers), so a fast gun reached
+ * numbers like 1e21. Stacks are now linear and bounded.
+ */
+export const STREAK_MAX = 25;        // Lucky Streak: +2% crit each -> +50%
+export const MOMENTUM_MAX = 100;     // Momentum kill stacks
+export const COMBO_MAX = 40;         // Candy Corn Combo: +3% each -> +120%
+export const HAUNT_MAX = 1;          // Haunting: +4% per hit -> +100% damage taken
+export const INFERNO_STACKS = 5;     // Inferno: burn stacks up to 5x the incoming burn
+export const OVERCRIT_LAYERS_MAX = 3;
+export const OVERCRIT_PER_LAYER = 0.5;
+
+/** crit multiplier for a number of crit layers: the first is a normal crit, each further one adds +50% of it */
+export function critLayerMul(critMul: number, layers: number) {
+  return layers <= 0 ? 1 : critMul * (1 + OVERCRIT_PER_LAYER * (Math.min(layers, OVERCRIT_LAYERS_MAX) - 1));
+}
+/**
+ * Overcrit: every full 100% of crit chance is a guaranteed crit layer; the remainder is the chance of one more.
+ * Layers ADD (never multiply): 2 layers at x2.3 crit damage = x3.45, and 3 layers is the most a hit can carry.
  */
 export function rollCrit(chance: number, critMul: number) {
-  const c = Math.max(0, chance);
+  const c = Math.min(OVERCRIT_LAYERS_MAX, Math.max(0, chance));
   const layers = Math.floor(c) + (Math.random() < c - Math.floor(c) ? 1 : 0);
-  return { layers, mul: layers ? Math.pow(critMul, layers) : 1 };
+  return { layers, mul: critLayerMul(critMul, layers) };
 }
 /** expected value of rollCrit (build sheet) */
 export function expectedCritMul(chance: number, critMul: number) {
-  const c = Math.max(0, chance), base = Math.floor(c), f = c - base;
-  return Math.pow(critMul, base) * (1 - f) + Math.pow(critMul, base + 1) * f;
+  const c = Math.min(OVERCRIT_LAYERS_MAX, Math.max(0, chance)), base = Math.floor(c), f = c - base;
+  return critLayerMul(critMul, base) * (1 - f) + critLayerMul(critMul, base + 1) * f;
 }
 
 /**

@@ -139,6 +139,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
         />
         <Row k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
         <Row k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
+        <Row k="Range" v={`${st.range.toFixed(1)} m`} />
         <Row k="Magazine" v={st.mag} />
         <Row k="Reload" v={`${st.reload.toFixed(2)}s`} />
         {st.pierce > 0 && st.pierce < 50 && <Row k="Pierce" v={st.pierce} />}

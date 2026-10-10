@@ -19,7 +19,7 @@ export function vendingCatalogue(owned: Record<string, number>) {
   }
   for (let rarity = 0; rarity <= 4; rarity++) {
     const eligible = catalogue.filter(p => p.rarity === rarity
-      && (p.kind === 'weapon' || p.scroll.max > 1 || !(owned[p.scroll.id] > 0)));
+      && (p.kind === 'weapon' || (owned[p.scroll.id] || 0) < p.scroll.max)); // treats stop at their max
     const treats = eligible.filter(p => p.kind === 'treat'), guns = eligible.filter(p => p.kind === 'weapon');
     const treatShare = guns.length ? treats.length ? VENDING_TREAT_SHARE : 0 : 1;
     for (const p of treats) p.weight = VENDING_RARITY_ODDS[rarity] * treatShare / treats.length;

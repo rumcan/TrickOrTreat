@@ -7,11 +7,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Permanent+Marker&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet" />
-    <link rel="preload" as="image" href="%BASE_URL%images/newlogo.webp?v=3" fetchpriority="high" />
-    <style>html,body{margin:0;background:#0e0f13;overflow:hidden}</style>
+    <!-- First paint: the logo and the splash for this orientation are fetched before anything else. -->
+    <link rel="preload" as="image" href="%BASE_URL%images/newlogo.webp?v=4" fetchpriority="high" />
+    <link rel="preload" as="image" href="%BASE_URL%images/splash.webp?v=2" media="(orientation: landscape)" fetchpriority="high" />
+    <link rel="preload" as="image" href="%BASE_URL%images/splash_portrait.webp?v=2" media="(orientation: portrait)" fetchpriority="high" />
+    <style>
+      html,body{margin:0;background:#0e0f13;overflow:hidden}
+      /* Boot screen: painted from plain HTML before the game script runs, then reused by the React loading screen. */
+      .boot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100vw;height:100vh;height:100dvh;overflow:hidden;background:#0e0f13;color:#f2e6c9}
+      .boot-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:bottom;opacity:0;transition:opacity .4s ease-out}
+      .boot-bg.is-ready{opacity:.35}
+      .boot-shade{position:absolute;inset:0;background:linear-gradient(to top,#0e0f13,rgba(14,15,19,.5),rgba(14,15,19,.8))}
+      .boot-body{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 24px}
+      .boot-logo{width:min(620px,86vw);height:auto;animation:boot-bob 2.4s ease-in-out infinite;will-change:transform}
+      .boot-loop{position:relative;margin-top:32px;height:16px;width:min(380px,80vw);overflow:hidden;border:1.5px solid #000;background:#1c1e24;box-shadow:0 0 0 1px rgba(255,255,255,.1),inset 0 2px 4px rgba(0,0,0,.7)}
+      .boot-loop i{position:absolute;top:0;bottom:0;left:0;width:36%;background:#fb8016;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.25);animation:boot-loop 1.25s cubic-bezier(.45,.05,.55,.95) infinite;will-change:transform}
+      .boot-label{margin-top:10px;font:700 12px/1.3 'Barlow Condensed',system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#9aa0a6}
+      @keyframes boot-loop{0%{transform:translateX(-105%)}100%{transform:translateX(285%)}}
+      @keyframes boot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+      @media (prefers-reduced-motion:reduce){.boot-logo{animation:none}.boot-loop i{animation-duration:3.5s}}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot">
+        <picture>
+          <source media="(orientation: portrait)" srcset="%BASE_URL%images/splash_portrait.webp?v=2" />
+          <img class="boot-bg" src="%BASE_URL%images/splash.webp?v=2" alt="" draggable="false" fetchpriority="high" onload="this.classList.add('is-ready')" />
+        </picture>
+        <div class="boot-shade"></div>
+        <div class="boot-body">
+          <img class="boot-logo" src="%BASE_URL%images/newlogo.webp?v=4" alt="Trick or Treat — Maple Falls" width="1240" height="462" draggable="false" fetchpriority="high" style="opacity:0;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.7))" onload="this.style.opacity=1" />
+          <div class="boot-loop" role="progressbar" aria-label="Loading"><i></i></div>
+          <div class="boot-label">Waking up the dead…</div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

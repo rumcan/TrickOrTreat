@@ -1,3 +1,17 @@
+# Tougher monsters, bounded damage, gazebo hideouts and a looping loader
+
+- The loading screen appears instantly from plain HTML with a looping bar instead of a progress bar that sat at 2%.
+  The logo and the splash for the current orientation are smaller and are fetched before any sprite.
+- Rescue campaign: every gated district now has a gazebo, and each missing friend waits beside one.
+- Damage numbers start low: guns and skills deal 40% of their old values, numbers are abbreviated (1.5K, 2.3M) and
+  at most 40 are on screen.
+- Runaway damage is gone. Overcrit layers add instead of multiplying, and Lucky Streak, Momentum, Candy Corn Combo,
+  Haunting, Inferno, Juggernaut, Bulwark and Sugar High all have ceilings. Treats stop at their maximum.
+- 40% fewer monsters, each worth 60% more XP and coins. Monsters take about 2.7x as many shots from the first minute
+  and gain 65% health a wave (was 60%); bosses have twice the health relative to the player.
+- Guns reach 40% of their old range. Tractor Beam, Laser Sword, Danger-Zone Aviators and Heat-Vision Hunter each add
+  2 m, and Maya and Leo have +50% gun range. Weapon cards show range.
+
 # Easy wins and mobile visibility
 
 - Everyone can win premium guns and treats from earned-coin vending spins, clearly labelled Premium. Prizes last for the run and do not permanently unlock the expansion.

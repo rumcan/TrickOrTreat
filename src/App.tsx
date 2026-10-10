@@ -5,7 +5,7 @@ import { preloadAll } from './game/preload';
 import { loadSave, storeSave, Save } from './game/data';
 import { Hud } from './ui/Hud';
 import { LogoImg } from './ui/kit';
-import { preloadUiArt } from './ui/art';
+import { preloadUiArt, preloadSplash } from './ui/art';
 import { Title, CharSelect, LevelUp, Shop, Pause, EndScreen } from './ui/Menus';
 import { TalentTree } from './ui/TalentTree';
 import { Atlas } from './ui/Atlas';
@@ -106,7 +106,7 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
-  const [prog, setProg] = useState({ p: 0, label: 'Waking up the dead…' });
+  const [label, setLabel] = useState('Waking up the dead…');
   const [save, setSave] = useState<Save>(() => loadSave());
   const [campaign, setCampaign] = useState(false);
   useEffect(() => { void expansion.restore(); }, []);
@@ -125,7 +125,8 @@ export default function App() {
   useEffect(() => { radio.setScene(screen === 'game' ? 'race' : 'menu'); }, [screen]);
 
   useEffect(() => {
-    Promise.all([preloadAll((p, label) => setProg({ p, label })), preloadUiArt()]).then(() => {
+    // the loading screen's own logo and background come first; only then the sprite manifest and the rest of the UI art
+    preloadSplash().then(() => Promise.all([preloadAll((_, text) => setLabel(text)), preloadUiArt()])).then(() => {
       setScreen('title');
       // ?export: lets scripts/export-art.mjs pull PNGs of the procedural art
       if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => Object.assign(window, { __totExport: m.exportArt, __totRegen: m.exportRegen }));
@@ -141,16 +142,15 @@ export default function App() {
   const toTitle = () => { reloadSave(); setScreen('title'); };
 
   if (screen === 'loading') {
+    // Same markup and classes as the static boot screen in index.html, so React taking over is invisible.
     return (
-      <div className="game-shell relative flex w-screen flex-col items-center justify-center overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
-        <SplashArt className="opacity-35" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0e0f13] via-[#0e0f13]/50 to-[#0e0f13]/80" />
-        <div className="relative flex flex-col items-center px-6">
-          <LogoImg className="kit-bob w-[min(620px,86vw)]" />
-          <div className="mt-8 h-4 w-[min(380px,80vw)] border-[1.5px] border-black bg-[#1c1e24] shadow-[0_0_0_1px_rgba(255,255,255,0.1),inset_0_2px_4px_rgba(0,0,0,0.7)]">
-            <div className="h-full origin-left bg-[#fb8016] shadow-[inset_0_-3px_0_rgba(0,0,0,0.25),inset_0_2px_0_rgba(255,255,255,0.25)]" style={{ transform: `scaleX(${prog.p})` }} />
-          </div>
-          <div className="mt-2.5 font-cond2 text-xs font-bold uppercase tracking-[0.2em] text-[#9aa0a6]">{prog.label}</div>
+      <div className="boot">
+        <SplashArt boot />
+        <div className="boot-shade" />
+        <div className="boot-body">
+          <LogoImg className="boot-logo" />
+          <div className="boot-loop" role="progressbar" aria-label="Loading"><i /></div>
+          <div className="boot-label">{label}</div>
         </div>
       </div>
     );

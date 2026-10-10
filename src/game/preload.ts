@@ -18,7 +18,7 @@ export function preloadAll(progress: (p: number, label: string) => void) {
   return (booting ??= boot(progress));
 }
 async function boot(progress: (p: number, label: string) => void) {
-  progress(0.02, 'Checking /assets/manifest.json for sprite files…');
+  progress(0.02, 'Unpacking the candy…');
   await loadOverrides();
   const jobs: [string, () => void][] = [];
   for (const g of [G.GRASS, G.ROAD, G.SIDEWALK, G.DIRT, G.GRAVEL, G.DARKGRASS, G.DRIVEWAY, G.FLAGSTONE, G.FIELD])

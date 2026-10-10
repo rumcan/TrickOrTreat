@@ -27,11 +27,11 @@ test('each defense has a real counter and rejects only its relevant hit', () => 
   assert.equal(damageDefense('piercing', { pierce: 99 }).multiplier, 1);
 });
 test('late ordinary enemies are much easier and scale more gently than specialists', () => {
-  assert.equal(enemyHealthScale(10), 1.6 ** 9);
+  assert.equal(enemyHealthScale(10), 1.65 ** 9);
   assert.ok(enemyHealthScale(11, true) < enemyHealthScale(10) * .2);
   assert.ok(enemyHealthScale(20) / enemyHealthScale(20, true) > 10);
-  assert.ok(Math.abs(enemyHealthScale(21) / enemyHealthScale(20) - 1.18) < 1e-10);
-  assert.ok(Math.abs(enemyHealthScale(21, true) / enemyHealthScale(20, true) - 1.06) < 1e-10);
+  assert.ok(Math.abs(enemyHealthScale(21) / enemyHealthScale(20) - 1.2) < 1e-10);
+  assert.ok(Math.abs(enemyHealthScale(21, true) / enemyHealthScale(20, true) - 1.08) < 1e-10);
 });
 test('costumes are rare in bags without increasing incidental treat frequency', () => {
   const weights = Object.fromEntries(BAG_LOOT), total = Object.values(weights).reduce((a,b) => a+b,0);

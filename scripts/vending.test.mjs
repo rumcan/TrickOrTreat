@@ -11,13 +11,14 @@ try {
   await page.waitForFunction(() => window.__tot?.game.state === 'play');
   const poolChecks = await page.evaluate(async () => {
     const { vendingCatalogue, createVendingSpin } = await import('/src/game/vending.ts');
-    const free = vendingCatalogue({ glass: 1, sugar: 99 }), paid = vendingCatalogue({});
+    const free = vendingCatalogue({ glass: 1, sugar: 2, king: 99 }), paid = vendingCatalogue({});
     const total = free.reduce((sum, p) => sum + p.weight, 0);
     if (Math.abs(total - 100) > .001) throw new Error('Free prize weights must sum to 100');
     if (!free.some(p => p.premium && p.weight > 0)) throw new Error('Premium prizes must be winnable for free players');
     if (free.some(p => p.kind === 'weapon' && p.premium && !p.weapon.def.premium)) throw new Error('Premium gun was replaced by a pea shooter');
     if (paid.filter(p => p.premium).some(p => p.weight <= 0)) throw new Error('Owned premium prizes are not in the pool');
     if (free.find(p => p.key === 'treat:glass').weight !== 0 || free.find(p => p.key === 'treat:sugar').weight <= 0) throw new Error('One-off/stackable ownership rules lost');
+    if (free.find(p => p.key === 'treat:king').weight !== 0) throw new Error('A treat at its maximum stack must leave the prize pool');
     for (let rarity = 0; rarity <= 4; rarity++) {
       const total = free.filter(p => p.rarity === rarity).reduce((sum, p) => sum + p.weight, 0);
       if (Math.abs(total - [50, 30, 15, 4, 1][rarity]) > .001) throw new Error('Rarity odds do not match published numbers');
