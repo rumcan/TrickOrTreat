@@ -1,0 +1,64 @@
+{
+  "key": "primary_school",
+  "spec": {
+    "key": "primary_school",
+    "file": "buildings/primary_school.png",
+    "category": "prop",
+    "w": 636,
+    "h": 548,
+    "anchor": [
+      318,
+      384
+    ],
+    "footprint": [
+      6,
+      3
+    ],
+    "desc": "One-storey primary school with bell cupola, 6x3",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A friendly one-storey 1950s primary school, cream brick with a green trim band, a white bell cupola on the roof, big windows decorated with kids' paper pumpkins and bats, a sign reading HOLLOW CREEK PRIMARY over red double doors. Footprint 6x3 tile(s); footprint centre on pixel (318,384)."
+  },
+  "id": "ed9bc61dd08ed049",
+  "rawFile": "art/world/raw/primary_school-b2ebdc929410fe28.png",
+  "stagedFile": "art/world/staged/primary_school-ed9bc61dd08ed049.png",
+  "savedPromptFile": "art/world/raw/primary_school-b2ebdc929410fe28.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/primary_school.png",
+      "hash": "a9d1dbe130ad8648cb9aeee45fb0248c51863e5db901aeb9176016075e329405"
+    },
+    {
+      "file": "art/world/raw/primary_school-6e2d3084f3d7a6a7.png",
+      "hash": "6e2d3084f3d7a6a76b94f22fc6d0551e927d2e666391a85ffba43a5fee02410f"
+    }
+  ],
+  "sourceHash": "b2ebdc929410fe28d4e26ce89ceb40e15578854bdff408c40690aed3fc469386",
+  "packedHash": "ed9bc61dd08ed049b96bef02dca52f1190cf168b3fe2e839c9bd1aa3611be52a",
+  "promptHash": "a64cbe5e00b1f2a73da09c569cacf98d748b250ef98b6a1dc9fcd2ca49983156",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1351,
+    1164
+  ],
+  "outputSize": [
+    2544,
+    2192
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:36.922Z",
+  "fingerprint": "d640dc23b0598f8f218270695ccdc56ab7146a41a7a339e32cd78aada8b3f846",
+  "activationFile": "art/world/activations/primary_school-1791577882079.json",
+  "gameFile": "generated/world/primary_school-ed9bc61dd08ed049.png",
+  "prompt": "Use case: precise-object-edit. Asset type: isolated game building sprite. Image 1 is style reference, Image 2 is exact canvas and footprint layout guide, Image 3 is the school image to edit. Preserve Image 3's school building identity, sign, facade, windows, roof and cupola. REMOVE ALL background glow, fog, illumination haze and floor haze completely; genuinely transparent alpha outside physical building and its attached planters/steps ONLY. Do not replace with black or checkerboard. Do not add a ground patch or shadow. Fit building to Image 2's footprint, door position and exact 636:548 canvas proportions (e.g. 1272x1096), with footprint center exactly (636,768) at that output size. Camera orthographic 2:1 dimetric, no geometry skew. The full building must fit without clipping; preserve correct transparent padding rather than choosing a wide landscape canvas. One isolated building only. No extra objects, no changed text.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/primary_school.png",
+    "art/world/raw/primary_school-6e2d3084f3d7a6a7.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

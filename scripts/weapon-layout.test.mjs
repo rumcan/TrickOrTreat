@@ -41,7 +41,7 @@ try {
       heldCalls = []; ctx.setTransform(1, 0, 0, 1, 0, 0); renderer.drawPlayer(g, 100, 150);
       const gun = heldCalls.find(c => c.order === 'gun');
       if (!gun || gun.width !== 32 || gun.height !== 16 || gun.x !== -8 || gun.y !== -10) throw new Error('Incorrect held gun size/grip');
-      if (Math.abs(gun.m.f - (128 + Math.sin(angle) * 2)) > .001) throw new Error('Gun grip left waist height');
+      if (Math.abs(gun.m.f - (120 + Math.sin(angle) * 2)) > .001) throw new Error('Gun grip left raised hand height');
       if (heldCalls.map(c => c.order).join(',') !== (g.p.back ? 'gun,kid' : 'kid,gun')) throw new Error('Weapon/body layer order incorrect');
       samples.push(1);
     }
@@ -71,7 +71,7 @@ try {
     };
     for (const back of [false, true]) for (const flip of [false, true]) {
       friend.back = back; friend.flip = flip; friendCalls = []; live.render(g, 0);
-      if (!friendCalls.some(c => c[0] === -8 && c[1] === -32)) throw new Error('Companion gun is not at waist');
+      if (!friendCalls.some(c => c[0] === -8 && c[1] === -40)) throw new Error('Companion gun is not at raised hand height');
     }
     liveCtx.drawImage = original; g.state = 'pause';
     return { playerSamples: samples.length, companionSamples: 4 };

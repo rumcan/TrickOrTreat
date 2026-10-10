@@ -82,8 +82,39 @@ the release build.
 - [x] Inventory and end-of-run progression UI.
 - [x] Radio port and generated sound effects (24 unchanged music files, 15 SFX including the later swoosh/click/tick polish).
 - [x] Rescue campaign and companion gameplay.
-- [x] New content and reference-guided generated artwork (175 active Atlas entries).
+- [x] New content and reference-guided generated artwork (234 active Atlas entries, including all 43 treat cards, 15 new map props and the 16-direction Candy Cannon).
 - [x] Durable Bits unlock implementation and isolated mock purchase tests.
 - [ ] Confirm the exact Bits price for approximately $1, then activate the catalog item. The draft 100-Bits item is inactive; its USD equivalence is not verified.
 - [x] Type-check, production build, 16 isolated tests, 30 seeded map/rescue scenarios, boss clears, desktop/mobile/media and production-loader checks.
 - [x] RUN private deployment verified: version 1.1.0, server config h3QTycdrvZA6xrhxsh7s. The inactive unlock was uploaded with the private release; activation remains pending price confirmation.
+
+## Final outstanding-item pass
+
+- [x] Import all five supplied portraits and derive matching top-cropped HUD faces.
+- [x] Center the kid picker between the logo and bottom menu; keep radio top-left and unlock top-right.
+- [x] Raise player and companion guns to hand height above the hips.
+- [x] Improve choice-card typography, spacing and white-text contrast.
+- [x] Show collected effects first, with separate synergy and damage tabs and collapsed tier details.
+- [x] Remove the duplicate costume interaction prompt.
+- [x] Explain linked-rank and full-game talent locks, and insufficient essence.
+- [x] Show named cyan rescue markers on the full map and countdown guidance in the HUD.
+- [x] Steepen exponential XP progression and reduce incidental treat frequency. Later explicit requests add enemy scaling and premium skill buffs below.
+- [x] Bound home rewards to Common–Rare, businesses to Rare–Epic and major buildings to Rare–Legendary.
+- [x] Repeat four-boss cycles regardless of unrescued friends, with stronger wave scaling below.
+- [x] Gate new full-game landmarks, rewards and mounted weapons by verified expansion access.
+- [x] Generate and review every missing card/prop/cannon image, plus three corrected sidewalks; preserve prompts, references and original assets.
+- [x] Prewarm every asset so lazy map landmarks cannot escape artwork validation or hitch on entry.
+- [x] Hide Collection in all production menus, including URL-query overrides.
+
+## Latest combat, rescue and purchase requests
+
+- [x] Compound monster health by 60% and damage by 12% per wave: 60-second opening waves, 30-second endless waves. Scale living enemies without healing them.
+- [x] Spawn shielded lieutenants each wave and give every boss rechargeable shields. Shields absorb damage first; uninterrupted damage postpones recharge; inventory/shop pauses freeze recharge.
+- [x] Place all rescue kids in reachable scenery-free clearings, never inside buildings, and eliminate unchecked failed-search fallbacks.
+- [x] Keep every missing kid on the minimap/full map; add a nearest-available rescue/gate arrow and visible rescue beacons. Remove bag arrows.
+- [x] Buff Maya with full team recovery, two-gun refill, shield-breaking EMP, invulnerability and double damage. Buff Leo with a large damaging/stunning beacon, dash refill, invulnerability and triple damage.
+- [x] Build an accessible responsive purchase catalogue displaying every premium kid, gun, treat, costume and talent, with generated artwork, a permanent-unlock CTA and restore support.
+- [x] Validate combat and shields, 200 unobstructed rescue spawns, desktop/mobile catalogue, current UI and prior rescue/encounter regressions.
+- [x] Publish this completed build privately: RUN version 1.1.2, game AFjPSjQH9kbcCl57sgO3, unchanged server config h3QTycdrvZA6xrhxsh7s.
+- [x] Release PR created: [#6](https://github.com/rumcan/TrickOrTreat/pull/6); GitHub records the final merge status.
+- [ ] Activate paid checkout only after the Bits-price choice is confirmed (100 Bits remains an inactive draft).

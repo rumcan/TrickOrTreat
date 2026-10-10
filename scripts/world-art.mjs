@@ -103,10 +103,12 @@ async function stage(key = arg('--key'), input = arg('--input')) {
   }
   const actualPromptFile = arg('--prompt-file', job.execution?.promptFile ?? job.promptFile);
   const actualPrompt = await fs.readFile(inside(root, actualPromptFile));
+  const references = arg('--reference-files')?.split(',') ?? job.execution?.references ?? job.references;
+  const inputReferences = await Promise.all(references.map(async file => ({ file, hash: digest(await fs.readFile(inside(root, file))) })));
   const savedPromptFile = `${rawFile}.prompt.txt`;
   await fs.writeFile(inside(root, savedPromptFile), actualPrompt);
   job.status = 'staged';
-  job.result = { id, rawFile, stagedFile, savedPromptFile, generator: 'built-in image_gen', sourceHash: digest(raw), packedHash: digest(packed.packed), promptHash: digest(actualPrompt), referenceHash: q.referenceHash, styleHash: q.styleHash, sourceSize: packed.sourceSize, outputSize: packed.outputSize, sourceAnchor: packed.sourceAnchor, ...(packed.gridAlignment ? { gridAlignment: packed.gridAlignment } : {}), ...(packed.tileTrim ? { tileTrim: packed.tileTrim } : {}), importedAt: new Date().toISOString(), fingerprint: job.fingerprint };
+  job.result = { id, rawFile, stagedFile, savedPromptFile, generator: 'built-in image_gen', inputReferences, sourceHash: digest(raw), packedHash: digest(packed.packed), promptHash: digest(actualPrompt), referenceHash: q.referenceHash, styleHash: q.styleHash, sourceSize: packed.sourceSize, outputSize: packed.outputSize, sourceAnchor: packed.sourceAnchor, ...(packed.gridAlignment ? { gridAlignment: packed.gridAlignment } : {}), ...(packed.tileTrim ? { tileTrim: packed.tileTrim } : {}), importedAt: new Date().toISOString(), fingerprint: job.fingerprint };
   await writeJson(`${inside(root, stagedFile)}.json`, job.result);
   await writeJson(queuePath, q);
   await preview(job);
@@ -157,7 +159,7 @@ async function activate(key = arg('--key')) {
   job.status = 'active';
   job.result.activationFile = activationFile;
   job.result.gameFile = file;
-  await writeJson(`${destination}.json`, { key: job.key, spec: job.spec, ...job.result, prompt: await fs.readFile(inside(root, job.result.savedPromptFile), 'utf8'), references: job.references, styleReferenceHash: q.referenceHash });
+  await writeJson(`${destination}.json`, { key: job.key, spec: job.spec, ...job.result, prompt: await fs.readFile(inside(root, job.result.savedPromptFile), 'utf8'), references: job.result.inputReferences?.map(r => r.file) ?? job.references, styleReferenceHash: q.referenceHash });
   await writeJson(queuePath, q);
   console.log(`Activated ${job.key}: public/assets/${file}. Reload the game. Previous override saved in ${activationFile}.`);
 }

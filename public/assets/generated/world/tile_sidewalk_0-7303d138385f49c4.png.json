@@ -1,0 +1,57 @@
+{
+  "key": "tile_sidewalk_0",
+  "spec": {
+    "key": "tile_sidewalk_0",
+    "file": "tiles/tile_sidewalk_0.png",
+    "category": "tile",
+    "w": 128,
+    "h": 64,
+    "desc": "Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges (variant 1/3)",
+    "prompt": "Seamless isometric 2:1 diamond ground tile, 128x64 px, transparent outside the diamond, top-down 3/4 Diablo II / Commandos style hand-painted pixel art, Halloween night lit by cold blue moonlight, no shadows cast by objects, edges must tile seamlessly with copies of itself. Content: Concrete sidewalk, tile split into 2x2 slabs by expansion joints parallel to the diamond edges."
+  },
+  "id": "7303d138385f49c4",
+  "rawFile": "art/world/raw/tile_sidewalk_0-0ad0cb53b3dcabbb.png",
+  "stagedFile": "art/world/staged/tile_sidewalk_0-7303d138385f49c4.png",
+  "savedPromptFile": "art/world/raw/tile_sidewalk_0-0ad0cb53b3dcabbb.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/tile_sidewalk_0.png",
+      "hash": "de00b487ddaf4d260f9bbfde2fc484e1052cf66ce8a6a9d67ee79e92408c4f50"
+    }
+  ],
+  "sourceHash": "0ad0cb53b3dcabbbcaba8b762b5e177c69b6c39cac26dd09b6e0f432c6f197cd",
+  "packedHash": "7303d138385f49c41d07b840e93bd690c797eb5c4f6c9c49d187277a086f5bac",
+  "promptHash": "1c60bde810f6ea14cfed4d53f7f4e27f9262dd2786e37521ba7e4da2fe85fa70",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "tileTrim": [
+    44,
+    0,
+    1729,
+    886
+  ],
+  "importedAt": "2026-10-09T20:28:35.131Z",
+  "fingerprint": "f3616b13ed8300714cfc05dd9515c436e30be4ca614b2d09f00d9a8859624b13",
+  "activationFile": "art/world/activations/tile_sidewalk_0-1791577881138.json",
+  "gameFile": "generated/world/tile_sidewalk_0-7303d138385f49c4.png",
+  "prompt": "Use case: stylized-concept. Asset type: seamless sidewalk terrain sprite. Image 1 is the Halloween game STYLE reference ONLY. Image 2 is exact LAYOUT guide. Generate ONE sidewalk tile, aspect 2:1, orthographic dimetric perfectly symmetric flat diamond touching all four canvas midpoints, alpha transparent outside. Cold navy-grey concrete surface, lightly worn, four paving slabs divided by two straight expansion joints EXACTLY parallel to diamond edges, straight consistent geometry not skewed. Edges must tile with copies. No curb, no raised side walls, no road markings, no perspective convergence, no cast shadow, no large leaf, no glow, no text. Beautiful hand-painted stylized texture matching reference; solid opaque surface under every detail. Preserve Image 2 geometry exactly; no padding. Render 1024x512 if possible.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/tile_sidewalk_0.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

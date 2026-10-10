@@ -4,6 +4,11 @@ import sharp from 'sharp';
 import { chromium } from 'playwright-core';
 
 const poster = 'art/new/thumb_posterpng.png';
+assert.deepEqual(await fs.readFile('public/images/newlogo.png'), await fs.readFile('art/new/newlogo.png'));
+const logoMetadata = await sharp('public/images/newlogo.png').metadata();
+const logoStats = await sharp('public/images/newlogo.png').stats();
+assert.equal(logoMetadata.hasAlpha, true);
+assert.equal(logoStats.channels.at(-1).min, 0, 'The replacement logo must preserve transparent pixels');
 const expectedThumb = await sharp(poster).resize(512, 512).jpeg({ quality: 92 }).toBuffer();
 assert.deepEqual(await fs.readFile('public/thumbnail.jpg'), expectedThumb);
 const thumb = await sharp('public/thumbnail.jpg').metadata();
@@ -20,6 +25,9 @@ try {
     await page.setViewportSize({ width, height });
     await page.goto('http://127.0.0.1:5173/');
     await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
+    const logo = page.getByRole('img', { name: 'Trick or Treat — Maple Falls' });
+    await logo.evaluate(img => img.decode());
+    assert.ok(await logo.evaluate(img => img.naturalWidth > 0 && new URL(img.src).pathname.endsWith('/images/newlogo.png')));
     const splash = page.getByTestId('splash-art');
     await splash.evaluate(async img => { await img.decode(); });
     assert.equal(await splash.evaluate(img => new URL(img.currentSrc).pathname.split('/').at(-1)), file);

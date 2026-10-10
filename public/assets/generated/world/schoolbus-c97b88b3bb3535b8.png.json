@@ -1,0 +1,62 @@
+{
+  "key": "schoolbus",
+  "spec": {
+    "key": "schoolbus",
+    "file": "props/schoolbus.png",
+    "category": "prop",
+    "w": 360,
+    "h": 290,
+    "anchor": [
+      180,
+      190
+    ],
+    "footprint": [
+      4,
+      1
+    ],
+    "desc": "Yellow school bus, footprint 4x1 along world X",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A parked classic yellow American school bus with black stripes, SCHOOL BUS lettering, dark windows, a stop-sign arm folded in. Footprint 4x1 tile(s); footprint centre on pixel (180,190)."
+  },
+  "id": "c97b88b3bb3535b8",
+  "rawFile": "art/world/raw/schoolbus-85bb13d497eaa8d3.png",
+  "stagedFile": "art/world/staged/schoolbus-c97b88b3bb3535b8.png",
+  "savedPromptFile": "art/world/raw/schoolbus-85bb13d497eaa8d3.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/schoolbus.png",
+      "hash": "76065bf02f8a2952b9a2543b6ee35f6225dcaf9420b2b399a2af375ef06c7a02"
+    }
+  ],
+  "sourceHash": "85bb13d497eaa8d39be4d52358aa7aff30a3c415cc0c31c027675834f48527b1",
+  "packedHash": "c97b88b3bb3535b840c3ba8194875e6d5fc41814b3460b6e06767429d054762a",
+  "promptHash": "1921e1b7a04d2bc3a890c4cbadd9d3cc2a5ce42392c33131517c5de8dd7d1e91",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1487,
+    1058
+  ],
+  "outputSize": [
+    1440,
+    1160
+  ],
+  "sourceAnchor": [
+    743.5,
+    693
+  ],
+  "importedAt": "2026-10-09T20:30:34.618Z",
+  "fingerprint": "a75b48e3b272270439a498b9dfff79029f7efb68c6dc79258ff740aa886487c1",
+  "activationFile": "art/world/activations/schoolbus-1791577882169.json",
+  "gameFile": "generated/world/schoolbus-c97b88b3bb3535b8.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A parked classic yellow American school bus with black stripes, SCHOOL BUS lettering, dark windows, a stop-sign arm folded in. Footprint 4x1 tile(s); footprint centre on pixel (180,190).\nAtlas entry: schoolbus. Yellow school bus, footprint 4x1 along world X\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 360x290; render 1440x1160 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (180,190), rendered (720,760). All contact positions stay fixed to the layout guide.\nFootprint: exactly 4x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/schoolbus.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

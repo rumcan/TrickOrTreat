@@ -121,12 +121,12 @@ export interface WeaponFx { shots: number; combo: number; comboT: number; fresh:
 export interface Weapon { uid: number; def: WeaponDef; rarity: number; level: number; traits: string[]; ammo: number; reloadT: number; cd: number; fx?: WeaponFx }
 
 let uidc = 1;
-export function rollRarity(luck: number, minR = 0) {
+export function rollRarity(luck: number, minR = 0, maxR = 4) {
   const w = [60, 28, 12 + luck * 3, 4 + luck * 2, 1 + luck];
   let r = Math.random() * w.reduce((a, b) => a + b, 0);
   for (let i = 0; i < w.length; i++) {
     r -= w[i];
-    if (r <= 0) return Math.max(minR, i);
+    if (r <= 0) return Math.min(maxR, Math.max(minR, i));
   }
   return Math.max(minR, 0);
 }
@@ -266,13 +266,13 @@ SCROLLS.push(
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 
 export const LOCKED_SCROLLS = () => SCROLLS.filter((s) => s.premium);
-export function rollScrolls(n: number, owned: Record<string, number>, luck: number, minRarity = 0): Scroll[] {
+export function rollScrolls(n: number, owned: Record<string, number>, luck: number, minRarity = 0, maxRarity = 4): Scroll[] {
   const out: Scroll[] = [];
   const weights = [60, 30, 14 + luck * 3, 6 + luck * 2, 2 + luck];
   // No hard caps: stacking treats can be taken past their usual max ("overstack"), just less often.
   // One-off treats (max 1) are switches, so they stay single.
   const over = (s: Scroll) => (owned[s.id] || 0) >= s.max;
-  const avail = SCROLLS.filter((s) => s.rarity >= minRarity && (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
+  const avail = SCROLLS.filter((s) => s.rarity >= minRarity && s.rarity <= maxRarity && (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
   const weight = (s: Scroll) => weights[s.rarity] * (over(s) ? 0.3 : 1);
   for (let i = 0; i < n && avail.length; i++) {
     let tot = 0;
@@ -395,8 +395,8 @@ export const HERO_INFO = [
   { name: 'Tommy', title: 'The Troublemaker', passive: '+10% damage', skill: 'Pumpkin Bomb', skillDesc: 'Lob an explosive jack-o-lantern that bursts into flames.', cd: 6, apply: (s: Stats) => (s.dmg *= 1.1) },
   { name: 'Sam', title: 'The Science Kid', passive: '+30 max shield', skill: 'TP Tornado', skillDesc: 'Summon a toilet-paper twister that pulls in and shreds monsters.', cd: 10, apply: (s: Stats) => (s.maxShield += 30) },
   { name: 'Jess', title: 'The Brave One', passive: '+8% crit chance', skill: 'Camera Flash', skillDesc: 'A blinding flash that stuns and damages everything in a wide cone.', cd: 7, apply: (s: Stats) => (s.crit += 0.08) },
-  { name: 'Maya', title: 'The Fixer', passive: '20% faster reloads', skill: 'Repair Pulse', skillDesc: 'Restore health and shields to you and your active friend, and refill your magazine.', cd: 12, apply: (s: Stats) => (s.reload *= 0.8) },
-  { name: 'Leo', title: 'The Night Scout', passive: '+12% movement speed', skill: 'Night Beacon', skillDesc: 'A low moonlit pulse slows nearby monsters and marks a safe escape.', cd: 9, apply: (s: Stats) => (s.move *= 1.12) },
+  { name: 'Maya', title: 'The Fixer', passive: '35% faster reloads, +40 shield', skill: 'Overcharged Repair', skillDesc: 'Fully heal and shield yourself, heal or revive your active friend, and refill both guns. An EMP breaks nearby enemy shields, stuns and deals 140 damage. Gain 2s invulnerability and double damage for 6s.', cd: 12, apply: (s: Stats) => { s.reload *= 0.65; s.maxShield += 40; } },
+  { name: 'Leo', title: 'The Night Scout', passive: '+20% movement speed, +1 dash', skill: 'Nightfall Beacon', skillDesc: 'A huge moonlit blast deals 220 damage, slows enemies for 8s and stuns for 3s (1s on bosses). Refill your dashes, gain 1.5s invulnerability and triple damage for 7s.', cd: 11, apply: (s: Stats) => { s.move *= 1.2; s.dashCharges++; } },
 ];
 
 export const rarityColor = (r: number) => RARITY[r].color;

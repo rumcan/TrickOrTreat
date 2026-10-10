@@ -4,6 +4,7 @@ import { settings } from './settings';
 import { gameAudio } from './audio';
 import { hasFullGame } from './expansion';
 import { Build, rollCrit, rateOverflow, overflow } from './build';
+import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import {
   Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
   COSTUMES, COSTUME_BY_ID, GIVE_LINES,
@@ -88,6 +89,7 @@ export const EDEF: Record<string, EnemyDef> = {
 };
 
 export interface Enemy {
+  shield: number; maxShield: number; shieldT: number; lieutenant: boolean;
   id: number; type: string; def: EnemyDef; x: number; y: number; hp: number; maxHp: number; r: number; anim: number; flip: boolean;
   hit: number; burnT: number; burnDps: number; burnAcc: number; ectoT: number; stunT: number; atkCd: number; kx: number; ky: number;
   /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (never caps) */
@@ -135,9 +137,9 @@ export const TURRET = { dmg: 24, rate: 11, speed: 21, range: 13, heatPerShot: 0.
 
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
-const xpFor = (l: number) => Math.floor(6 + l * 5 + l * l * 0.7);
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
 const CAMPAIGN_BOSSES = ['hex', 'alpha', 'warden', 'king'];
+const ENDLESS_BOSS_INTERVAL = 90;
 
 // ================= GAME =================
 export class Game {
@@ -185,6 +187,7 @@ export class Game {
   bossRound = 0;
   bossBreak = false;
   nextBossAt = 90;
+  private endlessBosses = 0;
   xpCollected = 0;
   essence = { combat: 0, kills: 0, survival: 0, bosses: 0, waves: 0 };
   endless = false;
@@ -214,7 +217,8 @@ export class Game {
   private procGen = 0;
   private blastKill = false;
   // ---- Endless Night ----
-  wave = 0; private waveT = 0; victorious = false;
+  wave = 1; private waveT = 0; victorious = false;
+  premiumPowerT = 0;
   nearbyWeapon: Weapon | null = null;
   /** a gun on the ground being inspected (game paused) before it goes into a slot */
   inspecting: Pickup | null = null;
@@ -279,7 +283,7 @@ export class Game {
       for (const cell of gateCells) this.map.coll[cell.index] = 0;
       this.computeFlow(true);
       this.friends = HERO_INFO.map((_, i) => i).filter(i => i !== this.hero).map((id, i) => {
-        const pos = this.freeSpot(sites[i][0], sites[i][1], true);
+        const pos = this.rescueSpot(sites[i][0], sites[i][1]);
         return { hero: id, ...pos, r: 0.24, gate: i, status: 'locked', guardian: null, progress: 0,
           hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
       });
@@ -300,7 +304,21 @@ export class Game {
       const nx = x + Math.cos(a) * radius, ny = y + Math.sin(a) * radius;
       if ((!reachable || this.reachable(nx, ny)) && [[0, 0], [-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].every(([dx, dy]) => cellAt(this.map, nx + dx, ny + dy) === 0)) return { x: nx, y: ny };
     }
-    return { x, y };
+    // Never return the unchecked blocked request when a local search fails.
+    return { x: this.map.start.x, y: this.map.start.y };
+  }
+  private rescueSpot(x: number, y: number) {
+    let best: { x: number; y: number } | null = null, distance = Infinity;
+    // Search every clearing, not just the eight tiles around a potentially occupied house.
+    for (let ny = 2.5; ny < MAP_H - 2; ny++) for (let nx = 2.5; nx < MAP_W - 2; nx++) {
+      const d = Math.hypot(nx - x, ny - y);
+      if (d >= distance || !this.reachable(nx, ny)) continue;
+      if (![[0, 0], [-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].every(([dx, dy]) => cellAt(this.map, nx + dx, ny + dy) === 0)) continue;
+      if (this.map.props.some(pr => !pr.removed && nx > pr.x0 - 0.8 && nx < pr.x0 + pr.fw + 0.8 && ny > pr.y0 - 0.8 && ny < pr.y0 + pr.fh + 0.8)) continue;
+      best = { x: nx, y: ny }; distance = d;
+    }
+    if (!best) throw new Error('No reachable rescue clearing in this map');
+    return best;
   }
   introPosition(hero: number) {
     const index = [this.hero, ...this.friends.map(f => f.hero)].indexOf(hero);
@@ -431,10 +449,10 @@ export class Game {
     } else friend.anim += dt * 3;
     if (distance > 18 && this.state !== 'downed') Object.assign(friend, this.freeSpot(this.p.x + 1, this.p.y + 1));
     for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
-      friend.hp = Math.max(0, friend.hp - e.def.dmg * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
+      friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
     }
     for (const bullet of this.ebullets) if (!bullet.dead && Math.hypot(bullet.x - friend.x, bullet.y - friend.y) < bullet.r + friend.r && friend.hurtCd <= 0) {
-      bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
+      bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
     }
     if (this.state === 'downed') {
       this.downedTime -= dt;
@@ -581,6 +599,7 @@ export class Game {
     }
     const dt = Math.min(dtRaw, 1 / 30);
     this.time += dt;
+    this.premiumPowerT = Math.max(0, this.premiumPowerT - dt);
     if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
     const downed = this.state === 'downed';
     const bk = `${this.weapon?.uid ?? 0}|${this.scrollOrder.length}|${this.p.costume}`;
@@ -606,7 +625,7 @@ export class Game {
     // A boss death can switch to the safe shop inside a bullet/zone update.
     if (this.bossBreak) { this.state = 'shop'; inp.endFrame(); return; }
     if (!downed) { this.updateTot(dt); this.updateInteract(); }
-    if (this.bossKilled && !this.endless && (!this.campaign || this.friends.every(f => f.status === 'rescued'))) {
+    if (this.bossKilled && !this.endless) {
       this.winDelay += dt;
       if (this.winDelay >= 3.5 && this.state === 'play') this.startEndless();
     }
@@ -896,12 +915,13 @@ export class Game {
     if (b.ks('tank', 1)) m *= 1 + Math.max(0, s.maxHp - 100) / 500;
     if (b.ks('tank', 3)) m *= 1 + s.maxShield / 500;
     if (b.ks('sugar', 2)) m *= Math.max(1, s.move);
+    if (this.premiumPowerT > 0) m *= this.hero === 4 ? 3 : 2;
     return m;
   }
   /** crit roll with Lucky Streak stacks; past 100% it becomes overcrit layers */
   crit(chance: number, critMul: number) { return rollCrit(chance + this.streak * 0.02, critMul); }
   /** Endless Night threat: monster damage multiplier (grows forever) */
-  threat() { return this.endless ? Math.pow(1.09, this.wave) : 1; }
+  threat() { return Math.pow(1.12, this.wave - 1); }
   private queueBlast(x: number, y: number, r: number, dmg: number) {
     if (this.procGen >= 5 || this.procQueue.length > 60) return;
     this.procQueue.push({ x, y, r, dmg, gen: this.procGen + 1 });
@@ -1129,8 +1149,12 @@ export class Game {
   }
 
   damageEnemy(e: Enemy, dmg: number, color: string, big = false, quiet = false) {
-    if (e.dead) return;
-    e.hp -= dmg;
+    if (e.dead || dmg <= 0) return;
+    const absorbed = Math.min(e.shield, dmg);
+    e.shield -= absorbed;
+    e.shieldT = e.def.boss ? 6 : 4;
+    e.hp -= dmg - absorbed;
+    if (absorbed === dmg) color = '#80e4ff';
     if (!quiet) gameAudio.play('impact', 0.4);
     e.hit = 0.1;
     if (!quiet) this.text(e.x + rand(-0.2, 0.2), e.y + rand(-0.2, 0.2), Math.round(dmg).toString(), color, big ? 20 : 13, 'dmg');
@@ -1218,16 +1242,25 @@ export class Game {
     } else if (this.hero === 1) {
       this.zones.push({ kind: 'tornado', x: tx, y: ty, r: 1.8 * s.skillPow, t: 0, life: 4.5, dmg: 9 * s.dmg * s.skillPow, tick: 0 });
     } else if (this.hero === 3) {
-      p.hp = Math.min(s.maxHp, p.hp + 30 * s.skillPow);
-      p.shield = Math.min(s.maxShield, p.shield + 35 * s.skillPow);
-      const weapon = this.weapon;
-      if (weapon) { weapon.ammo = weaponStats(weapon, s).mag; weapon.reloadT = 0; }
-      const friend = this.friends.find(f => f.hero === this.activeFriend && f.hp > 0);
-      if (friend) friend.hp = Math.min(friend.maxHp, friend.hp + 40 * s.skillPow);
-      this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 3, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#ffd580' });
+      p.hp = s.maxHp; p.shield = s.maxShield; p.invuln = Math.max(p.invuln, 2);
+      this.premiumPowerT = 6;
+      for (const weapon of p.weapons) if (weapon) { weapon.ammo = weaponStats(weapon, s).mag; weapon.reloadT = 0; }
+      const friend = this.friends.find(f => f.hero === this.activeFriend);
+      if (friend) { friend.hp = friend.maxHp; friend.weapon.ammo = weaponStats(friend.weapon, s).mag; friend.weapon.reloadT = 0; }
+      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 7) {
+        e.shield = 0; e.shieldT = 8; e.stunT = Math.max(e.stunT, e.def.boss ? 0.6 : 2);
+        this.damageEnemy(e, 140 * s.dmg * s.skillPow, '#ffd580', true);
+        e.shieldT = 8;
+      }
+      this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 7, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#ffd580' });
     } else if (this.hero === 4) {
-      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 6) { e.ectoT = Math.max(e.ectoT, 5 * s.skillPow); e.stunT = Math.max(e.stunT, 0.7); }
-      this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 6, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#80d9ce' });
+      this.premiumPowerT = 7; p.dashCharges = s.dashCharges; p.dashRecharge = 0;
+      p.invuln = Math.max(p.invuln, 1.5);
+      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 9) {
+        e.ectoT = Math.max(e.ectoT, 8 * s.skillPow); e.stunT = Math.max(e.stunT, e.def.boss ? 1 : 3);
+        this.damageEnemy(e, 220 * s.dmg * s.skillPow, '#80d9ce', true);
+      }
+      this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 9, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#80d9ce' });
     } else {
       const ang = Math.atan2(dy, dx);
       const R = 6 * Math.sqrt(s.skillPow);
@@ -1397,7 +1430,10 @@ export class Game {
     const def = EDEF[type];
     const scale = 1 + this.time / 60 * 0.38 + (this.endless ? 1.5 : 0);
     const hp = def.hp * (def.boss ? 1 : scale) * (elite ? 3 : 1) * this.hpScale();
+    const lieutenant = !def.boss && (elite || !!def.elite);
+    const maxShield = hp * (def.boss ? 0.4 : lieutenant ? 0.6 : 0);
     const e: Enemy = {
+      shield: maxShield, maxShield, shieldT: 0, lieutenant,
       id: this.eid++, type, def, x, y, hp, maxHp: hp, r: def.r * (elite ? 1.25 : 1), anim: rand(0, 6), flip: false, hit: 0, burnT: 0, burnDps: 0, burnAcc: 0, ectoT: 0, stunT: 0,
       atkCd: 0, kx: 0, ky: 0, shootT: rand(1, 2.5), lungeT: 0, lungeX: 0, lungeY: 0, p1: 3, p2: 6, p3: 9, orbitT: 0, dead: false, elite: elite || !!def.elite, spawnT: 0.4,
     };
@@ -1482,7 +1518,7 @@ export class Game {
       this.spawnAcc = 0; this.tot = null; this.interact = null;
       this.p.coins += 150 + this.bossRound * 50;
       this.p.hp = Math.min(this.stats.maxHp, this.p.hp + this.stats.maxHp * 0.25);
-      this.nextBossAt = Math.max([90, 170, 245, 320][this.bossRound] ?? Infinity, this.time + 45);
+      this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45);
       this.state = 'shop';
       this.hitStop = 0.25;
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
@@ -1497,6 +1533,8 @@ export class Game {
     for (const e of this.enemies) {
       if (e.dead) continue;
       const d = e.def;
+      e.shieldT = Math.max(0, e.shieldT - dt);
+      if (e.shieldT === 0 && e.maxShield > 0) e.shield = Math.min(e.maxShield, e.shield + e.maxShield * (d.boss ? 0.08 : 0.2) * dt);
       e.anim += dt * d.anim;
       e.hit -= dt;
       e.atkCd -= dt;
@@ -1828,7 +1866,7 @@ export class Game {
    * a gun · a free treat · a level for the gun in hand · a candy hoard · first aid · a costume.
    */
   private openBag(x: number, y: number) {
-    const table: [string, number][] = [['gun', 30], ['treat', 22], ['upgrade', 14], ['hoard', 14], ['aid', 10], ['costume', 10]];
+    const table = BAG_LOOT;
     let r = Math.random() * table.reduce((a, b) => a + b[1], 0), kind = 'gun';
     for (const [k, w] of table) { r -= w; if (r <= 0) { kind = k; break; } }
     const w = this.weapon;
@@ -1837,7 +1875,7 @@ export class Game {
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'xp2', 2);
     if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
     else if (kind === 'treat') {
-      const sc = rollScrolls(1, this.scrolls, this.stats.luck + 1)[0];
+      const sc = rollScrolls(1, this.scrolls, this.stats.luck + 1, 2)[0];
       if (sc) {
         this.scrolls[sc.id] = (this.scrolls[sc.id] || 0) + 1; this.scrollOrder.push(sc.id); this.recalcStats();
         this.setBanner(`TREAT BAG: ${sc.name.toUpperCase()}`, sc.desc, 'loot');
@@ -2107,29 +2145,32 @@ export class Game {
       return;
     }
     const costumed = !!this.p.costume;
+    const rewards = rewardRangeFor(h.prop.kind);
     // candy fountain from the door
     for (let i = 0; i < (costumed ? 10 : 5); i++) this.dropPickup(dx, dy, 'coin', 2);
     for (let i = 0; i < (costumed ? 8 : 4); i++) this.dropPickup(dx, dy, 'xp2', 2);
     if (Math.random() < 0.25) this.dropPickup(dx, dy, 'heal', 25);
-    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, 1)));
+    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max)));
     if (Math.random() < (costumed ? 0.1 : 0.32)) this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
     for (let i = 0; i < 24; i++) this.particle(dx, dy, 0.6, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.9, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
     this.bubble(this.p.x, this.p.y, 115, costumed ? 'Thank you!!' : 'Aww… thanks.', 'kid', 1.4, true);
     this.choiceGiver = h.owner;
     const n = (costumed ? 3 : 2) + this.stats.totChoices;
-    this.openLevelUp('house', n, this.stats.luck + (costumed ? 3 : 0));
+    this.openLevelUp('house', n, this.stats.luck + (costumed ? 3 : 0), rewards);
   }
 
   private choiceN = 3;
   private choiceLuck = 0;
-  openLevelUp(mode: ChoiceMode, n = 3, luck = this.stats.luck) {
+  choiceRewardRange = rewardRangeFor('house');
+  openLevelUp(mode: ChoiceMode, n = 3, luck = this.stats.luck, rewards: RewardRange = rewardRangeFor('house')) {
     this.choiceMode = mode;
     this.choiceN = n;
     this.choiceLuck = luck;
+    this.choiceRewardRange = rewards;
     this.rollChoices();
     this.state = 'levelup';
   }
-  /** Houses only hand out the good stuff: rare, epic or legendary, and each card can be a treat or a gun. */
+  /** Reward quality depends on the visited building; each card can be a treat or a gun. */
   private rollChoices() {
     this.rollLocked();
     const n = this.choiceN, luck = this.choiceLuck;
@@ -2141,14 +2182,16 @@ export class Game {
     let guns = 0;
     for (let i = 0; i < n; i++) if (Math.random() < 0.4) guns++;
     guns = Math.min(guns, n - 1); // always at least one treat on offer
-    this.choices = rollScrolls(n - guns, this.scrolls, luck, 2);
-    this.gunChoices = Array.from({ length: n - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, 2)));
+    const { min, max } = this.choiceRewardRange;
+    this.choices = rollScrolls(n - guns, this.scrolls, luck, min, max);
+    this.gunChoices = Array.from({ length: n - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max)));
   }
   private rollLocked() {
     this.lockedChoice = null;
     if (hasFullGame()) return;
-    const scrolls = LOCKED_SCROLLS();
-    const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, 2)) : null;
+    const { min, max } = this.choiceMode === 'house' ? this.choiceRewardRange : { min: 0, max: 4 };
+    const scrolls = LOCKED_SCROLLS().filter(s => s.rarity >= min && s.rarity <= max);
+    const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, Math.max(min, 2), max)) : null;
     if (gun) this.lockedChoice = { scroll: null, weapon: gun };
     else if (scrolls.length) this.lockedChoice = { scroll: scrolls[Math.floor(Math.random() * scrolls.length)], weapon: null };
   }
@@ -2254,38 +2297,53 @@ export class Game {
   }
   /**
    * ENDLESS NIGHT: after the last boss falls the night simply keeps going. Every 30s a new wave:
-   * monster HP ×1.16 and damage ×1.09 per wave (compounding, no ceiling), more of them, more elites,
-   * and a boss every 5th wave. Sooner or later even a god-tier build is outscaled — how far can yours get?
+   * monster HP ×1.6 and damage ×1.12 per wave, including living enemies, more of them, more elites,
+   * and the four bosses cycle forever on their own timer. Rescue progress never stops the next round.
    */
   startEndless() {
     if (this.endless) return;
     this.bankRewards(); // the victory is banked right away; endless essence keeps adding on top
     this.victorious = true;
     this.endless = true;
-    this.wave = 1; this.waveT = 0; this.winDelay = 0;
+    this.advanceWave(); this.waveT = 0; this.winDelay = 0;
+    this.endlessBosses = 0;
+    this.nextBossAt = this.time + 60;
     gameAudio.play('victory');
-    this.setBanner('YOU BEAT THE NIGHT!', 'Endless Night: the waves never stop growing. How long can your build hold?', 'win');
+    this.setBanner('THE BOSSES WILL RETURN!', 'Endless Night: stronger bosses return in 60s. Keep exploring and rescuing your friends.', 'win');
   }
   /** Endless monster HP multiplier (compounds every wave) */
-  hpScale() { return this.endless ? Math.pow(1.16, this.wave) : 1; }
-  private updateEndless(dt: number) {
-    this.waveT += dt;
-    if (this.waveT < 30) return;
-    this.waveT = 0;
+  hpScale() { return Math.pow(1.6, this.wave - 1); }
+  private advanceWave() {
     this.wave++;
-    this.setBanner(`WAVE ${this.wave}`, `Monsters ×${this.hpScale().toFixed(1)} HP · ×${this.threat().toFixed(1)} damage · there are more of them`, 'danger');
-    gameAudio.play('guardian', 0.5);
-    const n = Math.min(60, 16 + this.wave * 3);
-    const types = ['zombie', 'skeleton', 'bat', 'ghost', 'pumpkin', 'witch'];
-    for (let i = 0; i < n; i++) {
-      const pos = this.spawnPos(i % 3 === 2);
-      if (pos) this.spawnEnemy(types[(i + this.wave) % types.length], pos.x, pos.y, Math.random() < Math.min(0.5, 0.05 + this.wave * 0.015));
+    for (const e of this.enemies) if (!e.dead) {
+      // Preserve the damage already dealt; scale living enemies as well as new spawns.
+      e.hp *= 1.6; e.maxHp *= 1.6; e.shield *= 1.6; e.maxShield *= 1.6;
     }
-    if (this.wave % 5 === 0 && !this.boss) {
-      const type = CAMPAIGN_BOSSES[(this.wave / 5 - 1) % CAMPAIGN_BOSSES.length];
+    const pos = this.spawnPos(false);
+    if (pos) this.spawnEnemy(this.wave % 2 ? 'witch' : 'skeleton', pos.x, pos.y, true);
+  }
+  private updateEndless(dt: number) {
+    if (this.bossBreak) return;
+    this.waveT += dt;
+    if (this.waveT >= 30) {
+      this.waveT -= 30;
+      this.advanceWave();
+      this.setBanner(`WAVE ${this.wave}`, `Monsters ×${this.hpScale().toFixed(1)} HP · ×${this.threat().toFixed(1)} damage · there are more of them`, 'danger');
+      gameAudio.play('guardian', 0.5);
+      const n = Math.min(60, 16 + this.wave * 3);
+      const types = ['zombie', 'skeleton', 'bat', 'ghost', 'pumpkin', 'witch'];
+      for (let i = 0; i < n; i++) {
+        const pos = this.spawnPos(i % 3 === 2);
+        if (pos) this.spawnEnemy(types[(i + this.wave) % types.length], pos.x, pos.y, Math.random() < Math.min(0.5, 0.05 + this.wave * 0.015));
+      }
+    }
+    if (!this.boss && this.soon(-2000 - this.endlessBosses, this.nextBossAt, 10)) this.toast('A stronger boss returns in 10 seconds!');
+    if (!this.boss && this.time >= this.nextBossAt) {
+      const type = CAMPAIGN_BOSSES[this.endlessBosses % CAMPAIGN_BOSSES.length];
+      this.endlessBosses++;
       const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
       this.boss = this.spawnEnemy(type, pos.x, pos.y);
-      this.setBanner(`WAVE ${this.wave} · ${BOSS_NAMES[type].toUpperCase()}`, `Boss ×${this.hpScale().toFixed(1)} HP`, 'danger');
+      this.setBanner(`ROUND ${Math.ceil(this.endlessBosses / 4) + 1} · ${BOSS_NAMES[type].toUpperCase()}`, `Boss ×${this.hpScale().toFixed(1)} HP · ×${this.threat().toFixed(1)} damage`, 'danger');
       this.shake = 15;
     }
   }
@@ -2308,6 +2366,13 @@ export class Game {
   private director(dt: number) {
     if (this.bossBreak || (this.bossKilled && !this.endless)) return;
     const t = this.time;
+    if (!this.endless) {
+      const targetWave = 1 + Math.floor(t / 60);
+      if (targetWave > this.wave) {
+        while (this.wave < targetWave) this.advanceWave();
+        this.setBanner(`WAVE ${this.wave}`, 'Monsters gain 60% health and 12% damage each wave. Shielded lieutenants have arrived.', 'danger');
+      }
+    }
     const cap = this.endless ? Math.min(450, 280 + this.wave * 10) : 280;
     const alive = this.enemies.length;
     if (!this.boss || this.endless) {
@@ -2380,8 +2445,8 @@ export class Game {
     }
     // boss
     const at = this.campaign ? this.nextBossAt : 300;
-    if (!this.boss && this.soon(-100 - this.bossRound, at, 10)) this.toast('A boss is coming. Get your weapons ready!');
-    if (t >= at && !this.boss && (this.campaign ? this.bossRound < CAMPAIGN_BOSSES.length : !this.bossSpawned)) {
+    if (!this.endless && !this.boss && this.soon(-100 - this.bossRound, at, 10)) this.toast('A boss is coming. Get your weapons ready!');
+    if (!this.endless && t >= at && !this.boss && (this.campaign ? this.bossRound < CAMPAIGN_BOSSES.length : !this.bossSpawned)) {
       this.bossSpawned = true;
       const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
       const type = this.campaign ? CAMPAIGN_BOSSES[this.bossRound] : 'king';
@@ -2431,15 +2496,15 @@ export class Game {
       weapons: p.weapons.map((w) => (w ? { w, st: weaponStats(w, s) } : null)), cur: p.cur, skillCd: Math.max(0, p.skillCd), skillMax: HERO_INFO[this.hero].cd * s.skillCd,
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
-      wave: this.endless ? this.wave : 0, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 0,
-      momentum: this.momentum, streak: this.streak,
+      wave: this.wave, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 60 - this.time % 60,
+      momentum: this.momentum, streak: this.streak, premiumPower: this.premiumPowerT,
       turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,
       rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,
       costumesFound: this.costumesFound, doorsRung: this.housesVisited,
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
       housesLeft: this.map.houses.filter((h) => !h.visited).length, housesTotal: this.map.houses.length,
-      banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, name: BOSS_NAMES[this.boss.type] } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
-      bossIn: this.boss || this.bossKilled || this.endless ? null : Math.max(0, (this.campaign ? this.nextBossAt : 300) - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
+      banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, shield: this.boss.shield, maxShield: this.boss.maxShield, shieldT: this.boss.shieldT, name: BOSS_NAMES[this.boss.type] } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
+      bossIn: this.boss || (this.bossKilled && !this.endless) ? null : Math.max(0, (this.endless || this.campaign ? this.nextBossAt : 300) - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
     };
   }
 }

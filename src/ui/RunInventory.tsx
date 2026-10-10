@@ -9,6 +9,8 @@ import { SCROLL_TAGS } from '../game/build';
 /** Reads the actual applied run state, not the collection of possible drops. */
 export function RunInventory({ game, onClose }: { game: Game; onClose: () => void }) {
   const [search, setSearch] = useState('');
+  const [tab, setTab] = useState<'effects' | 'synergies' | 'damage'>('effects');
+  const tabs = [['effects', 'Collected effects'], ['synergies', 'Synergies & tiers'], ['damage', 'Damage breakdown']] as const;
   const [sort, setSort] = useState<'picked' | 'rarity' | 'name'>('picked');
   const entries = Object.entries(game.scrolls).filter(([id, count]) => count > 0 && SCROLL_BY_ID[id]);
   const total = entries.reduce((n, [, count]) => n + count, 0);
@@ -26,7 +28,7 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
     ['Companion damage', `${s.companionDmg.toFixed(2)}×`], ['Revive speed', `${s.reviveSpeed.toFixed(2)}×`], ['Companion reduction', `${Math.round(s.companionArmor * 100)}%`],
   ];
   return (
-    <div role="dialog" aria-modal="true" aria-label="Run inventory" className="absolute inset-0 z-40 overflow-y-auto bg-[#090b10]/95 p-4 text-[#f2e6c9] sm:p-8">
+    <div role="dialog" aria-modal="true" aria-label="Run inventory" className="run-inventory absolute inset-0 z-40 overflow-y-auto bg-[#090b10]/95 p-4 text-white sm:p-8">
       <div className="mx-auto max-w-6xl">
         <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div><KitTitle className="text-4xl">Your run build</KitTitle><p className="text-sm text-[#9aa0a6]">{total} treats · {entries.length} unique effects · game paused</p></div>
@@ -34,7 +36,19 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
         </header>
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <section>
-            <div className="mb-5 grid gap-4 xl:grid-cols-[1fr_340px]"><SynergyPanel game={game} /><DamageMath game={game} /></div>
+            <div role="tablist" aria-label="Run build sections" className="mb-5 flex flex-wrap gap-2">
+              {tabs.map(([id, label], index) => <button key={id} id={`build-tab-${id}`} role="tab" tabIndex={tab === id ? 0 : -1} aria-selected={tab === id} aria-controls={`build-panel-${id}`} onClick={() => setTab(id)} onKeyDown={e => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+                e.preventDefault();
+                const next = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (index + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+                setTab(tabs[next][0]);
+                e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+              }} className={`build-tab ${tab === id ? 'is-active' : ''}`}>{label}</button>)}
+            </div>
+            <div role="tabpanel" id={`build-panel-${tab}`} aria-labelledby={`build-tab-${tab}`}>
+            {tab === 'synergies' && <SynergyPanel game={game} />}
+            {tab === 'damage' && <DamageMath game={game} />}
+            {tab === 'effects' && <>
             <div className="mb-4 flex gap-2">
               <input aria-label="Search collected treats" placeholder="Search effects or treats…" value={search} onChange={(e) => setSearch(e.target.value)} className="min-w-0 flex-1 rounded border border-[#3a3d44] bg-[#13151b] px-3 py-2" />
               <select aria-label="Sort collected treats" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="rounded border border-[#3a3d44] bg-[#13151b] px-2"><option value="picked">Picked up</option><option value="rarity">Rarity</option><option value="name">Name</option></select>
@@ -46,10 +60,12 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
                 const item = SCROLL_BY_ID[id], stacked = baseStats(), initial = baseStats();
                 for (let n = 0; n < count; n++) item.apply(stacked);
                 const changed = Object.keys(stacked).filter((key) => stacked[key as keyof typeof stacked] !== initial[key as keyof typeof initial]);
-                return <article key={id} className="kit-panel flex gap-3 p-4" style={{ borderColor: RARITY_KIT[item.rarity] }}>
+                return <article key={id} className="inventory-treat kit-panel flex flex-col gap-3 p-4 xl:flex-row" style={{ borderColor: RARITY_KIT[item.rarity] }}>
                   <span className="hm-thumb h-[68px] w-[120px] shrink-0 !aspect-auto" style={{ borderColor: RARITY_KIT[item.rarity] }}><TreatArt id={id} /></span><div className="min-w-0 flex-1"><h2 className="font-cond2 text-lg font-bold" style={{ color: RARITY_KIT[item.rarity] }}>{item.name} <span className="text-[#f2e6c9]">×{count}</span></h2><p className="text-sm">{item.desc} per copy</p><TagChips tags={SCROLL_TAGS[id] ?? []} className="mt-1 !justify-start" /><p className="mt-2 text-xs text-[#9aa0a6]">{count}/{item.max} stacks{count > item.max ? ' (overstacked)' : ''} · {changed.map((key) => `${key}: ${Number(stacked[key as keyof typeof stacked].toFixed(2))}`).join(' · ')} on baseline</p></div>
                 </article>;
               })}
+            </div>
+            </>}
             </div>
           </section>
           <aside className="space-y-4">

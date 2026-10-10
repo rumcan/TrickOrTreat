@@ -1,0 +1,55 @@
+{
+  "key": "treatart_fireball",
+  "spec": {
+    "key": "treatart_fireball",
+    "file": "treats/fireball.png",
+    "category": "icon",
+    "w": 240,
+    "h": 136,
+    "anchor": [
+      120,
+      68
+    ],
+    "desc": "Treat card art: a pair of eyes glowing with fire, a psychic girl starting fires with a stare",
+    "prompt": "Small 80s/90s pop-culture trading-card illustration, 240x136, hand-painted retro style with neon glow and subtle VHS scanlines, no text, no logos, no real characters or trademarks: a pair of eyes glowing with fire, a psychic girl starting fires with a stare. Bold centred subject readable at thumbnail size."
+  },
+  "id": "efa36be014a05f7c",
+  "rawFile": "art/world/raw/treatart_fireball-f65ec1922c1f56fd.png",
+  "stagedFile": "art/world/staged/treatart_fireball-efa36be014a05f7c.png",
+  "savedPromptFile": "art/world/raw/treatart_fireball-f65ec1922c1f56fd.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/treatart_fireball.png",
+      "hash": "d20dbdfc65f18953276ae98bd8287c3655ba61bf125d70240fb8028fb720ee09"
+    }
+  ],
+  "sourceHash": "f65ec1922c1f56fd64e0ebab0a76ba3f98c9500b9d5cae2bd55f4f8f9b97a2ba",
+  "packedHash": "efa36be014a05f7c2130ecd49d9b66cfe8e92e90718360f975a8dfb966994141",
+  "promptHash": "448531766f9b0bcab8800223ec29b170fded8644440369c812adbc6db1dc6164",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1667,
+    944
+  ],
+  "outputSize": [
+    960,
+    544
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:26.941Z",
+  "fingerprint": "8c13f2c28a98e2b9d9c0db2077bb27d21ef2b7f2b4e9498596c881bfdd25daf4",
+  "activationFile": "art/world/activations/treatart_fireball-1791577883430.json",
+  "gameFile": "generated/world/treatart_fireball-efa36be014a05f7c.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Small 80s/90s pop-culture trading-card illustration, 240x136, hand-painted retro style with neon glow and subtle VHS scanlines, no text, no logos, no real characters or trademarks: a pair of eyes glowing with fire, a psychic girl starting fires with a stare. Bold centred subject readable at thumbnail size.\nAtlas entry: treatart_fireball. Treat card art: a pair of eyes glowing with fire, a psychic girl starting fires with a stare\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 240x136; render 960x544 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (120,68), rendered (480,272). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/treatart_fireball.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

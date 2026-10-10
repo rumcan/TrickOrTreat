@@ -236,17 +236,19 @@ export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBa
             ))}
           </div>
           <div className="mt-1 text-xs text-slate-400">Rank {fl} / {focus.max}</div>
+          {focus.premium && !hasFullGame() && <p role="status" className="mt-3 rounded border border-[#ffc453]/40 bg-black/30 p-3 text-sm text-white">Full-game talent: unlock Hide & Shriek using the button in the main-menu header. After unlocking, the linked talent requirements below still apply.</p>}
           {focus.req.length > 0 && (
             <div className="mt-2 font-cond2 text-xs font-semibold text-[#9aa3b8]">
-              Requires any of:{' '}
+              Unlock by buying rank 1 in any one of:{' '}
               {focus.req.map((r) => (
                 <span key={r} className={(ranks[r] || 0) > 0 ? 'mr-1 font-bold text-[#7CFF64]' : 'mr-1 font-bold text-[#E63946]'}>{TALENT_BY_ID[r].name}</span>
               ))}
             </div>
           )}
+          {fst !== 'locked' && fst !== 'maxed' && save.soul < focus.cost(fl) && <p className="mt-3 text-sm text-white">Earn {focus.cost(fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
           {focus.id === 'master' && <div className="mt-2 font-cond2 text-[11px] font-semibold text-[#9aa3b8]">Costumes: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
           <KitButton disabled={!canBuy(focus)} onClick={() => buy(focus.id)} className="mt-4 w-full">
-            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? '🔒 Locked' : `Invest · 🍬 ${focus.cost(fl)}`}
+            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · 🍬 ${focus.cost(fl)}`}
           </KitButton>
         </div>
 

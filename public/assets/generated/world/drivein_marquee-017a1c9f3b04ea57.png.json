@@ -1,0 +1,59 @@
+{
+  "key": "drivein_marquee",
+  "spec": {
+    "key": "drivein_marquee",
+    "file": "props/drivein_marquee.png",
+    "category": "prop",
+    "w": 170,
+    "h": 300,
+    "anchor": [
+      85,
+      264
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Drive-in roadside marquee sign",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A tall roadside drive-in marquee on two poles: a red arrow sign with chasing bulbs reading MOONLITE and a lightbox reading TONIGHT: CREATURE FEATURE. Footprint 1x1 tile(s); footprint centre on pixel (85,264)."
+  },
+  "id": "017a1c9f3b04ea57",
+  "rawFile": "art/world/raw/drivein_marquee-df3ff0170f47d6e1.png",
+  "stagedFile": "art/world/staged/drivein_marquee-017a1c9f3b04ea57.png",
+  "savedPromptFile": "art/world/raw/drivein_marquee-df3ff0170f47d6e1.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/drivein_marquee.png",
+      "hash": "e536577f859587da7d1b273d407007f37d9fdba77b83049bc367c941d0eb2d74"
+    }
+  ],
+  "sourceHash": "df3ff0170f47d6e145438b24a22131fa7e9ae2a9506daed60b5ec1c243c55a43",
+  "packedHash": "017a1c9f3b04ea5758762f8cb97d8d993db69765059681f7985f0d2cdabb8fc6",
+  "promptHash": "b484f381ac5c024f3048fbd6c757218d690bab2351801f9e83116b27871c64e0",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    944,
+    1665
+  ],
+  "outputSize": [
+    680,
+    1200
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:20.499Z",
+  "fingerprint": "e547a373cfd9326c2975acee0b8d3fe1c5d55c10f738469c4089a2d8ff0da8e2",
+  "activationFile": "art/world/activations/drivein_marquee-1791577881277.json",
+  "gameFile": "generated/world/drivein_marquee-017a1c9f3b04ea57.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A tall roadside drive-in marquee on two poles: a red arrow sign with chasing bulbs reading MOONLITE and a lightbox reading TONIGHT: CREATURE FEATURE. Footprint 1x1 tile(s); footprint centre on pixel (85,264).\nAtlas entry: drivein_marquee. Drive-in roadside marquee sign\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 170x300; render 680x1200 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (85,264), rendered (340,1056). All contact positions stay fixed to the layout guide.\nFootprint: exactly 1x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/drivein_marquee.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

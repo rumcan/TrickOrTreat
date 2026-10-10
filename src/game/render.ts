@@ -23,7 +23,7 @@ const HELD_GUN_W = 32;
 const HELD_GUN_H = 16;
 const HELD_GUN_GRIP_X = 8;
 const HELD_GUN_GRIP_Y = 10;
-const KID_WAIST_HEIGHT = 22;
+const KID_WAIST_HEIGHT = 30;
 
 /** first opaque row of a sprite (fraction of its height), measured once: generated PNGs often carry empty headroom */
 const opaqueTop = new WeakMap<object, number>();
@@ -564,6 +564,10 @@ export class Renderer {
         ctx.globalAlpha = 0.4;
         ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : '#ff2a2a', 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
       }
+      if (e.shield > 0) {
+        ctx.globalAlpha = 0.65; ctx.strokeStyle = '#76ddff'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y) - 28, Math.max(20, e.r * 50), Math.max(35, e.r * 65), 0, 0, Math.PI * 2); ctx.stroke();
+      }
     }
     ctx.globalAlpha = 1;
     // enemy bullets (bright & readable)
@@ -667,13 +671,20 @@ export class Renderer {
     for (const e of g.enemies) {
       if (e.def.boss) continue;
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
-      if (e.hp < e.maxHp && (e.elite || e.hp < e.maxHp)) {
+      if (e.hp < e.maxHp || e.maxShield > 0) {
         const w = e.elite ? 60 : 30, h = e.elite ? 6 : 4;
         const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
         ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
         ctx.fillRect(sx - w / 2, top, (w * Math.max(0, e.hp)) / e.maxHp, h);
+        if (e.maxShield > 0) {
+          ctx.fillStyle = '#162d38'; ctx.fillRect(sx - w / 2, top - 7, w, 4);
+          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 7, w * e.shield / e.maxShield, 4);
+          ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
+          ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
+          ctx.strokeText('LIEUTENANT', sx, top - 13); ctx.fillText('LIEUTENANT', sx, top - 13);
+        }
         let ix = sx - w / 2;
         if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, top - 6, 5, 4); ix += 7; }
         if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, top - 6, 5, 4); ix += 7; }
@@ -845,9 +856,29 @@ export class Renderer {
       ctx.fillStyle = color;
       ctx.font = 'bold 12px system-ui';
       ctx.textAlign = 'center';
-      ctx.fillText(label, ex - Math.cos(a) * 22, ey - Math.sin(a) * 22);
+      ctx.fillText(label, clamp(ex - Math.cos(a) * 22, 95, vw - 95), clamp(ey - Math.sin(a) * 22, 90, vh - 110));
     };
-    for (const k of g.pickups) if (k.kind === 'chest') ind(k.x, k.y, '#ffcf3a', '🎃');
+    if (g.campaign && g.state !== 'intro') {
+      // One readable objective arrow: prefer a kid whose district is already open.
+      const missing = g.friends.filter(f => f.status !== 'rescued');
+      missing.sort((a, b) => Number(a.status === 'locked') - Number(b.status === 'locked') || Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
+      const friend = missing[0];
+      if (friend) {
+        const gate = m.gates[friend.gate];
+        const target = friend.status === 'locked' && gate && !gate.opened ? gate : friend;
+        const name = HERO_INFO[friend.hero].name;
+        ind(target.x, target.y, '#85f1ef', friend.status === 'locked' && gate && !gate.opened ? `${name} · gate ${Math.max(0, Math.ceil(gate.openAt - g.time))}s` : `Rescue ${name}`);
+      }
+      // Draw rescue beacons after scenery so roofs/trees cannot hide the objective.
+      for (const friend of missing) {
+        const [sx, sy] = toS(isoX(friend.x, friend.y), isoY(friend.x, friend.y));
+        if (sx < 0 || sx > vw || sy < 0 || sy > vh) continue;
+        ctx.font = 'bold 13px system-ui'; ctx.textAlign = 'center'; ctx.lineWidth = 4;
+        ctx.strokeStyle = '#07151c'; ctx.fillStyle = '#85f1ef';
+        const label = `+ ${HERO_INFO[friend.hero].name} · rescue`;
+        ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
+      }
+    }
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
@@ -914,6 +945,19 @@ export class Renderer {
       }
       ctx.globalAlpha = 1;
       for (const q of g.pickups) if (q.kind === 'costume') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = '#c46bff'; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
+      // Rescue locations stay visible even while their district gate is locked.
+      if (g.campaign) for (const friend of g.friends) {
+        if (friend.status === 'rescued') continue;
+        const [a, b] = MP(friend.x, friend.y);
+        ctx.fillStyle = '#6ef4ff'; ctx.strokeStyle = '#07141a'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#07141a'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
+        if (big) {
+          ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+          ctx.strokeStyle = '#07141a'; ctx.lineWidth = 3; ctx.strokeText(HERO_INFO[friend.hero].name, a, b - 8 * k);
+          ctx.fillStyle = '#ffffff'; ctx.fillText(HERO_INFO[friend.hero].name, a, b - 8 * k);
+        }
+      }
       if (g.boss) { const [a, b] = MP(g.boss.x, g.boss.y); ctx.fillStyle = '#ff8a1e'; ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); }
       const [pa, pb] = MP(p.x, p.y);
       ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(pa, pb, 3.5 * k, 0, Math.PI * 2); ctx.fill();
