@@ -26,6 +26,8 @@
     "test:pickup-radius": "node scripts/pickup-radius.test.mjs",
     "test:bug-audit": "node scripts/bug-audit.test.mjs",
     "test:public-release": "node scripts/public-release.test.mjs",
+    "test:run-purchase": "node scripts/run-purchase.test.mjs",
+    "test:house-guide-streets": "node --test scripts/street-geometry.test.mjs && node scripts/house-guide-streets.test.mjs",
     "test:presentation": "node scripts/presentation.test.mjs",
     "test:landing": "node scripts/landing.test.mjs",
     "test:outstanding": "node scripts/outstanding.test.mjs",

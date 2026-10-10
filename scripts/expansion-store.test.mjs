@@ -1,6 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import { createExpansionStore } from '../src/game/expansion-store.ts';
+
+test('release shop offers one active, permanent full-game unlock for 100 RUN Bits', async () => {
+  const config = JSON.parse(await fs.readFile(new URL('../rundot/shop.config.json', import.meta.url), 'utf8'));
+  const source = await fs.readFile(new URL('../src/game/expansion.ts', import.meta.url), 'utf8');
+  const itemId = source.match(/FULL_GAME_ITEM = '([^']+)'/)[1];
+  const entitlementId = source.match(/FULL_GAME_ENTITLEMENT = '([^']+)'/)[1];
+  const matches = config.items.filter(item => item.itemId === itemId);
+  assert.equal(matches.length, 1);
+  const [item] = matches;
+  assert.equal(item.active, true);
+  assert.equal(item.unique, true);
+  assert.equal(item.category, 'non_consumable');
+  assert.deepEqual(item.price, { type: 'bucks', value: '100' });
+  assert.deepEqual(item.entitlements, [{ entitlementId, quantity: 1, consumable: false }]);
+  assert.equal(item.refundEligible, true);
+  assert.equal(item.refundWindowHours, 24);
+  assert.ok(!item.releasedAt && !item.expiresAt && !item.regions?.length, 'No accidental region or release-window restriction');
+});
 
 function harness(development = false) {
   const state = { quantity: 0, price: 100, key: '', calls: [], cancelled: false, fail: false, grant: true };

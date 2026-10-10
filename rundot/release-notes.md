@@ -43,4 +43,11 @@
 - Overcharged Maya and Leo skills: team recovery, shield-breaking EMP, powerful night blast, invulnerability and temporary double/triple damage.
 - Full-game purchase showcase with every exclusive kid, gun, treat, costume and talent, responsive artwork cards and permanent-unlock CTA.
 
-Original survival remains free. Expansion checkout is disabled pending price confirmation.
+Original survival remains free. Expansion checkout is enabled for 100 RUN Bits as a one-time permanent unlock.
+## Maple Falls: clearer streets, first-house guide and full-game checkout
+
+- Add a glowing green arrow to an accessible starting house and a one-time, paused explanation of building loot rarities.
+- Straighten sidewalk paving joints and repeating curbs while retaining the painted artwork.
+- Remove round creature shield bubbles; keep light-blue shield bars and shield-first damage.
+- Use the latest supplied Maple Falls poster for the RUN thumbnail.
+- Enable the permanent full-game unlock for 100 RUN Bits. The original survival game remains free.
