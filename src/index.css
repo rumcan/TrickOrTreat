@@ -778,6 +778,14 @@ button.kit-tile:not(:disabled):hover {
 .records-tabs button[aria-pressed=true] { background:#b77d35; color:#fff; }
 .records-you { display:flex; flex-direction:column; gap:6px; padding:13px; font-size:13px; border:1px solid #438274; border-radius:6px; background:#1c3b35; }
 .records-you strong { overflow-wrap:anywhere; color:#c0f7da; }
+.records-guest { display:flex; flex-direction:column; gap:6px; margin-top:6px; padding-top:10px; border-top:1px solid #43827466; }
+.records-guest label { color:#f08a2c; font:700 11px "Barlow Condensed",sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+.records-guest > div { display:flex; align-items:center; gap:8px; }
+.records-guest > div > span { color:#c0f7da; font:400 24px/1 "Anton",Impact,sans-serif; }
+.records-guest input { width:92px; min-height:44px; padding:0 10px; border:1px solid #6fbfa9; border-radius:4px; background:#0d1f1c; color:#fff0da; font:400 24px/1 "Anton",Impact,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+.records-guest input::placeholder { color:#5f8a7f; }
+.records-guest .hm-btn { min-height:44px; padding:0 14px; cursor:pointer; }
+.records-guest small { color:#bfd9cf; font-size:12px; line-height:1.3; }
 .records-list { flex:1; min-height:100px; }
 .records-row { display:flex; align-items:center; gap:12px; padding:15px 8px; border-bottom:1px solid #3f575e; font-size:14px; }
 .records-rank { min-width:32px; color:#ffd188; font-family:'Roboto Mono',monospace; }

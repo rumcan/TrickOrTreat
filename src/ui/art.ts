@@ -3,8 +3,8 @@ const base = (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_
 const img = (p: string) => `${base}images/${p}`;
 
 export const ART = {
-  keyart: img('splash.webp?v=2'),
-  keyartPortrait: img('splash_portrait.webp?v=2'),
+  keyart: img('splash.webp?v=3'),
+  keyartPortrait: img('splash_portrait.webp?v=3'),
   logo: img('newlogo.webp?v=4'),
   logoSm: img('newlogo_sm.webp?v=4'),
   kitLogo: img('newlogo_sm.webp?v=4'),

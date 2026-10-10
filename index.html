@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Permanent+Marker&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet" />
     <!-- First paint: the logo and the splash for this orientation are fetched before anything else. -->
     <link rel="preload" as="image" href="%BASE_URL%images/newlogo.webp?v=4" fetchpriority="high" />
-    <link rel="preload" as="image" href="%BASE_URL%images/splash.webp?v=2" media="(orientation: landscape)" fetchpriority="high" />
-    <link rel="preload" as="image" href="%BASE_URL%images/splash_portrait.webp?v=2" media="(orientation: portrait)" fetchpriority="high" />
+    <link rel="preload" as="image" href="%BASE_URL%images/splash.webp?v=3" media="(orientation: landscape)" fetchpriority="high" />
+    <link rel="preload" as="image" href="%BASE_URL%images/splash_portrait.webp?v=3" media="(orientation: portrait)" fetchpriority="high" />
     <style>
       html,body{margin:0;background:#0e0f13;overflow:hidden}
       /* Boot screen: painted from plain HTML before the game script runs, then reused by the React loading screen. */
@@ -32,8 +32,8 @@
     <div id="root">
       <div class="boot">
         <picture>
-          <source media="(orientation: portrait)" srcset="%BASE_URL%images/splash_portrait.webp?v=2" />
-          <img class="boot-bg" src="%BASE_URL%images/splash.webp?v=2" alt="" draggable="false" fetchpriority="high" onload="this.classList.add('is-ready')" />
+          <source media="(orientation: portrait)" srcset="%BASE_URL%images/splash_portrait.webp?v=3" />
+          <img class="boot-bg" src="%BASE_URL%images/splash.webp?v=3" alt="" draggable="false" fetchpriority="high" onload="this.classList.add('is-ready')" />
         </picture>
         <div class="boot-shade"></div>
         <div class="boot-body">
