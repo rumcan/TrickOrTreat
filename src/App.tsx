@@ -25,7 +25,7 @@ import { X } from 'lucide-react';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
-function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign: boolean; onExit: () => void; onTalents: () => void }) {
+function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; onExit: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [snap, setSnap] = useState<HudSnap | null>(null);
@@ -112,7 +112,7 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
       {g && snap?.state === 'inventory' && <div className="cursor-auto"><RunInventory game={g} onClose={() => { g.state = 'play'; refresh(); }} /></div>}
       {g && (snap?.state === 'dead' || snap?.state === 'victory') && (
         <div className="absolute inset-0 z-40 cursor-auto">
-          <EndScreen game={g} onAgain={restart} onTitle={onExit} onTalents={onTalents} onContinue={() => { g.continueEndless(); refresh(); }} />
+          <EndScreen game={g} onAgain={restart} onTitle={onExit} onContinue={() => { g.continueEndless(); refresh(); }} />
         </div>
       )}
     </div>
@@ -180,7 +180,7 @@ export default function App() {
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}
       {screen === 'atlas' && <Atlas onBack={toTitle} />}
-      {screen === 'game' && <GameView save={save} campaign={campaign} onExit={toTitle} onTalents={() => { reloadSave(); setScreen('talents'); }} />}
+      {screen === 'game' && <GameView save={save} campaign={campaign} onExit={toTitle} />}
     </div>
   );
 }

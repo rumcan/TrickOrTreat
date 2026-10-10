@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
+import { Play, Users, Lollipop, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
@@ -499,7 +499,7 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
 }
 
 // ================= END =================
-export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { game: Game; onAgain: () => void; onTitle: () => void; onTalents: () => void; onContinue: () => void }) {
+export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; onAgain: () => void; onTitle: () => void; onContinue: () => void }) {
   const [panel, setPanel] = useState<'talents' | 'summary'>('summary');
   const [recordMessage, setRecordMessage] = useState('');
   useEffect(() => {
@@ -514,39 +514,45 @@ export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { g
     frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame);
   }, [game, game.soulEarned]);
   const win = game.state === 'victory';
-  if (panel === 'talents') return <TalentTree save={game.save} onBack={() => setPanel('summary')} onAgain={onAgain} earned={game.soulEarned} />;
+  // The night always ends at the talent constellations: spend what was earned, then play again or leave from there.
+  if (panel === 'talents') return <TalentTree save={game.save} onBack={onTitle} backLabel="Main menu" onAgain={onAgain} earned={game.soulEarned} />;
+  const rows: [string, number][] = [['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses], ...(game.wave ? [[`Endless waves (${game.wave})`, game.essence.waves] as [string, number]] : [])];
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-black/80 p-4">
-      <div className="w-full max-w-xl">
-        <img src={ART.kitLogo} alt="" draggable={false} className="mx-auto mb-3 w-[min(300px,70vw)]" />
-        <Banner kind={win || game.victorious ? 'mission' : 'died'} title={game.victorious ? `Wave ${game.wave}` : win ? 'Mission complete' : 'You died'} sub={game.victorious ? `Night beaten · endless best ${game.save.bestWave ?? game.wave}${(game.save.bestWave ?? 0) <= game.wave ? ' · new record!' : ''}` : win ? 'The Pumpkin King has been smashed' : 'The monsters got you this time'} size="lg" className="kit-pop" />
-        <div className="kit-panel mt-4 p-5">
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+    <div className="end-screen">
+      <div className="end-column">
+        <img src={ART.kitLogo} alt="" draggable={false} className="mx-auto mb-3 w-[min(260px,62vw)]" />
+        {win || game.victorious
+          ? <Banner kind="mission" title={game.victorious ? `Wave ${game.wave}` : 'Mission complete'} sub={game.victorious ? `Night beaten · endless best ${game.save.bestWave ?? game.wave}${(game.save.bestWave ?? 0) <= game.wave ? ' · new record!' : ''}` : 'The Pumpkin King has been smashed'} size="lg" className="kit-pop" />
+          : <img src={ART.youDied} alt="You died. The monsters got you this time." width={1240} height={239} draggable={false} className="end-plate kit-pop" />}
+        <section className="end-panel">
+          <div className="paper-kicker">Tonight's run</div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Stat icon={<ClockIcon size={18} />} label="Survived" v={fmtTime(game.time)} />
             <Stat icon={<SkullIcon size={18} />} label="Monsters" v={String(game.kills)} />
             <Stat icon={<HouseIcon size={18} />} label="Doors" v={String(game.housesVisited)} />
             <Stat icon={<CandyIcon size={18} />} label="Level" v={String(game.p.level)} />
           </div>
-          <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-sm">{[['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses], ...(game.wave ? [[`Endless waves (${game.wave})`, game.essence.waves]] : [])].map(([label, amount]) => <div key={label} className="flex justify-between"><dt>{label}</dt><dd>+{amount} essence</dd></div>)}</dl>
-          <div className="mt-4 flex items-center justify-center gap-2 font-cond text-3xl text-[#b98aff]" aria-label={`Earned ${game.soulEarned} essence`}>+{tally} <CandyIcon size={26} /> <span className="font-cond2 text-sm font-bold uppercase tracking-[0.18em] text-[#9aa0a6]">essence earned</span></div>
-          <p className="mt-2 text-center text-sm text-[#f2e6c9]">Total balance: {game.save.soul} essence (Soul Candy). Spend it on permanent talents.</p>
-          {recordMessage && <p role="status" className="mt-2 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
-          <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {win && !game.victorious && <KitButton icon={Play} fillIcon onClick={onContinue} className="sm:col-span-2">Endless night</KitButton>}
-            <KitButton variant={win ? 'teal' : 'orange'} icon={RotateCw} onClick={() => setPanel('talents')}>Spend essence on talents</KitButton>
-            <KitButton variant="teal" icon={Lollipop} onClick={onTalents}>Talent menu</KitButton>
-            <KitButton variant="red" icon={LogOut} onClick={onTitle} className="sm:col-span-2">Quit to menu</KitButton>
+          <dl className="end-rows">{rows.map(([label, amount]) => <div key={label}><dt>{label}</dt><dd>+{amount}</dd></div>)}</dl>
+          <div className="end-total" aria-label={`Earned ${game.soulEarned} essence`}>
+            <CandyIcon size={30} />
+            <b>+{tally}</b>
+            <span>essence earned<small>Balance {game.save.soul} · spend it on permanent talents</small></span>
           </div>
-        </div>
+          {recordMessage && <p role="status" className="mt-3 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
+          <div className="mt-4 flex flex-col gap-2">
+            {win && !game.victorious && <button className="hm-btn ghost w-full" onClick={onContinue}><Play size={17} fill="currentColor" /> Endless night</button>}
+            <button className="hm-btn end-next w-full" onClick={() => setPanel('talents')}>Spend essence on talents <ChevronRight size={20} strokeWidth={3} /></button>
+          </div>
+        </section>
       </div>
     </div>
   );
 }
 function Stat({ icon, label, v }: { icon: React.ReactNode; label: string; v: string }) {
   return (
-    <div className="kit-tile px-3 py-2">
-      <div className="flex items-center gap-1.5 font-cond2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#9aa0a6]">{icon}{label}</div>
-      <div className="font-num text-xl text-[#f2e6c9]">{v}</div>
+    <div className="end-stat">
+      <div className="label">{icon}{label}</div>
+      <b>{v}</b>
     </div>
   );
 }

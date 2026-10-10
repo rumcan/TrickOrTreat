@@ -9,6 +9,7 @@ export const ART = {
   logoSm: img('newlogo_sm.webp?v=4'),
   kitLogo: img('newlogo_sm.webp?v=4'),
   pause: img('ui/pause_art.webp'),
+  youDied: img('ui/youdied.webp'),
   infoPumpkin: img('ui/info_pumpkin.webp'),
   skillPumpkin: img('ui/skill_pumpkin.webp'),
 };
