@@ -242,6 +242,10 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
   return (
     <div className="pointer-events-none absolute inset-0 select-none font-ui text-[#f2e6c9]">
       <TopBar s={s} game={game} />
+      {s.bossBreak !== null && s.state === 'play' && <section className="boss-break-panel pointer-events-auto" aria-label="Boss defeated shopping break">
+        <div><strong>BOSS DEFEATED</strong><span>{Math.ceil(s.bossBreak)}s safe · collect your loot</span></div>
+        <button onClick={() => game.openBossShop()}>Visit upgrade shop</button><button className="boss-break-skip" onClick={() => game.skipBossBreak()}>Skip break</button>
+      </section>}
       {!s.bigMap && <Rail s={s} game={game} />}
 
       {/* walkie-talkie notices: paper slips under the minimap */}
@@ -271,7 +275,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
         </div>
       )}
 
-      {s.banner && s.state === 'play' && !s.bigMap && <BannerPlate text={s.banner.text} sub={s.banner.sub} kind={BANNER_KIND[s.banner.kind]} t={s.banner.t} />}
+      {s.banner && s.bossBreak === null && s.state === 'play' && !s.bigMap && <BannerPlate text={s.banner.text} sub={s.banner.sub} kind={BANNER_KIND[s.banner.kind]} t={s.banner.t} />}
 
       {/* bottom: drawer over the tab strip */}
       <div className="hm-dock">

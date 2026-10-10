@@ -139,7 +139,7 @@ export interface Bullet {
   src?: Weapon; homeK?: number; child?: boolean;
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
-export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
+export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean; golden?: boolean }
 export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
 export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number }
@@ -230,6 +230,7 @@ export class Game {
   bossWins = 0;
   bossRound = 0;
   bossBreak = false;
+  bossBreakTime = 0;
   nextBossAt = 90;
   private endlessBosses = 0;
   xpCollected = 0;
@@ -274,6 +275,7 @@ export class Game {
   private eid = 1;
   private grid: Enemy[][] = [];
   private flow = new Int32Array(CW * CH);
+  private navigation = new Uint8Array(CW * CH);
   private flowT = 0;
   private flowCell = -1;
   private spawnAcc = 0;
@@ -344,10 +346,10 @@ export class Game {
       .sort((a, b) => Math.hypot(a.door.x - this.p.x, a.door.y - this.p.y) - Math.hypot(b.door.x - this.p.x, b.door.y - this.p.y))[0] ?? null;
   }
 
-  private freeSpot(x: number, y: number, reachable = false) {
-    for (let radius = 0; radius < 8; radius += 0.5) for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
-      const nx = x + Math.cos(a) * radius, ny = y + Math.sin(a) * radius;
-      if ((!reachable || this.reachable(nx, ny)) && [[0, 0], [-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].every(([dx, dy]) => cellAt(this.map, nx + dx, ny + dy) === 0)) return { x: nx, y: ny };
+  private freeSpot(x: number, y: number, reachable = false, radius = .3) {
+    for (let distance = 0; distance < 8; distance += 0.5) for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
+      const nx = x + Math.cos(a) * distance, ny = y + Math.sin(a) * distance;
+      if ((!reachable || this.reachable(nx, ny)) && !blockedCircle(this.map, nx, ny, radius)) return { x: nx, y: ny };
     }
     // Never return the unchecked blocked request when a local search fails.
     return { x: this.map.start.x, y: this.map.start.y };
@@ -620,7 +622,7 @@ export class Game {
   }
 
   // ---------- main update ----------
-  private combatActive() { return this.state === 'play' || this.state === 'downed'; }
+  private combatActive() { return !this.bossBreak && (this.state === 'play' || this.state === 'downed'); }
   update(dtRaw: number) {
     const inp = this.input;
     if (this.state === 'intro') {
@@ -637,6 +639,10 @@ export class Game {
       inp.endFrame();
       return;
     }
+    if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
+    if (this.bossBreak && this.state === 'play') {
+      this.updateBossBreak(Math.min(dtRaw, .05)); inp.endFrame(); return;
+    }
     if (this.hitStop > 0) {
       this.hitStop -= dtRaw;
       inp.endFrame();
@@ -645,7 +651,6 @@ export class Game {
     const dt = Math.min(dtRaw, 1 / 30);
     this.time += dt;
     this.premiumPowerT = Math.max(0, this.premiumPowerT - dt);
-    if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
     const downed = this.state === 'downed';
     const bk = `${this.weapon?.uid ?? 0}|${this.scrollOrder.length}|${this.p.costume}`;
     if (bk !== this.buildKey) { this.buildKey = bk; this.recalcStats(); }
@@ -676,7 +681,7 @@ export class Game {
     if (!this.combatActive()) { inp.endFrame(); return; }
     if (this.endless) this.updateEndless(dt);
     // A boss death can switch to the safe shop inside a bullet/zone update.
-    if (this.bossBreak) { this.state = 'shop'; inp.endFrame(); return; }
+    if (this.bossBreak) { inp.endFrame(); return; }
     if (this.state === 'play') { this.updateTot(dt); if (this.state === 'play') this.updateInteract(); }
     if (this.bossKilled && !this.endless) {
       this.winDelay += dt;
@@ -881,7 +886,7 @@ export class Game {
 
   takeDamage(dmg: number, fromX: number, fromY: number) {
     const p = this.p;
-    if (p.invuln > 0 || this.state !== 'play') return;
+    if (p.invuln > 0 || this.state !== 'play' || this.bossBreak) return;
     dmg *= this.threat();
     if (this.mounted >= 0) dmg *= 1 - TURRET.armor; // high ground
     if (this.ins(this.weapon, 'glasspump')) dmg *= 1.15;
@@ -893,7 +898,7 @@ export class Game {
     if (p.costume === 'pumpkin' && p.novaCd <= 0) {
       p.novaCd = 2;
       this.explode(p.x, p.y, 3.8, 160 * this.stats.dmg * this.stats.skillPow * this.globalMore(), 'fire', true);
-      if (this.state !== 'play') return; // A boss clear already made this a safe shop.
+      if (!this.combatActive()) return; // A boss clear already made the streets safe.
     }
     dmg *= 1 - this.stats.armor;
     p.shieldT = 0;
@@ -1467,7 +1472,10 @@ export class Game {
     if (!force && (this.flowT > 0 || pc === this.flowCell)) return;
     this.flowT = 0.2;
     this.flowCell = pc;
-    const f = this.flow, coll = this.map.coll;
+    const f = this.flow, coll = this.navigation;
+    if (force) for (let cy = 0; cy < CH; cy++) for (let cx = 0; cx < CW; cx++) {
+      coll[cy * CW + cx] = Number(blockedCircle(this.map, (cx + .5) / CR, (cy + .5) / CR, .3));
+    }
     f.fill(1 << 30);
     const q = new Int32Array(CW * CH);
     let h = 0, t = 0;
@@ -1502,7 +1510,7 @@ export class Game {
       for (let dx = -1; dx <= 1; dx++) {
         if (!dx && !dy) continue;
         const n = c + dy * CW + dx;
-        if (dx && dy && (this.map.coll[c + dx] || this.map.coll[c + dy * CW])) continue;
+        if (dx && dy && (this.navigation[c + dx] || this.navigation[c + dy * CW])) continue;
         const v = this.flow[n] + (dx && dy ? 0.4 : 0);
         if (v < best) { best = v; bx = dx; by = dy; }
       }
@@ -1512,6 +1520,7 @@ export class Game {
     return { x: (tx - x) / l, y: (ty - y) / l };
   }
   reachable(x: number, y: number) {
+    if (x < 0 || y < 0 || x >= MAP_W || y >= MAP_H) return false;
     const c = Math.floor(y * CR) * CW + Math.floor(x * CR);
     return c >= 0 && c < this.flow.length && this.flow[c] < (1 << 29);
   }
@@ -1519,6 +1528,11 @@ export class Game {
   // ---------- enemies ----------
   spawnEnemy(type: string, x: number, y: number, elite = false, forcedAffix?: EnemyAffix | null) {
     const def = EDEF[type];
+    if (!def.fly && !def.phase && !def.boss && (blockedCircle(this.map, x, y, def.r * (elite ? 1.25 : 1) * .85) || !this.reachable(x, y))) {
+      let spot = this.freeSpot(x, y, true, def.r * (elite ? 1.25 : 1) * .85);
+      if (Math.hypot(spot.x - this.p.x, spot.y - this.p.y) < 2) spot = this.freeSpot(this.p.x + 4, this.p.y, true, def.r * (elite ? 1.25 : 1) * .85);
+      x = spot.x; y = spot.y;
+    }
     const affix = def.boss ? null : forcedAffix === undefined ? rollAffix(this.wave) : forcedAffix;
     const fodder = this.wave > 10 && !def.boss && !def.elite && !elite && !affix;
     const scale = 1 + this.time / 60 * 0.38 + (this.endless ? 1.5 : 0);
@@ -1539,6 +1553,7 @@ export class Game {
   private killEnemy(e: Enemy) {
     if (e.dead) return;
     e.dead = true;
+    const lootStart = this.pickups.length;
     this.kills++;
     const s = this.stats;
     const bd = this.build;
@@ -1574,7 +1589,10 @@ export class Game {
     }
     // drops
     const xp = e.def.xp * (e.elite && !e.def.elite ? 3 : 1);
-    if (xp >= 20) for (let i = 0; i < Math.min(15, xp / 5); i++) this.dropPickup(e.x, e.y, 'xp3', 5);
+    if (xp >= 20) {
+      const count = Math.min(15, Math.ceil(xp / 5));
+      for (let i = 0; i < count; i++) this.dropPickup(e.x, e.y, 'xp3', Math.floor(xp / count) + (i < xp % count ? 1 : 0));
+    }
     else this.dropPickup(e.x, e.y, xp >= 4 ? 'xp3' : xp >= 2 ? 'xp2' : 'xp1', xp);
     if (Math.random() < e.def.coin) this.dropPickup(e.x, e.y, 'coin', Math.ceil(rand(1, 3) * (e.elite ? 5 : 1)));
     if (Math.random() < s.healDrop) this.dropPickup(e.x, e.y, 'heal', 25);
@@ -1608,20 +1626,27 @@ export class Game {
       this.bossRound++;
       this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
+      this.bossBreakTime = 20;
       this.relightHouses();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
       for (const creature of this.enemies) creature.dead = true;
       this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
       this.procQueue = [];
       this.spawnAcc = 0; this.tot = null; this.interact = null;
-      this.p.coins += 150 + this.bossRound * 50;
       this.p.hp = Math.min(this.stats.maxHp, this.p.hp + this.stats.maxHp * 0.25);
       this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45);
-      this.state = 'shop';
+      this.state = 'play';
       this.hitStop = 0.25;
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
-      for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, 'The streets are clear. Spend coins and upgrade before continuing.', 'win');
+      const coins = 240 + this.bossRound * 50;
+      for (let i = 0; i < 16; i++) this.dropPickup(e.x, e.y, 'coin', Math.floor(coins / 16) + (i < coins % 16 ? 1 : 0));
+      const landing = this.freeSpot(e.x, e.y, true);
+      for (const loot of this.pickups.slice(lootStart)) {
+        loot.x = landing.x; loot.y = landing.y; loot.z = .65; loot.vz = rand(4, 7);
+        const a = rand(0, Math.PI * 2), speed = rand(2.5, 5);
+        loot.vx = Math.cos(a) * speed; loot.vy = Math.sin(a) * speed; loot.golden = true;
+      }
+      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, 'Loot is on the ground! 20 safe seconds to collect and shop — or skip.', 'win');
       gameAudio.play('victory', 0.45);
     }
   }
@@ -1660,7 +1685,7 @@ export class Game {
       } else if (e.spawnT > 0) speed = 0;
       else if (d.fly || d.phase || d.boss) {
         mx = dx / dist; my = dy / dist;
-      } else if (dist < 3 && lineOfSight(this.map, e.x, e.y, p.x, p.y)) {
+      } else if (dist < 3 && lineOfSight(this.map, e.x, e.y, p.x, p.y, 1)) {
         mx = dx / dist; my = dy / dist;
       } else {
         const f = this.flowDir(e.x, e.y);
@@ -2051,13 +2076,13 @@ export class Game {
       if (cellAt(this.map, nx, ny) === 0) { k.x = nx; k.y = ny; }
       if (k.kind === 'weapon' || k.kind === 'chest' || k.kind === 'costume') continue;
       const dx = p.x - k.x, dy = p.y - k.y, d = Math.hypot(dx, dy);
-      if ((d < magR && k.t > 0.6) || k.mag) { // freshly dropped loot rests a moment so you can see it
+      if ((d < magR && k.t > (k.golden ? .9 : .6)) || k.mag) { // freshly dropped loot rests a moment so you can see it
         k.mag = true;
         const sp = 9 + k.t;
         k.x += (dx / (d || 1)) * sp * dt;
         k.y += (dy / (d || 1)) * sp * dt;
       }
-      if (d < 0.35) {
+      if (d < 0.35 && (!k.golden || k.t > .9)) {
         k.dead = true;
         gameAudio.play('pickup', 0.4);
         if (k.kind === 'coin') {
@@ -2129,7 +2154,7 @@ export class Game {
         : { kind: 'shop', label: "Shop: Candy Lady's Treats", ref: sh.prop }; }
     }
     for (const h of this.map.houses) {
-      if (h.visited) continue;
+      if (h.visited || this.bossBreak) continue;
       const d = (h.door.x - p.x) ** 2 + (h.door.y - p.y) ** 2;
       if (d < Math.min(bd, 1.1 * 1.1)) {
         bd = d;
@@ -2211,13 +2236,14 @@ export class Game {
     if (!spin) return null;
     this.p.coins -= cost; this.vendingPlays++;
     this.vendingSpin = spin;
-    gameAudio.play('click', .25);
+    gameAudio.play('slotStart', .6);
     return spin;
   }
   settleVending(id: number) {
     if (this.state !== 'vending' || !this.vendingActive || this.vendingSpin?.id !== id || this.vendingSpin.status !== 'spinning') return;
     this.vendingSpin.status = 'won';
     gameAudio.play('unlock', .35);
+    gameAudio.play('slotWin', .6);
   }
   claimVending(slot = -1): boolean {
     const spin = this.vendingSpin;
@@ -2243,6 +2269,7 @@ export class Game {
     const spin = this.vendingSpin;
     if (this.state !== 'vending' || !this.vendingActive || spin?.status !== 'won' || spin.winner.kind !== 'weapon') return false;
     spin.status = 'rejected';
+    gameAudio.play('slotExit', .5);
     this.input.pressed.clear();
     return true;
   }
@@ -2495,9 +2522,30 @@ export class Game {
   }
   closeShop() {
     this.input.pressed.clear(); // Esc/E closed the shop: don't also pause or re-open it
-    this.bossBreak = false;
     this.state = 'play';
     this.p.invuln = 0.8;
+  }
+  openBossShop() {
+    if (this.state !== 'play' || !this.bossBreak) return;
+    this.state = 'shop'; this.input.pressed.clear();
+  }
+  skipBossBreak() {
+    if (this.state !== 'play' || !this.bossBreak) return;
+    this.bossBreak = false; this.bossBreakTime = 0; this.spawnAcc = 0;
+    this.banner = null;
+    this.input.pressed.clear(); this.p.invuln = Math.max(this.p.invuln, .8);
+  }
+  private updateBossBreak(dt: number) {
+    if (this.mounted >= 0) this.updateMounted(dt); else this.updatePlayer(dt);
+    // A cannon can still be aimed in the break, but never accumulate frozen shots.
+    this.bullets.length = 0; this.lobs.length = 0;
+    this.updatePickups(dt); this.updateFx(dt);
+    if (this.banner) { this.banner.t -= dt; if (this.banner.t <= 0) this.banner = null; }
+    this.updateInteract();
+    if (this.state !== 'play') return;
+    if (this.pendingLevels > 0) { this.openLevelUp('level'); return; }
+    this.bossBreakTime = Math.max(0, this.bossBreakTime - dt);
+    if (this.bossBreakTime <= 0 || this.input.pressed.has('n')) this.skipBossBreak();
   }
   continueEndless() {
     this.state = 'play';
@@ -2617,7 +2665,8 @@ export class Game {
         for (let i = 0; i < n; i++) {
           const a = (i / n) * Math.PI * 2, d = this.viewR - 1;
           const x = this.p.x + Math.cos(a) * d, y = this.p.y + Math.sin(a) * d;
-          if (x > 1 && y > 1 && x < MAP_W - 1 && y < MAP_H - 1 && (cellAt(this.map, x, y) === 0 || type === 'bat' || type === 'ghost')) this.spawnEnemy(type, x, y);
+          const flying = type === 'bat' || type === 'ghost';
+          if (x > 1 && y > 1 && x < MAP_W - 1 && y < MAP_H - 1 && (flying || (!blockedCircle(this.map, x, y, .3) && this.reachable(x, y)))) this.spawnEnemy(type, x, y);
         }
       }
     }
@@ -2649,9 +2698,17 @@ export class Game {
       if (gate.opened || t < gate.openAt) continue;
       gate.opened = true;
       gameAudio.play('unlock', 0.5);
-      for (const [cx, cy] of gate.cells) this.map.coll[cy * CW + cx] = 0;
+      // Clear the entire opened road blockade, but preserve crossing roads that are still locked.
+      const closed = new Set(this.map.gates.filter(other => !other.opened).flatMap(other => other.cells.map(([cx, cy]) => cy * CW + cx)));
+      for (const [cx, cy] of gate.cells) {
+        const index = cy * CW + cx;
+        if (!closed.has(index)) this.map.coll[index] = this.map.barrierBase[index];
+      }
       this.computeFlow(true);
-      for (const pr of this.map.props) if (gate.propIds.includes(pr.id)) pr.removed = true;
+      for (const pr of this.map.props) if (gate.propIds.includes(pr.id)) {
+        const index = Math.floor((pr.y0 + .5) * CR) * CW + Math.floor((pr.x0 + .5) * CR);
+        if (pr.kind === 'gate' || !closed.has(index)) pr.removed = true;
+      }
       this.pickups.push({ x: gate.x, y: gate.y, z: 3, vz: 0, vx: 0, vy: 0, kind: 'chest', value: 0, mag: false, t: 0, dead: false });
       this.setBanner(`${gate.name} IS OPEN!`, 'New streets to explore — a Treat Bag waits at the gate', 'loot');
       for (let i = 0; i < 30; i++) this.particle(gate.x, gate.y, 0.3, rand(-3, 3), rand(-3, 3), rand(2, 6), 1, ['#7CFF64', '#FFC453', '#F9781B'][i % 3], 5, i % 2 ? 'glow' : 'sq');
@@ -2706,6 +2763,7 @@ export class Game {
     const p = this.p, s = this.stats;
     return {
       hp: p.hp, maxHp: s.maxHp, shield: p.shield, maxShield: s.maxShield, level: p.level, xp: p.xp, xpNext: p.xpNext, coins: p.coins, kills: this.kills, time: this.time,
+      bossBreak: this.bossBreak ? this.bossBreakTime : null,
       weapons: p.weapons.map((w) => (w ? { w, st: weaponStats(w, s) } : null)), cur: p.cur, skillCd: Math.max(0, p.skillCd), skillMax: HERO_INFO[this.hero].cd * s.skillCd,
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,

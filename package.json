@@ -35,11 +35,14 @@
     "test:progression": "node --test scripts/progression.test.mjs && node scripts/progression-game.test.mjs",
     "art:presentation": "node scripts/prepare-presentation-art.mjs",
     "art:logo": "node scripts/prepare-logo.mjs",
+    "art:weapon-cards": "node scripts/prepare-weapon-cards.mjs",
     "test:logo": "node scripts/logo-loading.test.mjs",
     "test:leaderboard": "node --test scripts/leaderboard.test.mjs && node scripts/leaderboard-ui.test.mjs",
     "test:leaderboard:production": "node scripts/leaderboard-production.test.mjs",
     "test:vending": "node --test scripts/vending-odds.test.mjs && node scripts/vending.test.mjs",
     "test:easy-wins": "node scripts/easy-wins.test.mjs",
+    "test:map-rescue-break": "node scripts/map-rescue-break.test.mjs",
+    "test:weapon-media": "node scripts/weapon-media.test.mjs",
     "audio:generate": "node scripts/generate-sounds.mjs"
   },
   "dependencies": {

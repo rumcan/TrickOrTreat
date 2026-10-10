@@ -18,7 +18,7 @@ try {
       g.time = g.nextBossAt; g.director(.001);
       if (g.boss?.type !== type) throw new Error('Initial boss order changed');
       lastHp[type] = g.boss.maxHp; lastThreat[type] = g.threat();
-      g.killEnemy(g.boss); g.closeShop();
+      g.killEnemy(g.boss); g.skipBossBreak();
     }
     if (!g.friends.some(f => f.status !== 'rescued')) throw new Error('Test must retain missing friends');
     g.pickups = []; g.pendingLevels = 0;
@@ -36,18 +36,20 @@ try {
       lastHp[type] = boss.maxHp; lastThreat[type] = g.threat();
       bosses.push({ type, hp: Math.round(boss.maxHp), damageScale: Number(g.threat().toFixed(2)) });
       g.killEnemy(boss);
-      if (g.state !== 'shop' || !g.bossBreak || g.enemies.length || g.ebullets.length) throw new Error('Boss kill lost its safe upgrade break');
+      if (g.state !== 'play' || !g.bossBreak || g.enemies.length || g.ebullets.length) throw new Error('Boss kill lost its safe upgrade break');
+      g.openBossShop();
       const time = g.time, wave = g.wave, next = g.nextBossAt;
       g.update(30);
       if (g.time !== time || g.wave !== wave || g.nextBossAt !== next || g.boss) throw new Error('Next boss advanced during the shop');
       g.closeShop();
+      g.skipBossBreak();
       if (g.nextBossAt !== g.time + 90) throw new Error('Wrong recurring boss interval');
     }
     const { Game } = await import('/src/game/engine.ts');
     const free = new Game(0, { hero: 0, soul: 0, best: 0, talents: {} }, g.input, false, 1337);
     free.p.invuln = 999; free.time = 300; free.director(.001);
     if (free.boss?.type !== 'king') throw new Error('Free survival opening boss changed');
-    free.killEnemy(free.boss); free.closeShop(); free.pickups = []; free.pendingLevels = 0;
+    free.killEnemy(free.boss); free.skipBossBreak(); free.pickups = []; free.pendingLevels = 0;
     for (let i = 0; i < 120 && !free.endless; i++) free.update(.05);
     if (!free.endless) throw new Error('Free survival did not enter the recurring cycle');
     free.time = free.nextBossAt; free.updateEndless(.001);

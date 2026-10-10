@@ -19,10 +19,11 @@ try {
       if (g.boss?.type !== type) throw new Error(`Wrong boss: ${g.boss?.type}, expected ${type}`);
       g.spawnEnemy('zombie', g.p.x + 2, g.p.y); g.ebullets.push({ x: g.p.x, y: g.p.y, dead: false });
       const kills = g.kills; g.killEnemy(g.boss);
-      if (g.enemies.length || g.ebullets.length || g.bullets.length || g.state !== 'shop' || !g.bossBreak || g.kills !== kills + 1) throw new Error('Boss did not safely clear the encounter');
+      if (g.enemies.length || g.ebullets.length || g.bullets.length || g.state !== 'play' || !g.bossBreak || g.kills !== kills + 1) throw new Error('Boss did not safely clear the encounter');
       const time = g.time; g.update(0.03); if (g.time !== time) throw new Error('Upgrade break must freeze the run');
+      g.openBossShop(); g.p.coins = 1000;
       const level = g.p.weapons[0].level; g.shopUpgrade(0); if (g.p.weapons[0].level !== level + 1) throw new Error('Cannot upgrade after boss');
-      rounds.push({ type, cleared: true, coins: g.p.coins }); g.closeShop();
+      rounds.push({ type, cleared: true, coins: g.p.coins }); g.closeShop(); g.skipBossBreak();
     }
     if (!g.bossKilled || g.bossWins !== 4) throw new Error('Campaign finale not recorded');
     settings.gore = 'green';
@@ -34,8 +35,10 @@ try {
     g.killEnemy(g.spawnEnemy('zombie', g.p.x, g.p.y)); if (g.decals.length !== before) throw new Error('Off setting still emits gore');
     settings.gore = 'green'; saveSettings();
     // Test swept movement against a solid district wall, including ghost phasing.
-    const target = { x: 20, y: 30 }; g.moveCircle(target, 10, 0, .24, 2);
-    if (target.x >= 22 || cellAt(g.map, target.x, target.y) !== 0) throw new Error('Dash/ghost crossed the west boundary');
+    const { Game } = await import('/src/game/engine.ts');
+    const locked = new Game(0, {hero:0,soul:0,best:0,talents:{}}, g.input, true, 1337);
+    const target = { x: 20, y: 30 }; locked.moveCircle(target, 10, 0, .24, 2);
+    if (target.x >= 22 || cellAt(locked.map, target.x, target.y) !== 0) throw new Error('Dash/ghost crossed the west boundary');
     const renderer = window.__tot.renderer;
     const timings = [];
     for (const mode of ['off', 'green', 'off', 'green']) {

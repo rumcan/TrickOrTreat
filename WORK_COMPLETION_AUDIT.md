@@ -4,9 +4,23 @@ Checked 2026-10-10. This audit combines the previous completed expansion with th
 
 ## Priority follow-up: easy wins and mobile
 
-The ordered checklist is in `REQUESTED_WORK_PLAN.md`. Batch 1 is implemented and its public RUN upload is in progress. Later instructions now explicitly permit free players to win premium vending prizes; this supersedes the historical preview-only implementation below. Premium vending prizes last for the run and do not grant the permanent entitlement. Spin prices now rise 30%, and unwanted weapons can be rejected and the orange exit used immediately after settlement.
+The ordered checklist is in `REQUESTED_WORK_PLAN.md`. Batch 1 is publicly approved as RUN 1.1.7 and merged through [PR #10](https://github.com/rumcan/TrickOrTreat/pull/10), merge `b9bce5aba692436e0bab85fbf9ba89d648ec41ee`. Hosted exact-bundle/assets and active permanent 100-Bit storefront/restore/cancellation checks passed. Later instructions now explicitly permit free players to win premium vending prizes; this supersedes the historical preview-only implementation below. Premium vending prizes last for the run and do not grant the permanent entitlement. Spin prices now rise 30%, and unwanted weapons can be rejected and the orange exit used immediately after settlement.
 
 Verification: TypeScript, vending odds/claim/reject/premium entitlement guards, desktop hover/mobile overlay behaviour, Pea-only starts, static costumes, full-height replay, fullscreen request and denial fallback, native multitouch at four sizes, 17 existing bug regressions, menu/layout regression and 234-asset production desktop/phone smoke passed. Browser fullscreen requires the Play gesture and host/browser support; physical phone certification is not claimed. The unfinished high-resolution card-art work is safely parked and is excluded from Batch 1.
+
+## Next release: map, rescue, boss breaks, sounds and gun cards
+
+Implemented and locally verified, awaiting production/deployment checkpoint: opened road-blockade hedges disappear with collision restored without unlocking intersecting closed gates; ground hordes spawn in reachable body-clear positions. Close chasing respects low hedges, navigation accounts for body clearance, and full-footprint spawn checks cannot miss small obstacles. Houses reserve continuous approaches, parked cars cannot cover porches, and every door is checked against an all-districts-open body-clear flood.
+
+Missing friends have large green foreground beacons, green minimap marks and readable gate/nearest-kid directions. Boss kills clear hostile entities, conserve all boss XP in at most 15 piles, spill coin/chest/XP drops with golden trails and delay collection briefly so the burst is visible. A playable 20-second safe break has Visit upgrade shop and Skip buttons; menus/shop pause the countdown and repeated bosses still restart stronger.
+
+Conventional shooting/impact/reload/pickup/door details and timed slot start/tile/settlement/exit sounds layer over unchanged deep recordings. Synthetic voices are limited to 12, cleaned up, throttled and routed through the existing mute/volume/limiter; dash remains the soft whoosh only.
+
+All 13 gun card masters are generated at 1536x1024 with the built-in image generator and original style/sprite references. `art/weapon-cards/generation.json` records the exact prompts and provenance. The 26 responsive 480/960px WebPs total 888,826 bytes; they load lazily in large cards, prizes and premium showcase, never replace held/HUD sprites, and the main menu does not preload the entire set. The dark painted card background is intentional, not transparent.
+
+Local verification: 780 reachable doors/48 clear rescue sites across 24 maps; 50 opening-guide seeds; actual low-hedge pursuit; exact boss XP, paused safe-break timer and UI shop/skip; all 13 masters and 26 WebPs; responsive card decoding; bounded/muted/cleaned audio layers and unchanged deep bus; four mobile viewports/native multitouch, all 17 bug regressions, 12 returning bosses and 5,720 held-gun combinations. Physical phone certification is not claimed.
+
+Final local release checks: TypeScript, 27 isolated rules/input/purchase/geometry tests, retained easy-win/vending/build-menu regressions, packed production desktop/portrait/landscape gameplay (234 atlas assets), and production leaderboard reporting with a simulated SDK write all passed. No actual order, debit or leaderboard score was created.
 
 ## Approved public release: mobile, logo, leaderboard and vending reel
 
