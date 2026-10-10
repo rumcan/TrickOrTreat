@@ -2,7 +2,7 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { useBack } from './back';
 import { createPortal } from 'react-dom';
 import { expansion, hasFullGame } from '../game/expansion';
-import { COSTUMES, HERO_INFO, SCROLLS, TALENTS, WEAPONS } from '../game/data';
+import { COSTUMES, HERO_COSTUME, HERO_INFO, SCROLLS, TALENTS, WEAPONS } from '../game/data';
 import { ART, PORTRAITS } from './art';
 import { HeroPreview, TreatArt, GunArt } from './common';
 import { KitButton, KitTitle } from './kit';
@@ -49,7 +49,7 @@ export function UnlockShowcase({ onClose, onPlay }: { onClose: () => void; onPla
           {treats.map(t => <article key={t.id} className="unlock-card"><div className="unlock-card-art"><TreatArt id={t.id} /></div><h3>{t.name}</h3><p>{t.desc}</p><span className="unlock-stat">Find and stack during your runs</span></article>)}
         </div></section>
         <section id="unlock-costumes" className="unlock-section"><KitTitle>Dress for the darkest night</KitTitle><div className="unlock-grid">
-          {costumes.map(c => <article key={c.id} className="unlock-card"><div className="unlock-card-art unlock-costume-art"><HeroPreview hero={0} costume={c.id} size={1.5} walking={false} staticFrame /></div><span className="text-xs font-bold uppercase text-[#c69fff]">Epic costume · rare drop</span><h3>{c.name}</h3><p>{c.power}</p><span className="unlock-stat">{c.perks}</span></article>)}
+          {costumes.map(c => <article key={c.id} className="unlock-card"><div className="unlock-card-art unlock-costume-art"><HeroPreview hero={HERO_COSTUME.indexOf(c.id)} costume={c.id} size={1.5} walking={false} staticFrame /></div><span className="text-xs font-bold uppercase text-[#c69fff]">{HERO_INFO[HERO_COSTUME.indexOf(c.id)].name}'s own Epic costume · rare drop</span><h3>{c.name}</h3><p>{c.power}</p><span className="unlock-stat">{c.perks}</span></article>)}
         </div></section>
         <section id="unlock-world" className="unlock-section"><KitTitle>A bigger night. A stronger crew.</KitTitle><p>Explore the drive-in, video rental store, church, barn and primary school playground. Mount the jungle-gym Candy Cannon and face four bosses that return stronger each round.</p><h3>Permanent talent branches</h3><div className="unlock-talents">{talents.map(t => <article key={t.id}><strong>{t.name}</strong><p>{t.desc}</p></article>)}</div><p className="mt-4">Unlocks join the loot pool, rather than all appearing in your starting inventory. Earn treats and weapons through trick-or-treating and combat. The original survival game stays free.</p></section>
       </div>

@@ -2,6 +2,19 @@
 
 Requested 2026-10-10. Publish and merge Batch 1 before proceeding with Batch 2.
 
+## Current takeover: friends, own costumes and held guns
+
+Earlier batches are preserved in main through PRs #12-14; the checklist below is
+the historical planning snapshot, not a reason to replay those changes.
+
+- [x] Free doorstep friend card as one of three choices; recruit, fight, revive and choose one helper.
+- [x] Exactly one own costume per kid, enforced for drops, equipment, previews and preloading.
+- [x] All ten held-gun looks rendered from rigged models, with animated hands over guns.
+- [x] Maya/Knight and Leo/Moth generated through the approved local Hunyuan3D fallback.
+- [x] Same lighting/camera/scale; matte costume materials and transparent frame padding.
+- [x] Art, weapon layering, mobile, vending, costume and bug-regression checks.
+- [ ] Final production/hosted verification, RUN public release and merge to main.
+
 ## Batch 1: easy wins and mobile first
 
 - [x] Allow everyone to win premium vending guns/treats; label premium prizes without unlocking the expansion.

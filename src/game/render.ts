@@ -2,7 +2,8 @@ import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELE
 import { Game, Enemy, Turret } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst } from './map';
-import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES } from './art/characters';
+import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
+import { AIM, HeroAim, heroAim, aimDir } from './art/hero-aim';
 import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
 import { tinted, makeCanvas, rawCanvas } from './art/draw';
 import { G } from './art/tiles';
@@ -25,6 +26,7 @@ const HELD_GUN_H = 16;
 const HELD_GUN_GRIP_X = 8;
 const HELD_GUN_GRIP_Y = 10;
 const KID_WAIST_HEIGHT = 30;
+const AIM_GUN_SCALE = 1.25;
 
 /** first opaque row of a sprite (fraction of its height), measured once: generated PNGs often carry empty headroom */
 const opaqueTop = new WeakMap<object, number>();
@@ -63,6 +65,10 @@ export class Renderer {
   t = 0;
   heroIdx: number;
   costume: string | null = null;
+  /** which of the 8 aiming directions the kid currently faces (see art/hero-aim.ts) */
+  private aimDir = 2;
+  private lastX = 0; private lastY = 0; private moveX = 0; private moveY = 1;
+  private scratch = makeCanvas(4, 4);
 
   constructor(canvas: HTMLCanvasElement, heroIdx: number) {
     this.canvas = canvas;
@@ -74,6 +80,7 @@ export class Renderer {
     this.hero = heroSheet(heroIdx);
     this.heroSil = tinted(this.hero.img, '#7fd8ff', 1);
     this.heroFlash = tinted(this.hero.img, '#ff3030', 1);
+    heroAim(HEROES[heroIdx].id); // start loading the aiming sheet
     for (const t of ENEMY_TYPES) {
       const s = enemySheet(t);
       this.en[t] = { s, white: tinted(s.img, '#ffffff'), green: tinted(s.img, '#8dff5a') };
@@ -280,31 +287,39 @@ export class Renderer {
     // player
     {
       const sx = isoX(p.x, p.y), sy = isoY(p.x, p.y);
-      playerItem = { key: p.x + p.y, x: p.x, y: p.y, bx0: sx - 22, by0: sy - 90, bx1: sx + 22, by1: sy, draw: () => this.drawPlayer(g, sx, sy) };
+      playerItem = { key: p.x + p.y, x: p.x, y: p.y, bx0: sx - 56, by0: sy - 96, bx1: sx + 56, by1: sy + 22, draw: () => this.drawPlayer(g, sx, sy) };
       // up on a jungle gym the kid is drawn with the cannon, on the deck
       if (g.mounted < 0) items.push(playerItem);
     }
-    if (g.campaign) for (const friend of g.friends) {
+    if (g.friends.length) for (const friend of g.friends) {
       if (g.state !== 'intro' && friend.status === 'rescued' && friend.hero !== g.activeFriend) continue;
       const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
       const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
       if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
       const sheet = heroSheet(friend.hero);
       const down = g.state !== 'intro' && (friend.status !== 'rescued' || friend.hp <= 0);
-      items.push({ key: pos.x + pos.y, x: pos.x, y: pos.y, bx0: sx - 32, by0: sy - 100, bx1: sx + 32, by1: sy + 10,
+      items.push({ key: pos.x + pos.y, x: pos.x, y: pos.y, bx0: sx - 56, by0: sy - 100, bx1: sx + 56, by1: sy + 22,
         draw: () => {
           ctx.save(); ctx.translate(sx, sy);
           ctx.fillStyle = friend.status === 'rescued' ? 'rgba(65,210,180,0.25)' : 'rgba(155,75,190,0.25)';
           ctx.beginPath(); ctx.ellipse(0, 0, 22, 10, 0, 0, Math.PI * 2); ctx.fill();
           ctx.save();
           if (down) { ctx.translate(-12, -10); ctx.rotate(-Math.PI / 2); ctx.globalAlpha = 0.8; }
-          if (friend.flip) ctx.scale(-1, 1);
-          const drawFriendGun = () => {
-            if (!down && g.state !== 'intro') ctx.drawImage(weaponIcon(friend.weapon.def.id), -HELD_GUN_GRIP_X, -KID_WAIST_HEIGHT - HELD_GUN_GRIP_Y, HELD_GUN_W, HELD_GUN_H);
-          };
-          if (friend.back) drawFriendGun();
-          blitFrame(ctx, sheet, sheet.img, down || g.state === 'intro' ? 0 : friend.back ? 3 : 1, Math.floor(friend.anim), 0, 0);
-          if (!friend.back) drawFriendGun();
+          const aiming = !down && g.state !== 'intro' ? heroAim(HEROES[friend.hero].id) : null;
+          if (aiming) {
+            // on their feet: arms out toward whatever they are shooting at (or walking toward), gun in hand
+            const fx = friend.faceX ?? (friend.flip ? -1 : 1), fy = friend.faceY ?? (friend.back ? -1 : 1);
+            const dir = aimDir(Math.atan2(isoY(fx, fy), isoX(fx, fy)));
+            this.drawAimKid(aiming, 0, 0, dir, !!friend.moving, friend.anim, friend.weapon.def.id, 0, false);
+          } else {
+            if (friend.flip) ctx.scale(-1, 1);
+            const drawFriendGun = () => {
+              if (!down && g.state !== 'intro') ctx.drawImage(weaponIcon(friend.weapon.def.id), -HELD_GUN_GRIP_X, -KID_WAIST_HEIGHT - HELD_GUN_GRIP_Y, HELD_GUN_W, HELD_GUN_H);
+            };
+            if (friend.back) drawFriendGun();
+            blitFrame(ctx, sheet, sheet.img, down || g.state === 'intro' ? 0 : friend.back ? 3 : 1, Math.floor(friend.anim), 0, 0);
+            if (!friend.back) drawFriendGun();
+          }
           ctx.restore();
           ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f2e6c9';
           ctx.strokeStyle = '#100c12'; ctx.lineWidth = 3;
@@ -1108,10 +1123,80 @@ export class Renderer {
     ctx.restore();
   }
 
+  /** one frame of an aiming sheet tinted flat (hurt flash, dash afterimage) without keeping tinted copies of the sheet */
+  private tintedAimFrame(aim: HeroAim, dir: number, col: number, color: string) {
+    const { c, ctx } = this.scratch, size = AIM.frame * AIM.scale;
+    if (c.width !== size) c.width = c.height = size;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(aim.img, col * size, dir * size, size, size, 0, 0, size, size);
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, size, size);
+    return c;
+  }
+  /**
+   * A kid from an aiming sheet with their gun in hand. The arms point along direction `dir` and the gun's grip sits
+   * where the hands meet. Layers: the kid, then the gun, then the forearms and hands again, so the hands are ON the
+   * gun. Aimed away from the camera the gun is beyond the whole body, so it goes first.
+   */
+  private drawAimKid(aim: HeroAim, sx: number, sy: number, dir: number, moving: boolean, anim: number, gun: string | null, recoil: number, reloading: boolean, tint?: string) {
+    const ctx = this.ctx, size = AIM.frame * AIM.scale;
+    const col = moving ? 1 + (Math.floor(anim) % AIM.walk) : 0;
+    const hand = aim.hands[dir]?.[col] ?? [0, -KID_WAIST_HEIGHT];
+    const layer = (column: number) => ctx.drawImage(aim.img, column * size, dir * size, size, size, sx - AIM.ax, sy - AIM.ay, AIM.frame, AIM.frame);
+    if (tint) { ctx.drawImage(this.tintedAimFrame(aim, dir, col, tint), sx - AIM.ax, sy - AIM.ay, AIM.frame, AIM.frame); return; }
+    const drawGun = () => {
+      if (!gun) return;
+      const a = dir * Math.PI / 4;
+      ctx.save();
+      ctx.translate(sx + hand[0], sy + hand[1]);
+      ctx.rotate(a);
+      if (Math.cos(a) < -0.01) ctx.scale(1, -1);
+      ctx.translate(-recoil * 3, 0);
+      if (reloading) ctx.rotate(Math.sin(this.t * 14) * 0.25 - 0.4);
+      // held out at arm's length it reads a touch larger than the old waist-height gun
+      ctx.drawImage(weaponIcon(gun), -HELD_GUN_GRIP_X * AIM_GUN_SCALE, -HELD_GUN_GRIP_Y * AIM_GUN_SCALE, HELD_GUN_W * AIM_GUN_SCALE, HELD_GUN_H * AIM_GUN_SCALE);
+      ctx.restore();
+    };
+    if (dir >= 5) { drawGun(); layer(col); return; } // aiming up-screen
+    layer(col);
+    drawGun();
+    if (gun) layer(AIM.cols + col); // forearms and hands over the gun
+  }
+
   private drawPlayer(g: Game, sx: number, sy: number) {
     const p = g.p, ctx = this.ctx;
     const blink = p.invuln > 0 && p.dashT <= 0 && Math.floor(this.t * 20) % 2 === 0;
     const w = g.weapon;
+    // a kid in their own costume has an aiming sheet too; any other look falls back to the painted sprite
+    const aim = heroAim(p.costume ? `${HEROES[this.heroIdx].id}_${p.costume}` : HEROES[this.heroIdx].id);
+    if (aim) {
+      // face where the gun points; with nothing to shoot at, where the feet are going
+      if (Math.hypot(p.x - this.lastX, p.y - this.lastY) > 1e-4) { this.moveX = p.x - this.lastX; this.moveY = p.y - this.lastY; }
+      this.lastX = p.x; this.lastY = p.y;
+      const fx = p.aiming || !p.moving ? p.aimX : this.moveX, fy = p.aiming || !p.moving ? p.aimY : this.moveY;
+      const angle = Math.atan2(isoY(fx, fy), isoX(fx, fy));
+      // a little stickiness, so an aim hovering between two directions does not flicker
+      let off = angle - this.aimDir * Math.PI / 4;
+      off = Math.atan2(Math.sin(off), Math.cos(off));
+      if (Math.abs(off) > 0.5) this.aimDir = aimDir(angle);
+      const gun = w && g.mounted < 0 ? w.def.id : null, reloading = !!w && w.reloadT > 0;
+      if (p.dashT > 0) {
+        ctx.globalAlpha = 0.35;
+        this.drawAimKid(aim, sx - isoX(p.dashX, p.dashY) * 0.3, sy - isoY(p.dashX, p.dashY) * 0.3, this.aimDir, p.moving, p.anim, null, 0, false, '#7fd8ff');
+        ctx.globalAlpha = 1;
+      }
+      if (blink) ctx.globalAlpha = 0.5;
+      this.drawAimKid(aim, sx, sy, this.aimDir, p.moving, p.anim, gun, p.recoil, reloading);
+      if (p.hurtT > 0) {
+        ctx.globalAlpha = Math.min(1, p.hurtT * 2);
+        this.drawAimKid(aim, sx, sy, this.aimDir, p.moving, p.anim, null, 0, false, '#ff3030');
+      }
+      ctx.globalAlpha = 1;
+      this.drawReloadRing(g, sx, sy);
+      return;
+    }
     const drawWeapon = () => {
       if (!w || g.mounted >= 0) return;
       const a = Math.atan2(isoY(p.aimX, p.aimY), isoX(p.aimX, p.aimY));
@@ -1138,7 +1223,11 @@ export class Renderer {
     }
     ctx.globalAlpha = 1;
     if (!p.back) drawWeapon();
-    // reload ring
+    this.drawReloadRing(g, sx, sy);
+  }
+
+  private drawReloadRing(g: Game, sx: number, sy: number) {
+    const ctx = this.ctx, w = g.weapon;
     if (w && w.reloadT > 0) {
       const total = weaponStats(w, g.stats).reload;
       const prog = clamp(1 - w.reloadT / total, 0, 1);

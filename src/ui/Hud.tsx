@@ -39,7 +39,7 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
   const hero = game.hero, h = HERO_INFO[hero];
   const costume = s.costume ? COSTUME_BY_ID[s.costume] : null;
   const goals = [
-    { done: s.costumesFound >= 3, label: 'Find costumes', v: `${Math.min(s.costumesFound, 3)}/3` },
+    { done: s.costumesFound >= 1, label: 'Find your costume', v: `${Math.min(s.costumesFound, 1)}/1` },
     { done: s.doorsRung >= 5, label: 'Ring doorbells', v: `${s.doorsRung}/${Math.max(5, s.housesTotal)}` },
     { done: s.time >= 300, label: 'Survive', v: '05:00' },
   ];
@@ -114,7 +114,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
   const treats = Object.entries(s.scrolls).filter(([id, n]) => n > 0 && SCROLL_BY_ID[id]);
   const max = 9;
   const tags = TAG_ORDER.filter((t) => game.build.tiers[t] > 0).sort((a, b) => game.build.tiers[b] - game.build.tiers[a]).slice(0, 4);
-  const friends = game.campaign ? game.friends : [];
+  const friends = game.friends;
   return (
     <aside className="hm-rail pointer-events-auto" aria-label="Treats and synergies">
       <div className="hm-rail-title">Treats</div>
@@ -138,7 +138,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {friends.length > 0 && (
         <>
           <div className="hm-rail-title">Friends</div>
-          <div className="px-2 pb-2 text-xs text-white">M: rescue map · cyan + marks your friends</div>
+          {game.campaign && <div className="px-2 pb-2 text-xs text-white">M: rescue map · cyan + marks your friends</div>}
           {friends.map((f) => (
             <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (game.activeFriend === f.hero ? 'your helper' : 'saved') : game.map.gates[f.gate].name}`}>
               <span className="hm-av h-7 w-7 !border" style={{ background: HERO_COLORS[f.hero], borderColor: f.status === 'rescued' ? '#66d2b7' : '#5f6470', opacity: f.status === 'rescued' ? 1 : 0.55 }}><img src={FACES[f.hero]} alt="" className="h-full w-full object-cover" /></span>

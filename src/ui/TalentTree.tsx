@@ -248,7 +248,7 @@ export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBa
             </div>
           )}
           {fst !== 'locked' && fst !== 'maxed' && save.soul < focus.cost(fl) && <p className="mt-3 text-sm text-white">Earn {focus.cost(fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
-          {focus.id === 'master' && <div className="mt-2 font-cond2 text-[11px] font-semibold text-[#9aa3b8]">Costumes: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
+          {focus.id === 'master' && <div className="mt-2 font-cond2 text-[11px] font-semibold text-[#9aa3b8]">One costume per kid: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
           <KitButton disabled={!canBuy(focus)} onClick={() => buy(focus.id)} className="mt-4 w-full">
             {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · 🍬 ${focus.cost(fl)}`}
           </KitButton>

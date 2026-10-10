@@ -5,7 +5,8 @@ import {
   getPrimarySchool, getDriveInScreen, getSpeakerPost, getSnackBar, getMarquee, getChurch, getVideoRental,
   getJungleGym, getSwings, getMerryGoRound, getSchoolBus, getBarn, getGazebo, getBench, getTurretSheet,
 } from './art/props';
-import { heroSheet, enemySheet, ENEMY_TYPES, HEROES, COSTUME_ART_IDS } from './art/characters';
+import { heroSheet, enemySheet, ENEMY_TYPES, HEROES } from './art/characters';
+import { HERO_COSTUME } from './data';
 import { weaponIcon, pickupIcon, treatIcon, TREAT_ICON_IDS, WEAPON_ICON_IDS, PICKUP_IDS } from './art/fx';
 import { treatArt, TREAT_ART_IDS } from './art/treats';
 import { loadOverrides } from './assets';
@@ -36,7 +37,8 @@ async function boot(progress: (p: number, label: string) => void) {
   jobs.push(['Opening the playground', () => { getJungleGym(0); getJungleGym(1); getSchoolBus(false); }]);
   jobs.push(['Closing the roads', () => { getGate(); getBleachers(); getGoalPosts(); getScoreboard(); }]);
   HEROES.forEach((_, i) => jobs.push(['Dressing kids', () => heroSheet(i)]));
-  HEROES.forEach((_, i) => COSTUME_ART_IDS.forEach((c) => jobs.push(['Sewing costumes', () => heroSheet(i, c)])));
+  // each kid only ever wears their own costume
+  HEROES.forEach((_, i) => jobs.push(['Sewing costumes', () => heroSheet(i, HERO_COSTUME[i])]));
   for (const t of ENEMY_TYPES) jobs.push(['Summoning monsters', () => enemySheet(t)]);
   jobs.push(['Loading toy guns', () => { WEAPON_ICON_IDS.forEach(weaponIcon); PICKUP_IDS.forEach(pickupIcon); }]);
   jobs.push(['Packing friend treats', () => TREAT_ICON_IDS.forEach(treatIcon)]);

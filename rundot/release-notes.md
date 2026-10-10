@@ -1,3 +1,15 @@
+# Friends at the doorstep and properly held guns
+
+- Free survival players can find a friend card in a house's three reward choices.
+  A recruited kid fights beside you and can revive you; choose your one active
+  helper and share weapons from the pause menu.
+- Kids aim with their arms extended and grip the gun in their hands. The animated
+  3D renders are optimized sprites, so the game still uses its lightweight 2D renderer.
+- Each kid has exactly one rare Epic costume of their own; other kids' costumes
+  cannot drop, be equipped or appear in their previews.
+- Costume bonuses improve doorstep rewards; uncostumed houses still offer three
+  choices. The existing painted high-resolution gun-card illustrations are retained.
+
 # Painted gun cards, open roads and a fuller town
 
 - Every gun has a high-resolution painted card. It replaces the small pixel sprite on doorstep and level-up cards,
