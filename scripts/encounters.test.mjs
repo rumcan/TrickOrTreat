@@ -33,9 +33,16 @@ try {
     settings.gore = 'off'; const before = g.decals.length;
     g.killEnemy(g.spawnEnemy('zombie', g.p.x, g.p.y)); if (g.decals.length !== before) throw new Error('Off setting still emits gore');
     settings.gore = 'green'; saveSettings();
-    // Test swept movement against a solid district wall, including ghost phasing.
-    const target = { x: 20, y: 30 }; g.moveCircle(target, 10, 0, .24, 2);
-    if (target.x >= 22 || cellAt(g.map, target.x, target.y) !== 0) throw new Error('Dash/ghost crossed the west boundary');
+    // Test swept movement against a solid district wall, including ghost phasing: a locked district stays sealed.
+    const { Game } = await import('/src/game/engine.ts');
+    const locked = new Game(0, { hero: 0, soul: 0, best: 0, talents: {} }, g.input, false, 1337);
+    const target = { x: 20, y: 30 }; locked.moveCircle(target, 10, 0, .24, 2);
+    if (target.x >= 22 || cellAt(locked.map, target.x, target.y) !== 0) throw new Error('Dash/ghost crossed the west boundary');
+    // Every gate in this run has opened, so every hedge blockade is gone and the same road is walkable.
+    if (g.map.gates.some(gate => !gate.opened) || g.map.barriers.some(b => !b.cleared || (b.prop && !b.prop.removed))) throw new Error('Opened districts kept their hedge walls');
+    const crossing = { x: 20, y: 30 }; g.moveCircle(crossing, 5, 0, .24);
+    if (crossing.x < 24) throw new Error('The road stays blocked after its district opened');
+    if (!g.map.props.some(p => p.kind === 'hedge' && !p.removed)) throw new Error('Garden hedges must stay as decoration');
     const renderer = window.__tot.renderer;
     const timings = [];
     for (const mode of ['off', 'green', 'off', 'green']) {
@@ -51,5 +58,5 @@ try {
   console.log(JSON.stringify(result, null, 2));
   assert.equal(result.rounds.length, 4);
   await page.screenshot({ path: 'art/world/checks/green-gore-stress.png' });
-  console.log('Four boss clears, safe upgrades, ghost/dash boundaries, gore settings and bounded effects passed.');
+  console.log('Four boss clears, safe upgrades, locked ghost/dash boundaries, hedge walls cleared with their districts, gore settings and bounded effects passed.');
 } finally { await browser.close(); }

@@ -13,6 +13,10 @@ export const ART = {
   skillPumpkin: img('ui/skill_pumpkin.webp'),
 };
 
+/** painted card art per gun id (scripts/prepare-gun-art.mjs); the small in-world sprites are separate (icon_<id>) */
+export const GUN_ART_IDS = ['pea', 'nerf', 'shotgun', 'roman', 'soaker', 'balloon', 'rocket', 'laser', 'slingshot', 'gloom', 'marshmallow', 'bubblegum', 'acorn'];
+export const gunArtUrl = (id: string) => img(`guns/${GUN_ART_IDS.includes(id) ? id : 'pea'}.webp`);
+
 /** per hero (HERO_INFO order): tall card portrait and round HUD face */
 export const PORTRAITS = ['tommy', 'sam', 'jess', 'maya', 'leo'].map(k => img(`ui/portrait_${k}.webp?v=3`));
 export const FACES = ['tommy', 'sam', 'jess', 'maya', 'leo'].map(k => img(`ui/face_${k}.webp?v=3`));
@@ -47,7 +51,7 @@ export function preloadSplash(timeoutMs = 4000) {
 
 /** Decode every UI image up front so plates and portraits never pop in mid-game. */
 export function preloadUiArt() {
-  const all = [...new Set([...Object.values(ART), ...PORTRAITS, ...FACES, ...Object.values(BANNER_ART)])];
+  const all = [...new Set([...Object.values(ART), ...PORTRAITS, ...FACES, ...Object.values(BANNER_ART), ...GUN_ART_IDS.map(gunArtUrl)])];
   return Promise.all(
     all.map((src) => decode(src, src === ART.logo ? 'high' : 'low'))
   ).then(() => undefined);

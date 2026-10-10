@@ -160,7 +160,7 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
         ws ? (
           <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} aria-pressed={i === s.cur} {...buttonPress(() => game.input.tap(String(i + 1)))} className={`hm-tab ${i === s.cur ? 'active' : ''}`} style={{ boxShadow: `inset 0 -3px 0 ${RARITY_KIT[ws.w.rarity]}` }}>
             <Keycap className="hm-key">{String(i + 1)}</Keycap>
-            <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
+            <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
             <span className="hidden min-w-0 flex-col leading-none md:flex">
               <span className="hm-tab-name">{ws.w.def.name}</span>
               <span className="hm-tab-sub">{ws.w.reloadT > 0 ? <span className="text-[#f08a2c]">Reloading…</span> : <>{ws.w.ammo} / {ws.st.mag}</>}</span>

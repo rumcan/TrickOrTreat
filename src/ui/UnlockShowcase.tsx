@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { expansion, hasFullGame } from '../game/expansion';
 import { COSTUMES, HERO_INFO, SCROLLS, TALENTS, WEAPONS } from '../game/data';
 import { ART, PORTRAITS } from './art';
-import { HeroPreview, TreatArt, weaponUrl } from './common';
+import { HeroPreview, TreatArt, GunArt } from './common';
 import { KitButton, KitTitle } from './kit';
 
 const guns = WEAPONS.filter(w => w.premium), treats = SCROLLS.filter(t => t.premium);
@@ -43,7 +43,7 @@ export function UnlockShowcase({ onClose, onPlay }: { onClose: () => void; onPla
           {[3, 4].map(hero => <article key={hero} className="unlock-kid"><img src={PORTRAITS[hero]} alt={`${HERO_INFO[hero].name} portrait`} /><div><h3>{HERO_INFO[hero].name}</h3><p className="unlock-kicker">{HERO_INFO[hero].title}</p><p>{HERO_INFO[hero].passive}</p><h4>{HERO_INFO[hero].skill}</h4><p>{HERO_INFO[hero].skillDesc}</p></div></article>)}
         </div></section>
         <section id="unlock-guns" className="unlock-section"><KitTitle>Every exclusive gun</KitTitle><div className="unlock-grid">
-          {guns.map(w => <article key={w.id} className="unlock-card"><div className="unlock-card-art"><img src={weaponUrl(w.id)} alt={w.name} /></div><h3>{w.name}</h3><p>{w.desc}</p><span className="unlock-stat">{w.dmg} base damage · {w.rate} shots/s · {w.mag} magazine</span></article>)}
+          {guns.map(w => <article key={w.id} className="unlock-card"><div className="unlock-card-art unlock-card-gun"><GunArt id={w.id} alt={w.name} /></div><h3>{w.name}</h3><p>{w.desc}</p><span className="unlock-stat">{w.dmg} base damage · {w.rate} shots/s · {w.mag} magazine</span></article>)}
         </div></section>
         <section id="unlock-treats" className="unlock-section"><KitTitle>Every exclusive treat</KitTitle><div className="unlock-grid">
           {treats.map(t => <article key={t.id} className="unlock-card"><div className="unlock-card-art"><TreatArt id={t.id} /></div><h3>{t.name}</h3><p>{t.desc}</p><span className="unlock-stat">Find and stack during your runs</span></article>)}

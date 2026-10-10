@@ -29,7 +29,8 @@ try {
       assert.equal(preload.length, 3, 'Preload only the loading screen artwork');
       assert.equal(preload[0].href, await logo.getAttribute('src').then(src => new URL(src, url).href));
       assert.ok(preload.every(link => link.priority === 'high'));
-      assert.equal(await page.locator('.boot-loop i').evaluate(bar => getComputedStyle(bar).animationIterationCount), 'infinite', 'Loading shows a looping animation, not a stalled progress bar');
+      // read in one step: React swaps the static boot screen for its own copy at an arbitrary moment
+      assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.boot-loop i')).animationIterationCount), 'infinite', 'Loading shows a looping animation, not a stalled progress bar');
       releaseLogo();
       await page.waitForFunction(() => document.querySelector('img[alt="Trick or Treat — Maple Falls"]')?.style.opacity === '1');
       const complete = await logo.evaluate(img => ({ height: img.getBoundingClientRect().height, width: img.getBoundingClientRect().width, complete: img.complete, naturalWidth: img.naturalWidth }));

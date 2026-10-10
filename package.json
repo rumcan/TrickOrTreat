@@ -35,6 +35,7 @@
     "test:progression": "node --test scripts/progression.test.mjs && node scripts/progression-game.test.mjs",
     "art:presentation": "node scripts/prepare-presentation-art.mjs",
     "art:logo": "node scripts/prepare-logo.mjs",
+    "art:guns": "node scripts/prepare-gun-art.mjs",
     "test:logo": "node scripts/logo-loading.test.mjs",
     "test:leaderboard": "node --test scripts/leaderboard.test.mjs && node scripts/leaderboard-ui.test.mjs",
     "test:leaderboard:production": "node scripts/leaderboard-production.test.mjs",

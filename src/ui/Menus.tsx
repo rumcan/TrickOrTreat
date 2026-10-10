@@ -5,7 +5,7 @@ import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, app
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
-import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon, TreatArt, Inscriptions } from './common';
+import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, fmtTime, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon, TreatArt, GunArt, Inscriptions } from './common';
 import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
 import { RunInventory } from './RunInventory';
 import { TalentTree } from './TalentTree';
@@ -304,7 +304,7 @@ function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: W
   return (
     <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled="true" role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. Unlock the full game to find it.`}>
       <div className={`hm-pick-art ${weapon ? 'hm-pick-gun' : ''}`} style={{ ['--glow' as string]: rc }}>
-        {weapon ? <img src={weaponUrl(weapon.def.id)} alt="" draggable={false} className="relative h-[62%] w-auto [image-rendering:pixelated]" /> : scroll && <TreatArt id={scroll.id} />}
+        {weapon ? <GunArt id={weapon.def.id} /> : scroll && <TreatArt id={scroll.id} />}
         <span className="hm-lock" aria-hidden="true"><Lock size={26} strokeWidth={2.5} /></span>
         <span className="hm-stamp">Full game</span>
       </div>
@@ -387,7 +387,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
             return (
               <button key={w.uid} onClick={() => pickGun(j)} className="hm-pick" style={{ ['--acc' as string]: rc }} aria-label={`Take ${w.def.name}`}>
                 <div className="hm-pick-art hm-pick-gun" style={{ ['--glow' as string]: rc }}>
-                  <img src={weaponUrl(w.def.id)} alt="" draggable={false} className="relative h-[62%] w-auto [image-rendering:pixelated]" />
+                  <GunArt id={w.def.id} />
                   <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
                   <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun</span>
                 </div>
@@ -408,7 +408,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
           {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} />}
         </div>
         <div className="hm-foot">
-          <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack, and stacks never cap</span>
+          <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack up to their maximum</span>
           <button className="hm-btn ghost" disabled={game.rerolls <= 0} onClick={() => { game.reroll(); force((k) => k + 1); }}>Reroll ({game.rerolls})</button>
         </div>
       </div>
@@ -417,7 +417,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
 }
 
 function WeaponThumb({ id }: { id: string }) {
-  return <img src={weaponUrl(id)} className="h-9 w-[72px] shrink-0 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt="" />;
+  return <span className="block h-[46px] w-[81px] shrink-0 overflow-hidden border-2 border-[#06090b] bg-[#0a1630]"><GunArt id={id} /></span>;
 }
 export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
   const [, force] = useState(0);

@@ -1,3 +1,11 @@
+# Painted gun cards, open roads and a fuller town
+
+- Every gun has a high-resolution painted card. It replaces the small pixel sprite on doorstep and level-up cards,
+  weapon panels, the shop, the vending reel and the full-game showcase.
+- The hedge blockade around a district is removed when that district opens. Garden hedges stay as decoration.
+- The free town's empty corner lots are now built up: four more blocks of houses (16 new doorbells), a parking lot
+  and playground beside the school, and a pumpkin patch with a gravel lot in the south-east.
+
 # Phone fixes: drag to move, one-screen menu, Back closes popups
 
 - Drag a finger anywhere on the play area to move. The two on-screen sticks are gone; the kid aims and fires alone.
