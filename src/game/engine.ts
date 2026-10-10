@@ -181,6 +181,8 @@ export interface RescueFriend {
   faceX?: number; faceY?: number; moving?: boolean;
   /** seconds spent well behind the player (they rejoin when it gets long) */
   farT?: number;
+  /** seconds spent down (see FRIEND_DOWN_TIME) */
+  downT?: number;
 }
 
 export interface Player {
@@ -196,6 +198,8 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 
 /** free game: chance that a doorstep bowl also holds a friend who wants to tag along (one of the three cards) */
 export const FRIEND_CARD_CHANCE = 0.2;
+/** a friend who goes down can be helped up for this long; after that they are out for the night */
+export const FRIEND_DOWN_TIME = 30;
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
@@ -496,62 +500,97 @@ export class Game {
           f.status = 'rescued'; f.progress = 0; f.channel = false;
           if (this.activeFriend === null) this.activeFriend = f.hero;
           this.syncTeamWeapons(); gameAudio.play('revive');
-          this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS SAFE!`, 'Pause to choose your companion and share weapons.', 'loot'); this.rescuePrompt = '';
+          this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS SAFE!`, 'They fight beside you from now on. Pause to share weapons.', 'loot'); this.rescuePrompt = '';
         }
       } else { f.channel = false; f.progress = Math.max(0, f.progress - dt * 2); }
     }
-    const friend = this.friends.find(f => f.hero === this.activeFriend && f.status === 'rescued');
-    if (!friend) { if (this.state === 'downed') this.endRun(false); return; }
-    friend.reviveCd = Math.max(0, friend.reviveCd - dt); friend.hurtCd = Math.max(0, friend.hurtCd - dt);
-    const distance = Math.hypot(friend.x - this.p.x, friend.y - this.p.y);
-    if (friend.hp <= 0) {
-      if (this.state === 'downed') { this.endRun(false); return; }
-      if (distance < 2 || (friend.channel && distance < 2.6)) {
-        if (this.input.pressed.has('e') || this.input.keys.has('e')) friend.channel = true;
-        if (friend.channel) {
-          friend.pauseT = Math.max(0, (friend.pauseT ?? 0) - dt);
-          if (this.p.hurtT > 0) friend.pauseT = 0.35;
-          if (!friend.pauseT) friend.progress += dt * this.stats.reviveSpeed;
-        }
-        this.rescuePrompt = friend.channel ? `Helping ${HERO_INFO[friend.hero].name} up…` : `Revive ${HERO_INFO[friend.hero].name}`;
-        this.rescueProgress = Math.min(1, friend.progress / RESCUE_TIME);
-        if (friend.progress >= RESCUE_TIME) { friend.hp = friend.maxHp * 0.5; friend.progress = 0; friend.channel = false; friend.hurtCd = 3; gameAudio.play('revive'); }
-      } else { friend.channel = false; friend.progress = Math.max(0, friend.progress - dt * 2); }
-      return;
+    // ---- everyone already on the team fights beside the player, all at once ----
+    const team = this.friends.filter(f => f.status === 'rescued');
+    if (!team.length) { if (this.state === 'downed') this.endRun(false); return; }
+    const gap = (f: RescueFriend) => Math.hypot(f.x - this.p.x, f.y - this.p.y);
+    // A friend who is down can be helped up for FRIEND_DOWN_TIME seconds (sign above them, beacon on the map).
+    let helping: RescueFriend | null = null;
+    for (const f of team) {
+      if (f.hp > 0) { f.downT = 0; continue; }
+      if (this.state === 'play') f.downT = (f.downT ?? 0) + dt;
+      if ((f.downT ?? 0) >= FRIEND_DOWN_TIME) {
+        this.friends = this.friends.filter(x => x !== f);
+        if (this.activeFriend === f.hero) this.activeFriend = this.friends.find(x => x.status === 'rescued')?.hero ?? null;
+        this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS OUT FOR THE NIGHT`, this.campaign ? 'Nobody reached them in time.' : 'Nobody reached them in time. They may turn up at another door.', 'danger');
+        gameAudio.play('hurt', 0.5);
+        continue;
+      }
+      const d = gap(f);
+      if ((d < 2 || (f.channel && d < 2.6)) && (!helping || d < gap(helping))) helping = f;
     }
-    if (distance > (this.state === 'downed' ? 0.7 : 1.6)) {
-      const direction = this.flowDir(friend.x, friend.y);
-      const dx = direction?.x ?? (this.p.x - friend.x) / (distance || 1), dy = direction?.y ?? (this.p.y - friend.y) / (distance || 1);
-      // Following comes first. The helper runs at the player's own pace (same 3.4 tiles/s base and move bonuses), a
-      // little quicker so they close the gap, and sprints when they have fallen behind (a dash, a corner).
-      const pace = 3.4 * this.stats.move * (distance > 4 ? 1.6 : 1.1);
-      this.moveCircle(friend, dx * pace * dt, dy * pace * dt, friend.r);
-      friend.anim += dt * 8; friend.back = dy < 0; friend.flip = dx < 0;
-      friend.moving = true; friend.faceX = dx; friend.faceY = dy;
-    } else { friend.anim += dt * 3; friend.moving = false; }
-    // never left behind: far away, or stuck out of reach for a few seconds, they turn up beside the player
-    friend.farT = distance > 5 ? (friend.farT ?? 0) + dt : 0;
-    if ((distance > 12 || friend.farT > 3) && this.state !== 'downed') { Object.assign(friend, this.freeSpot(this.p.x + 1, this.p.y + 1, true)); friend.farT = 0; }
-    for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
-      friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
+    for (const f of team) if (f.hp <= 0 && f !== helping) { f.channel = false; f.progress = Math.max(0, f.progress - dt * 2); }
+    if (helping && this.state === 'play') {
+      const f = helping, name = HERO_INFO[f.hero].name;
+      if (this.input.pressed.has('e') || this.input.keys.has('e')) f.channel = true;
+      if (f.channel) {
+        f.pauseT = Math.max(0, (f.pauseT ?? 0) - dt);
+        if (this.p.hurtT > 0) f.pauseT = 0.35; // a hit stalls the revive for a moment, it never wipes it
+        if (!f.pauseT) f.progress += dt * this.stats.reviveSpeed;
+      }
+      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil(FRIEND_DOWN_TIME - (f.downT ?? 0))}s left`;
+      this.rescueProgress = Math.min(1, f.progress / RESCUE_TIME);
+      if (f.progress >= RESCUE_TIME) { f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0; gameAudio.play('revive'); }
     }
-    for (const bullet of this.ebullets) if (!bullet.dead && Math.hypot(bullet.x - friend.x, bullet.y - friend.y) < bullet.r + friend.r && friend.hurtCd <= 0) {
-      bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
-    }
-    if (this.state === 'downed') {
+    const standing = this.friends.filter(f => f.status === 'rescued' && f.hp > 0);
+    // if the player is down, the nearest friend who still has a revive in them comes to pick them up
+    const reviver = this.state === 'downed' ? standing.filter(f => f.reviveCd <= 0).sort((x, y) => gap(x) - gap(y))[0] ?? null : null;
+    if (this.state === 'downed' && !reviver) { this.endRun(false); return; }
+    standing.forEach((friend, slot) => {
+      friend.reviveCd = Math.max(0, friend.reviveCd - dt); friend.hurtCd = Math.max(0, friend.hurtCd - dt);
+      const distance = gap(friend);
+      // Following comes first. Each friend keeps their own spot in the group so they do not stand in one pile.
+      const keep = friend === reviver ? 0.7 : 1.5 + (slot % 4) * 0.45;
+      if (distance > keep) {
+        const direction = this.flowDir(friend.x, friend.y);
+        const dx = direction?.x ?? (this.p.x - friend.x) / (distance || 1), dy = direction?.y ?? (this.p.y - friend.y) / (distance || 1);
+        // the player's own pace (same 3.4 tiles/s base and move bonuses), a little quicker so they close the gap, and a
+        // sprint when they have fallen behind (a dash, a corner)
+        const pace = 3.4 * this.stats.move * (distance > 4 ? 1.6 : 1.1);
+        this.moveCircle(friend, dx * pace * dt, dy * pace * dt, friend.r);
+        friend.anim += dt * 8; friend.back = dy < 0; friend.flip = dx < 0;
+        friend.moving = true; friend.faceX = dx; friend.faceY = dy;
+      } else { friend.anim += dt * 3; friend.moving = false; }
+      for (const other of standing) {
+        if (other === friend) continue;
+        const ox = friend.x - other.x, oy = friend.y - other.y, d = Math.hypot(ox, oy);
+        if (d < 0.55) this.moveCircle(friend, (d ? ox / d : 1) * (0.55 - d) * 0.5, (d ? oy / d : 0) * (0.55 - d) * 0.5, friend.r);
+      }
+      // never left behind: far away, or stuck out of reach for a few seconds, they turn up beside the player
+      friend.farT = distance > 5 ? (friend.farT ?? 0) + dt : 0;
+      if ((distance > 12 || friend.farT > 3) && this.state !== 'downed') { Object.assign(friend, this.freeSpot(this.p.x + 1 + slot * 0.4, this.p.y + 1, true)); friend.farT = 0; }
+      for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
+        friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
+        if (friend === reviver) this.playerReviveProgress = 0;
+      }
+      for (const bullet of this.ebullets) if (!bullet.dead && Math.hypot(bullet.x - friend.x, bullet.y - friend.y) < bullet.r + friend.r && friend.hurtCd <= 0) {
+        bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
+        if (friend === reviver) this.playerReviveProgress = 0;
+      }
+      if (friend.hp <= 0) { friend.downT = 0; this.toast(`${HERO_INFO[friend.hero].name} is down! ${FRIEND_DOWN_TIME} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
+      if (this.state === 'downed') return; // everyone's attention is on the player
+      for (const pickup of this.pickups) if (pickup.friendOnly && !pickup.dead && Math.hypot(pickup.x - friend.x, pickup.y - friend.y) < 6) {
+        pickup.dead = true; friend.candy++; friend.hp = Math.min(friend.maxHp, friend.hp + 5); gameAudio.play('pickup', 0.25);
+      }
+      this.friendShoot(friend, dt);
+    });
+    if (this.state === 'downed' && reviver) {
       this.downedTime -= dt;
-      if (distance < 1.1 && friend.hp > 0 && friend.reviveCd <= 0 && friend.hurtCd <= 0) this.playerReviveProgress += dt * this.stats.reviveSpeed; else this.playerReviveProgress = 0;
-      this.rescuePrompt = `${HERO_INFO[friend.hero].name} is reviving you · ${Math.ceil(this.downedTime)}s left`;
+      if (reviver.hp > 0 && gap(reviver) < 1.1 && reviver.hurtCd <= 0) this.playerReviveProgress += dt * this.stats.reviveSpeed; else this.playerReviveProgress = 0;
+      this.rescuePrompt = `${HERO_INFO[reviver.hero].name} is reviving you · ${Math.ceil(this.downedTime)}s left`;
       this.rescueProgress = Math.min(1, this.playerReviveProgress / 3);
       if (this.playerReviveProgress >= 3) {
-        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; friend.reviveCd = 60; this.playerReviveProgress = 0;
-        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', 'Your companion saved you. Revive recharges in 60 seconds.');
-      } else if (this.downedTime <= 0 || friend.hp <= 0) this.endRun(false);
-      return;
+        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; reviver.reviveCd = 60; this.playerReviveProgress = 0;
+        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', `${HERO_INFO[reviver.hero].name} saved you. Their revive recharges in 60 seconds.`);
+      } else if (this.downedTime <= 0) this.endRun(false);
     }
-    for (const pickup of this.pickups) if (pickup.friendOnly && !pickup.dead && Math.hypot(pickup.x - friend.x, pickup.y - friend.y) < 6) {
-      pickup.dead = true; friend.candy++; friend.hp = Math.min(friend.maxHp, friend.hp + 5); gameAudio.play('pickup', 0.25);
-    }
+  }
+  /** one friend's gun: reload, pick the nearest monster in range and sight, fire */
+  private friendShoot(friend: RescueFriend, dt: number) {
     const weapon = friend.weapon, st = weaponStats(weapon, this.stats);
     weapon.cd -= dt;
     if (weapon.reloadT > 0) { weapon.reloadT -= dt; if (weapon.reloadT <= 0) weapon.ammo = st.mag; return; }
@@ -561,7 +600,7 @@ export class Game {
       const d = Math.hypot(enemy.x - friend.x, enemy.y - friend.y);
       if (d < nearest && lineOfSight(this.map, friend.x, friend.y, enemy.x, enemy.y)) { nearest = d; target = enemy; }
     }
-    if (!target || weapon.cd > 0 || friend.hp <= 0) return;
+    if (!target || weapon.cd > 0) return;
     weapon.cd = 1 / st.rate; weapon.ammo--;
     const angle = Math.atan2(target.y - friend.y, target.x - friend.x);
     friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
@@ -963,7 +1002,7 @@ export class Game {
         this.explode(p.x, p.y, 3.5, 80, 'fire', true);
       } else {
         p.hp = 0;
-        const friend = this.friends.find(f => f.hero === this.activeFriend && f.hp > 0 && f.reviveCd <= 0);
+        const friend = this.friends.find(f => f.status === 'rescued' && f.hp > 0 && f.reviveCd <= 0);
         if (friend) {
           this.state = 'downed'; this.downedTime = 15; this.playerReviveProgress = 0;
           this.setBanner('HANG ON!', `${HERO_INFO[friend.hero].name} is coming to revive you`, 'danger');
@@ -1376,8 +1415,7 @@ export class Game {
       p.hp = s.maxHp; p.shield = s.maxShield; p.invuln = Math.max(p.invuln, 2);
       this.premiumPowerT = 6;
       for (const weapon of p.weapons) if (weapon) { weapon.ammo = weaponStats(weapon, s).mag; weapon.reloadT = 0; }
-      const friend = this.friends.find(f => f.hero === this.activeFriend);
-      if (friend) { friend.hp = friend.maxHp; friend.weapon.ammo = weaponStats(friend.weapon, s).mag; friend.weapon.reloadT = 0; }
+      for (const friend of this.friends) if (friend.status === 'rescued') { friend.hp = friend.maxHp; friend.downT = 0; friend.weapon.ammo = weaponStats(friend.weapon, s).mag; friend.weapon.reloadT = 0; }
       for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 7) {
         e.shield = 0; e.shieldT = 8; e.stunT = Math.max(e.stunT, e.def.boss ? 0.6 : 2);
         this.damageEnemy(e, 56 * s.dmg * s.skillPow, '#ffd580', true, false, { element: 'shock' });
@@ -1623,7 +1661,7 @@ export class Game {
     else this.dropPickup(e.x, e.y, xp >= 4 ? 'xp3' : xp >= 2 ? 'xp2' : 'xp1', xp * KILL_LOOT);
     if (Math.random() < e.def.coin) this.dropPickup(e.x, e.y, 'coin', Math.ceil(rand(1, 3) * (e.elite ? 5 : 1) * KILL_LOOT));
     if (Math.random() < s.healDrop) this.dropPickup(e.x, e.y, 'heal', 25);
-    if (this.activeFriend !== null && Math.random() < 0.12) {
+    if (this.friends.some(f => f.status === 'rescued') && Math.random() < 0.12) {
       this.dropPickup(e.x, e.y, 'xp2', 0);
       this.pickups[this.pickups.length - 1].friendOnly = true;
     }
@@ -2495,7 +2533,7 @@ export class Game {
     const helper = this.activeFriend === null;
     if (helper) this.activeFriend = hero;
     this.syncTeamWeapons();
-    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, helper ? 'Your friend fights beside you and can pick you up once a minute.' : 'Pause to choose which friend fights beside you.', 'loot');
+    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, 'They fight beside you and can pick you up once a minute.', 'loot');
     this.state = 'play';
     this.p.invuln = 1;
   }

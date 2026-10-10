@@ -6,7 +6,7 @@
 //    that opens above it for whatever needs you right now (revive, cannon, doorstep, pickups);
 //  · NOTICES as paper slips with a 4px orange left edge.
 import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon, X } from 'lucide-react';
-import { HudSnap, Game } from '../game/engine';
+import { HudSnap, Game, FRIEND_DOWN_TIME } from '../game/engine';
 import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/data';
 import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
 import { requestGameFullscreen, canFullscreen } from './fullscreen';
@@ -140,9 +140,9 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
           <div className="hm-rail-title">Friends</div>
           {game.campaign && <div className="px-2 pb-2 text-xs text-white">M: rescue map · cyan + marks your friends</div>}
           {friends.map((f) => (
-            <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (game.activeFriend === f.hero ? 'your helper' : 'saved') : game.map.gates[f.gate].name}`}>
+            <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (f.hp > 0 ? 'fighting beside you' : 'down: revive them') : game.map.gates[f.gate].name}`}>
               <span className="hm-av h-7 w-7 !border" style={{ background: HERO_COLORS[f.hero], borderColor: f.status === 'rescued' ? '#66d2b7' : '#5f6470', opacity: f.status === 'rescued' ? 1 : 0.55 }}><img src={FACES[f.hero]} alt="" className="h-full w-full object-cover" /></span>
-              <span className="hm-rail-n" style={{ color: f.status === 'rescued' ? '#66d2b7' : '#ffffff' }}>{f.status === 'rescued' ? (game.activeFriend === f.hero ? 'help' : 'safe') : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.map.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
+              <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.map.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
             </div>
           ))}
         </>
