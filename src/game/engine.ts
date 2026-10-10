@@ -1,5 +1,5 @@
 import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
-import { buildMap, GameMap, cellAt, lineOfSight, PropInst, HouseInst } from './map';
+import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { hasFullGame } from './expansion';
@@ -187,6 +187,10 @@ export class Game {
   tot: TotState | null = null;
   bubbles: Bubble[] = [];
   housesVisited = 0;
+  /** One approachable, non-trick house for the opening guide, per run. */
+  tutorialHouse: HouseInst | null = null;
+  treatGuideComplete = false;
+  treatGuideNotice = false;
   costumesFound = 0;
   private costumesWorn = new Set<string>();
   private dashHit = new Set<number>();
@@ -305,6 +309,13 @@ export class Game {
       this.state = 'intro';
       this.banner = null;
     }
+    this.selectTutorialHouse();
+  }
+
+  private selectTutorialHouse() {
+    if (this.treatGuideComplete) return;
+    this.tutorialHouse = this.map.houses.filter(h => h.prop.kind === 'house' && !h.trick && !h.visited && !blockedCircle(this.map, h.door.x, h.door.y, this.p.r) && this.reachable(h.door.x, h.door.y))
+      .sort((a, b) => Math.hypot(a.door.x - this.p.x, a.door.y - this.p.y) - Math.hypot(b.door.x - this.p.x, b.door.y - this.p.y))[0] ?? null;
   }
 
   private dropStarterItems() {
@@ -2238,6 +2249,11 @@ export class Game {
     for (let i = 0; i < 24; i++) this.particle(dx, dy, 0.6, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.9, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
     this.bubble(this.p.x, this.p.y, 115, costumed ? 'Thank you!!' : 'Aww… thanks.', 'kid', 1.4, true);
     this.choiceGiver = h.owner;
+    if (!this.treatGuideComplete) {
+      this.treatGuideComplete = true;
+      this.tutorialHouse = null;
+      this.treatGuideNotice = true;
+    }
     const n = (costumed ? 3 : 2) + this.stats.totChoices;
     this.openLevelUp('house', n, this.stats.luck + (costumed ? 3 : 0), rewards);
   }
@@ -2287,6 +2303,7 @@ export class Game {
   chooseGun(i: number) {
     const w = this.gunChoices[i];
     if (this.state !== 'levelup' || !w || this.choiceMode !== 'house') return;
+    this.treatGuideNotice = false;
     gameAudio.play('unlock');
     this.input.pressed.clear();
     this.gunChoices = [];
@@ -2317,10 +2334,12 @@ export class Game {
       if (h.light) h.light.i = h.lightI;
     }
     for (let i = 0; i < Math.max(1, Math.floor(hs.length / 6)); i++) hs[Math.floor(Math.random() * hs.length)].trick = true;
+    this.selectTutorialHouse();
     this.toast('The porch lights are back on: every house has fresh treats');
   }
   choose(id: string) {
     if (this.state !== 'levelup' || !this.choices.some(c => c.id === id)) return;
+    this.treatGuideNotice = false;
     gameAudio.play('unlock');
     this.input.pressed.clear(); // the key that picked the card must not also swap weapons
     this.gunChoices = [];

@@ -566,10 +566,6 @@ export class Renderer {
         ctx.globalAlpha = 0.4;
         ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : '#ff2a2a', 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
       }
-      if (e.shield > 0) {
-        ctx.globalAlpha = 0.65; ctx.strokeStyle = '#76ddff'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y) - 28, Math.max(20, e.r * 50), Math.max(35, e.r * 65), 0, 0, Math.PI * 2); ctx.stroke();
-      }
       if (e.affix) {
         ctx.globalAlpha = 0.65; ctx.strokeStyle = AFFIX_INFO[e.affix].color; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y), e.r * 65 + 10, e.r * 30 + 5, 0, 0, Math.PI * 2); ctx.stroke();
@@ -871,6 +867,34 @@ export class Renderer {
       ctx.textAlign = 'center';
       ctx.fillText(label, clamp(ex - Math.cos(a) * 22, 95, vw - 95), clamp(ey - Math.sin(a) * 22, 90, vh - 110));
     };
+    const tutorial = g.tutorialHouse;
+    if (tutorial && !g.treatGuideComplete && !tutorial.visited && !g.tot && g.state === 'play' && !g.bigMap) {
+      const [sx, sy] = toS(isoX(tutorial.door.x, tutorial.door.y), isoY(tutorial.door.x, tutorial.door.y));
+      {
+        const miniWidth = Math.min(230, vw * 0.22), miniBottom = (vw < 640 ? 48 : 56) + 3 + 16 + miniWidth / 2 + 6;
+        const underMap = sx > vw - miniWidth - 110 && sy < miniBottom + 100;
+        const onScreen = !underMap && sx >= 85 && sx <= vw - 85 && sy >= 170 && sy <= vh - 115;
+        const angle = Math.atan2(sy - vh / 2, sx - vw / 2);
+        let ax = onScreen ? sx : clamp(vw / 2 + Math.cos(angle) * vw, 90, vw - 90);
+        let ay = onScreen ? sy - 18 : clamp(vh / 2 + Math.sin(angle) * vh, 190, vh - 150);
+        if (ax > vw - miniWidth - 110 && ay < miniBottom + 100) {
+          if (miniBottom + 100 <= vh - 150) ay = miniBottom + 100;
+          else ax = Math.max(90, vw - miniWidth - 112);
+        }
+        const bob = Math.sin(this.t * 3) * 4;
+        ctx.save(); ctx.translate(ax, ay + bob);
+        ctx.save(); if (!onScreen) ctx.rotate(angle - Math.PI / 2);
+        ctx.shadowColor = '#52e984'; ctx.shadowBlur = 14;
+        const green = ctx.createLinearGradient(0, -52, 0, 0); green.addColorStop(0, '#c8ffd7'); green.addColorStop(1, '#45da79');
+        ctx.fillStyle = green; ctx.strokeStyle = '#143d27'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-7, -50); ctx.lineTo(7, -50); ctx.lineTo(7, -23); ctx.lineTo(18, -23); ctx.lineTo(0, 0); ctx.lineTo(-18, -23); ctx.lineTo(-7, -23); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore(); ctx.fillStyle = '#0c211bef'; ctx.strokeStyle = '#63d991'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(-78, -84, 156, 26, 8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#e4ffeb'; ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? 'RING THE BELL · E' : 'FIRST TREATS', 0, -71);
+        ctx.restore();
+      }
+    }
     if (g.campaign && g.state !== 'intro') {
       // One readable objective arrow: prefer a kid whose district is already open.
       const missing = g.friends.filter(f => f.status !== 'rescued');

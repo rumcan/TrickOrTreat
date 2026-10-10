@@ -343,6 +343,10 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
         <div className="paper-kicker">{kicker}</div>
         <h2 className="hm-modal-title">{title}</h2>
         <span className="hm-rule" />
+        {mode === 'house' && game.treatGuideNotice && <aside role="note" aria-label="Trick-or-treat guide" className="mt-4 rounded-lg border border-[#69cf91]/60 bg-[#102a23] px-4 py-3 text-sm leading-relaxed text-[#f0fff4]">
+          <strong className="block text-[#a4f5ba]">The best loot is behind a door.</strong>
+          Trick-or-treat at houses and other buildings across town to find treats and guns. Houses offer Common–Rare loot; other venues offer Rare–Epic, and major buildings can offer Legendary rewards.
+        </aside>}
         <div className={`mt-6 grid grid-cols-1 gap-5 ${cards >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : cards === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
           {game.choices.map((c, i) => {
             const rc = RARITY_KIT[c.rarity], owned = game.scrolls[c.id] || 0;

@@ -7,7 +7,7 @@
     "price": { "type": "bucks", "value": "100" },
     "entitlements": [{ "entitlementId": "hide-and-shriek-full-game", "quantity": 1, "consumable": false }],
     "unique": true,
-    "active": false,
+    "active": true,
     "refundEligible": true,
     "refundWindowHours": 24,
     "tags": ["full-game", "permanent"],

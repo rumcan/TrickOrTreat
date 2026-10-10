@@ -1,6 +1,7 @@
 import { TW, TH, makeRng } from '../config';
-import { makeCanvas, shade, rgba } from './draw';
+import { makeCanvas, rawCanvas, shade, rgba } from './draw';
 import { asset, Img } from '../assets';
+import { tilePoint, curbPoint, curbCoordinates } from './street-geometry';
 
 export enum G {
   GRASS = 0,
@@ -269,7 +270,7 @@ export const TILE_VARIANTS = (g: G) => TILE_DESC[g].variants;
 export function getTile(g: G, v: number): Img {
   const d = TILE_DESC[g];
   const vv = v % d.variants;
-  return asset(
+  const material = asset(
     {
       key: `tile_${d.name}_${vv}`,
       file: `tiles/tile_${d.name}_${vv}.png`,
@@ -281,6 +282,67 @@ export function getTile(g: G, v: number): Img {
     },
     () => d.gen(1000 * (g + 1) + vv * 17 + 3)
   );
+  return g === G.SIDEWALK ? alignedSidewalk(material) : material;
+}
+
+// Keep the generated painted materials, but never use their approximate slab/curb
+// geometry as the map grid. These small canvases are built once, not per frame.
+const sidewalkCache = new WeakMap<object, HTMLCanvasElement>();
+const curbCache = new WeakMap<object, HTMLCanvasElement>();
+
+function alignedSidewalk(material: Img) {
+  const cached = sidewalkCache.get(material);
+  if (cached) return cached;
+  const c = rawCanvas(TW, TH), ctx = c.getContext('2d')!;
+  const P = (u: number, v: number) => tilePoint(u, v, TW, TH);
+  // Sample the interior of each painted slab, excluding the baked-in crooked
+  // joints. Project it into four exact half-tile slabs, then draw shared joints.
+  for (const u of [0, 0.5]) for (const v of [0, 0.5]) {
+    const corners = [P(u, v), P(u + 0.5, v), P(u + 0.5, v + 0.5), P(u, v + 0.5)];
+    ctx.save(); ctx.beginPath(); corners.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.clip();
+    const scale = 0.5 / 0.34, source = P(u + 0.08, v + 0.08), dest = P(u, v);
+    ctx.translate(dest[0] - source[0] * scale, dest[1] - source[1] * scale);
+    ctx.scale(scale, scale); ctx.drawImage(material, 0, 0, TW, TH); ctx.restore();
+  }
+  ctx.save(); clipTile(ctx); ctx.lineWidth = 0.8; ctx.strokeStyle = '#222c39';
+  ctx.beginPath();
+  for (const t of [0, 0.5, 1]) {
+    ctx.moveTo(...P(t, 0)); ctx.lineTo(...P(t, 1));
+    ctx.moveTo(...P(0, t)); ctx.lineTo(...P(1, t));
+  }
+  ctx.stroke(); ctx.restore(); sidewalkCache.set(material, c); return c;
+}
+
+function alignedCurb(material: Img, edge: number) {
+  const cached = curbCache.get(material);
+  if (cached) return cached;
+  const source = rawCanvas(TW, TH), sx = source.getContext('2d')!;
+  sx.drawImage(material, 0, 0, TW, TH);
+  const pixels = sx.getImageData(0, 0, TW, TH).data;
+  const columns: number[][] = Array.from({ length: TW }, () => []);
+  for (let x = 0; x < TW; x++) for (let y = 0; y < TH; y++) if (pixels[(y * TW + x) * 4 + 3] >= 128) columns[x].push(y);
+  const occupied = columns.map((rows, x) => rows.length ? x : -1).filter(x => x >= 0);
+  if (!occupied.length) return genCurb(edge);
+  const lo = occupied[0], hi = occupied[occupied.length - 1];
+  const c = rawCanvas(TW, TH), ctx = c.getContext('2d')!, out = ctx.createImageData(TW, TH), width = 0.12;
+  for (let y = 0; y < TH; y++) for (let x = 0; x < TW; x++) {
+    const u = (x + 0.5) / TW + (y + 0.5) / TH - 0.5, v = (y + 0.5) / TH - (x + 0.5) / TW + 0.5;
+    const [along, inset] = curbCoordinates(edge, u, v);
+    if (u < 0 || u > 1 || v < 0 || v > 1 || inset < 0 || inset > width) continue;
+    const progress = edge === 1 || edge === 2 ? 1 - along : along;
+    let column = Math.round(lo + progress * (hi - lo));
+    if (!columns[column].length) column = occupied.reduce((best, next) => Math.abs(next - column) < Math.abs(best - column) ? next : best, lo);
+    const rows = columns[column], row = rows[Math.min(rows.length - 1, Math.floor(inset / width * rows.length))];
+    const from = (row * TW + column) * 4, to = (y * TW + x) * 4;
+    out.data.set(pixels.subarray(from, from + 3), to); out.data[to + 3] = 255;
+  }
+  ctx.putImageData(out, 0, 0);
+  ctx.save(); clipTile(ctx);
+  for (const [inset, color] of [[0, '#adb2bc'], [width, '#18212c']] as const) {
+    ctx.strokeStyle = color; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(...tilePoint(...curbPoint(edge, 0, inset), TW, TH)); ctx.lineTo(...tilePoint(...curbPoint(edge, 1, inset), TW, TH)); ctx.stroke();
+  }
+  ctx.restore(); curbCache.set(material, c); return c;
 }
 
 // ===== Edge overlays (drawn on top of base tiles) =====
@@ -301,8 +363,8 @@ function inner(x: number, y: number, f: number): [number, number] {
 function genCurb(e: number) {
   const { c, ctx } = makeCanvas(TW, TH);
   const [ax, ay, bx, by] = EDGE_PTS[e];
-  const a2 = inner(ax, ay, 0.14), b2 = inner(bx, by, 0.14);
-  const a3 = inner(ax, ay, 0.06), b3 = inner(bx, by, 0.06);
+  const a2 = tilePoint(...curbPoint(e, 0, 0.12), TW, TH), b2 = tilePoint(...curbPoint(e, 1, 0.12), TW, TH);
+  const a3 = tilePoint(...curbPoint(e, 0, 0.045), TW, TH), b3 = tilePoint(...curbPoint(e, 1, 0.045), TW, TH);
   ctx.beginPath();
   ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(b2[0], b2[1]); ctx.lineTo(a2[0], a2[1]); ctx.closePath();
   ctx.fillStyle = '#9a9b9e';
@@ -377,10 +439,11 @@ function genCrosswalk(axis: 'x' | 'y') {
 const OVL_STYLE = 'Isometric 2:1 tile OVERLAY 128x64 px, fully transparent PNG/WEBP except the described detail, same art style as ground tiles.';
 
 export function getCurb(e: number) {
-  return asset(
+  const material = asset(
     { key: `ovl_curb_${EDGE_NAMES[e]}`, file: `overlays/ovl_curb_${EDGE_NAMES[e]}.png`, category: 'overlay', w: TW, h: TH, desc: `Concrete curb strip along the ${EDGE_NAMES[e].toUpperCase()} edge of a sidewalk tile (road is on that side)`, prompt: `${OVL_STYLE} A raised light-grey concrete curb running exactly along the ${EDGE_NAMES[e].toUpperCase()} diamond edge, ~9px wide.` },
     () => genCurb(e)
   );
+  return alignedCurb(material, e);
 }
 export function getFringe(e: number) {
   return asset(
