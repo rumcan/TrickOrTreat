@@ -11,7 +11,7 @@ export async function prepareLogo() {
   // Keep the supplied master untouched; 1240px covers the 620px loading logo at 2x DPR.
   for (const [name, width] of [['newlogo.webp', 1240], ['newlogo_sm.webp', 640]]) {
     await sharp(source).resize({ width, withoutEnlargement: true })
-      .webp({ quality: 90, alphaQuality: 100, effort: 6 }).toFile(path.join(output, name));
+      .webp({ quality: 80, alphaQuality: 90, effort: 6 }).toFile(path.join(output, name));
   }
   console.log('Prepared transparent full and small WebP logos; original PNG preserved.');
 }

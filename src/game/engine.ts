@@ -8,7 +8,7 @@ import type { RunRecord } from './leaderboard-service';
 import { vendingCatalogue, createVendingSpin } from './vending';
 import type { VendingSpin, VendingPrize } from './vending';
 import { vendingCost } from './vending-odds';
-import { Build, rollCrit, rateOverflow, overflow } from './build';
+import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMBO_MAX, HAUNT_MAX, INFERNO_STACKS } from './build';
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
@@ -105,19 +105,40 @@ export class Input {
 }
 
 // ================= ENTITY TYPES =================
+/**
+ * Balance: player damage numbers start low (guns and skills deal 40% of their old values) while monsters keep
+ * roughly their old health, so every monster takes ~2.7x as many shots. In exchange there are fewer of them
+ * (SPAWN_SCALE) and each kill is worth more XP and coins (KILL_LOOT). Boss health is twice as high relative to the
+ * player and, like everything else, climbs x1.65 a wave.
+ */
+export const SPAWN_SCALE = 0.6;
+export const KILL_LOOT = 1.6;
+/** floating damage numbers: at most this many on screen, and never longer than four characters */
+const DMG_TEXT_MAX = 40;
+export function fmtDmg(n: number) {
+  if (Number.isNaN(n)) return '0';
+  if (n >= 1e3) {
+    const units = ['K', 'M', 'B', 'T'];
+    let u = -1;
+    while (n >= 1e3 && u < units.length - 1) { n /= 1e3; u++; }
+    return n >= 1e3 ? `999${units[u]}+` : `${n >= 100 ? Math.round(n) : n.toFixed(1)}${units[u]}`;
+  }
+  return Math.max(1, Math.round(n)).toString();
+}
+
 export interface EnemyDef { hp: number; speed: number; dmg: number; r: number; xp: number; coin: number; fly?: boolean; phase?: boolean; ranged?: boolean; bomber?: boolean; elite?: boolean; boss?: boolean; color: string; mass: number; anim: number }
 export const EDEF: Record<string, EnemyDef> = {
-  hex: { hp: 1900, speed: 0.8, dmg: 16, r: 0.8, xp: 90, coin: 1, boss: true, color: '#b580d5', mass: 35, anim: 6 },
-  alpha: { hp: 3300, speed: 1.65, dmg: 22, r: 0.85, xp: 140, coin: 1, boss: true, color: '#9cacb8', mass: 40, anim: 8 },
-  warden: { hp: 4800, speed: 0.9, dmg: 24, r: 0.9, xp: 190, coin: 1, boss: true, color: '#7cb9b0', mass: 45, anim: 6 },
-  zombie: { hp: 32, speed: 1.25, dmg: 8, r: 0.28, xp: 1, coin: 0.3, color: '#7aa35a', mass: 1, anim: 6 },
+  hex: { hp: 1500, speed: 0.8, dmg: 16, r: 0.8, xp: 90, coin: 1, boss: true, color: '#b580d5', mass: 35, anim: 6 },
+  alpha: { hp: 2600, speed: 1.65, dmg: 22, r: 0.85, xp: 140, coin: 1, boss: true, color: '#9cacb8', mass: 40, anim: 8 },
+  warden: { hp: 3800, speed: 0.9, dmg: 24, r: 0.9, xp: 190, coin: 1, boss: true, color: '#7cb9b0', mass: 45, anim: 6 },
+  zombie: { hp: 34, speed: 1.25, dmg: 8, r: 0.28, xp: 1, coin: 0.3, color: '#7aa35a', mass: 1, anim: 6 },
   bat: { hp: 12, speed: 2.7, dmg: 5, r: 0.2, xp: 1, coin: 0.2, fly: true, color: '#3a2446', mass: 0.5, anim: 12 },
-  skeleton: { hp: 55, speed: 1.75, dmg: 10, r: 0.28, xp: 2, coin: 0.4, color: '#e8e2d0', mass: 1, anim: 8 },
-  ghost: { hp: 42, speed: 1.5, dmg: 10, r: 0.28, xp: 2, coin: 0.4, phase: true, color: '#cfe0ff', mass: 0.7, anim: 6 },
-  pumpkin: { hp: 26, speed: 2.3, dmg: 22, r: 0.26, xp: 2, coin: 0.5, bomber: true, color: '#ee7a22', mass: 0.8, anim: 10 },
-  witch: { hp: 75, speed: 1.2, dmg: 8, r: 0.3, xp: 4, coin: 0.8, ranged: true, color: '#8ac46a', mass: 1, anim: 6 },
-  werewolf: { hp: 420, speed: 2.0, dmg: 20, r: 0.45, xp: 25, coin: 1, elite: true, color: '#5a4030', mass: 4, anim: 8 },
-  king: { hp: 7000, speed: 1.0, dmg: 25, r: 1.0, xp: 250, coin: 1, boss: true, color: '#ff8a1e', mass: 50, anim: 6 },
+  skeleton: { hp: 60, speed: 1.75, dmg: 10, r: 0.28, xp: 2, coin: 0.4, color: '#e8e2d0', mass: 1, anim: 8 },
+  ghost: { hp: 46, speed: 1.5, dmg: 10, r: 0.28, xp: 2, coin: 0.4, phase: true, color: '#cfe0ff', mass: 0.7, anim: 6 },
+  pumpkin: { hp: 28, speed: 2.3, dmg: 22, r: 0.26, xp: 2, coin: 0.5, bomber: true, color: '#ee7a22', mass: 0.8, anim: 10 },
+  witch: { hp: 84, speed: 1.2, dmg: 8, r: 0.3, xp: 4, coin: 0.8, ranged: true, color: '#8ac46a', mass: 1, anim: 6 },
+  werewolf: { hp: 500, speed: 2.0, dmg: 20, r: 0.45, xp: 25, coin: 1, elite: true, color: '#5a4030', mass: 4, anim: 8 },
+  king: { hp: 6000, speed: 1.0, dmg: 25, r: 1.0, xp: 250, coin: 1, boss: true, color: '#ff8a1e', mass: 50, anim: 6 },
 };
 
 export interface Enemy {
@@ -125,7 +146,7 @@ export interface Enemy {
   shield: number; maxShield: number; shieldT: number; lieutenant: boolean;
   id: number; type: string; def: EnemyDef; x: number; y: number; hp: number; maxHp: number; r: number; anim: number; flip: boolean;
   hit: number; burnT: number; burnDps: number; burnAcc: number; ectoT: number; stunT: number; atkCd: number; kx: number; ky: number;
-  /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (never caps) */
+  /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (up to HAUNT_MAX) */
   vuln?: number;
   shootT: number; lungeT: number; lungeX: number; lungeY: number; p1: number; p2: number; p3: number; orbitT: number; dead: boolean; elite: boolean; spawnT: number;
 }
@@ -167,7 +188,7 @@ export interface Player {
 
 export interface Turret { x: number; y: number; gym: PropInst; aimX: number; aimY: number; cd: number; heat: number; over: number; barrel: number; recoil: number }
 /** the Candy Cannon: heavy, fast, heats up; standing on the gym deck keeps most melee monsters at arm's length */
-export const TURRET = { dmg: 24, rate: 11, speed: 21, range: 13, heatPerShot: 0.05, cool: 0.28, lockout: 2.2, armor: 0.4, reach: 1.65 };
+export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0.05, cool: 0.28, lockout: 2.2, armor: 0.4, reach: 1.65 };
 
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
@@ -239,6 +260,7 @@ export class Game {
   /** walkie-talkie heads-ups shown under the minimap */
   toasts: Toast[] = [];
   private toastId = 1;
+  private dmgTexts = 0;
   private warned = new Set<number>();
   /** M / Tab: big map overlay */
   bigMap = false;
@@ -319,8 +341,9 @@ export class Game {
     this.setBanner('Trick or Treat... or FIGHT!', 'Survive the night. Boss arrives at 5:00');
     this.computeFlow(true);
     if (this.campaign) {
-      const sites = [[35, 18], [52, 35], [40, 73], [18, 35]];
-      // Choose sites from the reachable neighbourhood, not isolated fenced pockets.
+      // Friends hide at the gazebo of each gated district (north, east, south, west: the gate order).
+      // Aim for the camera-facing corner so the roof never covers the kid, then take the nearest reachable clearing.
+      const sites = this.map.hideouts.map(h => [h.x + 1.5, h.y + 1.5]);
       // Temporarily open only the gate cells, then restore the exact initial locks.
       const gateCells = this.map.gates.flatMap(gate => gate.cells.map(([x, y]) => ({ index: y * CW + x, value: this.map.coll[y * CW + x] })));
       for (const cell of gateCells) this.map.coll[cell.index] = 0;
@@ -387,7 +410,8 @@ export class Game {
     for (const bubble of this.bubbles) bubble.life = Math.max(0.1, bubble.life - dt);
     if (this.input.pressed.has(' ') || this.input.pressed.has('enter') || this.introTime >= 17) {
       this.state = 'play'; this.bubbles = [];
-      this.setBanner('HIDE & SHRIEK', 'Rescue four friends. One companion can fight beside you.');
+      this.setBanner('HIDE & SHRIEK', 'Your friends are hiding at the gazebos. One companion can fight beside you.');
+      this.toast('Each friend waits at a gazebo behind a district gate. Follow the cyan arrow.');
       gameAudio.play('guardian', 0.4);
     }
   }
@@ -440,7 +464,7 @@ export class Game {
         f.guardian.hp = f.guardian.maxHp = (220 + this.time * 0.3) * this.hpScale();
         f.guardian.shield = f.guardian.maxShield = f.guardian.maxHp * 0.6;
         f.status = 'waiting';
-        gameAudio.play('guardian', 0.5); this.toast(`${HERO_INFO[f.hero].name} needs help! Defeat the guardian.`);
+        gameAudio.play('guardian', 0.5); this.toast(`${HERO_INFO[f.hero].name} is at the gazebo! Defeat the guardian.`);
       }
       if (this.state !== 'play') continue;
       const safe = f.status === 'waiting' && !!f.guardian?.dead;
@@ -771,14 +795,14 @@ export class Game {
       p.dashT -= dt;
       mx = p.dashX; my = p.dashY;
       speed = 13;
-      if (s.dashFire && Math.random() < 0.6) this.zones.push({ kind: 'fire', x: p.x, y: p.y, r: 0.6, t: 0, life: 2.5, dmg: 12 * s.dmg, tick: 0 });
+      if (s.dashFire && Math.random() < 0.6) this.zones.push({ kind: 'fire', x: p.x, y: p.y, r: 0.6, t: 0, life: 2.5, dmg: 5 * s.dmg, tick: 0 });
       this.particle(p.x, p.y, 0.4, 0, 0, 0, 0.25, p.costume === 'hero' ? '#ff4a3a' : '#bcd4ff', 6, 'glow');
       if (p.costume === 'hero') {
         this.query(p.x, p.y, 1.2, (e) => {
           if (this.dashHit.has(e.id) || Math.hypot(e.x - p.x, e.y - p.y) > e.r + 0.6) return;
           this.dashHit.add(e.id);
           const dx = e.x - p.x, dy = e.y - p.y, l = Math.hypot(dx, dy) || 1;
-          this.applyHit(e, 120 * s.dmg * s.skillPow, Math.random() < s.crit, 0, 0, 0, (dx / l) * 4 + p.dashX * 2, (dy / l) * 4 + p.dashY * 2);
+          this.applyHit(e, 48 * s.dmg * s.skillPow, Math.random() < s.crit, 0, 0, 0, (dx / l) * 4 + p.dashX * 2, (dy / l) * 4 + p.dashY * 2);
           e.stunT = Math.max(e.stunT, 0.5);
         });
       }
@@ -892,7 +916,7 @@ export class Game {
     }
     if (p.costume === 'pumpkin' && p.novaCd <= 0) {
       p.novaCd = 2;
-      this.explode(p.x, p.y, 3.8, 160 * this.stats.dmg * this.stats.skillPow * this.globalMore(), 'fire', true);
+      this.explode(p.x, p.y, 3.8, 64 * this.stats.dmg * this.stats.skillPow * this.globalMore(), 'fire', true);
       if (this.state !== 'play') return; // A boss clear already made this a safe shop.
     }
     dmg *= 1 - this.stats.armor;
@@ -917,7 +941,7 @@ export class Game {
         p.hp = this.stats.maxHp * 0.5;
         p.invuln = 2;
         this.setBanner('SECOND WIND!', 'Back on your feet');
-        this.explode(p.x, p.y, 3.5, 200, 'fire', true);
+        this.explode(p.x, p.y, 3.5, 80, 'fire', true);
       } else {
         p.hp = 0;
         const friend = this.friends.find(f => f.hero === this.activeFriend && f.hp > 0 && f.reviveCd <= 0);
@@ -975,13 +999,14 @@ export class Game {
   globalMore() {
     const b = this.build, s = this.stats;
     let m = 1 + this.momentum * b.momentumPer();
-    if (b.ks('tank', 1)) m *= 1 + Math.max(0, s.maxHp - 100) / 500;
-    if (b.ks('tank', 3)) m *= 1 + s.maxShield / 500;
-    if (b.ks('sugar', 2)) m *= Math.max(1, s.move);
+    // each of these tops out at +100%: stacking HP, shield or speed is strong, never a runaway damage engine
+    if (b.ks('tank', 1)) m *= 1 + Math.min(1, Math.max(0, s.maxHp - 100) / 500);
+    if (b.ks('tank', 3)) m *= 1 + Math.min(1, s.maxShield / 500);
+    if (b.ks('sugar', 2)) m *= clamp(s.move, 1, 2);
     if (this.premiumPowerT > 0) m *= this.hero === 4 ? 3 : 2;
     return m;
   }
-  /** crit roll with Lucky Streak stacks; past 100% it becomes overcrit layers */
+  /** crit roll with Lucky Streak stacks (capped); past 100% it becomes overcrit layers, which add rather than multiply */
   crit(chance: number, critMul: number) { return rollCrit(chance + this.streak * 0.02, critMul); }
   /** Endless Night threat: monster damage multiplier (grows forever) */
   threat() { return Math.pow(1.12, this.wave - 1); }
@@ -1008,7 +1033,7 @@ export class Game {
     let m = 1;
     if (this.ins(w, 'opener') && fx.shots === 0) m *= 2;
     if (this.ins(w, 'fresh') && fx.fresh > 0) m *= 1.4;
-    if (this.ins(w, 'combo')) m *= 1 + 0.03 * fx.combo;
+    if (this.ins(w, 'combo')) m *= 1 + 0.03 * Math.min(COMBO_MAX, fx.combo);
     if (this.ins(w, 'freeze') && this.stillT >= 1) m *= 1.3;
     if (this.ins(w, 'sixth') && (fx.shots + 1) % 6 === 0) m *= 1.8;
     // run-wide treats
@@ -1169,7 +1194,7 @@ export class Game {
     const src = this.hitSrc;
     if (src) {
       if (this.ins(src, 'bigkid') && (e.def.boss || e.elite)) dmg *= 1.4;
-      if (this.ins(src, 'combo')) { const fx = this.fxOf(src); fx.combo++; fx.comboT = 2; } // no stack cap: keep hitting
+      if (this.ins(src, 'combo')) { const fx = this.fxOf(src); fx.combo = Math.min(COMBO_MAX, fx.combo + 1); fx.comboT = 2; }
       if (this.ins(src, 'socks') && Math.random() < 0.25) {
         let best: Enemy | null = null, bd = 9;
         for (const o of this.enemies) { if (o === e || o.dead) continue; const d = (o.x - e.x) ** 2 + (o.y - e.y) ** 2; if (d < bd) { bd = d; best = o; } }
@@ -1189,12 +1214,12 @@ export class Game {
     const amp = s.ectoAmp * bd.ectoMore() * overflow(ecto);
     if (e.ectoT > 0) {
       dmg *= 1 + amp;
-      if (bd.ks('ecto', 1)) e.vuln = (e.vuln ?? 0) + 0.04; // Haunting
+      if (bd.ks('ecto', 1)) e.vuln = Math.min(HAUNT_MAX, (e.vuln ?? 0) + 0.04); // Haunting
     }
     if (e.vuln) dmg *= 1 + e.vuln;
     // crit keystones
     if (crit) {
-      if (bd.ks('crit', 1)) { this.streak++; this.streakT = 3; }
+      if (bd.ks('crit', 1)) { this.streak = Math.min(STREAK_MAX, this.streak + 1); this.streakT = 3; }
       if (bd.ks('crit', 2)) this.queueBlast(e.x, e.y, 0.9, dmg * 0.3);
       if (bd.ks('crit', 3)) this.p.skillCd -= 0.15;
     }
@@ -1217,7 +1242,7 @@ export class Game {
       e.burnT = 3;
       // past 100% chance the burn itself gets stronger; Inferno stacks burns instead of keeping the strongest
       const burn = dmg * 0.45 * s.burnDmg * bd.burnMore() * overflow(fire) * (bd.ks('ecto', 3) && e.ectoT > 0 ? 1 + amp : 1);
-      e.burnDps = bd.ks('fire', 3) ? e.burnDps + burn : Math.max(e.burnDps, burn);
+      e.burnDps = Math.max(e.burnDps, bd.ks('fire', 3) ? Math.min(e.burnDps + burn, burn * INFERNO_STACKS) : burn);
     }
     if (Math.random() < shock) this.chain(e, dmg * 0.55 * bd.chainMore() * (bd.ks('ecto', 3) && e.ectoT > 0 ? 1 + amp : 1), Math.floor(Math.max(0, shock - 1) * 2), fire, ecto);
   }
@@ -1243,7 +1268,7 @@ export class Game {
     if (absorbed === dmg) color = '#80e4ff';
     if (!quiet) gameAudio.play('impact', 0.4);
     e.hit = 0.1;
-    if (!quiet) this.text(e.x + rand(-0.2, 0.2), e.y + rand(-0.2, 0.2), Math.round(dmg).toString(), color, big ? 20 : 13, 'dmg');
+    if (!quiet) this.text(e.x + rand(-0.2, 0.2), e.y + rand(-0.2, 0.2), fmtDmg(dmg), color, big ? 17 : 13, 'dmg');
     if (e.hp <= 0) this.killEnemy(e);
   }
 
@@ -1327,7 +1352,7 @@ export class Game {
     if (this.hero === 0) {
       this.lobs.push({ x0: p.x, y0: p.y, x1: tx, y1: ty, t: 0, dur: 0.55 });
     } else if (this.hero === 1) {
-      this.zones.push({ kind: 'tornado', x: tx, y: ty, r: 1.8 * s.skillPow, t: 0, life: 4.5, dmg: 9 * s.dmg * s.skillPow, tick: 0 });
+      this.zones.push({ kind: 'tornado', x: tx, y: ty, r: 1.8 * s.skillPow, t: 0, life: 4.5, dmg: 3.6 * s.dmg * s.skillPow, tick: 0 });
     } else if (this.hero === 3) {
       p.hp = s.maxHp; p.shield = s.maxShield; p.invuln = Math.max(p.invuln, 2);
       this.premiumPowerT = 6;
@@ -1336,7 +1361,7 @@ export class Game {
       if (friend) { friend.hp = friend.maxHp; friend.weapon.ammo = weaponStats(friend.weapon, s).mag; friend.weapon.reloadT = 0; }
       for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 7) {
         e.shield = 0; e.shieldT = 8; e.stunT = Math.max(e.stunT, e.def.boss ? 0.6 : 2);
-        this.damageEnemy(e, 140 * s.dmg * s.skillPow, '#ffd580', true, false, { element: 'shock' });
+        this.damageEnemy(e, 56 * s.dmg * s.skillPow, '#ffd580', true, false, { element: 'shock' });
         e.shieldT = 8;
       }
       this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 7, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#ffd580' });
@@ -1346,7 +1371,7 @@ export class Game {
       for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 9) {
         if (e.affix !== 'ectoproof') e.ectoT = Math.max(e.ectoT, 8 * s.skillPow);
         e.stunT = Math.max(e.stunT, e.def.boss ? 1 : 3);
-        this.damageEnemy(e, 220 * s.dmg * s.skillPow, '#80d9ce', true, false, { element: 'ecto' });
+        this.damageEnemy(e, 88 * s.dmg * s.skillPow, '#80d9ce', true, false, { element: 'ecto' });
       }
       this.zones.push({ kind: 'flash', x: p.x, y: p.y, r: 9, t: 0, life: 0.5, dmg: 0, tick: 0, color: '#80d9ce' });
     } else {
@@ -1362,7 +1387,7 @@ export class Game {
         while (da < -Math.PI) da += Math.PI * 2;
         if (Math.abs(da) < 0.65 || d < 1) {
           e.stunT = 2;
-          this.applyHit(e, 65 * s.dmg * s.skillPow, false, 0, 0, 0, ex / (d || 1) * 3, ey / (d || 1) * 3);
+          this.applyHit(e, 26 * s.dmg * s.skillPow, false, 0, 0, 0, ex / (d || 1) * 3, ey / (d || 1) * 3);
         }
       }
     }
@@ -1381,7 +1406,7 @@ export class Game {
           p.hexT = 0.9;
           for (let i = -1; i <= 1; i++) {
             const a = Math.atan2(t.y - p.y, t.x - p.x) + i * 0.3;
-            this.bullets.push({ x: p.x, y: p.y, vx: Math.cos(a) * 9, vy: Math.sin(a) * 9, dmg: 65 * s.dmg * s.skillPow * this.globalMore(), r: 0.16, life: 2.2, pierce: 2, bounce: 0, kind: 'hex', color: '#c46bff', crit: Math.random() < s.crit ? 1 : 0, fire: 0, shock: 0, ecto: 0.5, explode: 0, hit: [], vamp: false, dead: false, spin: 0, home: true, element: 'ecto' });
+            this.bullets.push({ x: p.x, y: p.y, vx: Math.cos(a) * 9, vy: Math.sin(a) * 9, dmg: 26 * s.dmg * s.skillPow * this.globalMore(), r: 0.16, life: 2.2, pierce: 2, bounce: 0, kind: 'hex', color: '#c46bff', crit: Math.random() < s.crit ? 1 : 0, fire: 0, shock: 0, ecto: 0.5, explode: 0, hit: [], vamp: false, dead: false, spin: 0, home: true, element: 'ecto' });
           }
           this.particle(p.x, p.y, 1.6, 0, 0, 0, 0.2, '#c46bff', 14, 'glow');
         }
@@ -1401,7 +1426,7 @@ export class Game {
             const d = Math.hypot(e.x - p.x, e.y - p.y);
             if (d < 3.8 + e.r) {
               e.stunT = Math.max(e.stunT, e.def.boss ? 0.5 : 2);
-              this.applyHit(e, 150 * s.dmg * s.skillPow * this.globalMore(), false, 0, 0, 0, ((e.x - p.x) / (d || 1)) * 3, ((e.y - p.y) / (d || 1)) * 3);
+              this.applyHit(e, 60 * s.dmg * s.skillPow * this.globalMore(), false, 0, 0, 0, ((e.x - p.x) / (d || 1)) * 3, ((e.y - p.y) / (d || 1)) * 3);
             }
           });
         } else p.stompT = 0.3;
@@ -1418,7 +1443,7 @@ export class Game {
           if (Math.hypot(e.x - ox, e.y - oy) < e.r + 0.35) {
             e.orbitT = 0.35;
             const cr = this.crit(s.crit, s.critDmg), ws = this.build.ks('summon', 2) && this.weapon ? weaponStats(this.weapon, s) : null;
-            this.applyHit(e, 14 * s.dmg * cr.mul * this.build.summonMore() * this.globalMore(), cr.layers, ws?.fire ?? 0, ws?.shock ?? 0, ws?.ecto ?? 0, Math.cos(a + 1.57), Math.sin(a + 1.57));
+            this.applyHit(e, 5.6 * s.dmg * cr.mul * this.build.summonMore() * this.globalMore(), cr.layers, ws?.fire ?? 0, ws?.shock ?? 0, ws?.ecto ?? 0, Math.cos(a + 1.57), Math.sin(a + 1.57));
           }
         });
       }
@@ -1440,7 +1465,7 @@ export class Game {
           const b = best as Enemy;
           const dx = b.x - this.familiar.x, dy = b.y - this.familiar.y, l = Math.hypot(dx, dy) || 1;
           const ws = this.build.ks('summon', 2) && this.weapon ? weaponStats(this.weapon, s) : null;
-          this.bullets.push({ x: this.familiar.x, y: this.familiar.y, vx: (dx / l) * 10, vy: (dy / l) * 10, dmg: 16 * s.dmg * this.build.summonMore() * this.globalMore(), r: 0.14, life: 1, pierce: 1, bounce: 0, kind: 'water', color: '#cfe0ff', crit: 0, fire: ws?.fire ?? 0, shock: Math.max(0.15, ws?.shock ?? 0), ecto: Math.max(0.15, ws?.ecto ?? 0), explode: 0, hit: [], vamp: false, dead: false, spin: 0 });
+          this.bullets.push({ x: this.familiar.x, y: this.familiar.y, vx: (dx / l) * 10, vy: (dy / l) * 10, dmg: 6.4 * s.dmg * this.build.summonMore() * this.globalMore(), r: 0.14, life: 1, pierce: 1, bounce: 0, kind: 'water', color: '#cfe0ff', crit: 0, fire: ws?.fire ?? 0, shock: Math.max(0.15, ws?.shock ?? 0), ecto: Math.max(0.15, ws?.ecto ?? 0), explode: 0, hit: [], vamp: false, dead: false, spin: 0 });
         }
       }
     }
@@ -1542,7 +1567,7 @@ export class Game {
     this.kills++;
     const s = this.stats;
     const bd = this.build;
-    if (bd.ks('kill', 1)) { this.momentum++; this.momentumT = 4; }
+    if (bd.ks('kill', 1)) { this.momentum = Math.min(MOMENTUM_MAX, this.momentum + 1); this.momentumT = 4; }
     if (bd.ks('kill', 2) && this.weapon) { const ww = this.weapon; ww.ammo = Math.min(weaponStats(ww, s).mag, ww.ammo + 1); }
     if (bd.ks('kill', 3)) { this.p.skillCd -= 0.2; this.p.dashRecharge += 0.2; }
     if ((bd.ks('fire', 2) && e.burnT > 0) || (bd.ks('ecto', 2) && e.ectoT > 0)) {
@@ -1558,7 +1583,7 @@ export class Game {
         if (spreadEcto) o.ectoT = Math.max(o.ectoT, 4);
       });
     }
-    if (this.blastKill && bd.ks('blast', 3)) this.queueBlast(e.x, e.y, 1.1, Math.max(20, e.maxHp * 0.15) * this.stats.dmg * 0.5);
+    if (this.blastKill && bd.ks('blast', 3)) this.queueBlast(e.x, e.y, 1.1, Math.max(8, e.maxHp * 0.15) * Math.min(3, this.stats.dmg) * 0.5);
     const src = this.hitSrc;
     if (src) {
       if (this.ins(src, 'seconds') && Math.random() < 0.3) {
@@ -1573,10 +1598,11 @@ export class Game {
       }
     }
     // drops
+    // fewer monsters, so each one is worth more (KILL_LOOT)
     const xp = e.def.xp * (e.elite && !e.def.elite ? 3 : 1);
-    if (xp >= 20) for (let i = 0; i < Math.min(15, xp / 5); i++) this.dropPickup(e.x, e.y, 'xp3', 5);
-    else this.dropPickup(e.x, e.y, xp >= 4 ? 'xp3' : xp >= 2 ? 'xp2' : 'xp1', xp);
-    if (Math.random() < e.def.coin) this.dropPickup(e.x, e.y, 'coin', Math.ceil(rand(1, 3) * (e.elite ? 5 : 1)));
+    if (xp >= 20) for (let i = 0; i < Math.min(15, xp / 5); i++) this.dropPickup(e.x, e.y, 'xp3', 5 * KILL_LOOT);
+    else this.dropPickup(e.x, e.y, xp >= 4 ? 'xp3' : xp >= 2 ? 'xp2' : 'xp1', xp * KILL_LOOT);
+    if (Math.random() < e.def.coin) this.dropPickup(e.x, e.y, 'coin', Math.ceil(rand(1, 3) * (e.elite ? 5 : 1) * KILL_LOOT));
     if (Math.random() < s.healDrop) this.dropPickup(e.x, e.y, 'heal', 25);
     if (this.activeFriend !== null && Math.random() < 0.12) {
       this.dropPickup(e.x, e.y, 'xp2', 0);
@@ -1601,7 +1627,7 @@ export class Game {
       const max = settings.lowFx ? 60 : 160;
       if (this.decals.length > max) this.decals.splice(0, this.decals.length - max);
     }
-    if (e.def.bomber) this.explode(e.x, e.y, 1.5, 40 * s.dmg, 'fire', true);
+    if (e.def.bomber) this.explode(e.x, e.y, 1.5, 16 * s.dmg, 'fire', true);
     if (e.def.boss) {
       this.boss = null;
       this.bossWins++;
@@ -1716,7 +1742,7 @@ export class Game {
       if (dist < e.r + p.r + 0.05 + (this.mounted >= 0 && !d.fly ? TURRET.reach : 0) && e.atkCd <= 0 && e.spawnT <= 0 && e.stunT <= 0) {
         e.atkCd = 0.8;
         this.takeDamage(d.dmg * (e.elite && !d.elite ? 1.5 : 1) * (1 + this.time / 600), e.x, e.y);
-        if (this.build.ks('tank', 2)) this.damageEnemy(e, this.stats.maxHp * 0.5 * this.globalMore(), '#9fb4ff', true); // Spiky Costume
+        if (this.build.ks('tank', 2)) this.damageEnemy(e, this.stats.maxHp * 0.2 * this.globalMore(), '#9fb4ff', true); // Spiky Costume
       }
     }
     // separation
@@ -1935,8 +1961,8 @@ export class Game {
     for (const l of this.lobs) {
       l.t += dt;
       if (l.t >= l.dur) {
-        this.explode(l.x1, l.y1, 2.2 * Math.sqrt(s.skillPow), 85 * s.dmg * s.skillPow, 'fire', true);
-        this.zones.push({ kind: 'fire', x: l.x1, y: l.y1, r: 1.6 * Math.sqrt(s.skillPow), t: 0, life: 3.5, dmg: 14 * s.dmg, tick: 0 });
+        this.explode(l.x1, l.y1, 2.2 * Math.sqrt(s.skillPow), 34 * s.dmg * s.skillPow, 'fire', true);
+        this.zones.push({ kind: 'fire', x: l.x1, y: l.y1, r: 1.6 * Math.sqrt(s.skillPow), t: 0, life: 3.5, dmg: 5.6 * s.dmg, tick: 0 });
       }
     }
     this.lobs = this.lobs.filter((l) => l.t < l.dur);
@@ -2278,7 +2304,7 @@ export class Game {
     this.tot = { house: h, t: 0, dur, stage: 0, lines };
     this.p.aiming = false;
     // the doorbell attracts the horde!
-    const n = 5 + Math.floor(this.time / 25);
+    const n = 3 + Math.floor(this.time / 40);
     this.spawnAround(this.p.x, this.p.y, n, 5.5, 8, this.time > 120 ? ['zombie', 'skeleton', 'bat', 'ghost'] : ['zombie', 'zombie', 'bat']);
     this.text(this.p.x, this.p.y - 0.5, 'The doorbell draws monsters!', '#ff6a6a', 13);
   }
@@ -2335,8 +2361,8 @@ export class Game {
     if (h.trick) {
       this.shake = 10;
       this.explode(dx, dy, 1.2, 0, null, false);
-      this.spawnAround(dx, dy, 6, 1, 2.5, ['pumpkin']);
-      this.spawnAround(dx, dy, 6, 0.5, 2, ['bat']);
+      this.spawnAround(dx, dy, 4, 1, 2.5, ['pumpkin']);
+      this.spawnAround(dx, dy, 4, 0.5, 2, ['bat']);
       for (let i = 0; i < 6; i++) this.dropPickup(dx, dy, 'coin', 2);
         this.setBanner("IT'S A TRICK!", `${h.owner} was a monster all along!`, 'danger');
       this.bubble(this.p.x, this.p.y, 115, 'NOT COOL!', 'kid', 1.5, true);
@@ -2505,7 +2531,7 @@ export class Game {
   }
   /**
    * ENDLESS NIGHT: after the last boss falls the night simply keeps going. Every 30s a new wave:
-   * Opening HP ×1.6; after wave 10, special enemies grow faster than fodder. Damage ×1.12 per wave,
+   * Opening HP ×1.65; after wave 10, special enemies grow faster than fodder. Damage ×1.12 per wave,
    * and the four bosses cycle forever on their own timer. Rescue progress never stops the next round.
    */
   startEndless() {
@@ -2543,7 +2569,7 @@ export class Game {
       const mutation = this.wave === 11 ? 'Elemental immunities have appeared. Switch damage types.' : this.wave === 13 ? 'Ricochet wards and armor: aim directly or use piercing.' : this.wave === 15 ? 'Sealed shells need piercing 2+. Keep a piercing gun ready.' : null;
       this.setBanner(`WAVE ${this.wave}`, mutation ?? (this.wave > 10 ? 'More special enemies. Ordinary mobs stay plentiful; read their counter labels.' : `Monsters ×${this.hpScale().toFixed(1)} HP · ×${this.threat().toFixed(1)} damage`), 'danger');
       gameAudio.play('guardian', 0.5);
-      const n = Math.min(60, 16 + this.wave * 3);
+      const n = Math.min(36, 10 + this.wave * 2);
       const types = ['zombie', 'skeleton', 'bat', 'ghost', 'pumpkin', 'witch'];
       for (let i = 0; i < n; i++) {
         const pos = this.spawnPos(i % 3 === 2);
@@ -2583,15 +2609,15 @@ export class Game {
       const targetWave = 1 + Math.floor(t / 60);
       if (targetWave > this.wave) {
         while (this.wave < targetWave) this.advanceWave();
-        this.setBanner(`WAVE ${this.wave}`, this.wave > 10 ? 'Special defenses are spreading. Switch weapons to counter them; ordinary mobs stay plentiful.' : 'Monsters gain 60% health and 12% damage each wave. Shielded lieutenants have arrived.', 'danger');
+        this.setBanner(`WAVE ${this.wave}`, this.wave > 10 ? 'Special defenses are spreading. Switch weapons to counter them; ordinary mobs stay plentiful.' : 'Monsters gain 65% health and 12% damage each wave. Shielded lieutenants have arrived.', 'danger');
       }
     }
-    const cap = this.endless ? Math.min(450, 280 + this.wave * 10) : 280;
+    const cap = this.endless ? Math.min(270, 170 + this.wave * 6) : 170;
     const alive = this.enemies.length;
     if (!this.boss || this.endless) {
       const rate = 0.9 + t / 22 + (this.endless ? 2 + this.wave * 0.8 : 0);
-      this.spawnAcc += dt * rate;
-    } else this.spawnAcc += dt * 1.2;
+      this.spawnAcc += dt * rate * SPAWN_SCALE;
+    } else this.spawnAcc += dt * 1.2 * SPAWN_SCALE;
     while (this.spawnAcc >= 1) {
       this.spawnAcc--;
       if (alive >= cap) break;
@@ -2613,7 +2639,7 @@ export class Game {
         this.hordes.add(ht);
         this.setBanner('HORDE INCOMING!', 'They are surrounding you', 'danger');
         const type = ht === 60 ? 'zombie' : ht === 120 ? 'bat' : ht === 180 ? 'skeleton' : 'ghost';
-        const n = 22 + ht / 10;
+        const n = Math.round((22 + ht / 10) * SPAWN_SCALE);
         for (let i = 0; i < n; i++) {
           const a = (i / n) * Math.PI * 2, d = this.viewR - 1;
           const x = this.p.x + Math.cos(a) * d, y = this.p.y + Math.sin(a) * d;
@@ -2677,6 +2703,7 @@ export class Game {
     this.particles.push({ x, y, z, vx, vy, vz, life, max: life, color, size, kind });
   }
   text(x: number, y: number, text: string, color: string, size: number, kind: 'ui' | 'dmg' = 'ui') {
+    if (kind === 'dmg' && this.dmgTexts++ >= DMG_TEXT_MAX) return; // a busy fight shows a readable sample, not a wall of numbers
     if (this.texts.length > 120) this.texts.shift();
     this.texts.push({ x, y, z: 0.9, text, color, life: 0.8, size, vx: rand(-0.4, 0.4), kind });
   }
@@ -2693,6 +2720,8 @@ export class Game {
     this.particles = this.particles.filter((q) => q.life > 0);
     for (const t of this.texts) { t.life -= dt; t.z += dt * 1.4; t.x += t.vx * dt; }
     this.texts = this.texts.filter((t) => t.life > 0);
+    this.dmgTexts = 0;
+    for (const t of this.texts) if (t.kind === 'dmg') this.dmgTexts++;
     for (const b of this.beams) b.life -= dt;
     this.beams = this.beams.filter((b) => b.life > 0);
     for (const d of this.decals) d.life -= dt;

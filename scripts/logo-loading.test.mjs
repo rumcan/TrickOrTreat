@@ -25,9 +25,11 @@ try {
       assert.ok(pending.height > 0 && pending.width > 0, 'Reserve logo space before decoding');
       assert.equal(pending.priority, 'high');
       const preload = await page.locator('link[rel="preload"][as="image"]').evaluateAll(links => links.map(link => ({ href: link.href, priority: link.getAttribute('fetchpriority') })));
-      assert.equal(preload.length, 1, 'Do not preload obsolete competing artwork');
+      // the logo plus the landscape and portrait splash (each gated by its orientation media query)
+      assert.equal(preload.length, 3, 'Preload only the loading screen artwork');
       assert.equal(preload[0].href, await logo.getAttribute('src').then(src => new URL(src, url).href));
-      assert.equal(preload[0].priority, 'high');
+      assert.ok(preload.every(link => link.priority === 'high'));
+      assert.equal(await page.locator('.boot-loop i').evaluate(bar => getComputedStyle(bar).animationIterationCount), 'infinite', 'Loading shows a looping animation, not a stalled progress bar');
       releaseLogo();
       await page.waitForFunction(() => document.querySelector('img[alt="Trick or Treat — Maple Falls"]')?.style.opacity === '1');
       const complete = await logo.evaluate(img => ({ height: img.getBoundingClientRect().height, width: img.getBoundingClientRect().width, complete: img.complete, naturalWidth: img.naturalWidth }));

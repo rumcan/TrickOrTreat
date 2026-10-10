@@ -15,6 +15,8 @@ export interface Stats {
   companionDmg: number; reviveSpeed: number; companionArmor: number;
   /** occult-scroll style treats (Gunfire Reborn): conditional, run-wide */
   sixth: number; fullBag: number; skate: number; statue: number; bluff: number; execute: number; owl: number;
+  /** gun reach: flat metres added by treats, then a multiplier (premium kids) */
+  range: number; rangeMul: number;
 }
 
 export function baseStats(): Stats {
@@ -29,6 +31,7 @@ export function baseStats(): Stats {
     totSpeed: 1, totChoices: 0, costumeLuck: 1, costumePower: 1, dodge: 0,
     companionDmg: 1, reviveSpeed: 1, companionArmor: 0,
     sixth: 0, fullBag: 0, skate: 0, statue: 0, bluff: 0, execute: 0, owl: 0,
+    range: 0, rangeMul: 1,
   };
 }
 
@@ -43,22 +46,25 @@ export interface WeaponDef {
 }
 
 export const WEAPONS: WeaponDef[] = [
-  { id: 'pea', name: 'Pea Shooter', desc: 'Reliable semi-auto. Peas sting more than you think.', dmg: 15, rate: 4, mag: 12, reload: 1.1, speed: 15, spread: 0.04, pellets: 1, range: 9, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'pea', color: '#9dff7a', critBonus: 0.05, shake: 1 },
-  { id: 'nerf', name: 'Foam Blaster', desc: 'Full-auto foam dart spray. Huge magazine.', dmg: 7, rate: 11, mag: 40, reload: 1.7, speed: 16, spread: 0.13, pellets: 1, range: 8, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'dart', color: '#ff9a3a', critBonus: 0, shake: 0.6 },
-  { id: 'shotgun', name: 'Candy Corn Shotgun', desc: 'Blasts a cone of razor candy corn.', dmg: 9, rate: 1.4, mag: 6, reload: 1.5, speed: 14, spread: 0.5, pellets: 7, range: 6, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'corn', color: '#ffb52a', critBonus: 0, shake: 4 },
-  { id: 'roman', name: 'Roman Candle', desc: 'Bouncing fireballs that set monsters ablaze.', dmg: 20, rate: 2.6, mag: 10, reload: 1.6, speed: 9, spread: 0.06, pellets: 1, range: 9, pierce: 0, bounce: 2, elem: 'fire', elemChance: 0.6, explode: 0, kind: 'fire', color: '#ff7a1a', critBonus: 0, shake: 1.5 },
-  { id: 'soaker', name: 'Ecto Soaker', desc: 'Piercing stream of glowing goo. Corrodes & slows.', dmg: 5, rate: 14, mag: 60, reload: 2, speed: 11, spread: 0.07, pellets: 1, range: 6.5, pierce: 2, bounce: 0, elem: 'ecto', elemChance: 0.3, explode: 0, kind: 'water', color: '#8dff5a', critBonus: 0, shake: 0.3 },
-  { id: 'balloon', name: 'Static Balloon Launcher', desc: 'Charged balloons pop into chain lightning.', dmg: 18, rate: 2, mag: 8, reload: 1.5, speed: 7.5, spread: 0.05, pellets: 1, range: 8, pierce: 0, bounce: 0, elem: 'shock', elemChance: 0.75, explode: 1.2, kind: 'balloon', color: '#4fb3ff', critBonus: 0, shake: 1.5 },
-  { id: 'rocket', name: 'Bottle Rocket Launcher', desc: 'Explosive rockets with a big boom.', dmg: 46, rate: 1, mag: 4, reload: 2, speed: 10, spread: 0.03, pellets: 1, range: 10, pierce: 0, bounce: 0, elem: 'fire', elemChance: 0.3, explode: 1.8, kind: 'rocket', color: '#ff5a3a', critBonus: 0, shake: 6 },
-  { id: 'laser', name: 'Ghost-Buster Flashlight', desc: 'Instant piercing light beams. Shocks spirits.', dmg: 17, rate: 3, mag: 15, reload: 1.4, speed: 0, spread: 0.0, pellets: 1, range: 10, pierce: 99, bounce: 0, elem: 'shock', elemChance: 0.2, explode: 0, kind: 'beam', color: '#cfeaff', critBonus: 0.05, shake: 1 },
-  { id: 'slingshot', name: 'Wrist Slingshot', desc: 'Heavy piercing stones. Big crits.', dmg: 42, rate: 1.5, mag: 5, reload: 1.2, speed: 19, spread: 0.01, pellets: 1, range: 11, pierce: 1, bounce: 0, elemChance: 0, explode: 0, kind: 'stone', color: '#d8d0c0', critBonus: 0.2, shake: 2 },
+  { id: 'pea', name: 'Pea Shooter', desc: 'Reliable semi-auto. Peas sting more than you think.', dmg: 6, rate: 4, mag: 12, reload: 1.1, speed: 15, spread: 0.04, pellets: 1, range: 9, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'pea', color: '#9dff7a', critBonus: 0.05, shake: 1 },
+  { id: 'nerf', name: 'Foam Blaster', desc: 'Full-auto foam dart spray. Huge magazine.', dmg: 3, rate: 11, mag: 40, reload: 1.7, speed: 16, spread: 0.13, pellets: 1, range: 8, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'dart', color: '#ff9a3a', critBonus: 0, shake: 0.6 },
+  { id: 'shotgun', name: 'Candy Corn Shotgun', desc: 'Blasts a cone of razor candy corn.', dmg: 4, rate: 1.4, mag: 6, reload: 1.5, speed: 14, spread: 0.5, pellets: 7, range: 6, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'corn', color: '#ffb52a', critBonus: 0, shake: 4 },
+  { id: 'roman', name: 'Roman Candle', desc: 'Bouncing fireballs that set monsters ablaze.', dmg: 8, rate: 2.6, mag: 10, reload: 1.6, speed: 9, spread: 0.06, pellets: 1, range: 9, pierce: 0, bounce: 2, elem: 'fire', elemChance: 0.6, explode: 0, kind: 'fire', color: '#ff7a1a', critBonus: 0, shake: 1.5 },
+  { id: 'soaker', name: 'Ecto Soaker', desc: 'Piercing stream of glowing goo. Corrodes & slows.', dmg: 2, rate: 14, mag: 60, reload: 2, speed: 11, spread: 0.07, pellets: 1, range: 6.5, pierce: 2, bounce: 0, elem: 'ecto', elemChance: 0.3, explode: 0, kind: 'water', color: '#8dff5a', critBonus: 0, shake: 0.3 },
+  { id: 'balloon', name: 'Static Balloon Launcher', desc: 'Charged balloons pop into chain lightning.', dmg: 7, rate: 2, mag: 8, reload: 1.5, speed: 7.5, spread: 0.05, pellets: 1, range: 8, pierce: 0, bounce: 0, elem: 'shock', elemChance: 0.75, explode: 1.2, kind: 'balloon', color: '#4fb3ff', critBonus: 0, shake: 1.5 },
+  { id: 'rocket', name: 'Bottle Rocket Launcher', desc: 'Explosive rockets with a big boom.', dmg: 18, rate: 1, mag: 4, reload: 2, speed: 10, spread: 0.03, pellets: 1, range: 10, pierce: 0, bounce: 0, elem: 'fire', elemChance: 0.3, explode: 1.8, kind: 'rocket', color: '#ff5a3a', critBonus: 0, shake: 6 },
+  { id: 'laser', name: 'Ghost-Buster Flashlight', desc: 'Instant piercing light beams. Shocks spirits.', dmg: 7, rate: 3, mag: 15, reload: 1.4, speed: 0, spread: 0.0, pellets: 1, range: 10, pierce: 99, bounce: 0, elem: 'shock', elemChance: 0.2, explode: 0, kind: 'beam', color: '#cfeaff', critBonus: 0.05, shake: 1 },
+  { id: 'slingshot', name: 'Wrist Slingshot', desc: 'Heavy piercing stones. Big crits.', dmg: 17, rate: 1.5, mag: 5, reload: 1.2, speed: 19, spread: 0.01, pellets: 1, range: 11, pierce: 1, bounce: 0, elemChance: 0, explode: 0, kind: 'stone', color: '#d8d0c0', critBonus: 0.2, shake: 2 },
 ];
 WEAPONS.push(
-  { id: 'gloom', premium: true, name: 'Gloom Drum', desc: 'A deep sonic toy cannon. Wide piercing pressure pulses.', dmg: 23, rate: 2.4, mag: 10, reload: 1.8, speed: 12, spread: 0.12, pellets: 2, range: 8, pierce: 2, bounce: 0, elem: 'ecto', elemChance: 0.35, explode: 0, kind: 'water', color: '#8971ba', critBonus: 0, shake: 1.2 },
-  { id: 'marshmallow', premium: true, name: 'Marshmallow Mortar', desc: 'Slow soft projectiles with a huge sticky splash.', dmg: 38, rate: 1.3, mag: 5, reload: 1.8, speed: 7, spread: 0.06, pellets: 1, range: 10, pierce: 0, bounce: 0, elem: 'ecto', elemChance: 0.7, explode: 2, kind: 'balloon', color: '#f1d8be', critBonus: 0, shake: 2 },
-  { id: 'bubblegum', premium: true, name: 'Bubblegum Rail', desc: 'A precise spectral beam. Pierces the whole horde.', dmg: 35, rate: 1.8, mag: 8, reload: 1.5, speed: 0, spread: 0, pellets: 1, range: 12, pierce: 99, bounce: 0, elem: 'ecto', elemChance: 0.5, explode: 0, kind: 'beam', color: '#db87bb', critBonus: 0.1, shake: 0.8 },
-  { id: 'acorn', premium: true, name: 'Acorn Repeater', desc: 'Rapid bouncing acorns from a handmade wooden blaster.', dmg: 10, rate: 8, mag: 28, reload: 1.4, speed: 16, spread: 0.09, pellets: 1, range: 10, pierce: 0, bounce: 2, elemChance: 0, explode: 0, kind: 'stone', color: '#ce9c55', critBonus: 0.08, shake: 0.4 },
+  { id: 'gloom', premium: true, name: 'Gloom Drum', desc: 'A deep sonic toy cannon. Wide piercing pressure pulses.', dmg: 9, rate: 2.4, mag: 10, reload: 1.8, speed: 12, spread: 0.12, pellets: 2, range: 8, pierce: 2, bounce: 0, elem: 'ecto', elemChance: 0.35, explode: 0, kind: 'water', color: '#8971ba', critBonus: 0, shake: 1.2 },
+  { id: 'marshmallow', premium: true, name: 'Marshmallow Mortar', desc: 'Slow soft projectiles with a huge sticky splash.', dmg: 15, rate: 1.3, mag: 5, reload: 1.8, speed: 7, spread: 0.06, pellets: 1, range: 10, pierce: 0, bounce: 0, elem: 'ecto', elemChance: 0.7, explode: 2, kind: 'balloon', color: '#f1d8be', critBonus: 0, shake: 2 },
+  { id: 'bubblegum', premium: true, name: 'Bubblegum Rail', desc: 'A precise spectral beam. Pierces the whole horde.', dmg: 14, rate: 1.8, mag: 8, reload: 1.5, speed: 0, spread: 0, pellets: 1, range: 12, pierce: 99, bounce: 0, elem: 'ecto', elemChance: 0.5, explode: 0, kind: 'beam', color: '#db87bb', critBonus: 0.1, shake: 0.8 },
+  { id: 'acorn', premium: true, name: 'Acorn Repeater', desc: 'Rapid bouncing acorns from a handmade wooden blaster.', dmg: 4, rate: 8, mag: 28, reload: 1.4, speed: 16, spread: 0.09, pellets: 1, range: 10, pierce: 0, bounce: 2, elemChance: 0, explode: 0, kind: 'stone', color: '#ce9c55', critBonus: 0.08, shake: 0.4 },
 );
+/** Guns reach 40% of their listed range; treats add flat metres and premium kids multiply the total. */
+export const GUN_RANGE_SCALE = 0.4;
+export const GUN_RANGE_MAX = 14;
 export const WEAPON_BY_ID = Object.fromEntries(WEAPONS.map((w) => [w.id, w])) as Record<string, WeaponDef>;
 
 /**
@@ -89,7 +95,7 @@ export const TRAITS: Trait[] = [
   { id: 'opener', tier: 'trigger', name: 'Trick Shot', desc: 'First shot of every magazine deals +100% damage', minRarity: 1 },
   { id: 'fresh', tier: 'trigger', name: 'Fresh Batch', desc: 'Reloading an empty magazine: +40% damage for 4s', minRarity: 1 },
   { id: 'seconds', tier: 'trigger', name: 'Seconds, Please!', desc: 'Kills: 30% chance to refund 2 ammo and +30% fire rate for 3s', minRarity: 1 },
-  { id: 'combo', tier: 'trigger', name: 'Candy Corn Combo', desc: 'Each hit +3% damage, stacking without limit; all lost after 2s without a hit', minRarity: 2 },
+  { id: 'combo', tier: 'trigger', name: 'Candy Corn Combo', desc: 'Each hit +3% damage, up to +120%; all lost after 2s without a hit', minRarity: 2 },
   { id: 'scaredy', tier: 'trigger', name: 'Scaredy-Cat', desc: 'Below 35% HP: +35% fire rate', minRarity: 1 },
   { id: 'freeze', tier: 'trigger', name: 'Freeze Tag', desc: 'After standing still for 1s: +30% damage', minRarity: 1 },
   { id: 'trot', tier: 'trigger', name: 'Trick-or-Treat Trot', desc: 'While moving: +15% fire rate', minRarity: 1 },
@@ -192,7 +198,7 @@ export function weaponStats(w: Weapon, s: Stats): WStats {
     shock: ch('shock'),
     ecto: ch('ecto'),
     vamp: has('vamp') > 0,
-    range: d.range * (1 + has('speed') * 0.2),
+    range: Math.min(GUN_RANGE_MAX, (d.range * GUN_RANGE_SCALE * (1 + has('speed') * 0.2) + s.range) * s.rangeMul),
     critMul: s.critDmg + has('critdmg') * 0.5 + has('glasspump') * 0.6,
     speed: d.speed * (1 + has('speed') * 0.6),
   };
@@ -223,8 +229,8 @@ export const SCROLLS: Scroll[] = [
   { id: 'shoes', name: "Self-Lacing Sneakers", quote: "Power laces, alright!", icon: '👟', rarity: 0, desc: '+10% move speed', max: 5, apply: (s) => (s.move *= 1.1) },
   { id: 'pad', name: "Cyborg Cop Plating", quote: "Dead or alive, the candy's coming with me.", icon: '🛡️', rarity: 0, desc: '+25 max shield', max: 6, apply: (s) => (s.maxShield += 25) },
   { id: 'lasagna', name: "Raw-Egg Breakfast", quote: "Five raw eggs, then up the museum steps.", icon: '🍝', rarity: 0, desc: '+25 max HP', max: 6, apply: (s) => (s.maxHp += 25) },
-  { id: 'magnet', name: "Tractor Beam", quote: "Candy goes up. You get it.", icon: '🧲', rarity: 0, desc: '+40% pickup radius', max: 4, apply: (s) => (s.magnet *= 1.4) },
-  { id: 'cane', name: "Laser Sword", quote: "Vrrmm. Swish. Through two of them.", icon: '🦯', rarity: 1, desc: '+1 pierce for all weapons', max: 3, apply: (s) => (s.pierce += 1) },
+  { id: 'magnet', name: "Tractor Beam", quote: "Candy goes up. You get it.", icon: '🧲', rarity: 0, desc: '+40% pickup radius, +2 m gun range', max: 4, apply: (s) => { s.magnet *= 1.4; s.range += 2; } },
+  { id: 'cane', name: "Laser Sword", quote: "Vrrmm. Swish. Through two of them.", icon: '🦯', rarity: 1, desc: '+1 pierce and +2 m range for all weapons', max: 3, apply: (s) => { s.pierce += 1; s.range += 2; } },
   { id: 'bouncy', name: "Pinball Wizard", quote: "Tilt? Never heard of it.", icon: '⚾', rarity: 1, desc: '+1 ricochet for all weapons', max: 3, apply: (s) => (s.bounce += 1) },
   { id: 'bubble', name: "Two-Player Mode", quote: "Insert another quarter.", icon: '🫧', rarity: 3, desc: '+1 projectile, -10% damage', max: 3, apply: (s) => { s.pellets += 1; s.dmg *= 0.9; } },
   { id: 'fireball', name: "Firestarter Stare", quote: "Don't make her angry.", icon: '🔥', rarity: 1, desc: '+20% Burn chance on hit', max: 4, apply: (s) => (s.burn += 0.2) },
@@ -253,9 +259,9 @@ SCROLLS.push(
   { id: 'fullbag', name: "The Trap Is Full", quote: "Whatever you do, don't cross the streams.", icon: '🛍️', rarity: 1, desc: '+40% damage while your magazine is over 80% full', max: 1, apply: (s) => (s.fullBag = 1) },
   { id: 'skate', name: "Hoverboard Grind", quote: "Doesn't work on water.", icon: '🛹', rarity: 2, desc: 'Dashing instantly refills your magazine', max: 1, apply: (s) => (s.skate = 1) },
   { id: 'statue', name: "Unstoppable Cyborg Stance", quote: "Stand still. Hit harder. It'll be back.", icon: '🗿', rarity: 1, desc: '+35% damage after standing still for 1s', max: 1, apply: (s) => (s.statue = 1) },
-  { id: 'bluff', name: "Danger-Zone Aviators", quote: "You can be my wingman any time.", icon: '😤', rarity: 0, desc: '+25% damage while at full HP', max: 1, apply: (s) => (s.bluff = 1) },
+  { id: 'bluff', name: "Danger-Zone Aviators", quote: "You can be my wingman any time.", icon: '😤', rarity: 0, desc: '+25% damage while at full HP, +2 m gun range', max: 1, apply: (s) => { s.bluff = 1; s.range += 2; } },
   { id: 'bedtime', name: "Elm Street Bedtime", quote: "Whatever you do… don't fall asleep.", icon: '🛏️', rarity: 3, desc: 'Normal monsters under 12% HP are popped instantly', max: 1, apply: (s) => (s.execute = 1) },
-  { id: 'owl', name: "Heat-Vision Hunter", quote: "If it bleeds, you can crit it.", icon: '🦉', rarity: 2, desc: '+100% crit damage, but -25% damage on non-crits', max: 1, apply: (s) => { s.owl = 1; s.critDmg += 1; } },
+  { id: 'owl', name: "Heat-Vision Hunter", quote: "If it bleeds, you can crit it.", icon: '🦉', rarity: 2, desc: '+100% crit damage and +2 m gun range, but -25% damage on non-crits', max: 1, apply: (s) => { s.owl = 1; s.critDmg += 1; s.range += 2; } },
   { id: 'cursed', name: "Fed After Midnight", quote: "Three rules. You broke the last one.", icon: '🍬', rarity: 4, desc: '+60% damage, but -50% max HP', max: 1, apply: (s) => { s.dmg *= 1.6; s.maxHp *= 0.5; } },
 );
 SCROLLS.push(
@@ -269,11 +275,13 @@ export const LOCKED_SCROLLS = () => SCROLLS.filter((s) => s.premium);
 export function rollScrolls(n: number, owned: Record<string, number>, luck: number, minRarity = 0, maxRarity = 4): Scroll[] {
   const out: Scroll[] = [];
   const weights = [60, 30, 14 + luck * 3, 6 + luck * 2, 2 + luck];
-  // No hard caps: stacking treats can be taken past their usual max ("overstack"), just less often.
-  // One-off treats (max 1) are switches, so they stay single.
+  // Treats stop at their max, so no single multiplier can be stacked without end. Only when the bowl would otherwise
+  // come up short do capped stacking treats return ("overstack"); one-off treats (max 1) are switches and stay single.
   const over = (s: Scroll) => (owned[s.id] || 0) >= s.max;
-  const avail = SCROLLS.filter((s) => s.rarity >= minRarity && s.rarity <= maxRarity && (!over(s) || s.max > 1) && (!s.premium || hasFullGame()));
-  const weight = (s: Scroll) => weights[s.rarity] * (over(s) ? 0.3 : 1);
+  const eligible = SCROLLS.filter((s) => s.rarity >= minRarity && s.rarity <= maxRarity && (!s.premium || hasFullGame()));
+  const avail = eligible.filter((s) => !over(s));
+  if (avail.length < n) avail.push(...eligible.filter((s) => over(s) && s.max > 1));
+  const weight = (s: Scroll) => weights[s.rarity] * (over(s) ? 0.05 : 1);
   for (let i = 0; i < n && avail.length; i++) {
     let tot = 0;
     for (const s of avail) tot += weight(s);
@@ -352,11 +360,11 @@ export const COSTUMES: CostumeDef[] = [
   { id: 'ghost', rarity: 3, name: 'Bedsheet Ghost', icon: '👻', color: '#dfe8ff', power: 'Epic Phase: pass garden fences, hedges & graves; district locks stay solid', perks: '+35% dodge, +1 dash, +15% movement', line: 'Eek! A real ghost?!', apply: (s) => { s.dodge += 0.35; s.dashCharges++; s.move *= 1.15; } },
   { id: 'vampire', rarity: 3, name: 'Vampire', icon: '🧛', color: '#e0304a', power: 'Blood Feast: every kill heals 4 HP and restores 3 shield', perks: '+75% crit damage, +15% damage', line: "A vampire! Please don't bite me!", apply: (s) => { s.critDmg += 0.75; s.dmg *= 1.15; } },
   { id: 'witch', rarity: 3, name: 'Little Witch', icon: '🧙', color: '#b44dff', power: 'Hex Storm: three powerful homing, piercing hexes every 0.9s', perks: '+60% skill power', line: 'What a wicked little witch!', apply: (s) => (s.skillPow *= 1.6) },
-  { id: 'hero', rarity: 3, name: 'Super Kid', icon: '🦸', color: '#4f8aff', power: 'Meteor Dash: smash through monsters for 120 base damage with knockback', perks: '+2 dashes, +25% movement, +20% damage', line: 'Our hero! Here to save Halloween?', apply: (s) => { s.dashCharges += 2; s.move *= 1.25; s.dmg *= 1.2; } },
+  { id: 'hero', rarity: 3, name: 'Super Kid', icon: '🦸', color: '#4f8aff', power: 'Meteor Dash: smash through monsters for 48 base damage with knockback', perks: '+2 dashes, +25% movement, +20% damage', line: 'Our hero! Here to save Halloween?', apply: (s) => { s.dashCharges += 2; s.move *= 1.25; s.dmg *= 1.2; } },
   { id: 'skeleton', rarity: 3, name: 'Skeleton Suit', icon: '💀', color: '#e8e2d0', power: 'Bone Barrage: crits launch four piercing shards (0.15s cooldown)', perks: '+20% crit chance, +50% crit damage', line: 'Spooky scary skeleton!', apply: (s) => { s.crit += 0.2; s.critDmg += 0.5; } },
   { id: 'pumpkin', rarity: 3, name: 'Pumpkin Head', icon: '🎃', color: '#ff8a1e', power: 'Inferno Crown: taking a hit releases a huge fire nova (2s cooldown)', perks: '+50% burn chance, +50% burn damage', line: 'Ha! A walking jack-o-lantern!', apply: (s) => { s.burn += 0.5; s.burnDmg *= 1.5; } },
   { id: 'astronaut', rarity: 3, name: 'Space Cadet', icon: '🧑‍🚀', color: '#cfe6ff', power: 'Orbital Field: double shield recharge, 75% shorter recharge delay', perks: '+150 shield, 15% damage reduction', line: 'One small step for candy-kind!', apply: (s) => { s.maxShield += 150; s.shieldDelay *= 0.25; s.armor = 1 - (1 - s.armor) * 0.85; } },
-  { id: 'dino', rarity: 3, name: 'T-Rex Hoodie', icon: '🦖', color: '#5fd84a', power: 'Jurassic Stomp: wide 150-damage shockwave and stun every 2.5s', perks: '+100 HP, +20% damage', line: 'RAWR! A dinosaur at my door!', apply: (s) => { s.maxHp += 100; s.dmg *= 1.2; } },
+  { id: 'dino', rarity: 3, name: 'T-Rex Hoodie', icon: '🦖', color: '#5fd84a', power: 'Jurassic Stomp: wide 60-damage shockwave and stun every 2.5s', perks: '+100 HP, +20% damage', line: 'RAWR! A dinosaur at my door!', apply: (s) => { s.maxHp += 100; s.dmg *= 1.2; } },
 ];
 COSTUMES.push(
   { id: 'knight', rarity: 3, premium: true, name: 'Cardboard Knight', icon: '🛡️', color: '#d0ac76', power: 'Royal Guard: 40% damage reduction and one orbiting blade', perks: '+120 shield, +35% companion damage', line: 'A brave knight at my door!', apply: (s) => { s.maxShield += 120; s.armor = 1 - (1 - s.armor) * 0.6; s.orbit++; s.companionDmg *= 1.35; } },
@@ -395,8 +403,8 @@ export const HERO_INFO = [
   { name: 'Tommy', title: 'The Troublemaker', passive: '+10% damage', skill: 'Pumpkin Bomb', skillDesc: 'Lob an explosive jack-o-lantern that bursts into flames.', cd: 6, apply: (s: Stats) => (s.dmg *= 1.1) },
   { name: 'Sam', title: 'The Science Kid', passive: '+30 max shield', skill: 'TP Tornado', skillDesc: 'Summon a toilet-paper twister that pulls in and shreds monsters.', cd: 10, apply: (s: Stats) => (s.maxShield += 30) },
   { name: 'Jess', title: 'The Brave One', passive: '+8% crit chance', skill: 'Camera Flash', skillDesc: 'A blinding flash that stuns and damages everything in a wide cone.', cd: 7, apply: (s: Stats) => (s.crit += 0.08) },
-  { name: 'Maya', title: 'The Fixer', passive: '35% faster reloads, +40 shield', skill: 'Overcharged Repair', skillDesc: 'Fully heal and shield yourself, heal or revive your active friend, and refill both guns. An EMP breaks nearby enemy shields, stuns and deals 140 damage. Gain 2s invulnerability and double damage for 6s.', cd: 12, apply: (s: Stats) => { s.reload *= 0.65; s.maxShield += 40; } },
-  { name: 'Leo', title: 'The Night Scout', passive: '+20% movement speed, +1 dash', skill: 'Nightfall Beacon', skillDesc: 'A huge moonlit blast deals 220 damage, slows enemies for 8s and stuns for 3s (1s on bosses). Refill your dashes, gain 1.5s invulnerability and triple damage for 7s.', cd: 11, apply: (s: Stats) => { s.move *= 1.2; s.dashCharges++; } },
+  { name: 'Maya', title: 'The Fixer', passive: '35% faster reloads, +40 shield, +50% gun range', skill: 'Overcharged Repair', skillDesc: 'Fully heal and shield yourself, heal or revive your active friend, and refill both guns. An EMP breaks nearby enemy shields, stuns and deals 56 damage. Gain 2s invulnerability and double damage for 6s.', cd: 12, apply: (s: Stats) => { s.reload *= 0.65; s.maxShield += 40; s.rangeMul *= 1.5; } },
+  { name: 'Leo', title: 'The Night Scout', passive: '+20% movement speed, +1 dash, +50% gun range', skill: 'Nightfall Beacon', skillDesc: 'A huge moonlit blast deals 88 damage, slows enemies for 8s and stuns for 3s (1s on bosses). Refill your dashes, gain 1.5s invulnerability and triple damage for 7s.', cd: 11, apply: (s: Stats) => { s.move *= 1.2; s.dashCharges++; s.rangeMul *= 1.5; } },
 ];
 
 export const rarityColor = (r: number) => RARITY[r].color;

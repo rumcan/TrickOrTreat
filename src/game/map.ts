@@ -54,6 +54,8 @@ export interface GameMap {
   gates: Gate[];
   /** mountable Candy Cannons: (x, y) is the jungle-gym deck centre */
   turrets: { x: number; y: number; gym: PropInst }[];
+  /** rescue campaign: the gazebo each friend hides at, in gate order (north, east, south, west) */
+  hideouts: { x: number; y: number }[];
   start: { x: number; y: number };
 }
 
@@ -313,11 +315,13 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   }
 
   // a little park: fills a lot that has no houses (free game) without adding doorbells
+  let lastGazebo: PropInst | null = null;
   const park = (bx: number, by: number, w: number, h: number) => {
     const gz = addBig(getGazebo(), bx + Math.floor(w / 2) - 1, by + Math.floor(h / 2) - 1, 'gazebo', 0.6);
     for (let y = by; y < by + h; y++) ground[idx(gz.x0 + 1, y)] = ground[idx(gz.x0 + 1, y)] === G.GRASS ? G.FLAGSTONE : ground[idx(gz.x0 + 1, y)];
     occupy(gz.x0 + 1, by, 1, h);
     for (const [dx, dy] of [[-1, -1], [2, -1], [-1, 2], [2, 2]]) addSmall(getBench(), gz.x0 + 1 + dx, gz.y0 + 1 + dy, 'bench');
+    lastGazebo = gz;
     addSmall(getLamp(), gz.x0 - 1, gz.y0 + 3, 'lamp', true);
     addSmall(getLamp(), gz.x0 + 3, gz.y0 - 1, 'lamp', true);
     for (let i = 0; i < Math.floor((w * h) / 9); i++) {
@@ -349,6 +353,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   houseBlock(72, 26, false);
   houseBlock(72, 55, false);
   park(73, 39, 14, 13);
+  const eastGazebo = lastGazebo!;
   scatterTrees(86, 25, 90, 68, 10, ['pine', 'oak']);
 
   // NE — Hollow Creek Primary: school, playground with two jungle-gym forts (Candy Cannons on top), bus lot
@@ -429,6 +434,30 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     for (let i = 0; i < 5; i++) addSmall(getTree('dead', i % 3), 4 + Math.floor(rnd() * 16), 4 + Math.floor(rnd() * 3), 'tree');
   }
   } // Premium landmark rewards, playground and mounted weapons.
+
+  // ---- hideouts: every gated district has a gazebo, and that is where the missing friends wait ----
+  const hideouts: GameMap['hideouts'] = [];
+  if (expanded) {
+    const centre = (gz: PropInst) => ({ x: gz.x0 + gz.fw / 2, y: gz.y0 + gz.fh / 2 });
+    // nearest clear 4x4 lot to (cx, cy) inside the district; the playing field is only a last resort
+    const hideout = (cx: number, cy: number, x0: number, y0: number, x1: number, y1: number) => {
+      let best: [number, number] | null = null, score = Infinity;
+      for (let y = y0; y <= y1 - 3; y++) for (let x = x0; x <= x1 - 3; x++) {
+        if (!free(x, y, 4, 4)) continue;
+        let field = false;
+        for (let yy = y; yy < y + 4; yy++) for (let xx = x; xx < x + 4; xx++) if (ground[idx(xx, yy)] === G.FIELD) field = true;
+        const d = Math.hypot(x + 2 - cx, y + 2 - cy) + (field ? 100 : 0);
+        if (d < score) { score = d; best = [x, y]; }
+      }
+      if (!best) throw new Error(`No room for a gazebo hideout near ${cx},${cy}`);
+      const [bx, by] = best;
+      for (let yy = by; yy < by + 4; yy++) for (let xx = bx; xx < bx + 4; xx++) if (ground[idx(xx, yy)] !== G.FIELD) ground[idx(xx, yy)] = G.FLAGSTONE;
+      const gz = addBig(getGazebo(), bx + 1, by + 1, 'gazebo', 0.6);
+      occupy(bx, by, 4, 4); // keep the ring around it clear: that is where the friend stands
+      return centre(gz);
+    };
+    hideouts.push(hideout(35, 16, 24, 3, 45, 20), centre(eastGazebo), hideout(35, 78, 24, 73, 45, 90), hideout(16, 35, 3, 24, 20, 68));
+  }
   // Corner quadrants stay sealed wilderness (decorative depth beyond the walls)
 
   // ---- street lamps along the centre grid ----
@@ -540,7 +569,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   houses.filter(h => h.prop.kind === 'house').forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
   // Meet on the open central sidewalk, not inside the randomized housing lot.
-  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, start: { x: 35, y: 45 } };
+  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, hideouts, start: { x: 35, y: 45 } };
   for (const venue of houses.filter(h => h.prop.kind !== 'house')) {
     if (!blockedCircle(map, venue.door.x, venue.door.y, 0.3)) continue;
     const { x0, y0, fw, fh } = venue.prop;
