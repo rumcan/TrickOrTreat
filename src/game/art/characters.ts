@@ -1,5 +1,6 @@
 import { makeCanvas, ellipse } from './draw';
 import { sheetAsset, Img } from '../assets';
+import { HERO_COSTUME } from '../data';
 
 export interface Sheet {
   img: Img;
@@ -595,7 +596,7 @@ const COSTUME_PROMPT: Record<string, string> = {
 
 export function heroSheet(i: number, costume?: string | null): Sheet {
   const h = HEROES[i];
-  const c = costume || '';
+  const c = costume === HERO_COSTUME[i] ? costume : '';
   return buildSheet(
     c ? `hero_${h.id}_${c}` : `hero_${h.id}`,
     'characters',

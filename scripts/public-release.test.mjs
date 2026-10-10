@@ -38,6 +38,19 @@ try {
   await game.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   const remoteModule = await game.evaluate(() => [...document.scripts].filter(s => s.type === 'module').map(s => s.textContent || '').sort((a, b) => b.length - a.length)[0]);
   assert.equal(digest(remoteModule), digest(localModule), 'Hosted game is byte-identical to the audited build module');
+  const heldFiles = (await fs.readdir('dist/assets/hero3d')).filter(f => f.endsWith('.webp')).sort();
+  assert.equal(heldFiles.length, 10, 'All five kids and their five own costumes have held-gun sprites');
+  const heldAssets = await game.evaluate(async files => Promise.all(files.map(async file => {
+    const response = await fetch(new URL(`assets/hero3d/${file}`, document.baseURI));
+    if (!response.ok) throw new Error(`Missing hosted held-gun sprite: ${file}`);
+    const blob = await response.blob(), bitmap = await createImageBitmap(blob);
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()))].map(v => v.toString(16).padStart(2, '0')).join('');
+    const result = { file, hash, width: bitmap.width, height: bitmap.height }; bitmap.close(); return result;
+  })), heldFiles);
+  for (const asset of heldAssets) {
+    assert.equal(asset.hash, crypto.createHash('sha256').update(await fs.readFile(`dist/assets/hero3d/${asset.file}`)).digest('hex'));
+    assert.equal(asset.width, 3136); assert.equal(asset.height, 1792);
+  }
   for (const entry of Object.values(manifest.overrides)) {
     const file = typeof entry === 'string' ? entry : entry.file;
     assert.ok([...loaded].some(path => path.endsWith(`/assets/${file}`)), `Hosted loader missed ${file}`);

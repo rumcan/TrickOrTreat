@@ -356,7 +356,8 @@ export function talentUnlocked(t: Talent, ranks: Record<string, number>) {
 
 // ================= COSTUMES =================
 export interface CostumeDef { id: string; name: string; icon: string; color: string; power: string; perks: string; line: string; rarity: 3; premium?: boolean; apply: (s: Stats) => void }
-export const COSTUMES: CostumeDef[] = [
+/** every costume the engine knows how to power; only the five in HERO_COSTUME are in the game (see COSTUMES) */
+const EVERY_COSTUME: CostumeDef[] = [
   { id: 'ghost', rarity: 3, name: 'Bedsheet Ghost', icon: '👻', color: '#dfe8ff', power: 'Epic Phase: pass garden fences, hedges & graves; district locks stay solid', perks: '+35% dodge, +1 dash, +15% movement', line: 'Eek! A real ghost?!', apply: (s) => { s.dodge += 0.35; s.dashCharges++; s.move *= 1.15; } },
   { id: 'vampire', rarity: 3, name: 'Vampire', icon: '🧛', color: '#e0304a', power: 'Blood Feast: every kill heals 4 HP and restores 3 shield', perks: '+75% crit damage, +15% damage', line: "A vampire! Please don't bite me!", apply: (s) => { s.critDmg += 0.75; s.dmg *= 1.15; } },
   { id: 'witch', rarity: 3, name: 'Little Witch', icon: '🧙', color: '#b44dff', power: 'Hex Storm: three powerful homing, piercing hexes every 0.9s', perks: '+60% skill power', line: 'What a wicked little witch!', apply: (s) => (s.skillPow *= 1.6) },
@@ -366,11 +367,18 @@ export const COSTUMES: CostumeDef[] = [
   { id: 'astronaut', rarity: 3, name: 'Space Cadet', icon: '🧑‍🚀', color: '#cfe6ff', power: 'Orbital Field: double shield recharge, 75% shorter recharge delay', perks: '+150 shield, 15% damage reduction', line: 'One small step for candy-kind!', apply: (s) => { s.maxShield += 150; s.shieldDelay *= 0.25; s.armor = 1 - (1 - s.armor) * 0.85; } },
   { id: 'dino', rarity: 3, name: 'T-Rex Hoodie', icon: '🦖', color: '#5fd84a', power: 'Jurassic Stomp: wide 60-damage shockwave and stun every 2.5s', perks: '+100 HP, +20% damage', line: 'RAWR! A dinosaur at my door!', apply: (s) => { s.maxHp += 100; s.dmg *= 1.2; } },
 ];
-COSTUMES.push(
+EVERY_COSTUME.push(
   { id: 'knight', rarity: 3, premium: true, name: 'Cardboard Knight', icon: '🛡️', color: '#d0ac76', power: 'Royal Guard: 40% damage reduction and one orbiting blade', perks: '+120 shield, +35% companion damage', line: 'A brave knight at my door!', apply: (s) => { s.maxShield += 120; s.armor = 1 - (1 - s.armor) * 0.6; s.orbit++; s.companionDmg *= 1.35; } },
   { id: 'moth', rarity: 3, premium: true, name: 'Moon Moth', icon: '🦋', color: '#b7adce', power: 'Lunar Wings: two extra dashes and 40% dodge', perks: '+30% movement, +40% skill power', line: 'Follow the porchlight, little moth!', apply: (s) => { s.dashCharges += 2; s.dodge += 0.4; s.move *= 1.3; s.skillPow *= 1.4; } },
 );
-export const COSTUME_BY_ID = Object.fromEntries(COSTUMES.map((c) => [c.id, c])) as Record<string, CostumeDef>;
+export const COSTUME_BY_ID = Object.fromEntries(EVERY_COSTUME.map((c) => [c.id, c])) as Record<string, CostumeDef>;
+/**
+ * Every kid has ONE costume of their own (HERO_INFO order): it is the only one that drops for them, like their own
+ * suit of armour. Tommy: Pumpkin Head · Sam: Space Cadet · Jess: Vampire · Maya: Cardboard Knight · Leo: Moon Moth.
+ */
+export const HERO_COSTUME = ['pumpkin', 'astronaut', 'vampire', 'knight', 'moth'];
+/** the costumes that exist in the game, in kid order: what menus list and what can drop */
+export const COSTUMES: CostumeDef[] = HERO_COSTUME.map((id) => COSTUME_BY_ID[id]);
 export const HOMEOWNERS = ['Mrs. Henderson', 'Mr. Kowalski', 'Old Man Jenkins', 'The Nguyens', 'Ms. Petrova', 'Grandma Rose', 'Coach Miller', 'Dr. Alvarez', 'The Johnsons', 'Mrs. Okafor', 'Mr. Bellamy', 'Aunt Dottie'];
 export const GIVE_LINES = ['Here you go, sweetie!', 'Take two, I won\'t tell!', 'Full-size bars this year!', 'Careful out there tonight…', 'Happy Halloween, dear!', 'Ooh, last of the good stuff!'];
 

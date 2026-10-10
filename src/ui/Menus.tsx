@@ -125,7 +125,7 @@ function HowToModal({ onClose }: { onClose: () => void }) {
         <ControlsPanel />
         <div className="kit-panel px-4 py-3 font-ui text-[14px] leading-relaxed text-[#e6dcc4]">
           Ring doorbells for candy and treats, but you're stuck on the porch while you wait, and the doorbell draws the horde. Wear a costume for better treats.
-          Costumes are rare Epic drops, never starting gear. After wave 10, some enemies gain elemental immunities or defensive wards. Mix damage types; aim directly against ricochet wards and use piercing 2+ against sealed shells. Ordinary mobs remain plentiful.
+          Each kid has one costume of their own: a rare Epic drop, never starting gear. After wave 10, some enemies gain elemental immunities or defensive wards. Mix damage types; aim directly against ricochet wards and use piercing 2+ against sealed shells. Ordinary mobs remain plentiful.
           New streets open every minute. The <span className="text-[#fb8016]">Pumpkin King</span> rises at 05:00.
         </div>
         <div className="flex justify-end"><KitButton variant="cream" onClick={onClose}>Got it</KitButton></div>
@@ -243,7 +243,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
   const items = [
     { label: 'Resume', sub: 'back to the night', on: onResume },
     { label: 'Your run build (I)', sub: 'treats · synergies · damage math', on: () => setPanel('inventory') },
-    ...(game.campaign ? [{ label: 'Friends & shared guns', sub: 'pick your helper', on: () => setPanel('team') }] : []),
+    ...(game.friends.length ? [{ label: 'Friends & shared guns', sub: 'pick your helper', on: () => setPanel('team') }] : []),
     { label: 'Settings', sub: 'sound · brightness · gore', on: () => setPanel('settings') },
     { label: 'Controls', sub: 'keys and mouse', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')) },
     { label: 'Restart run', sub: 'same kid, fresh night', on: onRestart },
@@ -327,6 +327,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const [, force] = useState(0);
   const pick = (id: string) => { game.choose(id); force((n) => n + 1); onDone(); };
   const pickGun = (i: number) => { game.chooseGun(i); force((n) => n + 1); onDone(); };
+  const pickFriend = () => { game.chooseFriend(); force((n) => n + 1); onDone(); };
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (e.repeat || game.state !== 'levelup') return;
@@ -334,6 +335,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
       if (i < 0) return;
       if (game.choices[i]) pick(game.choices[i].id);
       else if (game.gunChoices[i - game.choices.length]) pickGun(i - game.choices.length);
+      else if (game.friendChoice !== null && i === game.choices.length + game.gunChoices.length) pickFriend();
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
@@ -342,9 +344,10 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : 'Level up!';
   const houseNote = mode === 'house' ? ` · ${game.choiceRewardRange.label}: a treat or a gun` : '';
   const kicker = mode === 'house'
-    ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: extra pick' : 'no costume = stingy treats'}${houseNote}`
+    ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: better treats' : 'choose one reward'}${houseNote}`
     : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;
-  const n = game.choices.length + game.gunChoices.length;
+  const friend = mode === 'house' ? game.friendChoice : null;
+  const n = game.choices.length + game.gunChoices.length + (friend === null ? 0 : 1);
   const locked = game.lockedChoice;
   const cards = n + (locked ? 1 : 0);
   return (
@@ -405,6 +408,25 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
               </button>
             );
           })}
+          {friend !== null && (
+            <button onClick={pickFriend} className="hm-pick hm-pick-friend" style={{ ['--acc' as string]: HERO_COLORS[friend] }} aria-label={`Let ${HERO_INFO[friend].name} join you`}>
+              <div className="hm-pick-art" style={{ background: HERO_COLORS[friend] }}>
+                <img src={PORTRAITS[friend]} alt="" draggable={false} className="block h-full w-full object-cover object-[50%_18%]" />
+                <span className="kit-key absolute left-2 top-2 !rounded-none">{n}</span>
+                <span className="hm-stamp">Friend</span>
+              </div>
+              <div className="flex flex-1 flex-col p-3.5">
+                <div className="hm-pick-name">{HERO_INFO[friend].name} wants to come along</div>
+                <div className="hm-pick-quote">“{HERO_INFO[friend].title}. Safer together, right?”</div>
+                <div className="hm-label mt-3">Companion</div>
+                <div className="hm-pick-desc">Fights beside you with a Foam Blaster and helps you up once a minute if you fall.</div>
+                <div className="mt-auto flex items-baseline justify-between pt-3">
+                  <span className="hm-label !text-[#8f8676]">{game.activeFriend === null ? 'Joins now' : 'Joins the team'}</span>
+                  <span className="font-num text-[12px] text-[#c9bda6]">{game.activeFriend === null ? 'your helper' : 'swap helpers when paused'}</span>
+                </div>
+              </div>
+            </button>
+          )}
           {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} />}
         </div>
         <div className="hm-foot">

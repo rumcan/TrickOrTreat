@@ -13,7 +13,7 @@ import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
   Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
-  COSTUMES, COSTUME_BY_ID, GIVE_LINES,
+  COSTUME_BY_ID, HERO_COSTUME, GIVE_LINES,
 } from './data';
 
 export interface Bubble { x: number; y: number; lift: number; text: string; life: number; max: number; who: 'kid' | 'door' | 'trick'; follow?: boolean }
@@ -177,6 +177,8 @@ export interface RescueFriend {
   anim: number; flip: boolean; back: boolean; hurtCd: number; reviveCd: number; candy: number;
   /** revive started with a tap of E: keeps going while the player stays close; a hit only pauses it */
   channel?: boolean; pauseT?: number; burst?: boolean;
+  /** facing (world direction) and whether they are walking: picks the aiming sprite */
+  faceX?: number; faceY?: number; moving?: boolean;
 }
 
 export interface Player {
@@ -190,6 +192,8 @@ export interface Turret { x: number; y: number; gym: PropInst; aimX: number; aim
 /** the Candy Cannon: heavy, fast, heats up; standing on the gym deck keeps most melee monsters at arm's length */
 export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0.05, cool: 0.28, lockout: 2.2, armor: 0.4, reach: 1.65 };
 
+/** free game: chance that a doorstep bowl also holds a friend who wants to tag along (one of the three cards) */
+export const FRIEND_CARD_CHANCE = 0.2;
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
@@ -224,6 +228,8 @@ export class Game {
   gunChoices: Weapon[] = [];
   /** free game only: a full-game treat or gun shown as a locked, read-only extra card, to tease the unlock */
   lockedChoice: { scroll: Scroll | null; weapon: Weapon | null } | null = null;
+  /** free game: a kid offering to join as your companion, shown as one of the doorstep cards (hero index) */
+  friendChoice: number | null = null;
   choiceMode: ChoiceMode = 'level';
   choiceGiver = '';
   tot: TotState | null = null;
@@ -450,7 +456,7 @@ export class Game {
     gameAudio.play('revive', 0.3);
   }
   private updateTeam(dt: number) {
-    if (!this.campaign || this.bossBreak) return;
+    if (!this.friends.length || this.bossBreak) return; // the campaign's rescued kids, or a free-game friend from a doorstep
     this.rescuePrompt = ''; this.rescueProgress = -1;
     for (const f of this.friends) {
       if (f.status === 'rescued') continue;
@@ -516,7 +522,8 @@ export class Game {
       const dx = direction?.x ?? (this.p.x - friend.x) / (distance || 1), dy = direction?.y ?? (this.p.y - friend.y) / (distance || 1);
       this.moveCircle(friend, dx * this.stats.move * 1.05 * dt, dy * this.stats.move * 1.05 * dt, friend.r);
       friend.anim += dt * 8; friend.back = dy < 0; friend.flip = dx < 0;
-    } else friend.anim += dt * 3;
+      friend.moving = true; friend.faceX = dx; friend.faceY = dy;
+    } else { friend.anim += dt * 3; friend.moving = false; }
     if (distance > 18 && this.state !== 'downed') Object.assign(friend, this.freeSpot(this.p.x + 1, this.p.y + 1));
     for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
       friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
@@ -549,7 +556,9 @@ export class Game {
     }
     if (!target || weapon.cd > 0 || friend.hp <= 0) return;
     weapon.cd = 1 / st.rate; weapon.ammo--;
-    const angle = Math.atan2(target.y - friend.y, target.x - friend.x), damage = st.dmg * 0.65 * this.stats.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02);
+    const angle = Math.atan2(target.y - friend.y, target.x - friend.x);
+    friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
+    const damage = st.dmg * 0.65 * this.stats.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02);
     gameAudio.play('shot', 0.2);
     if (weapon.def.kind === 'beam') this.hitscan(friend.x, friend.y, Math.cos(angle), Math.sin(angle), { ...st, dmg: damage }, weapon.def.color, weapon.def.elem ?? null);
     else for (let i = 0; i < st.pellets; i++) {
@@ -584,16 +593,19 @@ export class Game {
   }
 
   // ---------- costumes ----------
-  randomCostume(exclude: string | null = null) {
-    const pool = COSTUMES.filter((c) => (!c.premium || hasFullGame()) && c.id !== exclude && c.id !== this.p?.costume);
-    return pool[Math.floor(Math.random() * pool.length)].id;
+  /** the costume that may drop right now: this kid's own, unless it is already worn or lying somewhere */
+  randomCostume(): string | null {
+    const id = HERO_COSTUME[this.hero];
+    return !id || this.p?.costume === id || this.pickups.some((k) => k.kind === 'costume' && !k.dead) ? null : id;
   }
-  dropCostume(x: number, y: number, id: string) {
+  dropCostume(x: number, y: number, id: string | null) {
+    if (!id || id !== HERO_COSTUME[this.hero]) return;
     this.pickups.push({ x, y, z: 0.6, vz: 3, vx: 0, vy: 0, kind: 'costume', value: 0, costume: id, mag: false, t: 0, dead: false });
   }
   wearCostume(id: string, fx = true) {
     const p = this.p;
     const old = p.costume;
+    if (id !== HERO_COSTUME[this.hero]) return old;
     p.costume = id;
     if (!this.costumesWorn.has(id)) {
       this.costumesWorn.add(id);
@@ -2019,6 +2031,7 @@ export class Game {
     for (const [k, w] of table) { r -= w; if (r <= 0) { kind = k; break; } }
     const w = this.weapon;
     if (kind === 'upgrade' && !w) kind = 'gun';
+    if (kind === 'costume' && !this.randomCostume()) kind = 'hoard'; // already in costume: candy instead
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'coin', 2);
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'xp2', 2);
     if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
@@ -2384,7 +2397,7 @@ export class Game {
       this.tutorialHouse = null;
       this.treatGuideNotice = true;
     }
-    const n = (costumed ? 3 : 2) + this.stats.totChoices;
+    const n = 3 + this.stats.totChoices;
     this.openLevelUp('house', n, this.stats.luck + (costumed ? 3 : 0), rewards);
   }
 
@@ -2404,16 +2417,21 @@ export class Game {
     this.rollLocked();
     const n = this.choiceN, luck = this.choiceLuck;
     if (this.choiceMode !== 'house') {
-      this.gunChoices = [];
+      this.gunChoices = []; this.friendChoice = null;
       this.choices = rollScrolls(n, this.scrolls, luck);
       return;
     }
+    // Free game: now and then one of the cards is a kid who wants to come along (the rescue campaign finds its friends
+    // at the gazebos instead). Only the free kids, and never one who is already with you.
+    const recruits = this.campaign ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
+    this.friendChoice = recruits.length && n >= 2 && Math.random() < FRIEND_CARD_CHANCE ? recruits[Math.floor(Math.random() * recruits.length)] : null;
+    const loot = n - (this.friendChoice === null ? 0 : 1);
     let guns = 0;
-    for (let i = 0; i < n; i++) if (Math.random() < 0.4) guns++;
-    guns = Math.min(guns, n - 1); // always at least one treat on offer
+    for (let i = 0; i < loot; i++) if (Math.random() < 0.4) guns++;
+    guns = Math.min(guns, loot - 1); // always at least one treat on offer
     const { min, max } = this.choiceRewardRange;
-    this.choices = rollScrolls(n - guns, this.scrolls, luck, min, max);
-    this.gunChoices = Array.from({ length: n - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max)));
+    this.choices = rollScrolls(loot - guns, this.scrolls, luck, min, max);
+    this.gunChoices = Array.from({ length: loot - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max)));
   }
   private rollLocked() {
     this.lockedChoice = null;
@@ -2436,7 +2454,7 @@ export class Game {
     this.treatGuideNotice = false;
     gameAudio.play('unlock');
     this.input.pressed.clear();
-    this.gunChoices = [];
+    this.gunChoices = []; this.friendChoice = null;
     this.choiceMode = 'level';
     this.p.invuln = 1;
     const p = this.p;
@@ -2455,6 +2473,25 @@ export class Game {
     this.inspecting = k;
     this.state = 'inspect';
   }
+  /** take the friend card: they join the team, and become your helper if you have none */
+  chooseFriend() {
+    const hero = this.friendChoice;
+    if (this.state !== 'levelup' || hero === null || this.campaign || hero < 0 || hero > 2 || hero === this.hero || this.choiceMode !== 'house' || this.friends.some(f => f.hero === hero)) return;
+    this.treatGuideNotice = false;
+    gameAudio.play('revive', 0.5);
+    this.input.pressed.clear();
+    this.gunChoices = []; this.choices = []; this.friendChoice = null;
+    this.choiceMode = 'level';
+    const spot = this.freeSpot(this.p.x + 0.7, this.p.y + 0.7, true);
+    this.friends.push({ hero, ...spot, r: 0.24, gate: 0, status: 'rescued', guardian: null, progress: 0,
+      hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 });
+    const helper = this.activeFriend === null;
+    if (helper) this.activeFriend = hero;
+    this.syncTeamWeapons();
+    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, helper ? 'Your friend fights beside you and can pick you up once a minute.' : 'Pause to choose which friend fights beside you.', 'loot');
+    this.state = 'play';
+    this.p.invuln = 1;
+  }
   /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
   private relightHouses() {
     const hs = this.map.houses;
@@ -2472,7 +2509,7 @@ export class Game {
     this.treatGuideNotice = false;
     gameAudio.play('unlock');
     this.input.pressed.clear(); // the key that picked the card must not also swap weapons
-    this.gunChoices = [];
+    this.gunChoices = []; this.friendChoice = null;
     this.scrolls[id] = (this.scrolls[id] || 0) + 1;
     this.scrollOrder.push(id);
     this.recalcStats();

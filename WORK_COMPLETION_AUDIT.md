@@ -1,5 +1,26 @@
 # Requested work versus completed work
 
+## Latest takeover checkpoint — free friends and held guns
+
+Branch: `feature/free-friends-and-held-guns`; Claude's uncommitted work preserved.
+One costume per kid is now enforced at drop, equipment and preview entry points.
+Real uncostumed house rewards offer three choices, with a 20% chance of a free-kid
+friend card. Recruits fight, revive and can be selected through the team menu.
+Free-friend and own-costume browser tests pass, as do TypeScript, the production
+build and all 17 bug-audit checks.
+
+All ten held-gun looks are rendered: all five plain kids and their five own
+costumes. Local Hunyuan3D completed Maya/Knight and Leo/Moth after RUN returned
+`AI_POLICY_BUDGET_EXHAUSTED` despite a verified 163,202-credit account balance.
+Their rigs and walk cycles are transferred locally; generated metallic materials
+are corrected to matte cloth/cardboard. Every look uses the same warm key light,
+cool rim light, camera and scale. Wider transparent frames prevent clipped feet.
+All ten atlases pass dimension/edge checks and 560 hand anchors; the actual
+renderer passes 80 aiming cases, 3,120 fallback cases and companion layering.
+Mobile controls pass at four portrait/landscape sizes. Production publication
+still requires the final release upload and hosted checks; no deployment is
+claimed at this checkpoint. See `art/3d/README.md` for the reproducible pipeline.
+
 Checked 2026-10-10. This audit combines the previous completed expansion with the latest artwork, UI, balance, rescue and purchase requests. Later explicit enemy-scaling and premium-skill requests supersede the earlier XP-only balancing restriction.
 
 ## Priority follow-up: easy wins and mobile

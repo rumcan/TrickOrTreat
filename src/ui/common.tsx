@@ -5,7 +5,7 @@ import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
 import { treatArt } from '../game/art/treats';
 import { RARITY } from '../game/config';
-import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO } from '../game/data';
+import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO, HERO_COSTUME, COSTUME_BY_ID } from '../game/data';
 import { ART, PORTRAITS, HERO_COLORS, gunArtUrl } from './art';
 import { Keycap, KitTitle } from './kit';
 
@@ -214,6 +214,10 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
             <CloverIcon size={22} />
             <span className="font-ui text-[15px] font-semibold text-[#1d1d1b]">Passive: <span className="text-[#2f8a3c]">{h.passive}</span></span>
           </div>
+          {COSTUME_BY_ID[HERO_COSTUME[hero]] && <div className="flex items-center gap-3">
+            <span className="w-[22px] text-center text-lg leading-none" aria-hidden="true">{COSTUME_BY_ID[HERO_COSTUME[hero]].icon}</span>
+            <span className="font-ui text-[15px] font-semibold text-[#1d1d1b]">Own costume: <span className="text-[#7a3fc0]">{COSTUME_BY_ID[HERO_COSTUME[hero]].name}</span> <span className="font-normal text-[#5a5346]">· a rare find in bags, houses and elites</span></span>
+          </div>}
         </div>
         <div className="mt-4 flex gap-3 border border-[#b9a77c] bg-[#e2d2a6] p-2.5">
           <div className="h-14 w-14 shrink-0 self-start overflow-hidden border-2 border-[#3a2f20]"><SkillIcon hero={hero} size={52} /></div>
