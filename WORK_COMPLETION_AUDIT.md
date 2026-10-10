@@ -2,15 +2,48 @@
 
 Checked 2026-10-10. This audit combines the previous completed expansion with the latest artwork, UI, balance, rescue and purchase requests. Later explicit enemy-scaling and premium-skill requests supersede the earlier XP-only balancing restriction.
 
-## Current release: enabled checkout and latest gameplay fixes
+## Latest release submission: mobile, logo, leaderboard and vending reel
 
-Deployed the latest tested game as RUN 1.1.5 on 2026-10-10, including the first-house guide, straight street geometry, shield-bubble removal and updated thumbnail. RUN accepted the public-release submission into Review. Its new server config is `t4GsIPaBxHExRrkvwmn4`; the full-game item is active at 100 RUN Bits, unique and non-consumable, granting one permanent `hide-and-shriek-full-game` entitlement. Public promotion remains subject to RUN approval.
+Uploaded as RUN 1.1.6 on 2026-10-10 with leaderboard/shop server config `zd5wSy5tCfJVFxFyEpAg`. RUN initially placed the release in Review; Public remained on approved 1.1.5 at the initial readback. Publication approval is controlled by RUN, not by the deploy command. Source is prepared on `feature/mobile-leaderboard-vending-release` for a PR targeting `main`.
+
+- Main-menu left drawer: signed-in RUN usernames and longest survival times; separate neighbourhood/rescue boards, all-time ordering, own rank, pagination, refresh/retry, keyboard focus handling and phone layout. Guests, missing profiles and the SDK's synthetic local mock identity cannot view or query the boards. No fake seed names are configured.
+- Production runs of at least 10 seconds submit elapsed gameplay seconds at the run result, never paused/loading time. Per-run guards block duplicate submissions, account changes, local development and preview runs; a later endless result can improve the record. Submission failures preserve local saves and do not pretend a rank was accepted.
+- Both map vending machines now open a paused Midnight Candy Machine instead of the Candy Lady shop. Every player can spend earned run coins (60 initially, increasing 25% per play), with no keys, Bits or purchase API. Existing Candy Lady stands and boss upgrade breaks remain intact.
+- The slowing reel rolls once, centers the real prize, displays a full winner card and requires an explicit treat collection or weapon-slot choice. Double-charge/claim guards, incorrect spin-id protection, old-weapon drops, close-during-spin/unclaimed-gun protection and keyboard focus containment during a paid spin prevent reward loss or duplication.
+- Hover/focus/tap reveals full missed-prize details, including gun stats/inscriptions and treat effects/tags. Premium prizes appear as clearly labelled, inspectable previews for free players, with 0% win chance until unlocked. This default was explicitly raised with the user; no instruction to allow premium wins for free accounts has been received.
+- Published rarity odds match actual prize weights: Common 50%, Uncommon 30%, Rare 15%, Epic 4%, Legendary 1%. Within each rarity, normally 75% treats and 25% guns; an exhausted one-off treat pool reallocates that rarity to guns. One-off powers are excluded when owned; stackable treats can repeat. The visual reel is explicitly described as a showcase, not a probability table.
+
+Verification: TypeScript, 11 isolated auth/record/odds tests, drawer browser checks with simulated RUN data, actual vending gameplay/animation/inspection checks, production end-of-run reporting with a simulated SDK write, all 17 existing bug regressions, opening-guide/street checks, four mobile viewports plus desktop input, existing presentation/layout regression, production build and 234-asset production smoke passed. No real leaderboard scores, purchases or Bits were written. Physical phone certification and hosted backend operation are not claimed.
+
+RUN integration follows the installed SDK types and official [leaderboard](https://github.com/series-ai/venus-sdk-docs/blob/main/rundot-developer-platform/api/LEADERBOARD.md) and [profile](https://github.com/series-ai/venus-sdk-docs/blob/main/rundot-developer-platform/api/PROFILE.md) documentation. `rundot/leaderboard.config.json` accompanies the next deployment. The casual board has server bounds/rate limiting and client duplicate guards, not server-verified combat/replay anti-cheat; do not attach monetary rewards to it.
+
+## Previous local follow-up: mobile playability
+
+Implemented after public 1.1.5 and included in the 1.1.6 release submission above.
+
+- Add independent captured-pointer movement and aim/fire sticks, analog walking, a dead zone and directionally normalized dashes; retain automatic nearest-target firing.
+- Add Interact/revive/cannon, reload, skill and dash/flee controls; weapon slots are tappable. Third-finger actions work while both sticks remain held, without duplicate synthetic clicks.
+- Expose map and run inventory on phones, increase touch targets, clear held inputs on pause/focus loss/cancellation/rotation/restart, and hide controls during paused menus.
+- Use dynamic viewport height and safe-area spacing, reserve camera space above the controls, retain scrolling in weapon inspection, and add touch instructions and a tappable intro skip.
+- Keep desktop keyboard/mouse controls and the mouse-only HUD intact.
+
+Verification: TypeScript, five isolated touch-input/action tests, native Chromium multi-touch browser checks at 390x844, 320x568, 844x390 and 768x1024, desktop input/layout regression, all 17 bug-audit cases and opening-guide/street tests passed. Production build and smoke checks also passed: all 234 artwork assets load, portrait/landscape touch controls and map/build/pause access work without development tools, and developer controls are absent. These are emulated browser checks, not physical iOS/Android device certification.
+
+### Loading-screen logo optimization
+
+Local follow-up, not yet committed or deployed: replace the runtime 1,871,892-byte PNG with a transparent 1240px WebP (271,664 bytes; 85.5% smaller), plus a 640px small variant (97,850 bytes). Preserve the supplied original PNG. Preload the exact current logo URL at high priority instead of obsolete logo/key-art files, give background/UI imagery lower priority, deduplicate UI preloads, and reveal the logo only after a complete decode with its layout space reserved. `art:logo` regenerates just the logo derivatives; the full presentation-art preparation also generates them.
+
+Verification: delayed-download desktop and phone tests passed in development and production, verifying hidden-until-decoded rendering, stable layout, one shared optimized request, matching high-priority preload and no requests for the original/obsolete logo assets. Presentation tests passed for transparent alpha, dimensions, proportions and at least 80% size reduction, alongside existing responsive splash/thumbnail/audio checks. TypeScript, landing/picker layout regression, production build and production smoke checks passed (234 assets loaded; portrait/landscape phone controls retained).
+
+## Current public release: enabled checkout and latest gameplay fixes
+
+Deployed the tested game as RUN 1.1.5 on 2026-10-10, including the first-house guide, straight street geometry, shield-bubble removal and updated thumbnail. RUN approved the submission; Private, Review and Public tags now point to 1.1.5 with server config `t4GsIPaBxHExRrkvwmn4`. The full-game item is active at 100 RUN Bits, unique and non-consumable, granting one permanent `hide-and-shriek-full-game` entitlement.
 
 Price verification: RUN's live currency-store display lists 200 Bits for USD 1.99, 500 for USD 4.99 and 1,000 for USD 9.99. Therefore 100 Bits is approximately USD 1 at the smaller bundles' rate, not a separate USD 1 cash checkout. The smallest currently displayed top-up is 200 Bits. No currency bundle or full-game purchase was made while checking these prices.
 
 Verification: TypeScript, production build, 28 isolated tests, all 17 bug-audit regressions, opening-guide/streets, combat/rescue/store, landing, presentation, boss cycles, Epic costumes/special defenses, pickup radius and production smoke (234 loaded artwork assets) passed. New `test:run-purchase` verifies the hosted active catalogue, permanent entitlement/price mapping, enabled desktop/phone CTA, restore and a client-only cancelled purchase; it blocks real order writes. Real paid settlement is not claimed by these checks.
 
-The release is prepared on `feature/maple-falls-live-checkout` for integration into `main`; GitHub records the final PR/merge state. This section supersedes the historical inactive-checkout and local-only statuses below.
+Merged into `main` through [PR #8](https://github.com/rumcan/TrickOrTreat/pull/8), merge commit `c354c34df7e045f090acac0e360dc810b6756ab1`; local main was fast-forwarded to match. The public hosted purchase check passed against config `t4GsIPaBxHExRrkvwmn4`: active listing and correct price/permanent entitlement, enabled responsive purchase CTA, restore and client-only cancellation, with no actual order or debit. This section supersedes the historical inactive-checkout and local-only statuses below.
 
 ## Previous thumbnail-only update
 

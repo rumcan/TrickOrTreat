@@ -5,9 +5,9 @@ const img = (p: string) => `${base}images/${p}`;
 export const ART = {
   keyart: img('splash.webp'),
   keyartPortrait: img('splash_portrait.webp'),
-  logo: img('newlogo.png?v=2'),
-  logoSm: img('newlogo.png?v=2'),
-  kitLogo: img('newlogo.png?v=2'),
+  logo: img('newlogo.webp?v=3'),
+  logoSm: img('newlogo_sm.webp?v=3'),
+  kitLogo: img('newlogo_sm.webp?v=3'),
   pause: img('ui/pause_art.webp'),
   infoPumpkin: img('ui/info_pumpkin.webp'),
   skillPumpkin: img('ui/skill_pumpkin.webp'),
@@ -30,10 +30,11 @@ export const BANNER_ART: Record<BannerKind, string> = {
 
 /** Decode every UI image up front so plates and portraits never pop in mid-game. */
 export function preloadUiArt() {
-  const all = [...Object.values(ART), ...PORTRAITS, ...FACES, ...Object.values(BANNER_ART)];
+  const all = [...new Set([...Object.values(ART), ...PORTRAITS, ...FACES, ...Object.values(BANNER_ART)])];
   return Promise.all(
     all.map((src) => {
       const im = new Image();
+      im.fetchPriority = src === ART.logo ? 'high' : 'low';
       im.src = src;
       return im.decode().catch(() => undefined);
     })

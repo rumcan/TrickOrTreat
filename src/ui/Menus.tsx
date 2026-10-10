@@ -15,6 +15,7 @@ import { ExpansionUnlock } from './ExpansionUnlock';
 import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 import { SplashArt } from './SplashArt';
+import { LeaderboardDrawer } from './LeaderboardDrawer';
 
 const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
@@ -48,6 +49,7 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
+      <LeaderboardDrawer />
       <div className="relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 pt-[150px] sm:p-8 sm:pt-12 lg:pt-12">
         <header aria-label="Game header" className="flex flex-col items-center gap-2">
           {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
@@ -469,6 +471,12 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
 // ================= END =================
 export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { game: Game; onAgain: () => void; onTitle: () => void; onTalents: () => void; onContinue: () => void }) {
   const [panel, setPanel] = useState<'talents' | 'summary'>('summary');
+  const [recordMessage, setRecordMessage] = useState('');
+  useEffect(() => {
+    let active = true;
+    void game.recordUpload?.then(message => { if (active) setRecordMessage(message); });
+    return () => { active = false; };
+  }, [game, game.recordUpload]);
   const [tally, setTally] = useState(0);
   useEffect(() => {
     let frame = 0; const began = performance.now();
@@ -492,6 +500,7 @@ export function EndScreen({ game, onAgain, onTitle, onTalents, onContinue }: { g
           <dl className="mt-4 space-y-1 border-t border-white/10 pt-3 text-sm">{[['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses], ...(game.wave ? [[`Endless waves (${game.wave})`, game.essence.waves]] : [])].map(([label, amount]) => <div key={label} className="flex justify-between"><dt>{label}</dt><dd>+{amount} essence</dd></div>)}</dl>
           <div className="mt-4 flex items-center justify-center gap-2 font-cond text-3xl text-[#b98aff]" aria-label={`Earned ${game.soulEarned} essence`}>+{tally} <CandyIcon size={26} /> <span className="font-cond2 text-sm font-bold uppercase tracking-[0.18em] text-[#9aa0a6]">essence earned</span></div>
           <p className="mt-2 text-center text-sm text-[#f2e6c9]">Total balance: {game.save.soul} essence (Soul Candy). Spend it on permanent talents.</p>
+          {recordMessage && <p role="status" className="mt-2 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
           <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {win && !game.victorious && <KitButton icon={Play} fillIcon onClick={onContinue} className="sm:col-span-2">Endless night</KitButton>}
             <KitButton variant={win ? 'teal' : 'orange'} icon={RotateCw} onClick={() => setPanel('talents')}>Spend essence on talents</KitButton>

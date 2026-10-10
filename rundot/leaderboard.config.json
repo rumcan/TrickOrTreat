@@ -1,0 +1,15 @@
+{
+  "requiresToken": false,
+  "scoreOrder": "highest",
+  "minScore": 10,
+  "maxScore": 86400,
+  "minDurationSec": 10,
+  "maxDurationSec": 86400,
+  "modes": {
+    "survival": { "displayName": "Neighbourhood survival" },
+    "rescue": { "displayName": "Rescue campaign" }
+  },
+  "periods": { "alltime": { "displayName": "All time", "type": "alltime" } },
+  "antiCheat": { "enableRateLimit": true, "minTimeBetweenSubmissionsSec": 60, "enableZScoreDetection": false },
+  "displaySettings": { "maxEntriesPerPage": 20 }
+}

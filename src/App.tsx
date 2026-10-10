@@ -17,6 +17,8 @@ import { gameAudio } from './game/audio';
 import { expansion, hasFullGame } from './game/expansion';
 import { HERO_INFO } from './game/data';
 import { SplashArt } from './ui/SplashArt';
+import { TouchControls, useTouchMode } from './ui/TouchControls';
+import { VendingMachine } from './ui/VendingMachine';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
@@ -26,6 +28,7 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
   const [snap, setSnap] = useState<HudSnap | null>(null);
   const [runId, setRunId] = useState(0);
   const [, setTick] = useState(0);
+  const touchMode = useTouchMode();
   useEffect(() => { radio.setScene(snap?.state === 'intro' ? 'story' : snap?.state === 'dead' || snap?.state === 'victory' ? 'results' : 'race'); }, [snap?.state]);
 
   useEffect(() => {
@@ -43,6 +46,7 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
       last = t;
       game.update(dt);
       const playing = ['play', 'intro', 'downed'].includes(game.state);
+      if (!playing) input.clearTouch();
       if (playing || !frozen || cv.clientWidth !== cw || cv.clientHeight !== ch) {
         renderer.render(game, playing ? dt : 0.0001);
         frozen = !playing;
@@ -74,13 +78,15 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
   const restart = useCallback(() => setRunId((n) => n + 1), []);
 
   return (
-    <div className="ingame absolute inset-0 cursor-none bg-black">
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+    <div className={`ingame absolute inset-0 cursor-none bg-black ${touchMode ? 'touch-game' : ''}`}>
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full game-canvas" onPointerDown={event => { if (event.pointerType === 'touch') event.preventDefault(); }} />
       {g && snap && <Hud s={snap} game={g} />}
-      {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 text-xs text-[#9aa0a6] cursor-auto" onClick={() => { g.introTime = 18; }}>Space / Enter · skip intro</button></div></div>}
+      {touchMode && g && snap && <TouchControls key={runId} game={g} s={snap} />}
+      {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 min-h-11 text-sm text-white cursor-auto" onClick={() => { g.introTime = 18; }}>{touchMode ? 'Skip intro' : 'Space / Enter · skip intro'}</button></div></div>}
       {g && snap?.state === 'levelup' && <div className="cursor-auto"><LevelUp game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /></div>}
+      {g && snap?.state === 'vending' && <div className="cursor-auto"><VendingMachine game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'pause' && (
         <div className="cursor-auto">
           <Pause game={g} onResume={() => { g.state = 'play'; refresh(); }} onRestart={restart} onQuit={() => { g.endRun(false); refresh(); }} />
@@ -134,7 +140,7 @@ export default function App() {
 
   if (screen === 'loading') {
     return (
-      <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
+      <div className="game-shell relative flex w-screen flex-col items-center justify-center overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
         <SplashArt className="opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0f13] via-[#0e0f13]/50 to-[#0e0f13]/80" />
         <div className="relative flex flex-col items-center px-6">
@@ -149,7 +155,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#0e0f13]">
+    <div className="game-shell relative w-screen overflow-hidden bg-[#0e0f13]">
       {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
       {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}

@@ -13,6 +13,7 @@ import { Banner, Keycap } from './kit';
 import { FACES, HERO_COLORS, BannerKind } from './art';
 import RadioPill from './RadioPill';
 import { TAG_DEFS, TAG_ORDER } from '../game/build';
+import { buttonPress } from './button-press';
 
 const BANNER_KIND: Record<string, BannerKind> = { info: 'tot', danger: 'died', loot: 'weapon', win: 'mission' };
 const pct = (v: number, m: number) => `${Math.max(0, Math.min(1, v / Math.max(1, m))) * 100}%`;
@@ -94,9 +95,9 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
         </div>
         <div className="hidden xl:block"><RadioPill compact /></div>
         <div className="flex gap-1.5 pl-2">
-          <button className="hm-iconbtn hm-desk" title="Your run build (I)" aria-label="Your run build" onClick={() => game.state === 'play' && (game.state = 'inventory')}><Backpack size={16} /></button>
-          <button className={`hm-iconbtn hm-desk ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" onClick={() => (game.bigMap = !game.bigMap)}><MapIcon size={16} /></button>
-          <button className="hm-iconbtn" title="Pause (Esc)" aria-label="Pause" onClick={() => game.state === 'play' && (game.state = 'pause')}><PauseIcon size={16} /></button>
+          <button className="hm-iconbtn hm-desk hm-mobile-access" title="Your run build (I)" aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
+          <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
+          <button className="hm-iconbtn" title="Pause (Esc)" aria-label="Pause" {...buttonPress(() => { if (game.state === 'play') game.state = 'pause'; })}><PauseIcon size={16} /></button>
           <button className="hm-iconbtn hm-desk" title="Fullscreen" aria-label="Fullscreen" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => undefined)}><Maximize size={15} /></button>
         </div>
       </div>
@@ -149,13 +150,13 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
 }
 
 // ───────────────────────── bottom tab strip + drawer ─────────────────────────
-function Tabs({ s, hero }: { s: HudSnap; hero: number }) {
+function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
   const skillReady = s.skillCd <= 0;
   return (
     <nav className="hm-tabs" aria-label="Weapons and abilities">
       {s.weapons.map((ws, i) =>
         ws ? (
-          <div key={i} className={`hm-tab ${i === s.cur ? 'active' : ''}`} style={{ boxShadow: `inset 0 -3px 0 ${RARITY_KIT[ws.w.rarity]}` }}>
+          <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} aria-pressed={i === s.cur} {...buttonPress(() => game.input.tap(String(i + 1)))} className={`hm-tab ${i === s.cur ? 'active' : ''}`} style={{ boxShadow: `inset 0 -3px 0 ${RARITY_KIT[ws.w.rarity]}` }}>
             <Keycap className="hm-key">{String(i + 1)}</Keycap>
             <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
             <span className="hidden min-w-0 flex-col leading-none md:flex">
@@ -164,12 +165,12 @@ function Tabs({ s, hero }: { s: HudSnap; hero: number }) {
             </span>
             <span className="hm-tab-sub md:hidden">{ws.w.reloadT > 0 ? 'R…' : ws.w.ammo}</span>
             {ws.w.reloadT > 0 && <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[#e8700f]" style={{ transform: `scaleX(${1 - ws.w.reloadT / ws.st.reload})` }} />}
-          </div>
+          </button>
         ) : (
-          <div key={i} className="hm-tab empty"><Keycap className="hm-key">{String(i + 1)}</Keycap><span className="hm-tab-sub">Empty</span></div>
+          <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} disabled className="hm-tab empty"><Keycap className="hm-key">{String(i + 1)}</Keycap><span className="hm-tab-sub">Empty</span></button>
         )
       )}
-      <div className={`hm-tab ${skillReady ? 'ready' : ''}`}>
+      <button type="button" className={`hm-tab hm-tab-ability ${skillReady ? 'ready' : ''}`} aria-label="Hero skill" disabled={!skillReady} {...buttonPress(() => game.input.tap('f'))}>
         <Keycap className="hm-key">F</Keycap>
         <SkillIcon hero={hero} size={26} />
         <span className="hidden flex-col leading-none md:flex">
@@ -177,14 +178,14 @@ function Tabs({ s, hero }: { s: HudSnap; hero: number }) {
           <span className="hm-tab-sub">{skillReady ? <span className="text-[#8fdc7a]">Ready</span> : `${s.skillCd.toFixed(1)}s`}</span>
         </span>
         {!skillReady && <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[#5f6470]" style={{ transform: `scaleX(${1 - s.skillCd / s.skillMax})` }} />}
-      </div>
-      <div className="hm-tab">
+      </button>
+      <button type="button" className="hm-tab hm-tab-ability" aria-label="Dash ability" disabled={s.dashCharges <= 0 && !s.tot} {...buttonPress(() => game.input.tap(' '))}>
         <Keycap className="hm-key">Spc</Keycap>
         <Wind size={20} className="text-[#28aed5]" strokeWidth={2.4} />
         <span className="flex gap-1">
           {Array.from({ length: s.dashMax }).map((_, i) => <span key={i} className="h-2 w-3" style={{ background: i < s.dashCharges ? '#28aed5' : '#2a3437' }} />)}
         </span>
-      </div>
+      </button>
     </nav>
   );
 }
@@ -274,12 +275,12 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
       {/* bottom: drawer over the tab strip */}
       <div className="hm-dock">
         <Drawer s={s} />
-        <Tabs s={s} hero={hero} />
+        <Tabs s={s} hero={hero} game={game} />
       </div>
 
       {/* nearby gun / costume: comparison on the right, the E slip under it */}
       {s.interact && !s.turret && (s.nearbyWeapon || s.nearbyCostume) && (
-        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[96px] left-1/2 -translate-x-1/2 items-center sm:bottom-[104px]'}`}>
+        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`hm-nearby absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[96px] left-1/2 -translate-x-1/2 items-center sm:bottom-[104px]'}`}>
           {s.nearbyCostume && (
             <div className="hidden items-end gap-2 md:flex">
               {s.costume && <div className="opacity-70"><CostumeCard id={s.costume} hero={hero} title="Wearing" /></div>}

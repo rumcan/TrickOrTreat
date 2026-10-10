@@ -9,6 +9,14 @@ const logoMetadata = await sharp('public/images/newlogo.png').metadata();
 const logoStats = await sharp('public/images/newlogo.png').stats();
 assert.equal(logoMetadata.hasAlpha, true);
 assert.equal(logoStats.channels.at(-1).min, 0, 'The replacement logo must preserve transparent pixels');
+for (const [file, width] of [['newlogo.webp', 1240], ['newlogo_sm.webp', 640]]) {
+  const optimized = await sharp(`public/images/${file}`).metadata();
+  assert.equal(optimized.width, width);
+  assert.equal(optimized.hasAlpha, true);
+  assert.ok(Math.abs(optimized.width / optimized.height - logoMetadata.width / logoMetadata.height) < .005, 'Preserve logo proportions');
+  assert.equal((await sharp(`public/images/${file}`).stats()).channels.at(-1).min, 0);
+  assert.ok((await fs.stat(`public/images/${file}`)).size < (await fs.stat('art/new/newlogo.png')).size * .2, 'Logo should be at least 80% smaller');
+}
 const expectedThumb = await sharp(poster).resize(512, 512).jpeg({ quality: 92 }).toBuffer();
 assert.deepEqual(await fs.readFile('public/thumbnail.jpg'), expectedThumb);
 const thumb = await sharp('public/thumbnail.jpg').metadata();
@@ -27,7 +35,8 @@ try {
     await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
     const logo = page.getByRole('img', { name: 'Trick or Treat — Maple Falls' });
     await logo.evaluate(img => img.decode());
-    assert.ok(await logo.evaluate(img => img.naturalWidth > 0 && new URL(img.src).pathname.endsWith('/images/newlogo.png')));
+    assert.ok(await logo.evaluate(img => img.naturalWidth > 0 && new URL(img.src).pathname.endsWith('/images/newlogo.webp')));
+    await page.waitForFunction(() => document.querySelector('img[alt="Trick or Treat — Maple Falls"]').style.opacity === '1');
     const splash = page.getByTestId('splash-art');
     await splash.evaluate(async img => { await img.decode(); });
     assert.equal(await splash.evaluate(img => new URL(img.currentSrc).pathname.split('/').at(-1)), file);
