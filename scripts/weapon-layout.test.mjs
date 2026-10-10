@@ -84,6 +84,16 @@ try {
         const hand = sheet.hands[direction][g.p.moving ? 1 + direction % AIM.walk : 0], gun = heldCalls.find(c => c.order === 'gun');
         if (!gun || Math.abs(gun.m.e - (100 + hand[0])) > .001 || Math.abs(gun.m.f - (150 + hand[1])) > .001) throw new Error(`${key}: gun is not gripped at the hands`);
         if (heldCalls.map(c => c.order).join(',') !== (direction >= 5 ? 'gun,kid' : 'kid,gun,kid')) throw new Error(`${key} dir ${direction}: unexpected layers ${heldCalls.map(c => c.order).join(',')}`);
+        // Behind-scenery visibility must never redraw the old hanging-arm body.
+        const tintFrame = renderer.tintedAimFrame.bind(renderer);
+        let silhouette = null;
+        renderer.tintedAimFrame = (look, dir, col, color) => {
+          silhouette = { src: look.img.src, dir, col, color };
+          return tintFrame(look, dir, col, color);
+        };
+        try { renderer.drawOcclusionSilhouette(g, 100, 150); }
+        finally { renderer.tintedAimFrame = tintFrame; }
+        if (!silhouette || silhouette.src !== sheet.img.src || silhouette.dir !== direction || silhouette.col !== (g.p.moving ? 1 + direction % AIM.walk : 0) || silhouette.color !== '#7fd8ff') throw new Error(`${key}: occlusion silhouette does not match the current aiming pose`);
         aimed++;
       }
     }

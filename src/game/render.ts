@@ -684,7 +684,7 @@ export class Renderer {
     if (occluded) {
       const sx = isoX(p.x, p.y), sy = isoY(p.x, p.y);
       ctx.globalAlpha = 0.55;
-      this.drawHeroFrame(this.heroSil, g, sx, sy);
+      this.drawOcclusionSilhouette(g, sx, sy);
       ctx.globalAlpha = 1;
     }
 
@@ -1121,6 +1121,14 @@ export class Renderer {
     if (p.flip) ctx.scale(-1, 1);
     blitFrame(ctx, this.hero, img, row, Math.floor(p.anim), 0, 0);
     ctx.restore();
+  }
+
+  /** Visibility behind scenery must match the same pose used for the visible kid. */
+  private drawOcclusionSilhouette(g: Game, sx: number, sy: number) {
+    const aim = heroAim(g.p.costume ? `${HEROES[this.heroIdx].id}_${g.p.costume}` : HEROES[this.heroIdx].id);
+    if (aim) {
+      this.drawAimKid(aim, sx, sy, this.aimDir, g.p.moving, g.p.anim, null, 0, false, '#7fd8ff');
+    } else this.drawHeroFrame(this.heroSil, g, sx, sy);
   }
 
   /** one frame of an aiming sheet tinted flat (hurt flash, dash afterimage) without keeping tinted copies of the sheet */
