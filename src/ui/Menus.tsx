@@ -112,6 +112,7 @@ function HowToModal({ onClose }: { onClose: () => void }) {
         <ControlsPanel />
         <div className="kit-panel px-4 py-3 font-ui text-[14px] leading-relaxed text-[#e6dcc4]">
           Ring doorbells for candy and treats, but you're stuck on the porch while you wait, and the doorbell draws the horde. Wear a costume for better treats.
+          Costumes are rare Epic drops, never starting gear. After wave 10, some enemies gain elemental immunities or defensive wards. Mix damage types; aim directly against ricochet wards and use piercing 2+ against sealed shells. Ordinary mobs remain plentiful.
           New streets open every minute. The <span className="text-[#fb8016]">Pumpkin King</span> rises at 05:00.
         </div>
         <div className="flex justify-end"><KitButton variant="cream" onClick={onClose}>Got it</KitButton></div>
@@ -318,6 +319,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const pickGun = (i: number) => { game.chooseGun(i); force((n) => n + 1); onDone(); };
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
+      if (e.repeat || game.state !== 'levelup') return;
       const i = ['1', '2', '3', '4', '5', '6'].indexOf(e.key);
       if (i < 0) return;
       if (game.choices[i]) pick(game.choices[i].id);

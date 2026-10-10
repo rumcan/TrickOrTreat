@@ -2,6 +2,36 @@
 
 Checked 2026-10-10. This audit combines the previous completed expansion with the latest artwork, UI, balance, rescue and purchase requests. Later explicit enemy-scaling and premium-skill requests supersede the earlier XP-only balancing restriction.
 
+## Latest request: costumes and late-wave counters
+
+Published publicly on RUN as version 1.1.3 on 2026-10-10. RUN review completed and the Public tag now points to 1.1.3. Source integration follows the user's subsequent merge request: the verified update is prepared on `feature/public-release-1.1.3` for a release PR targeting `main`; GitHub records the authoritative merge state.
+
+| Requested work | Result | Verification |
+| --- | --- | --- |
+| No costumes equipped at the start | Complete for all five kids, both modes and existing Costume Master saves; no guaranteed starter costume pickup | Ten browser start cases |
+| Rare costume drops with Epic abilities | Complete: all ten costumes are Epic; approximately 1.14% base bag chance and 2.5% house/elite/special chance; ordinary kills do not drop costumes | Loot-weight tests, rarity checks and actual Witch, Skeleton and Vampire powers |
+| Increasing special defenses after wave 10 | Complete: elemental immunities from wave 11, armor/ricochet wards from 13, strong-piercing-only shells from 15; special frequency grows from 12% to a 40% cap | Pure spawn/defense tests and real bullet, beam, explosion, burn and death-spread tests |
+| Subtle explanations above resistant creatures | Complete: short, muted 10px hit reasons, throttled per creature, maximum eight on screen | Bounded-feedback assertion and screenshot review |
+| Light-blue shield line above health, destroyed first | Complete for shielded enemies and boss HUD; status markers moved below HP to keep the shield line clear; existing shield-first damage preserved | Canvas geometry/color checks, boss HUD layout and shield-only/overflow browser assertions |
+| Nerf automatic pickup radius | Complete: base radius reduced from 1.7 to 1.0 world units (41% smaller); pickup-range upgrades remain unchanged | Browser boundary tests for XP, coins and healing, fresh-drop delay, manual-item exclusions and stacked treat/talent bonuses |
+| Keep ordinary hordes easy while specials demand better builds | Complete: ordinary mobs remain the majority; late ordinary HP grows 6% per wave versus 18% for specials/elites/bosses, with reduced crowd baseline; early scaling and 12% damage growth unchanged | HP-split, wave-transition and boss-cycle checks |
+
+The old Costume Master capstone now improves costume discovery and worn skill power rather than equipping one at spawn. Epic purple ground glows and rarity badges communicate the new reward tier. The post-wave-10 split supersedes the earlier uniform HP growth recorded below.
+
+Latest verification: TypeScript, 24 isolated tests, all 17 reproduced bug-audit cases, costume-specials gameplay, pickup bounds, progression-game, combat/rescue/store, boss-cycle, outstanding UI, expansion, encounters and media regressions, production build and production browser smoke test. Historical release checks below describe the earlier private 1.1.2 build.
+
+## Detailed bug review and public-release request
+
+The [bug audit](BUG_AUDIT.md) records all 17 reproduced and corrected cases, including health-swap exploits, companion upgrade/element handling, stale death/shop transitions, projectile tunnelling, duplicate rewards and excessive-drop pickup bypasses. All targeted regressions pass. The production build loads all 234 active artwork assets and excludes developer Collection/access-preview controls.
+
+RUN deployment succeeded for version 1.1.3 with unchanged server config h3QTycdrvZA6xrhxsh7s. The public-release request initially entered Review; approval subsequently completed and the release tags confirm Public version 1.1.3.
+
+Public game: https://run.world/catalog/game/AFjPSjQH9kbcCl57sgO3. Paid checkout remains inactive pending price confirmation.
+
+Hosted review and public verification both passed in fresh signed-out browsers: the deployed game module is SHA-256 identical to the audited build, all 234 artwork assets load, free gameplay, purchase catalogue and inventory work, and developer controls are absent. Public verification uses no share key or authenticated account. Before approval, the unkeyed catalogue returned "Game Not Found"; the first check immediately after approval exceeded the two-minute startup budget, then a retry with asset-loading diagnostics passed. The reusable hosted check is `npm run test:public-release` (defaults to the unkeyed public URL and allows four minutes for a cold first load).
+
+## Previously completed expansion and release
+
 | Requested work | Result | Verification |
 | --- | --- | --- |
 | Install dependencies and run the project | Complete; dependencies installed and Vite available at http://127.0.0.1:5173/ | TypeScript, build and browser suites run successfully |

@@ -11,7 +11,7 @@ export interface Stats {
   vamp: number; healDrop: number; skillCd: number; skillPow: number;
   orbit: number; familiar: number; dashCharges: number; dashFire: number;
   luck: number; revive: number; rerolls: number; coinGain: number; xpGain: number; startCoins: number; startRarity: number;
-  totSpeed: number; totChoices: number; startCostume: number; dodge: number;
+  totSpeed: number; totChoices: number; costumeLuck: number; costumePower: number; dodge: number;
   companionDmg: number; reviveSpeed: number; companionArmor: number;
   /** occult-scroll style treats (Gunfire Reborn): conditional, run-wide */
   sixth: number; fullBag: number; skate: number; statue: number; bluff: number; execute: number; owl: number;
@@ -26,7 +26,7 @@ export function baseStats(): Stats {
     vamp: 0, healDrop: 0.01, skillCd: 1, skillPow: 1,
     orbit: 0, familiar: 0, dashCharges: 2, dashFire: 0,
     luck: 0, revive: 0, rerolls: 1, coinGain: 1, xpGain: 1, startCoins: 0, startRarity: 0,
-    totSpeed: 1, totChoices: 0, startCostume: 0, dodge: 0,
+    totSpeed: 1, totChoices: 0, costumeLuck: 1, costumePower: 1, dodge: 0,
     companionDmg: 1, reviveSpeed: 1, companionArmor: 0,
     sixth: 0, fullBag: 0, skate: 0, statue: 0, bluff: 0, execute: 0, owl: 0,
   };
@@ -319,7 +319,7 @@ export const TALENTS: Talent[] = [
   { id: 'recover', branch: 1, x: 640, y: 240, req: ['thick'], name: 'Quick Recovery', icon: '💨', max: 3, cost: (l) => 25 + l * 20, desc: 'Shield recharges 15% sooner per rank', apply: (s, l) => (s.shieldDelay *= 1 - 0.15 * l) },
   { id: 'hardhat', branch: 1, x: 785, y: 195, req: ['pads', 'recover'], name: 'Hard Hat', icon: '⛑️', max: 3, cost: (l) => 40 + l * 25, desc: 'Take 5% less damage per rank', apply: (s, l) => (s.armor = 1 - (1 - s.armor) * (1 - 0.05 * l)) },
   { id: 'second', branch: 1, x: 580, y: 130, req: ['recover'], name: 'Second Wind', icon: '❤️‍🔥', max: 1, cost: () => 150, desc: 'Revive once per run with 50% HP', apply: (s, l) => (s.revive += l) },
-  { id: 'master', branch: 1, x: 750, y: 70, req: ['hardhat', 'second'], capstone: true, name: 'Costume Master', icon: '🎭', max: 1, cost: () => 240, desc: 'CAPSTONE · Start every run wearing a random costume', apply: (s, l) => (s.startCostume += l) },
+  { id: 'master', branch: 1, x: 750, y: 70, req: ['hardhat', 'second'], capstone: true, name: 'Costume Master', icon: '🎭', max: 1, cost: () => 240, desc: 'CAPSTONE · +50% costume find chance; +20% skill power while wearing a costume', apply: (s, l) => { s.costumeLuck *= 1 + l * 0.5; s.costumePower *= 1 + l * 0.2; } },
   // ---- Street Smarts (bottom) ----
   { id: 'shoes', branch: 2, x: 500, y: 570, req: [], name: 'New Sneakers', icon: '👟', max: 3, cost: (l) => 20 + l * 15, desc: '+4% move speed per rank', apply: (s, l) => (s.move *= 1 + 0.04 * l) },
   { id: 'pockets', branch: 2, x: 370, y: 625, req: ['shoes'], name: 'Deep Pockets', icon: '👖', max: 3, cost: (l) => 20 + l * 15, desc: '+15% pickup radius per rank', apply: (s, l) => (s.magnet *= 1 + 0.15 * l) },
@@ -347,20 +347,20 @@ export function talentUnlocked(t: Talent, ranks: Record<string, number>) {
 }
 
 // ================= COSTUMES =================
-export interface CostumeDef { id: string; name: string; icon: string; color: string; power: string; perks: string; line: string; premium?: boolean; apply: (s: Stats) => void }
+export interface CostumeDef { id: string; name: string; icon: string; color: string; power: string; perks: string; line: string; rarity: 3; premium?: boolean; apply: (s: Stats) => void }
 export const COSTUMES: CostumeDef[] = [
-  { id: 'ghost', name: 'Bedsheet Ghost', icon: '👻', color: '#dfe8ff', power: 'Phase: walk through garden fences, hedges & graves (not district locks)', perks: '+15% chance to dodge hits', line: 'Eek! A real ghost?!', apply: (s) => (s.dodge += 0.15) },
-  { id: 'vampire', name: 'Vampire', icon: '🧛', color: '#e0304a', power: 'Bloodsucker: every kill heals 1 HP', perks: '+30% crit damage', line: "A vampire! Please don't bite me!", apply: (s) => (s.critDmg += 0.3) },
-  { id: 'witch', name: 'Little Witch', icon: '🧙', color: '#b44dff', power: 'Hex Bolts: auto-casts a homing hex every 1.2s', perks: '+25% skill power', line: 'What a wicked little witch!', apply: (s) => (s.skillPow *= 1.25) },
-  { id: 'hero', name: 'Super Kid', icon: '🦸', color: '#4f8aff', power: 'Cape Dash: dashing through monsters damages & knocks them away', perks: '+1 dash, +12% move speed', line: 'Our hero! Here to save Halloween?', apply: (s) => { s.dashCharges += 1; s.move *= 1.12; } },
-  { id: 'skeleton', name: 'Skeleton Suit', icon: '💀', color: '#e8e2d0', power: 'Bone Rattle: critical hits splinter into 2 bone shards', perks: '+10% crit chance', line: 'Spooky scary skeleton!', apply: (s) => (s.crit += 0.1) },
-  { id: 'pumpkin', name: 'Pumpkin Head', icon: '🎃', color: '#ff8a1e', power: 'Hot Head: getting hit releases a fire nova (3s cooldown)', perks: '+20% Burn chance', line: 'Ha! A walking jack-o-lantern!', apply: (s) => (s.burn += 0.2) },
-  { id: 'astronaut', name: 'Space Cadet', icon: '🧑‍🚀', color: '#cfe6ff', power: 'Force Field: shield recharges twice as fast and sooner', perks: '+60 max shield', line: 'One small step for candy-kind!', apply: (s) => { s.maxShield += 60; s.shieldDelay *= 0.5; } },
-  { id: 'dino', name: 'T-Rex Hoodie', icon: '🦖', color: '#5fd84a', power: 'Stomp: every 4s a shockwave stuns & hurts nearby monsters', perks: '+40 max HP', line: 'RAWR! A dinosaur at my door!', apply: (s) => (s.maxHp += 40) },
+  { id: 'ghost', rarity: 3, name: 'Bedsheet Ghost', icon: '👻', color: '#dfe8ff', power: 'Epic Phase: pass garden fences, hedges & graves; district locks stay solid', perks: '+35% dodge, +1 dash, +15% movement', line: 'Eek! A real ghost?!', apply: (s) => { s.dodge += 0.35; s.dashCharges++; s.move *= 1.15; } },
+  { id: 'vampire', rarity: 3, name: 'Vampire', icon: '🧛', color: '#e0304a', power: 'Blood Feast: every kill heals 4 HP and restores 3 shield', perks: '+75% crit damage, +15% damage', line: "A vampire! Please don't bite me!", apply: (s) => { s.critDmg += 0.75; s.dmg *= 1.15; } },
+  { id: 'witch', rarity: 3, name: 'Little Witch', icon: '🧙', color: '#b44dff', power: 'Hex Storm: three powerful homing, piercing hexes every 0.9s', perks: '+60% skill power', line: 'What a wicked little witch!', apply: (s) => (s.skillPow *= 1.6) },
+  { id: 'hero', rarity: 3, name: 'Super Kid', icon: '🦸', color: '#4f8aff', power: 'Meteor Dash: smash through monsters for 120 base damage with knockback', perks: '+2 dashes, +25% movement, +20% damage', line: 'Our hero! Here to save Halloween?', apply: (s) => { s.dashCharges += 2; s.move *= 1.25; s.dmg *= 1.2; } },
+  { id: 'skeleton', rarity: 3, name: 'Skeleton Suit', icon: '💀', color: '#e8e2d0', power: 'Bone Barrage: crits launch four piercing shards (0.15s cooldown)', perks: '+20% crit chance, +50% crit damage', line: 'Spooky scary skeleton!', apply: (s) => { s.crit += 0.2; s.critDmg += 0.5; } },
+  { id: 'pumpkin', rarity: 3, name: 'Pumpkin Head', icon: '🎃', color: '#ff8a1e', power: 'Inferno Crown: taking a hit releases a huge fire nova (2s cooldown)', perks: '+50% burn chance, +50% burn damage', line: 'Ha! A walking jack-o-lantern!', apply: (s) => { s.burn += 0.5; s.burnDmg *= 1.5; } },
+  { id: 'astronaut', rarity: 3, name: 'Space Cadet', icon: '🧑‍🚀', color: '#cfe6ff', power: 'Orbital Field: double shield recharge, 75% shorter recharge delay', perks: '+150 shield, 15% damage reduction', line: 'One small step for candy-kind!', apply: (s) => { s.maxShield += 150; s.shieldDelay *= 0.25; s.armor = 1 - (1 - s.armor) * 0.85; } },
+  { id: 'dino', rarity: 3, name: 'T-Rex Hoodie', icon: '🦖', color: '#5fd84a', power: 'Jurassic Stomp: wide 150-damage shockwave and stun every 2.5s', perks: '+100 HP, +20% damage', line: 'RAWR! A dinosaur at my door!', apply: (s) => { s.maxHp += 100; s.dmg *= 1.2; } },
 ];
 COSTUMES.push(
-  { id: 'knight', premium: true, name: 'Cardboard Knight', icon: '🛡️', color: '#d0ac76', power: 'Guard: 20% damage reduction', perks: '+50 max shield', line: 'A brave knight at my door!', apply: (s) => { s.maxShield += 50; s.armor = 1 - (1 - s.armor) * 0.8; } },
-  { id: 'moth', premium: true, name: 'Moon Moth', icon: '🦋', color: '#b7adce', power: 'Moon Wings: +1 dash and +20% dodge', perks: '+15% movement speed', line: 'Follow the porchlight, little moth!', apply: (s) => { s.dashCharges += 1; s.dodge += 0.2; s.move *= 1.15; } },
+  { id: 'knight', rarity: 3, premium: true, name: 'Cardboard Knight', icon: '🛡️', color: '#d0ac76', power: 'Royal Guard: 40% damage reduction and one orbiting blade', perks: '+120 shield, +35% companion damage', line: 'A brave knight at my door!', apply: (s) => { s.maxShield += 120; s.armor = 1 - (1 - s.armor) * 0.6; s.orbit++; s.companionDmg *= 1.35; } },
+  { id: 'moth', rarity: 3, premium: true, name: 'Moon Moth', icon: '🦋', color: '#b7adce', power: 'Lunar Wings: two extra dashes and 40% dodge', perks: '+30% movement, +40% skill power', line: 'Follow the porchlight, little moth!', apply: (s) => { s.dashCharges += 2; s.dodge += 0.4; s.move *= 1.3; s.skillPow *= 1.4; } },
 );
 export const COSTUME_BY_ID = Object.fromEntries(COSTUMES.map((c) => [c.id, c])) as Record<string, CostumeDef>;
 export const HOMEOWNERS = ['Mrs. Henderson', 'Mr. Kowalski', 'Old Man Jenkins', 'The Nguyens', 'Ms. Petrova', 'Grandma Rose', 'Coach Miller', 'Dr. Alvarez', 'The Johnsons', 'Mrs. Okafor', 'Mr. Bellamy', 'Aunt Dottie'];

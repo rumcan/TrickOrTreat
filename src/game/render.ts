@@ -9,6 +9,7 @@ import { G } from './art/tiles';
 import { Img } from './assets';
 import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
+import { AFFIX_INFO } from './enemy-affixes';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -344,14 +345,15 @@ export class Renderer {
             ctx.restore();
           } else if (k.kind === 'costume' && k.costume) {
             const cd = COSTUME_BY_ID[k.costume];
+            const rarity = RARITY[cd.rarity];
             const cs = heroSheet(this.heroIdx, k.costume);
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = 0.45 + Math.sin(this.t * 3) * 0.1;
-            ctx.drawImage(glow(cd.color, 64), sx - 34, sy - 18, 68, 36);
+            ctx.drawImage(glow(rarity.color, 64), sx - 34, sy - 18, 68, 36);
             const gr = ctx.createLinearGradient(0, sy - 130, 0, sy);
             gr.addColorStop(0, 'rgba(0,0,0,0)');
-            gr.addColorStop(1, cd.color);
+            gr.addColorStop(1, rarity.color);
             ctx.globalAlpha = 0.3;
             ctx.fillStyle = gr;
             ctx.fillRect(sx - 9, sy - 130, 18, 130);
@@ -568,6 +570,10 @@ export class Renderer {
         ctx.globalAlpha = 0.65; ctx.strokeStyle = '#76ddff'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y) - 28, Math.max(20, e.r * 50), Math.max(35, e.r * 65), 0, 0, Math.PI * 2); ctx.stroke();
       }
+      if (e.affix) {
+        ctx.globalAlpha = 0.65; ctx.strokeStyle = AFFIX_INFO[e.affix].color; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y), e.r * 65 + 10, e.r * 30 + 5, 0, 0, Math.PI * 2); ctx.stroke();
+      }
     }
     ctx.globalAlpha = 1;
     // enemy bullets (bright & readable)
@@ -671,24 +677,31 @@ export class Renderer {
     for (const e of g.enemies) {
       if (e.def.boss) continue;
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
-      if (e.hp < e.maxHp || e.maxShield > 0) {
+      if (e.hp < e.maxHp || e.maxShield > 0 || e.affix) {
         const w = e.elite ? 60 : 30, h = e.elite ? 6 : 4;
         const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
         ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
         ctx.fillRect(sx - w / 2, top, (w * Math.max(0, e.hp)) / e.maxHp, h);
+        if (e.affix) {
+          ctx.font = '600 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
+          ctx.fillStyle = AFFIX_INFO[e.affix].color;
+          const labelY = top - (e.maxShield > 0 ? 29 : 13);
+          ctx.strokeText(AFFIX_INFO[e.affix].name, sx, labelY); ctx.fillText(AFFIX_INFO[e.affix].name, sx, labelY);
+        }
         if (e.maxShield > 0) {
           ctx.fillStyle = '#162d38'; ctx.fillRect(sx - w / 2, top - 7, w, 4);
-          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 7, w * e.shield / e.maxShield, 4);
+          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 7, w * clamp(e.shield / e.maxShield, 0, 1), 4);
           ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
           ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
           ctx.strokeText('LIEUTENANT', sx, top - 13); ctx.fillText('LIEUTENANT', sx, top - 13);
         }
         let ix = sx - w / 2;
-        if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, top - 6, 5, 4); ix += 7; }
-        if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, top - 6, 5, 4); ix += 7; }
-        if (e.stunT > 0) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, top - 6, 5, 4); }
+        const statusY = top + h + 3; // Leave the shield line above HP unobstructed.
+        if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
+        if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
+        if (e.stunT > 0) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 5, 4); }
       }
     }
 
@@ -827,10 +840,10 @@ export class Renderer {
       if (t.kind === 'dmg' && !settings.dmgText) continue;
       const sx = isoX(t.x, t.y), sy = isoY(t.x, t.y) - t.z * Z - 30;
       const a = Math.min(1, t.life * 3);
-      const pop = t.life > 0.65 ? 1 + (t.life - 0.65) * 3 : 1;
-      ctx.globalAlpha = a;
-      ctx.font = `${Math.round(t.size * pop * 1.08)}px Anton, Impact, sans-serif`;
-      ctx.lineWidth = 3.5;
+      const pop = t.kind === 'reason' ? 1 : t.life > 0.65 ? 1 + (t.life - 0.65) * 3 : 1;
+      ctx.globalAlpha = a * (t.kind === 'reason' ? 0.72 : 1);
+      ctx.font = t.kind === 'reason' ? '500 10px system-ui' : `${Math.round(t.size * pop * 1.08)}px Anton, Impact, sans-serif`;
+      ctx.lineWidth = t.kind === 'reason' ? 2 : 3.5;
       ctx.strokeStyle = 'rgba(0,0,0,0.85)';
       ctx.strokeText(t.text, sx, sy);
       ctx.fillStyle = t.color;
