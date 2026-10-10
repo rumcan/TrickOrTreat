@@ -23,8 +23,13 @@ try {
     assert.ok(loaded.has(`/assets/${file}`), `Production loader missed ${file}`);
   }
   assert.equal(await page.getByRole('button', { name: /Preview expansion locally/ }).count(), 0);
+  assert.equal(await page.getByRole('button', { name: 'Collection', exact: true }).count(), 0, 'No art collection in production');
   assert.equal(await page.evaluate(() => typeof window.__tot), 'undefined');
-  assert.equal(await page.getByRole('button', { name: /Unlock not available yet|Checking ownership/ }).isDisabled(), true);
+  await page.getByRole('button', { name: 'Discover the full game' }).click();
+  const showcase = page.getByRole('dialog', { name: 'HIDE & SHRIEK' });
+  await showcase.waitFor();
+  assert.equal(await showcase.getByRole('button', { name: /Purchase currently unavailable|Checking ownership/ }).isDisabled(), true);
+  await showcase.getByRole('button', { name: 'Close full game showcase' }).click();
   await page.getByRole('button', { name: 'Go trick-or-treating' }).click();
   await page.getByText('Ring doorbells', { exact: true }).waitFor();
   await page.keyboard.press('i');

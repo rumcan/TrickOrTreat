@@ -121,6 +121,15 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     addLights(sp, x0, y0);
     return p;
   };
+  // Public buildings use the same visit/channel/reward flow as porches. Reserve their entrances before decorating.
+  const addVenue = (sp: PropSprite, x0: number, y0: number, kind: string, name: string, shadow = 1) => {
+    const lightStart = lights.length;
+    const prop = addBig(sp, x0, y0, kind, shadow);
+    const door = { x: x0 + sp.fw / 2, y: y0 + sp.fh + 0.6 };
+    occupy(Math.floor(door.x), Math.floor(door.y), 1, 1);
+    houses.push({ prop, door, light: lights[lightStart] || null, visited: false, trick: false, owner: name, lightI: lights[lightStart]?.i ?? 1 });
+    return prop;
+  };
   type SmallKind = 'tree' | 'bush' | 'hedge' | 'fencex' | 'fencey' | 'grave' | 'pumpkin' | 'lamp' | 'mailbox' | 'trash' | 'hydrant' | 'vending' | 'scarecrow' | 'bench' | 'speaker' | 'sign';
   const addSmall = (sp: PropSprite, x: number, y: number, kind: SmallKind, allowHard = false, force = false) => {
     if (!force && !free(x, y, 1, 1, allowHard)) return null;
@@ -239,7 +248,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
       }
     }
     for (let i = 0; i < 12; i++) { occupy(px, by + i, 2, 1); occupy(bx + i, py, 1, 2); }
-    addBig(getCrypt(), bx + 7, by + 2, 'crypt', 1.2);
+    addVenue(getCrypt(), bx + 7, by + 2, 'crypt', 'The Old Crypt', 1.2);
     for (let y = by + 1; y < by + 11; y += 2)
       for (let x = bx + 1; x < bx + 11; x += 2) {
         if (rnd() < 0.82) addSmall(getGrave(Math.floor(rnd() * 3)), x + (rnd() < 0.5 ? 1 : 0), y, 'grave');
@@ -256,7 +265,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // NORTH — Maple Falls Elementary + football field
   {
-    addBig(getSchool(), 29, 5, 'school', 1.2);
+    addVenue(getSchool(), 29, 5, 'school', 'Maple Falls Elementary', 1.2);
     for (let y = 11; y <= 20; y++) for (let x = 26; x <= 43; x++) ground[idx(x, y)] = G.FIELD;
     addSmall(getBleachers(), 30, 10, 'hedge', false, true);
     addSmall(getBleachers(), 34, 10, 'hedge', false, true);
@@ -270,7 +279,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // EAST — the Starcade + parking lot
   {
-    addBig(getArcade(), 50, 26, 'arcade', 1);
+    addVenue(getArcade(), 50, 26, 'arcade', 'The Starcade');
     for (let y = 26; y <= 31; y++) for (let x = 56; x <= 66; x++) ground[idx(x, y)] = G.DRIVEWAY;
     addBig(getCar(1, true), 57, 27, 'car', 0.5);
     addBig(getCar(3, true), 61, 28, 'car', 0.5);
@@ -285,8 +294,8 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // SOUTH — downtown: Mel's Diner + video store + park
   {
-    addBig(getDiner(), 27, 50, 'diner', 1);
-    addBig(getVideoStore(), 33, 50, 'video', 1);
+    addVenue(getDiner(), 27, 50, 'diner', "Mel's Diner");
+    addVenue(getVideoStore(), 33, 50, 'video', 'The Video Store');
     const v = addSmall(getVending(), 32, 54, 'vending', true, true);
     if (v) { v.interact = 'shop'; shops.push({ x: 32.5, y: 55.2, prop: v }); }
     for (let i = 0; i < 6; i++) addSmall(getTree('oak', i % 3), 39 + Math.floor(rnd() * 5), 50 + Math.floor(rnd() * 6), 'tree');
@@ -344,8 +353,9 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // NE — Hollow Creek Primary: school, playground with two jungle-gym forts (Candy Cannons on top), bus lot
   const turrets: GameMap['turrets'] = [];
+  if (expanded) {
   {
-    addBig(getPrimarySchool(), 50, 4, 'school', 1);
+    addVenue(getPrimarySchool(), 50, 4, 'school', 'Hollow Creek Primary');
     paint(49, 8, 56, 10, G.DRIVEWAY);
     paint(75, 3, 82, 11, G.DRIVEWAY);
     addBig(getSchoolBus(false), 76, 4, 'car', 0.5);
@@ -377,7 +387,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
         if (rnd() < 0.72) addBig(getCar(Math.floor(rnd() * 4), true), x, y, 'car', 0.5);
         addSmall(getSpeakerPost(), x + 2, y, 'speaker', true, true);
       }
-    addBig(getSnackBar(), 80, 80, 'snackbar', 1);
+    addVenue(getSnackBar(), 80, 80, 'snackbar', 'Moonlite Drive-In Snack Bar');
     addSmall(getMarquee(), 84, 74, 'sign', true, true);
     for (const [lx, ly] of [[78, 78], [78, 86], [83, 85]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
     scatterTrees(78, 87, 90, 90, 6, ['pine', 'dead']);
@@ -386,7 +396,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // SW — St. Hallow's chapel and churchyard
   {
-    addBig(getChurch(), 5, 75, 'church', 1.4);
+    addVenue(getChurch(), 5, 75, 'church', "St. Hallow's Church", 1.4);
     for (let y = 80; y <= 88; y++) ground[idx(7, y)] = G.FLAGSTONE;
     occupy(7, 80, 1, 9);
     paint(12, 74, 20, 89, G.DARKGRASS);
@@ -400,7 +410,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // SOUTH — Video Vault rentals + lot
   {
-    addBig(getVideoRental(), 39, 75, 'videorental', 1);
+    addVenue(getVideoRental(), 39, 75, 'videorental', 'Video Vault');
     paint(38, 79, 44, 88, G.DRIVEWAY);
     addBig(getCar(2, true), 39, 81, 'car', 0.5);
     addBig(getCar(0, true), 42, 84, 'car', 0.5);
@@ -411,13 +421,14 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
 
   // NW — pumpkin farm (now reachable from the school yard)
   {
-    addBig(getBarn(), 15, 9, 'barn', 1.2);
+    addVenue(getBarn(), 15, 9, 'barn', 'The Pumpkin Farm Barn', 1.2);
     for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) if (!occ[idx(x, y)]) ground[idx(x, y)] = G.DIRT;
     for (let y = 6; y <= 18; y += 2) for (let x = 5; x <= 18; x++) if (rnd() < 0.22) addSmall(getPumpkin(Math.floor(rnd() * 2)), x, y, 'pumpkin');
     addSmall(getHayScarecrow(), 11, 9, 'scarecrow', false, true);
     addSmall(getHayScarecrow(), 15, 15, 'scarecrow', false, true);
     for (let i = 0; i < 5; i++) addSmall(getTree('dead', i % 3), 4 + Math.floor(rnd() * 16), 4 + Math.floor(rnd() * 3), 'tree');
   }
+  } // Premium landmark rewards, playground and mounted weapons.
   // Corner quadrants stay sealed wilderness (decorative depth beyond the walls)
 
   // ---- street lamps along the centre grid ----
@@ -526,10 +537,18 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   // a couple of houses are "tricks" (monster homeowner)
   const order = houses.map((_, i) => i).sort(() => rnd() - 0.5);
   for (let i = 0; i < Math.max(1, Math.floor(houses.length / 6)); i++) houses[order[i]].trick = true;
-  houses.forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
+  houses.filter(h => h.prop.kind === 'house').forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
   // Meet on the open central sidewalk, not inside the randomized housing lot.
   const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, start: { x: 35, y: 45 } };
+  for (const venue of houses.filter(h => h.prop.kind !== 'house')) {
+    if (!blockedCircle(map, venue.door.x, venue.door.y, 0.3)) continue;
+    const { x0, y0, fw, fh } = venue.prop;
+    const candidates = [0, -0.5, 0.5, -1, 1].flatMap(dx => [0.6, 0.9, 1.2].map(dy => ({ x: x0 + fw / 2 + dx, y: y0 + fh + dy })));
+    const door = candidates.find(p => !blockedCircle(map, p.x, p.y, 0.3));
+    if (!door) throw new Error(`No accessible reward entrance for ${venue.owner}`);
+    venue.door = door;
+  }
   let best = Infinity;
   for (let y = 25; y < 69; y += 0.5) for (let x = 25; x < 45; x += 0.5) {
     const distance = (x - 35) ** 2 + (y - 45) ** 2;

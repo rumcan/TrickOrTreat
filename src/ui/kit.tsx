@@ -134,5 +134,5 @@ export function Toast({ face, children }: { face: string; children: ReactNode })
 }
 
 export function LogoImg({ className = '', small }: { className?: string; small?: boolean }) {
-  return <img src={small ? ART.logoSm : ART.logo} alt="Trick or Treat — Last Kid Standing" className={className} draggable={false} style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.7))' }} />;
+  return <img src={small ? ART.logoSm : ART.logo} alt="Trick or Treat — Maple Falls" className={className} draggable={false} style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.7))' }} />;
 }

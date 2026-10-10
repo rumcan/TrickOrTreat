@@ -5,6 +5,8 @@
 //   art/reference/<group>/<key>.png hi-res renders to feed an image generator
 import { allAssets, Entry } from './assets';
 import { withArtScale, rawCanvas } from './art/draw';
+import { buildMap } from './map';
+import { getTurretSheet } from './art/props';
 
 export type Group = 'characters' | 'monsters' | 'buildings';
 /** data is base64 */
@@ -57,6 +59,9 @@ export function exportArt(refScale = 4, sheets: 'base' | 'all' = 'base', buildin
  */
 export function exportRegen(renderScale = 1, worldOnly = false) {
   if (!Number.isInteger(renderScale) || renderScale < 1 || renderScale > 4) throw new Error('Render scale must be an integer from 1 to 4');
+  // Landmarks and the cannon are lazy assets: register them before taking the atlas snapshot.
+  buildMap(1337, true);
+  getTurretSheet();
   return allAssets()
     .filter((e) => e.spec.prompt && e.spec.category !== 'fx')
     .filter((e) => !worldOnly || ['prop', 'tile', 'overlay'].includes(e.spec.category))

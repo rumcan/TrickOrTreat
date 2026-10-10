@@ -1,0 +1,55 @@
+{
+  "key": "treatart_clover",
+  "spec": {
+    "key": "treatart_clover",
+    "file": "treats/clover.png",
+    "category": "icon",
+    "w": 240,
+    "h": 136,
+    "anchor": [
+      120,
+      68
+    ],
+    "desc": "Treat card art: a weathered pirate treasure map with an X and a skull, kids adventure",
+    "prompt": "Small 80s/90s pop-culture trading-card illustration, 240x136, hand-painted retro style with neon glow and subtle VHS scanlines, no text, no logos, no real characters or trademarks: a weathered pirate treasure map with an X and a skull, kids adventure. Bold centred subject readable at thumbnail size."
+  },
+  "id": "41e0e0ac2760e7c8",
+  "rawFile": "art/world/raw/treatart_clover-6120b2f6749b7da9.png",
+  "stagedFile": "art/world/staged/treatart_clover-41e0e0ac2760e7c8.png",
+  "savedPromptFile": "art/world/raw/treatart_clover-6120b2f6749b7da9.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/treatart_clover.png",
+      "hash": "9d75ba355507626e4f8029b4a84c54a212807d4c169c5cef28011ce2d8d62f8e"
+    }
+  ],
+  "sourceHash": "6120b2f6749b7da960b761bb3f49071ab2515dc6c3d546f2b972c52d7860f518",
+  "packedHash": "41e0e0ac2760e7c84bacd851f085e6ed16993c227bc63568477985d37c376d60",
+  "promptHash": "be368ad9d93ee36d51ff8f2eef6d8b78189ccf657d7931cf36faf5c2b2ed4230",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1668,
+    943
+  ],
+  "outputSize": [
+    960,
+    544
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:25.919Z",
+  "fingerprint": "7daec019538b3895723b1f44ea6663adb695693809cb1bba3584839250dbe0b4",
+  "activationFile": "art/world/activations/treatart_clover-1791577883186.json",
+  "gameFile": "generated/world/treatart_clover-41e0e0ac2760e7c8.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production icon sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Small 80s/90s pop-culture trading-card illustration, 240x136, hand-painted retro style with neon glow and subtle VHS scanlines, no text, no logos, no real characters or trademarks: a weathered pirate treasure map with an X and a skull, kids adventure. Bold centred subject readable at thumbnail size.\nAtlas entry: treatart_clover. Treat card art: a weathered pirate treasure map with an X and a skull, kids adventure\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 240x136; render 960x544 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: grip or pickup pivot at native (120,68), rendered (480,272). All contact positions stay fixed to the layout guide.\nICON: preserve the atlas layout and pivot, clear silhouette at native icon size. Weapon sprites point RIGHT in side view; pickups stay centered. No decorative panel, no labels, no character holding the object.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/treatart_clover.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

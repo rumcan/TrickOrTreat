@@ -35,13 +35,16 @@ export function SynergyPanel({ game }: { game: Game }) {
         {active.map((t) => {
           const d = TAG_DEFS[t], n = b.counts[t], tier = b.tiers[t];
           return (
-            <div key={t} className="paper-card !p-3" style={{ borderLeft: `5px solid ${d.color}` }}>
+            <details key={t} className="paper-card !p-3" style={{ borderLeft: `5px solid ${d.color}` }}>
+              <summary className="cursor-pointer list-none">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="font-cond text-lg uppercase" style={{ color: d.color }}>{d.icon} {d.name}</span>
                 <span className="font-num text-sm text-[#f2e8d4]">T{tier} <span className="text-[#8f8676]">· {n} tags</span></span>
               </div>
               <div className="mt-1 h-1.5 bg-black/50"><div className="h-full" style={{ width: `${((n % PER_TIER) / PER_TIER) * 100}%`, background: d.color }} /></div>
               <div className="mt-1 text-[11px] text-[#8f8676]">{d.scaling}{tier > 0 ? ` → now ${scalingNow(b, t)}` : ''}</div>
+              <div className="mt-2 text-xs text-white">Expand tier effects ▾</div>
+              </summary>
               <ul className="mt-1.5 space-y-0.5">
                 {d.keystones.map((k, i) => (
                   <li key={i} className={`text-[12px] leading-snug ${tier > i ? 'text-[#f2e8d4]' : 'text-[#6c6658]'}`}>
@@ -49,7 +52,7 @@ export function SynergyPanel({ game }: { game: Game }) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </details>
           );
         })}
       </div>

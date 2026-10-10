@@ -1,0 +1,62 @@
+{
+  "key": "gazebo",
+  "spec": {
+    "key": "gazebo",
+    "file": "buildings/gazebo.png",
+    "category": "prop",
+    "w": 296,
+    "h": 318,
+    "anchor": [
+      148,
+      234
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "desc": "White park gazebo, 2x2, lantern inside",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A small white wooden park gazebo with eight posts, a railing, a dark shingled pointed roof and a glowing paper lantern hanging inside. Footprint 2x2 tile(s); footprint centre on pixel (148,234)."
+  },
+  "id": "af18c579a0bebb78",
+  "rawFile": "art/world/raw/gazebo-2e4439a6fb8bf2bf.png",
+  "stagedFile": "art/world/staged/gazebo-af18c579a0bebb78.png",
+  "savedPromptFile": "art/world/raw/gazebo-2e4439a6fb8bf2bf.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/gazebo.png",
+      "hash": "43003a2a98f28c624051141f7c10a2644616b56a9756151a888c47f782f40974"
+    }
+  ],
+  "sourceHash": "2e4439a6fb8bf2bf3b1212acce7e7eb81e770fd245a2d7876e12e06dbbe40594",
+  "packedHash": "af18c579a0bebb7820ed15d7dfac4bf47d23e63e34d1bc8ee0bdec7497cd8a07",
+  "promptHash": "af0a7e850432fb328f16cb29ea3c9a3c3f61a99a2427e4226deeefb0cdd67479",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1125,
+    1398
+  ],
+  "outputSize": [
+    1184,
+    1272
+  ],
+  "sourceAnchor": [
+    562.5,
+    1080
+  ],
+  "importedAt": "2026-10-09T20:30:33.935Z",
+  "fingerprint": "43fa159843073f4d8094f81e0add863dc305e6d355604d1e390476cd66be707f",
+  "activationFile": "art/world/activations/gazebo-1791577881554.json",
+  "gameFile": "generated/world/gazebo-af18c579a0bebb78.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A small white wooden park gazebo with eight posts, a railing, a dark shingled pointed roof and a glowing paper lantern hanging inside. Footprint 2x2 tile(s); footprint centre on pixel (148,234).\nAtlas entry: gazebo. White park gazebo, 2x2, lantern inside\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 296x318; render 1184x1272 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (148,234), rendered (592,936). All contact positions stay fixed to the layout guide.\nFootprint: exactly 2x2 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/gazebo.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

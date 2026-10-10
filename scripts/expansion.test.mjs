@@ -86,6 +86,11 @@ try {
   for (const site of results.reachableSites) assert.ok(site.free && site.reachable, `Rescue site ${site.hero} must be reachable`);
   await page.getByRole('button', { name: 'Go trick-or-treating' }).click();
   await page.waitForFunction(() => window.__tot?.game);
+  // Main-menu Go now launches the owned campaign directly, including its opening scene.
+  if (await page.evaluate(() => window.__tot.game.state === 'intro')) {
+    await page.getByRole('button', { name: /skip intro/ }).click();
+    await page.waitForFunction(() => window.__tot.game.state === 'play');
+  }
   await page.keyboard.press('i');
   await page.getByRole('dialog', { name: 'Run inventory' }).waitFor();
   await page.screenshot({ path: 'art/world/checks/run-inventory.png' });

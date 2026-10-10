@@ -1,0 +1,49 @@
+{
+  "key": "video_rental",
+  "spec": {
+    "key": "video_rental",
+    "file": "buildings/video_rental.png",
+    "category": "prop",
+    "w": 572,
+    "h": 486,
+    "anchor": [
+      286,
+      338
+    ],
+    "footprint": [
+      5,
+      3
+    ],
+    "desc": "Video rental superstore, 5x3, VIDEO VAULT sign",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A big 80s strip-mall video rental store, blue facade with a yellow ticket-shaped sign reading VIDEO VAULT and a BE KIND · REWIND banner, a huge lit window full of VHS shelves, horror movie posters, a drop-box for returns by the door. Footprint 5x3 tile(s); footprint centre on pixel (286,338)."
+  },
+  "id": "256662f127e90303",
+  "rawFile": "art/world/raw/video_rental-73df28f1ea19058f.png",
+  "stagedFile": "art/world/staged/video_rental-256662f127e90303.png",
+  "savedPromptFile": "art/world/raw/video_rental-73df28f1ea19058f.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "73df28f1ea19058f3d1b47af832910088e7f97d1e96d5ba2e8bad602626e6eab",
+  "packedHash": "256662f127e903035f03b306357b77bcab8788b654d9aeeb0073065fc68b103c",
+  "promptHash": "8f8e03e486513b9858ac1dcaca9e7d9226cf62e07a4a3abf40c4a14c759f3d32",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1360,
+    1156
+  ],
+  "outputSize": [
+    2288,
+    1944
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:13:17.595Z",
+  "fingerprint": "730c0f92b99821b19506e2fc65305686f7dd46b626a78b54f1aa3c25c62088fd",
+  "activationFile": "art/world/activations/video_rental-1791577152146.json",
+  "gameFile": "generated/world/video_rental-256662f127e90303.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A big 80s strip-mall video rental store, blue facade with a yellow ticket-shaped sign reading VIDEO VAULT and a BE KIND · REWIND banner, a huge lit window full of VHS shelves, horror movie posters, a drop-box for returns by the door. Footprint 5x3 tile(s); footprint centre on pixel (286,338).\nAtlas entry: video_rental. Video rental superstore, 5x3, VIDEO VAULT sign\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 572x486; render 2288x1944 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (286,338), rendered (1144,1352). All contact positions stay fixed to the layout guide.\nFootprint: exactly 5x3 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/video_rental.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

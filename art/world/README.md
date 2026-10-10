@@ -1,16 +1,16 @@
 # Game artwork pipeline
 
-The full reference-style production pass is installed: **175/175 Atlas entries**
-are generated, reviewed and active in `public/assets/manifest.json`: 49 props,
-24 tiles, 14 overlays, 66 animation sheets and 22 weapon/pickup icons. All use
+The full reference-style production pass is installed: **234/234 Atlas entries**
+are generated, reviewed and active in `public/assets/manifest.json`: 64 props,
+24 tiles, 14 overlays, 67 animation sheets and 65 icons/card illustrations. All use
 the supplied Halloween screenshot as their style reference. Original procedural
 assets and previous manifest overrides are preserved.
 
 The live Collection / Asset Atlas is the source of truth. This pipeline covers
 props (including buildings), ground tiles and edge overlays. The first export
-contains **87 world assets: 49 props, 24 tiles and 14 overlays**. Use
-`npm run art:world:prepare -- --all` for the complete **175-entry Atlas**, including
-66 character/costume/monster animation sheets and 22 weapon/pickup icons. Existing
+contains **102 world assets: 64 props, 24 tiles and 14 overlays**. Use
+`npm run art:world:prepare -- --all` for the complete **234-entry Atlas**, including
+67 character/costume/monster/cannon animation sheets and 65 weapon/pickup/treat images. Existing
 menu/concept artwork lives separately in `public/images/`.
 
 Every job uses `art/reference/style-target.webp` (the provided screenshot) for

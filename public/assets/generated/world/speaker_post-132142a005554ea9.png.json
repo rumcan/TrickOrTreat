@@ -1,0 +1,59 @@
+{
+  "key": "speaker_post",
+  "spec": {
+    "key": "speaker_post",
+    "file": "props/speaker_post.png",
+    "category": "prop",
+    "w": 70,
+    "h": 120,
+    "anchor": [
+      35,
+      84
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Drive-in speaker post",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A short metal drive-in speaker post with two boxy grey speakers hanging off it. Footprint 1x1 tile(s); footprint centre on pixel (35,84)."
+  },
+  "id": "132142a005554ea9",
+  "rawFile": "art/world/raw/speaker_post-f12cf83b11ec1bd9.png",
+  "stagedFile": "art/world/staged/speaker_post-132142a005554ea9.png",
+  "savedPromptFile": "art/world/raw/speaker_post-f12cf83b11ec1bd9.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/speaker_post.png",
+      "hash": "cd8fba01be59d6192dc18a00d728c70aa13e163d97bb49157beadb1151306a04"
+    }
+  ],
+  "sourceHash": "f12cf83b11ec1bd925b791bc836d13669b5c26201de254d537b951218d57cb4d",
+  "packedHash": "132142a005554ea9605aa601e259b64aba98563c56e62f6c67a914cddc57a57d",
+  "promptHash": "771bcc37b55b3679a0dcf3c0dd5442dcabc89b202849755ec769e7c4d71debdd",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    958,
+    1642
+  ],
+  "outputSize": [
+    280,
+    480
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:23.562Z",
+  "fingerprint": "a1971ea628c93d7679aeaa5834d9f38922602bce4bd40fbee11596655d4a867a",
+  "activationFile": "art/world/activations/speaker_post-1791577882380.json",
+  "gameFile": "generated/world/speaker_post-132142a005554ea9.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A short metal drive-in speaker post with two boxy grey speakers hanging off it. Footprint 1x1 tile(s); footprint centre on pixel (35,84).\nAtlas entry: speaker_post. Drive-in speaker post\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 70x120; render 280x480 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (35,84), rendered (140,336). All contact positions stay fixed to the layout guide.\nFootprint: exactly 1x1 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/speaker_post.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

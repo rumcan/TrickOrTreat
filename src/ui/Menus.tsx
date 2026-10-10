@@ -37,8 +37,8 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () 
 }
 
 // ================= TITLE =================
-/** the art Atlas ("Collection") is a dev/art tool: hidden from players on the live game (open it with ?atlas) */
-const SHOW_ATLAS = import.meta.env.DEV || new URLSearchParams(location.search).has('atlas');
+/** The art Atlas is strictly a development tool and is never exposed by the production menu. */
+const SHOW_ATLAS = import.meta.env.DEV;
 
 export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
@@ -58,8 +58,9 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
             {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
           </div>
         </header>
-        <div className="mx-auto mt-auto w-full max-w-4xl space-y-3">
-          <section aria-label="Character selection" className="kit-panel bg-[#0e0f13]/90 p-3 sm:p-4">
+        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col">
+          <div className="flex flex-1 items-center py-5">
+          <section aria-label="Character selection" className="kit-panel w-full bg-[#0e0f13]/90 p-3 sm:p-4">
             <h1 className="mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
             <div className="grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids">
               {HERO_INFO.map((kid, index) => {
@@ -82,7 +83,8 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
               <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="w-full sm:w-auto">Go trick-or-treating</KitButton>
             </div>
           </section>
-          <nav className="flex flex-wrap items-center justify-center gap-2">
+          </div>
+          <nav className="flex shrink-0 flex-wrap items-center justify-center gap-2">
             <KitButton size="sm" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
             <KitButton size="sm" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
             {SHOW_ATLAS && <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>}
@@ -326,7 +328,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   });
   const mode = game.choiceMode;
   const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : 'Level up!';
-  const houseNote = mode === 'house' ? ' · rare or better: a treat or a gun' : '';
+  const houseNote = mode === 'house' ? ` · ${game.choiceRewardRange.label}: a treat or a gun` : '';
   const kicker = mode === 'house'
     ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: extra pick' : 'no costume = stingy treats'}${houseNote}`
     : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;

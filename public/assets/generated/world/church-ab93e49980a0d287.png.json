@@ -1,0 +1,49 @@
+{
+  "key": "church",
+  "spec": {
+    "key": "church",
+    "file": "buildings/church.png",
+    "category": "prop",
+    "w": 656,
+    "h": 758,
+    "anchor": [
+      328,
+      584
+    ],
+    "footprint": [
+      5,
+      4
+    ],
+    "desc": "White clapboard chapel with steeple, 5x4",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A white clapboard New-England chapel, steep dark gable roof, tall square bell tower and spire with a small cross over the front double doors, glowing stained-glass arched windows (purple, amber, teal), a little sign board ST. HALLOW'S, cobwebs and a jack-o'-lantern on the steps. Footprint 5x4 tile(s); footprint centre on pixel (328,584)."
+  },
+  "id": "ab93e49980a0d287",
+  "rawFile": "art/world/raw/church-6c22a8940dcfad3e.png",
+  "stagedFile": "art/world/staged/church-ab93e49980a0d287.png",
+  "savedPromptFile": "art/world/raw/church-6c22a8940dcfad3e.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "6c22a8940dcfad3eed41970c77c67a91672448f2bfa53c9bc5fc063e0a57bea3",
+  "packedHash": "ab93e49980a0d2874e2d2b16b23c8e6bb67e2ce78e7d814bce18595d4ef5cd8f",
+  "promptHash": "7a5e9617acfd93380430e66590e1f4110a9adebb91dd0471721fe4e460e3750c",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1167,
+    1348
+  ],
+  "outputSize": [
+    2624,
+    3032
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:13:16.550Z",
+  "fingerprint": "16b3d771503929595d7784d8ddce2d88a782cdfe5b0f9814f804c09ec0c6f757",
+  "activationFile": "art/world/activations/church-1791577151936.json",
+  "gameFile": "generated/world/church-ab93e49980a0d287.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A white clapboard New-England chapel, steep dark gable roof, tall square bell tower and spire with a small cross over the front double doors, glowing stained-glass arched windows (purple, amber, teal), a little sign board ST. HALLOW'S, cobwebs and a jack-o'-lantern on the steps. Footprint 5x4 tile(s); footprint centre on pixel (328,584).\nAtlas entry: church. White clapboard chapel with steeple, 5x4\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 656x758; render 2624x3032 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (328,584), rendered (1312,2336). All contact positions stay fixed to the layout guide.\nFootprint: exactly 5x4 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/church.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

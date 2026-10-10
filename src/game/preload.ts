@@ -2,6 +2,8 @@ import { G, getTile, TILE_VARIANTS, getCurb, getFringe, getRoadLine, getCrosswal
 import {
   getHouse, HOUSE_COUNT, getTree, getBush, getHedge, getFence, getGrave, getCrypt, getPumpkin, getLamp, getMailbox, getTrash, getHydrant, getCar, getShop, getVending, getHayScarecrow,
   getSchool, getArcade, getDiner, getVideoStore, getWaterTower, getGate, getBleachers, getGoalPosts, getScoreboard,
+  getPrimarySchool, getDriveInScreen, getSpeakerPost, getSnackBar, getMarquee, getChurch, getVideoRental,
+  getJungleGym, getSwings, getMerryGoRound, getSchoolBus, getBarn, getGazebo, getBench, getTurretSheet,
 } from './art/props';
 import { heroSheet, enemySheet, ENEMY_TYPES, HEROES, COSTUME_ART_IDS } from './art/characters';
 import { weaponIcon, pickupIcon, treatIcon, TREAT_ICON_IDS, WEAPON_ICON_IDS, PICKUP_IDS } from './art/fx';
@@ -30,6 +32,8 @@ async function boot(progress: (p: number, label: string) => void) {
   for (let v = 0; v < 4; v++) jobs.push(['Parking cars', () => { getCar(v, false); getCar(v, true); }]);
   // district landmarks (built here rather than on the first map build, so starting a run doesn't hitch)
   for (const f of [getSchool, getArcade, getDiner, getVideoStore, getWaterTower]) jobs.push(['Opening the town', () => { f(); }]);
+  for (const f of [getPrimarySchool, getDriveInScreen, getSpeakerPost, getSnackBar, getMarquee, getChurch, getVideoRental, getSwings, getMerryGoRound, getBarn, getGazebo, getBench, getTurretSheet]) jobs.push(['Preparing the expanded town', () => { f(); }]);
+  jobs.push(['Opening the playground', () => { getJungleGym(0); getJungleGym(1); getSchoolBus(false); }]);
   jobs.push(['Closing the roads', () => { getGate(); getBleachers(); getGoalPosts(); getScoreboard(); }]);
   HEROES.forEach((_, i) => jobs.push(['Dressing kids', () => heroSheet(i)]));
   HEROES.forEach((_, i) => COSTUME_ART_IDS.forEach((c) => jobs.push(['Sewing costumes', () => heroSheet(i, c)])));

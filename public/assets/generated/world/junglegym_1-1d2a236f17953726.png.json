@@ -1,0 +1,59 @@
+{
+  "key": "junglegym_1",
+  "spec": {
+    "key": "junglegym_1",
+    "file": "props/junglegym_1.png",
+    "category": "prop",
+    "w": 444,
+    "h": 362,
+    "anchor": [
+      222,
+      246
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "desc": "Playground jungle-gym fort, 3x3, deck on top (the Candy Cannon turret mounts on the deck centre)",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A chunky metal playground jungle gym: blue climbing bars, a square orange deck about 72px up with railings, monkey bars along one side, a wavy yellow slide coming down toward the viewer and a ladder. Leave the middle of the deck empty (a turret is drawn there). Footprint 3x3 tile(s); footprint centre on pixel (222,246)."
+  },
+  "id": "1d2a236f17953726",
+  "rawFile": "art/world/raw/junglegym_1-cbbfb4b7360095eb.png",
+  "stagedFile": "art/world/staged/junglegym_1-1d2a236f17953726.png",
+  "savedPromptFile": "art/world/raw/junglegym_1-cbbfb4b7360095eb.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/junglegym_1.png",
+      "hash": "3f78348c074b8ce105257e1d3b225d19c807e3d7c54314f1a31d46c673e46047"
+    }
+  ],
+  "sourceHash": "cbbfb4b7360095eb74eb14276a4d68c9ba97a76f0e930883912774d69db28042",
+  "packedHash": "1d2a236f179537264532e90be418e2905aeca16ae13da30b4aba08b446ef5b28",
+  "promptHash": "0de7ab7469084494495ae65e71d7b7e18145fac6a2f37475ed92ac10bf0e0a4a",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1388,
+    1133
+  ],
+  "outputSize": [
+    1776,
+    1448
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:22.391Z",
+  "fingerprint": "83488eb6ef29118191c10061227fdd959ba62bae85b20e8a43007de44f8a9dbd",
+  "activationFile": "art/world/activations/junglegym_1-1791577881819.json",
+  "gameFile": "generated/world/junglegym_1-1d2a236f17953726.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A chunky metal playground jungle gym: blue climbing bars, a square orange deck about 72px up with railings, monkey bars along one side, a wavy yellow slide coming down toward the viewer and a ladder. Leave the middle of the deck empty (a turret is drawn there). Footprint 3x3 tile(s); footprint centre on pixel (222,246).\nAtlas entry: junglegym_1. Playground jungle-gym fort, 3x3, deck on top (the Candy Cannon turret mounts on the deck centre)\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 444x362; render 1776x1448 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (222,246), rendered (888,984). All contact positions stay fixed to the layout guide.\nFootprint: exactly 3x3 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/junglegym_1.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

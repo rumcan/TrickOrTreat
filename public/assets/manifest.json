@@ -391,7 +391,7 @@
       "scale": 4
     },
     "tile_sidewalk_0": {
-      "file": "generated/world/tile_sidewalk_0-5fbbb2660b4d43e0.png",
+      "file": "generated/world/tile_sidewalk_0-7303d138385f49c4.png",
       "scale": 4
     },
     "tree_oak_0": {
@@ -859,11 +859,11 @@
       "scale": 4
     },
     "tile_sidewalk_1": {
-      "file": "generated/world/tile_sidewalk_1-952a23f78f7c9079.png",
+      "file": "generated/world/tile_sidewalk_1-eff0809122b90328.png",
       "scale": 4
     },
     "tile_sidewalk_2": {
-      "file": "generated/world/tile_sidewalk_2-d87cf2ad57043947.png",
+      "file": "generated/world/tile_sidewalk_2-54993b2a7d435c80.png",
       "scale": 4
     },
     "trashcan": {
@@ -1248,6 +1248,478 @@
       "anchor": [
         400,
         808
+      ]
+    },
+    "barn": {
+      "file": "generated/world/barn-936fbdf7f880727f.png",
+      "scale": 4,
+      "anchor": [
+        1016,
+        1368
+      ]
+    },
+    "church": {
+      "file": "generated/world/church-ab93e49980a0d287.png",
+      "scale": 4,
+      "anchor": [
+        1312,
+        2336
+      ]
+    },
+    "video_rental": {
+      "file": "generated/world/video_rental-256662f127e90303.png",
+      "scale": 4,
+      "anchor": [
+        1144,
+        1352
+      ]
+    },
+    "bench": {
+      "file": "generated/world/bench-91e6ed82855415e3.png",
+      "scale": 4,
+      "anchor": [
+        220,
+        256
+      ]
+    },
+    "drivein_marquee": {
+      "file": "generated/world/drivein_marquee-017a1c9f3b04ea57.png",
+      "scale": 4,
+      "anchor": [
+        340,
+        1056
+      ]
+    },
+    "drivein_screen": {
+      "file": "generated/world/drivein_screen-3163c943f92141ad.png",
+      "scale": 4,
+      "anchor": [
+        1488,
+        1944
+      ]
+    },
+    "gazebo": {
+      "file": "generated/world/gazebo-af18c579a0bebb78.png",
+      "scale": 4,
+      "anchor": [
+        592,
+        936
+      ]
+    },
+    "junglegym_0": {
+      "file": "generated/world/junglegym_0-dd535770be17d8fd.png",
+      "scale": 4,
+      "anchor": [
+        888,
+        984
+      ]
+    },
+    "junglegym_1": {
+      "file": "generated/world/junglegym_1-1d2a236f17953726.png",
+      "scale": 4,
+      "anchor": [
+        888,
+        984
+      ]
+    },
+    "merrygoround": {
+      "file": "generated/world/merrygoround-6b243cb186d797f2.png",
+      "scale": 4,
+      "anchor": [
+        572,
+        496
+      ]
+    },
+    "primary_school": {
+      "file": "generated/world/primary_school-ed9bc61dd08ed049.png",
+      "scale": 4,
+      "anchor": [
+        1272,
+        1536
+      ]
+    },
+    "schoolbus": {
+      "file": "generated/world/schoolbus-c97b88b3bb3535b8.png",
+      "scale": 4,
+      "anchor": [
+        720,
+        760
+      ]
+    },
+    "snack_bar": {
+      "file": "generated/world/snack_bar-67bb0737fbc9e9ea.png",
+      "scale": 4,
+      "anchor": [
+        888,
+        1184
+      ]
+    },
+    "speaker_post": {
+      "file": "generated/world/speaker_post-132142a005554ea9.png",
+      "scale": 4,
+      "anchor": [
+        140,
+        336
+      ]
+    },
+    "swings": {
+      "file": "generated/world/swings-130cd5943c73778e.png",
+      "scale": 4,
+      "anchor": [
+        464,
+        712
+      ]
+    },
+    "treatart_bag": {
+      "file": "generated/world/treatart_bag-a5cb609ef2e87323.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_bang": {
+      "file": "generated/world/treatart_bang-328250c5c61a73ff.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_bedtime": {
+      "file": "generated/world/treatart_bedtime-3be4843ae6964401.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_bluff": {
+      "file": "generated/world/treatart_bluff-194bc691f477adbd.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_bouncy": {
+      "file": "generated/world/treatart_bouncy-c54deb1d869d0e6b.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_bubble": {
+      "file": "generated/world/treatart_bubble-7814dac789f7d741.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_buddy": {
+      "file": "generated/world/treatart_buddy-1f80dc7c533a5e3a.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_cane": {
+      "file": "generated/world/treatart_cane-f55e3ac97e61e280.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_clover": {
+      "file": "generated/world/treatart_clover-41e0e0ac2760e7c8.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_cursed": {
+      "file": "generated/world/treatart_cursed-63f335a764f1f617.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_energy": {
+      "file": "generated/world/treatart_energy-2c05ef605cb2155f.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_fangs": {
+      "file": "generated/world/treatart_fangs-962a871ae7301262.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_fireball": {
+      "file": "generated/world/treatart_fireball-efa36be014a05f7c.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_firesneak": {
+      "file": "generated/world/treatart_firesneak-182cecb4d5af7fa4.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_firstaid": {
+      "file": "generated/world/treatart_firstaid-210be18774049299.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_friendship": {
+      "file": "generated/world/treatart_friendship-e506ecad8fbb0baa.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_fullbag": {
+      "file": "generated/world/treatart_fullbag-dbeacbaec492965c.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_glass": {
+      "file": "generated/world/treatart_glass-60082df1c5965ea4.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_gummy": {
+      "file": "generated/world/treatart_gummy-b8df7e3eda76262c.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_helmet": {
+      "file": "generated/world/treatart_helmet-201909677f40907d.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_homework": {
+      "file": "generated/world/treatart_homework-353fa5f38aa876c3.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_jackpot": {
+      "file": "generated/world/treatart_jackpot-a42670118c770ebf.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_jaw": {
+      "file": "generated/world/treatart_jaw-b117b4e5ca8cf829.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_king": {
+      "file": "generated/world/treatart_king-3f7f1da3da383dde.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_lasagna": {
+      "file": "generated/world/treatart_lasagna-b1ec1e396361560b.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_lucky6": {
+      "file": "generated/world/treatart_lucky6-b04d00d649c8929a.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_magnet": {
+      "file": "generated/world/treatart_magnet-cc8da205746b5055.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_orbit": {
+      "file": "generated/world/treatart_orbit-0e4003e260e074f3.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_owl": {
+      "file": "generated/world/treatart_owl-431003ae4a67a53b.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_pad": {
+      "file": "generated/world/treatart_pad-c11bb9ddb7e67e10.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_pepper": {
+      "file": "generated/world/treatart_pepper-5bfc49cf6456ceb9.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_piggy": {
+      "file": "generated/world/treatart_piggy-237f33fbd515046c.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_pop": {
+      "file": "generated/world/treatart_pop-94379436fc478ac5.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_shoes": {
+      "file": "generated/world/treatart_shoes-69d88abe70a1206b.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_skate": {
+      "file": "generated/world/treatart_skate-dedb4adb1c30d630.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_sour": {
+      "file": "generated/world/treatart_sour-67a9443719c5ab23.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_statue": {
+      "file": "generated/world/treatart_statue-57fc520d7d249665.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_sticky": {
+      "file": "generated/world/treatart_sticky-d152901351ca41c2.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_sugar": {
+      "file": "generated/world/treatart_sugar-146731f287d0afd0.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_sweater": {
+      "file": "generated/world/treatart_sweater-3ced4d2a78ca99b9.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_taffy": {
+      "file": "generated/world/treatart_taffy-dc17204a95de3c7a.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_trick": {
+      "file": "generated/world/treatart_trick-baaa00b0ff0b789a.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_walkie": {
+      "file": "generated/world/treatart_walkie-0922e3b735a42e03.png",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "turret_candycannon": {
+      "file": "generated/world/turret_candycannon-2e7bbd7cd335d600.png",
+      "scale": 4,
+      "anchor": [
+        380,
+        400
       ]
     }
   }

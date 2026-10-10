@@ -3,9 +3,11 @@ import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import { chromium } from 'playwright-core';
 
-for (const [file, hero] of [['portrait_yellow_girl.png', 'maya'], ['portrait_blue_boy.png', 'leo']]) {
+for (const [file, hero] of [['portrait_red_boy.png', 'tommy'], ['portrait_orange_boy.png', 'sam'], ['portrait_purple_girl.png', 'jess'], ['portrait_yellow_girl.png', 'maya'], ['portrait_blue_boy.png', 'leo']]) {
   const expected = await sharp(`art/new/${file}`).resize({ width: 768, withoutEnlargement: true }).webp({ quality: 90 }).toBuffer();
-  assert.deepEqual(await fs.readFile(`public/images/ui/portrait_${hero}.webp`), expected);
+  assert.ok((await fs.readFile(`public/images/ui/portrait_${hero}.webp`)).equals(expected), `${hero} uses the latest supplied portrait`);
+  const face = await sharp(`art/new/${file}`).resize(256, 256, { fit: 'cover', position: 'north' }).webp({ quality: 90 }).toBuffer();
+  assert.ok((await fs.readFile(`public/images/ui/face_${hero}.webp`)).equals(face), `${hero} HUD face comes from their new portrait`);
 }
 const browser = await chromium.launch({ channel: 'msedge' });
 try {
@@ -20,10 +22,10 @@ try {
     assert.equal(await header.getByRole('region', { name: 'Full game unlock' }).count(), 1);
     const picker = page.getByRole('region', { name: 'Character selection' });
     assert.equal(await picker.getByRole('button', { name: /^Select / }).count(), 5);
-    for (const name of ['Maya', 'Leo']) {
+    for (const name of ['Tommy', 'Sam', 'Jess', 'Maya', 'Leo']) {
       const portrait = picker.getByRole('img', { name: `${name} portrait` });
       await portrait.evaluate(img => img.decode());
-      assert.ok(await portrait.evaluate(img => img.naturalWidth > 0 && img.src.endsWith('.webp')));
+      assert.ok(await portrait.evaluate(img => img.naturalWidth > 0 && new URL(img.src).pathname.endsWith('.webp')));
     }
     await go.scrollIntoViewIfNeeded();
     const bounds = await picker.boundingBox();

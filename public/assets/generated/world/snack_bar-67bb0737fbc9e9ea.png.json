@@ -1,0 +1,59 @@
+{
+  "key": "snack_bar",
+  "spec": {
+    "key": "snack_bar",
+    "file": "buildings/snack_bar.png",
+    "category": "prop",
+    "w": 444,
+    "h": 412,
+    "anchor": [
+      222,
+      296
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "desc": "Drive-in snack bar & projection booth, 3x3",
+    "prompt": "Isometric 2:1 (Diablo II / Commandos camera) hand-painted pixel-art game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, crisp dark outline, no ground/background, no cast shadow (engine draws shadows). A low cinder-block drive-in snack bar and projection booth, white with red stripes, a glowing SNACKS sign, a giant popcorn bucket on the roof, a lit service window with candy and soda cups. Footprint 3x3 tile(s); footprint centre on pixel (222,296)."
+  },
+  "id": "67bb0737fbc9e9ea",
+  "rawFile": "art/world/raw/snack_bar-410f2cd5980b8422.png",
+  "stagedFile": "art/world/staged/snack_bar-67bb0737fbc9e9ea.png",
+  "savedPromptFile": "art/world/raw/snack_bar-410f2cd5980b8422.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "inputReferences": [
+    {
+      "file": "art/reference/style-target.webp",
+      "hash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+    },
+    {
+      "file": "art/world/layout/snack_bar.png",
+      "hash": "be4654d26f33a04605656dd5433ac57b431a1425170fd35539406e041e320fb8"
+    }
+  ],
+  "sourceHash": "410f2cd5980b84221dc8a0ff3c3c886e27511df5ed553d9607cb0f13ee6181ba",
+  "packedHash": "67bb0737fbc9e9eaf3e0d217993e34685835a89a3c6077da37b2590d19b85e1b",
+  "promptHash": "49489de82daf3aaca1cd53c86e2774320b4df661a680cdec063f84e9f3c2aa4a",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1302,
+    1208
+  ],
+  "outputSize": [
+    1776,
+    1648
+  ],
+  "sourceAnchor": null,
+  "importedAt": "2026-10-09T20:28:23.225Z",
+  "fingerprint": "ebf41c581a79a8c81c221fc2f86982a8c21350e40896479c28f27af4d89266c8",
+  "activationFile": "art/world/activations/snack_bar-1791577882318.json",
+  "gameFile": "generated/world/snack_bar-67bb0737fbc9e9ea.png",
+  "prompt": "Use case: stylized-concept\nAsset type: production prop sprite for Trick or Treat: Last Kid Standing\nInput images: Image 1 = STYLE reference only. Image 2 = procedural LAYOUT guide only.\nPrimary request: Generate ONE asset. Match Image 1's world artwork and preserve Image 2's camera, canvas margins, silhouette scale, ground contact, footprint and orientation.\nSubject: Isometric 2:1 (Diablo II / Commandos camera) hand-painted game sprite on a transparent background, Halloween night in 1990s American suburbia, cold blue moonlight from the upper-left, warm orange practical lights, clean painted edges, no ground/background, no cast shadow (engine draws shadows). A low cinder-block drive-in snack bar and projection booth, white with red stripes, a glowing SNACKS sign, a giant popcorn bucket on the roof, a lit service window with candy and soda cups. Footprint 3x3 tile(s); footprint centre on pixel (222,296).\nAtlas entry: snack_bar. Drive-in snack bar & projection booth, 3x3\nStyle/medium: Richly hand-painted stylized realism matching Image 1's Halloween suburban world: textured wood siding, slate shingles, weathered stone, fabric, metal, dense autumn foliage, softly modeled volumes and clear silhouettes. Smooth painted detail rather than pixel art or flat vector graphics.\nColor palette: Deep navy and muted teal moonlit surfaces, rusty red and ochre autumn leaves, warm amber windows, orange jack-o-lanterns and practical bulbs. Preserve each asset's specified material colors within this palette.\nLighting/mood: Neutral moonlit exposure, cold blue light from upper-left, readable local material detail. Warm emission confined to actual windows, lanterns and pumpkin faces. Runtime supplies darkness, cast shadows, point-light falloff and fog.\nProjection: Orthographic 2:1 dimetric projection. One native tile is a 128x64 diamond. World X goes screen lower-right; world Y goes screen lower-left. Visible building faces are +X and +Y; doors/porches belong on +Y (lower-left).\nCanvas: native 444x412; render 1776x1648 (4x). If a different resolution is necessary, preserve the EXACT canvas proportions and all relative positions. Do not auto-crop or recenter.\nBackground: genuine alpha transparency; preserve fine edges. No painted transparency pattern.\nAnchor: footprint center at native (222,296), rendered (888,1184). All contact positions stay fixed to the layout guide.\nFootprint: exactly 3x3 world tiles. Preserve the building height, door/window locations and local light positions from the layout guide.\nAvoid: HUD, menus, characters, screenshot borders, vignette, landscape/background, ground patches beneath props, cast shadows, atmospheric fog, bloom outside the silhouette, watermarks, invented text, clipped silhouettes, checkerboards painted into the image.\nOutput: one isolated asset, not a sheet of unrelated assets. No finished scene. Atlas geometry has priority over scene composition.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/snack_bar.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}
