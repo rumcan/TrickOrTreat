@@ -6,12 +6,13 @@ import type { VendingPrize } from '../game/vending';
 import { VENDING_RARITY_ODDS } from '../game/vending-odds';
 import { gameAudio } from '../game/audio';
 import { RARITY } from '../game/config';
-import { WeaponCard, TreatArt, weaponUrl, RARITY_KIT } from './common';
+import { WeaponCard, TreatArt, RARITY_KIT } from './common';
+import { WeaponCardArt } from './WeaponCardArt';
 import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 
 function PrizeArt({ prize }: { prize: VendingPrize }) {
-  return prize.kind === 'treat' ? <TreatArt id={prize.scroll.id} /> : <img src={weaponUrl(prize.weapon.def.id)} alt="" draggable={false} className="vending-gun" />;
+  return prize.kind === 'treat' ? <TreatArt id={prize.scroll.id} /> : <WeaponCardArt id={prize.weapon.def.id} small className="vending-gun" />;
 }
 function PrizeDetails({ prize, game }: { prize: VendingPrize; game: Game }) {
   return <>
@@ -74,8 +75,15 @@ export function VendingMachine({ game, onDone }: { game: Game; onDone: () => voi
     };
     position();
     const observer = new ResizeObserver(position); observer.observe(viewport);
-    // Bounded, quiet mechanical ticks. No sharp hits or per-frame React updates.
-    const ticks = spin.status === 'spinning' ? window.setInterval(() => { if (!finished && document.visibilityState === 'visible') gameAudio.play('tick', .10); }, 180) : 0;
+    // Tick only as actual tiles cross the marker, naturally slowing with the reel.
+    let lastTile = -1;
+    const ticks = spin.status === 'spinning' ? window.setInterval(() => {
+      if (finished || document.visibilityState !== 'visible') return;
+      const x = new DOMMatrixReadOnly(getComputedStyle(reel).transform).m41;
+      const tile = reel.children[0] as HTMLElement;
+      const index = Math.floor((viewport.clientWidth / 2 - x) / (tile.offsetWidth + 12));
+      if (index !== lastTile) { lastTile = index; gameAudio.play('slotTick', .45); }
+    }, 75) : 0;
     const timeout = spin.status === 'spinning' ? window.setTimeout(settle, duration + 200) : 0;
     return () => { observer.disconnect(); animation?.cancel(); clearInterval(ticks); clearTimeout(timeout); };
   }, [game, spin?.id]);

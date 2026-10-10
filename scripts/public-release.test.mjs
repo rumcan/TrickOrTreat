@@ -47,6 +47,18 @@ try {
   assert.equal(await game.evaluate(() => typeof window.__tot), 'undefined');
   await game.getByRole('button', { name: 'Discover the full game' }).click();
   const showcase = game.getByRole('dialog', { name: 'HIDE & SHRIEK' }); await showcase.waitFor();
+  const cards = showcase.locator('[data-weapon-card-art]');
+  assert.equal(await cards.count(), 4, 'Premium catalogue uses the new illustrated gun cards');
+  await cards.evaluateAll(async images => { await Promise.all(images.map(i => i.decode())); });
+  const cardBase = await cards.first().evaluate(img => new URL('.', img.src).href);
+  for (const id of ['pea','nerf','shotgun','roman','soaker','balloon','rocket','laser','slingshot','gloom','marshmallow','bubblegum','acorn']) for (const width of [480,960]) {
+    const file = `${id}-v1-${width}.webp`, expected = crypto.createHash('sha256').update(await fs.readFile(`dist/images/weapon-cards/${file}`)).digest('hex');
+    const actual = await game.evaluate(async url => {
+      const response = await fetch(url); if (!response.ok) throw new Error('Missing hosted card art');
+      return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await response.arrayBuffer())), b => b.toString(16).padStart(2,'0')).join('');
+    }, new URL(file, cardBase).href);
+    assert.equal(actual, expected, `Hosted gun illustration ${file} matches the reviewed artwork`);
+  }
   await showcase.getByRole('button', { name: 'Close full game showcase' }).click();
   await game.getByRole('button', { name: 'Go trick-or-treating' }).click();
   await game.getByText('Ring doorbells', { exact: true }).waitFor();

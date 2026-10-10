@@ -8,6 +8,7 @@ import { RARITY } from '../game/config';
 import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO } from '../game/data';
 import { ART, PORTRAITS, HERO_COLORS } from './art';
 import { Keycap, KitTitle } from './kit';
+import { WeaponCardArt } from './WeaponCardArt';
 
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
@@ -115,10 +116,11 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   return (
     <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
+      {!compact && <div className="weapon-card-showcase"><WeaponCardArt id={w.def.id} /></div>}
       <div className="flex items-center gap-3">
-        <div className="flex h-14 w-20 shrink-0 items-center justify-center">
+        {compact && <div className="flex h-14 w-20 shrink-0 items-center justify-center">
           <img src={weaponUrl(w.def.id)} className="h-10 w-20 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 3px 0 rgba(0,0,0,0.6))' }} alt="" />
-        </div>
+        </div>}
         <div className="min-w-0">
           <div className="font-cond text-xl uppercase leading-tight text-[#f2e6c9]">{w.def.name}</div>
           <div className="font-cond2 text-[13px] font-semibold uppercase tracking-wide text-[#9aa0a6]">

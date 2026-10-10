@@ -1,3 +1,11 @@
+# Map rescue, boss loot breaks and illustrated gun cards
+
+- Opened road hedges disappear; body-clearance navigation and reachable ground hordes prevent creatures getting trapped. Full-footprint spawn checks, reserved porch walkways and car placement guards make building doors approachable.
+- Missing kids have green foreground rescue arrows and green minimap markers.
+- Boss kills visibly spill all XP, coins and chests with golden trails, then offer a skippable 20-second no-spawn break. Walk to collect loot or open the upgrade shop; menus pause the safe-time countdown.
+- Thirteen new high-resolution painted gun illustrations appear in cards, prizes and the unlock catalogue. Responsive, lazy WebPs keep loading light; held guns/HUD sprites stay unchanged.
+- Mechanical slot start/tile/settlement sounds and conventional shooting, impact, reload and pickup details layer above the preserved deep effects; dash stays soft.
+
 # Easy wins and mobile visibility
 
 - Everyone can win premium guns and treats from earned-coin vending spins, clearly labelled Premium. Prizes last for the run and do not permanently unlock the expansion.

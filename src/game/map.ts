@@ -43,6 +43,8 @@ export interface HouseInst {
 }
 
 export interface GameMap {
+  /** Scenery collision before timed road blockades; opening restores it, not empty space. */
+  barrierBase: Uint8Array;
   ground: Uint8Array;
   tiles: Img[];
   overlays: Img[][];
@@ -158,6 +160,10 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     for (let ly = 0; ly < 2; ly++)
       for (let lx = 0; lx < 2; lx++) {
         const ox = bx + lx * 6, oy = by + ly * 6;
+        // Continuous one-tile pedestrian access around every housing lot. Yard
+        // decorations/fences must not seal a porch inside a pocket between homes.
+        occupy(ox, oy, 6, 1); occupy(ox, oy + 5, 6, 1);
+        occupy(ox, oy, 1, 6); occupy(ox + 5, oy, 1, 6);
         if (withShop && lx === 0 && ly === 1) {
           // candy stand lot
           for (let y = oy; y < oy + 6; y++) for (let x = ox; x < ox + 6; x++) if (rnd() < 0.5) ground[idx(x, y)] = G.DIRT;
@@ -181,11 +187,14 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
         const hp = addBig(house, hx, hy, 'house', 1);
         const pl = house.lights[0];
         const door = { x: hx + pl.x, y: hy + pl.y };
-        occupy(Math.floor(door.x), Math.floor(door.y), 1, 1);
+        // Reserve a generous porch approach before bushes, fences and yard props are placed.
+        occupy(Math.floor(door.x - 0.6), Math.floor(door.y - 0.6), 2, 2);
+        if (!flip) occupy(Math.floor(door.x - .5), hy + fh, 2, Math.max(1, oy + 6 - hy - fh));
+        else occupy(hx + fw, Math.floor(door.y - .5), Math.max(1, ox + 6 - hx - fw), 2);
         houses.push({ prop: hp, door, light: lights[lightStart] || null, visited: false, trick: false, owner: OWNERS[houses.length % OWNERS.length], lightI: lights[lightStart]?.i ?? 1 });
         // flower bed along front + path
         if (!flip) {
-          const doorX = hx + (fw >= 4 ? 1 : 1);
+          const doorX = Math.floor(door.x);
           for (let x = hx; x < hx + fw; x++) if (x !== doorX && free(x, hy + fh)) ground[idx(x, hy + fh)] = G.DIRT;
           for (let y = hy + fh; y < oy + 6; y++) if (ground[idx(doorX, y)] === G.GRASS) ground[idx(doorX, y)] = G.FLAGSTONE;
           occupy(doorX, hy + fh, 1, 1);
@@ -199,7 +208,8 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
         if (ly === 1 && rnd() < 0.65) {
           const dx = ox + 5;
           for (let y = oy; y < oy + 6; y++) ground[idx(dx, y)] = G.DRIVEWAY;
-          addBig(getCar(Math.floor(rnd() * 4), true), dx, oy + 2, 'car', 0.5);
+          const car = getCar(Math.floor(rnd() * 4), true);
+          if (free(dx, oy + 2, car.fw, car.fh, true)) addBig(car, dx, oy + 2, 'car', .5);
           occupy(dx, oy, 1, 6);
         }
         // yard decorations
@@ -446,12 +456,15 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   // ================= GATED DISTRICT WALLS =================
   // Hedge blockade lines seal each outer district behind a single gate.
   const gates: Gate[] = [];
+  const barrierBase = coll.slice();
   const hedgeWall = (axis: 'x' | 'y', line: number, line2: number, gaps: number[]) => {
+    const cells: [number, number][] = [];
     for (let t = 1; t <= 92; t++) {
       if (gaps.includes(t)) continue;
       const x = axis === 'x' ? t : line, y = axis === 'x' ? line : t;
       const x2 = axis === 'x' ? t : line2, y2 = axis === 'x' ? line2 : t;
       for (const [hx, hy] of [[x, y], [x2, y2]]) {
+        for (let cy = hy * CR; cy < (hy + 1) * CR; cy++) for (let cx = hx * CR; cx < (hx + 1) * CR; cx++) cells.push([cx, cy]);
         // Progression boundaries are solid even when a decorative prop occupies the tile.
         // They also block ghost costumes; ordinary garden hedges remain phaseable.
         markRect(hx, hy, hx + 1, hy + 1, 2);
@@ -462,24 +475,23 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
         markRect(hx, hy, hx + 1, hy + 1, 2);
       }
     }
+    return cells;
   };
-  const addGate = (x: number, y: number, openAt: number, name: string, dir: Gate['dir']) => {
+  const addGate = (x: number, y: number, openAt: number, name: string, dir: Gate['dir'], wall: [number, number][]) => {
     const p = addBig(getGate(), x, y, 'gate', 0.3);
-    const cells: [number, number][] = [];
+    const cells: [number, number][] = [...wall];
     for (let cy = Math.floor(y * CR); cy < Math.floor((y + 2) * CR); cy++)
       for (let cx = Math.floor(x * CR); cx < Math.floor((x + 2) * CR); cx++) cells.push([cx, cy]);
-    gates.push({ id: p.id, propIds: [p.id], cells, openAt, name, dir, x: x + 1, y: y + 1, opened: false });
+    const wallSet = new Set(wall.map(([cx, cy]) => cy * CW + cx));
+    const hedges = props.filter(pr => pr.kind === 'hedge' && wallSet.has(Math.floor((pr.y0 + .5) * CR) * CW + Math.floor((pr.x0 + .5) * CR))).map(pr => pr.id);
+    gates.push({ id: p.id, propIds: [p.id, ...hedges], cells, openAt, name, dir, x: x + 1, y: y + 1, opened: false });
   };
   // Each district also opens into the corner beyond it (always-open hedge gaps), so no part of the town is sealed off:
   // school yard <-> pumpkin farm (NW) and primary school (NE), Starcade <-> drive-in (SE), cemetery <-> chapel (SW).
-  hedgeWall('x', 22, 23, [34, 35]);
-  addGate(34, 22, 60, 'THE SCHOOL YARD', 'n');
-  hedgeWall('y', 46, 47, [34, 35, 12, 13]);
-  addGate(46, 34, 120, 'THE STARCADE', 'e');
-  hedgeWall('x', 70, 71, [34, 35, 10, 11, 86, 87]);
-  addGate(34, 70, 180, 'DOWNTOWN', 's');
-  hedgeWall('y', 22, 23, [34, 35, 12, 13]);
-  addGate(22, 34, 240, 'THE OLD CEMETERY', 'w');
+  addGate(34, 22, 60, 'THE SCHOOL YARD', 'n', hedgeWall('x', 22, 23, [34, 35]));
+  addGate(46, 34, 120, 'THE STARCADE', 'e', hedgeWall('y', 46, 47, [34, 35, 12, 13]));
+  addGate(34, 70, 180, 'DOWNTOWN', 's', hedgeWall('x', 70, 71, [34, 35, 10, 11, 86, 87]));
+  addGate(22, 34, 240, 'THE OLD CEMETERY', 'w', hedgeWall('y', 22, 23, [34, 35, 12, 13]));
   // light the passages so they read as ways through
   for (const [lx, ly] of [[21, 11], [24, 14], [45, 11], [48, 14], [9, 69], [12, 72], [85, 69], [88, 72]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
 
@@ -540,23 +552,42 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   houses.filter(h => h.prop.kind === 'house').forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
   // Meet on the open central sidewalk, not inside the randomized housing lot.
-  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, start: { x: 35, y: 45 } };
-  for (const venue of houses.filter(h => h.prop.kind !== 'house')) {
-    if (!blockedCircle(map, venue.door.x, venue.door.y, 0.3)) continue;
-    const { x0, y0, fw, fh } = venue.prop;
-    const candidates = [0, -0.5, 0.5, -1, 1].flatMap(dx => [0.6, 0.9, 1.2].map(dy => ({ x: x0 + fw / 2 + dx, y: y0 + fh + dy })));
-    const door = candidates.find(p => !blockedCircle(map, p.x, p.y, 0.3));
-    if (!door) throw new Error(`No accessible reward entrance for ${venue.owner}`);
-    venue.door = door;
-  }
+  const map: GameMap = { barrierBase, ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, start: { x: 35, y: 45 } };
   let best = Infinity;
-  for (let y = 25; y < 69; y += 0.5) for (let x = 25; x < 45; x += 0.5) {
+  for (let y = 25 + .5 / CR; y < 69; y += 0.5) for (let x = 25 + .5 / CR; x < 45; x += 0.5) {
     const distance = (x - 35) ** 2 + (y - 45) ** 2;
     if (distance >= best || blockedCircle(map, x, y, 0.5)) continue;
     if (props.some(p => p.big && x > p.x0 - 0.5 && x < p.x0 + p.fw + 0.5 && y > p.y0 - 0.5 && y < p.y0 + p.fh + 0.5)) continue;
     best = distance; map.start = { x, y };
   }
   if (!Number.isFinite(best)) throw new Error('No safe starting clearing in the central neighbourhood');
+  // Validate porches with body clearance, with only timed barriers removed. A
+  // point-only flood can incorrectly accept a door behind an impassable narrow gap.
+  const approachColl = coll.slice();
+  for (const gate of gates) for (const [x, y] of gate.cells) approachColl[y * CW + x] = barrierBase[y * CW + x];
+  const approachMap = { ...map, coll: approachColl }, walkable = new Uint8Array(CW * CH), connected = new Uint8Array(CW * CH);
+  for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) walkable[y * CW + x] = Number(!blockedCircle(approachMap, (x + .5) / CR, (y + .5) / CR, .3));
+  const queue = new Int32Array(CW * CH), origin = Math.floor(map.start.y * CR) * CW + Math.floor(map.start.x * CR);
+  let head = 0, tail = 1; queue[0] = origin; connected[origin] = 1;
+  while (head < tail) {
+    const c = queue[head++], x = c % CW, y = Math.floor(c / CW);
+    for (const next of [x > 0 ? c - 1 : -1, x < CW - 1 ? c + 1 : -1, y > 0 ? c - CW : -1, y < CH - 1 ? c + CW : -1]) {
+      if (next < 0 || !walkable[next] || connected[next]) continue;
+      connected[next] = 1; queue[tail++] = next;
+    }
+  }
+  const accessible = (p: {x:number;y:number}) => !blockedCircle(approachMap, p.x, p.y, .3) && connected[Math.floor(p.y * CR) * CW + Math.floor(p.x * CR)];
+  for (const venue of houses) {
+    if (accessible(venue.door)) continue;
+    const { x0, y0, fw, fh } = venue.prop;
+    const sideX = venue.prop.kind === 'house' && venue.door.x > x0 + fw;
+    const candidates = [0, -.5, .5, -1, 1, -1.5, 1.5, -2, 2].flatMap(offset => [.7, 1, 1.3, 1.6, 2, 2.5].map(outward => sideX
+      ? { x:x0 + fw + outward, y:venue.door.y + offset }
+      : { x:venue.door.x + offset, y:y0 + fh + outward }));
+    const door = candidates.find(accessible);
+    if (!door) throw new Error(`No accessible reward entrance for ${venue.owner}, seed ${seed}`);
+    venue.door = door;
+  }
   return map;
 }
 
@@ -567,14 +598,20 @@ export function cellAt(m: GameMap, x: number, y: number) {
   return m.coll[cy * CW + cx];
 }
 export function blockedCircle(m: GameMap, x: number, y: number, r: number) {
-  return cellAt(m, x - r, y - r) > 0 || cellAt(m, x + r, y - r) > 0 || cellAt(m, x - r, y + r) > 0 || cellAt(m, x + r, y + r) > 0 || cellAt(m, x, y) > 0;
+  // Match swept movement's full footprint. Five samples can miss a lamp or fence
+  // inside the body and incorrectly declare a spawn/porch/navigation cell safe.
+  const x0 = Math.floor((x - r) * CR), x1 = Math.floor((x + r) * CR);
+  const y0 = Math.floor((y - r) * CR), y1 = Math.floor((y + r) * CR);
+  if (x0 < 0 || y0 < 0 || x1 >= CW || y1 >= CH) return true;
+  for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) if (m.coll[cy * CW + cx]) return true;
+  return false;
 }
-export function lineOfSight(m: GameMap, x0: number, y0: number, x1: number, y1: number) {
+export function lineOfSight(m: GameMap, x0: number, y0: number, x1: number, y1: number, solidLevel = 2) {
   const d = Math.hypot(x1 - x0, y1 - y0);
   const steps = Math.ceil(d * CR);
   for (let i = 1; i < steps; i++) {
     const t = i / steps;
-    if (cellAt(m, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) === 2) return false;
+    if (cellAt(m, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) >= solidLevel) return false;
   }
   return true;
 }

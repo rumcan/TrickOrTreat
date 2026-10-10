@@ -513,6 +513,17 @@ button.kit-tile:not(:disabled):hover {
 .touch-game .hm-chip.hot { display: none; }
 .touch-game .hm-iconbtn { width: 44px; height: 44px; border-radius: 8px; touch-action: manipulation; }
 .touch-game .hm-notices { max-height: 92px; overflow: hidden; }
+.touch-game .kit-flicker { top:calc(var(--hm-top) + 12px) !important; width:calc(100% - 24px) !important; }
+.touch-game .kit-flicker > div { height:64px !important; }
+.boss-break-panel { position:absolute; z-index:29; left:50%; top:calc(var(--hm-top) + 14px); transform:translateX(-50%); width:min(640px,calc(100% - 24px)); display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; padding:12px; border:1px solid #ddb761; border-top:3px solid #f39831; border-radius:8px; color:#fff4dc; background:#142015ed; box-shadow:0 5px 28px #0008; }
+.boss-break-panel strong, .boss-break-panel span { display:block; }
+.boss-break-panel strong { color:#ffe39a; font:700 18px/1.2 "Barlow Condensed", sans-serif; letter-spacing:.08em; }
+.boss-break-panel span { margin-top:4px; font-size:12px; }
+.boss-break-panel button { min-height:44px; padding:9px 14px; border:1px solid #ffaa53; border-radius:5px; background:#e97616; color:#fff; font-weight:700; }
+.boss-break-panel button.boss-break-skip { border-color:#c7d4c1; background:#25372a; }
+.touch-game .boss-break-panel { padding:8px; gap:6px; }
+.touch-game .boss-break-panel button { padding:6px 10px; font-size:12px; }
+.touch-game:has(.boss-break-panel) .kit-flicker { display:none; }
 @media (max-width: 639px) {
   .touch-game { --hm-top: calc(64px + env(safe-area-inset-top, 0px)); }
   .touch-game .hm-topbar { padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); gap: 4px; }
@@ -703,7 +714,7 @@ button.kit-tile:not(:disabled):hover {
 .vending-tile { position:relative; display:flex; flex-direction:column; flex-shrink:0; width:162px; min-height:176px; overflow:hidden; border:1px solid #4d6570; border-bottom:4px solid var(--prize-color); border-radius:5px; background:linear-gradient(#29404c,#12222a); text-align:left; transition:background .15s; }
 .vending-tile:not(:disabled):hover, .vending-tile:focus-visible { outline:2px solid var(--prize-color); outline-offset:-2px; background:#344956; }
 .vending-tile-art { height:88px; width:100%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#040a1070; }
-.vending-tile-art .vending-gun { width:85%; height:auto; max-height:75px; object-fit:contain; }
+.vending-tile-art .vending-gun { width:100%; height:100%; max-height:100%; object-fit:contain; }
 .vending-tile > span { padding:7px 9px 0; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--prize-color); }
 .vending-tile > strong { padding:4px 9px 8px; font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; line-height:1.15; }
 .vending-tile > small { display:flex; gap:4px; align-items:center; padding:0 9px 7px; font-size:9px; color:#ffe0a2; }
@@ -735,7 +746,13 @@ button.kit-tile:not(:disabled):hover {
 .vending-catalogue-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:18px; }
 .vending-catalogue-grid button { display:flex; flex-direction:column; border:1px solid; border-radius:5px; padding:10px; gap:8px; background:#0d1a22; text-align:left; }
 .vending-catalogue-grid button > div { height:76px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.vending-catalogue-grid .vending-gun { width:100%; max-height:70px; object-fit:contain; }
+.vending-catalogue-grid .vending-gun { width:100%; max-height:90px; object-fit:contain; }
+
+/* High-resolution illustrations load only in cards, never in the world sprite atlas. */
+.weapon-card-art { display:block; max-width:100%; object-fit:contain; image-rendering:auto; }
+.weapon-card-showcase { margin:-6px -6px 12px; height:132px; overflow:hidden; border:1px solid #ffffff12; border-radius:5px; background:#080e17; }
+.weapon-card-showcase .weapon-card-art { width:100%; height:100%; }
+.unlock-card-art .weapon-card-art { width:100%; height:100%; }
 .vending-catalogue-grid strong { font-size:13px; }
 .vending-catalogue-grid small { font-size:11px; color:#ffd8a4; }
 .vending-peek { position:fixed; z-index:95; right:24px; top:max(24px,env(safe-area-inset-top)); width:min(360px,calc(100vw - 24px)); max-height:calc(100dvh - 48px); overflow:auto; padding:16px; border:2px solid #c6a666; border-radius:9px; background:#0c1821f7; box-shadow:0 12px 60px #000b; animation:prize-reveal .15s ease-out; }

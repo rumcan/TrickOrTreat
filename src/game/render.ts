@@ -330,6 +330,11 @@ export class Renderer {
         draw: () => {
           const bob = Math.sin(this.t * 4 + k.x * 3) * 3;
           const z = k.z * Z;
+          if (k.golden && k.t < 1.1 && k.z > 0) {
+            ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k.t / 1.1); ctx.strokeStyle = '#ffe397'; ctx.lineWidth = 3;
+            ctx.shadowColor = '#ffbd38'; ctx.shadowBlur = 9;
+            ctx.beginPath(); ctx.moveTo(sx - isoX(k.vx, k.vy) * .1, sy - z - isoY(k.vx, k.vy) * .1 + k.vz * Z * .08); ctx.lineTo(sx, sy - z); ctx.stroke(); ctx.restore();
+          }
           if (k.kind === 'weapon' && k.weapon) {
             const r = RARITY[k.weapon.rarity];
             ctx.save();
@@ -908,16 +913,19 @@ export class Renderer {
         const gate = m.gates[friend.gate];
         const target = friend.status === 'locked' && gate && !gate.opened ? gate : friend;
         const name = HERO_INFO[friend.hero].name;
-        ind(target.x, target.y, '#85f1ef', friend.status === 'locked' && gate && !gate.opened ? `${name} · gate ${Math.max(0, Math.ceil(gate.openAt - g.time))}s` : `Rescue ${name}`);
+        ind(target.x, target.y, '#73f095', friend.status === 'locked' && gate && !gate.opened ? `${name} · gate ${Math.max(0, Math.ceil(gate.openAt - g.time))}s` : `Rescue ${name}`);
       }
       // Draw rescue beacons after scenery so roofs/trees cannot hide the objective.
       for (const friend of missing) {
         const [sx, sy] = toS(isoX(friend.x, friend.y), isoY(friend.x, friend.y));
         if (sx < 0 || sx > vw || sy < 0 || sy > vh) continue;
+        ctx.save(); ctx.translate(sx, sy - 58 + Math.sin(this.t * 3 + friend.hero) * 4);
+        ctx.shadowColor = '#58ef88'; ctx.shadowBlur = 12; ctx.strokeStyle = '#103921'; ctx.lineWidth = 2; ctx.fillStyle = '#79ff9f';
+        ctx.beginPath(); ctx.moveTo(-7,-50); ctx.lineTo(7,-50); ctx.lineTo(7,-22); ctx.lineTo(18,-22); ctx.lineTo(0,0); ctx.lineTo(-18,-22); ctx.lineTo(-7,-22); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         ctx.font = 'bold 13px system-ui'; ctx.textAlign = 'center'; ctx.lineWidth = 4;
-        ctx.strokeStyle = '#07151c'; ctx.fillStyle = '#85f1ef';
+        ctx.strokeStyle = '#07151c'; ctx.fillStyle = '#97ffb0';
         const label = `+ ${HERO_INFO[friend.hero].name} · rescue`;
-        ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
+        ctx.strokeText(label, sx, sy - 122); ctx.fillText(label, sx, sy - 122);
       }
     }
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
@@ -990,7 +998,7 @@ export class Renderer {
       if (g.campaign) for (const friend of g.friends) {
         if (friend.status === 'rescued') continue;
         const [a, b] = MP(friend.x, friend.y);
-        ctx.fillStyle = '#6ef4ff'; ctx.strokeStyle = '#07141a'; ctx.lineWidth = 2;
+        ctx.fillStyle = '#73f095'; ctx.strokeStyle = '#07141a'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#07141a'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
         if (big) {
