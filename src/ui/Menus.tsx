@@ -368,7 +368,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
                 <div className="hm-pick-art">
                   <TreatArt id={c.id} />
                   <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
-                  <span className="hm-stamp">{RARITY_NAMES[c.rarity]}</span>
+                  <span className="hm-stamp">{RARITY_NAMES[c.rarity]} treat</span>
                 </div>
                 <div className="flex flex-1 flex-col p-3.5">
                   <div className="hm-pick-name">{c.name}</div>
