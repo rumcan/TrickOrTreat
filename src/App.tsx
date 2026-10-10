@@ -17,10 +17,11 @@ import { gameAudio } from './game/audio';
 import { expansion, hasFullGame } from './game/expansion';
 import { HERO_INFO } from './game/data';
 import { SplashArt } from './ui/SplashArt';
-import { TouchControls, useTouchMode } from './ui/TouchControls';
+import { TouchControls, TouchMoveSurface, useTouchMode } from './ui/TouchControls';
 import { VendingMachine } from './ui/VendingMachine';
-import { requestMobileFullscreen, requestGameFullscreen } from './ui/fullscreen';
-import { Maximize } from 'lucide-react';
+import { requestMobileFullscreen } from './ui/fullscreen';
+import { useBack } from './ui/back';
+import { X } from 'lucide-react';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
@@ -78,16 +79,30 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
     refresh();
   }, [refresh]);
   const restart = useCallback(() => { requestMobileFullscreen(); setRunId((n) => n + 1); }, []);
+  // Browser Back (the phone gesture) steps out of whatever is open instead of leaving the site mid-run.
+  useBack(() => {
+    const gg = gameRef.current;
+    if (!gg) return;
+    if (gg.bigMap) gg.bigMap = false;
+    else if (gg.state === 'play') gg.state = 'pause';
+    else if (gg.state === 'pause' || gg.state === 'inventory') gg.state = 'play';
+    else if (gg.state === 'shop') gg.closeShop();
+    else if (gg.state === 'vending') gg.closeVending();
+    else if (gg.state === 'inspect') gg.closeInspect();
+    refresh(); // a treat choice, the intro and the end screen have no "close": Back simply does nothing there
+  });
 
   return (
     <div className={`ingame absolute inset-0 cursor-none bg-black ${touchMode ? 'touch-game' : ''}`}>
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full game-canvas" onPointerDown={event => { if (event.pointerType === 'touch') event.preventDefault(); }} />
+      {touchMode && g && snap && <TouchMoveSurface key={runId} game={g} enabled={snap.state === 'play'} />}
       {g && snap && <Hud s={snap} game={g} />}
       {touchMode && g && snap && <TouchControls key={runId} game={g} s={snap} />}
       {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 min-h-11 text-sm text-white cursor-auto" onClick={() => { g.introTime = 18; }}>{touchMode ? 'Skip intro' : 'Space / Enter · skip intro'}</button></div></div>}
       {g && snap?.state === 'levelup' && <div className="cursor-auto"><LevelUp game={g} onDone={refresh} /></div>}
-      {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /></div>}
-      {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /></div>}
+      {/* phones: these two scroll, so their way out is pinned on top instead of sitting at the very bottom */}
+      {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /><button type="button" className="modal-close modal-close--over" aria-label="Leave the gun" onClick={() => { g.closeInspect(); refresh(); }}><X size={20} strokeWidth={3} /></button></div>}
+      {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /><button type="button" className="modal-close modal-close--over" aria-label="Leave the shop" onClick={closeShop}><X size={20} strokeWidth={3} /></button></div>}
       {g && snap?.state === 'vending' && <div className="cursor-auto"><VendingMachine game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'pause' && (
         <div className="cursor-auto">
@@ -159,7 +174,8 @@ export default function App() {
   return (
     <div className="game-shell relative w-screen overflow-hidden bg-[#0e0f13]">
       {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
-      {screen !== 'game' && <button className="menu-fullscreen" aria-label="Fullscreen" title="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={18} /></button>}
+      {/* phones: the sub-screens' own Back buttons sit below the fold, so one is pinned in the corner */}
+      {(screen === 'chars' || screen === 'talents' || screen === 'atlas') && <button type="button" className="modal-close modal-close--over" aria-label="Back to the title" onClick={toTitle}><X size={20} strokeWidth={3} /></button>}
       {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}

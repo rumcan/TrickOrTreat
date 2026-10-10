@@ -1,3 +1,13 @@
+# Phone fixes: drag to move, one-screen menu, Back closes popups
+
+- Drag a finger anywhere on the play area to move. The two on-screen sticks are gone; the kid aims and fires alone.
+- The title screen fits one phone screen in portrait and landscape, with no scrolling to reach the menu buttons.
+- The browser Back gesture now closes the open popup (or pauses a run) instead of leaving the site. Every popup also
+  has a close button pinned in the corner, and tall popups no longer open scrolled past their top.
+- A tiny music mute key sits top-left in the game and on the phone menu.
+- The fullscreen button is shown only where fullscreen can work. It no longer covers "Discover the full game".
+- The open map has a real Close map button on touch screens, and a tap on the map closes it.
+
 # Tougher monsters, bounded damage, gazebo hideouts and a looping loader
 
 - The loading screen appears instantly from plain HTML with a looping bar instead of a progress bar that sat at 2%.

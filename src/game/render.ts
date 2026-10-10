@@ -138,7 +138,7 @@ export class Renderer {
     const p = g.p;
     const touchViewport = cv.parentElement?.classList.contains('touch-game');
     const hudTop = cv.parentElement?.querySelector<HTMLElement>('.hm-topbar')?.offsetHeight || (vw < 640 ? (touchViewport ? 76 : 48) : 56);
-    const controlsOffset = touchViewport ? (vw < 640 ? Math.min(130, vh * 0.16) : 28) : 0;
+    const controlsOffset = touchViewport ? (vw < 640 ? Math.min(60, vh * 0.08) : 20) : 0;
     const tx = isoX(p.x, p.y), ty = isoY(p.x, p.y) - 40 + controlsOffset / zoom;
     if (g.vw === 1) { g.camX = tx; g.camY = ty; }
     g.camX += (tx - g.camX) * Math.min(1, dt * 8);
@@ -1017,7 +1017,7 @@ export class Renderer {
         ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';
         ctx.textAlign = 'right';
         ctx.fillStyle = '#c9bda6';
-        ctx.fillText('M  ·  CLOSE MAP', mx + mw + 6, my - 14);
+        if (!touchViewport) ctx.fillText('M  ·  CLOSE MAP', mx + mw + 6, my - 14); // touch gets a real button (Hud)
       }
     }
 
