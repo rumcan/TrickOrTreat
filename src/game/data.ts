@@ -161,10 +161,10 @@ export function makeLockedWeapon(rarity: number): Weapon | null {
   w.ammo = weaponStats(w, baseStats()).mag;
   return w;
 }
-export function makeWeapon(defId: string | null, rarity: number, level = 1): Weapon {
-  const weaponPool = WEAPONS.filter((w) => !w.premium || hasFullGame());
+export function makeWeapon(defId: string | null, rarity: number, level = 1, premiumPrize = false): Weapon {
+  const weaponPool = WEAPONS.filter((w) => !w.premium || hasFullGame() || premiumPrize);
   const chosen = defId ? WEAPON_BY_ID[defId] : weaponPool[Math.floor(Math.random() * weaponPool.length)];
-  const def = chosen && (!chosen.premium || hasFullGame()) ? chosen : WEAPON_BY_ID.pea;
+  const def = chosen && (!chosen.premium || hasFullGame() || premiumPrize) ? chosen : WEAPON_BY_ID.pea;
   const traits = rollInscriptions(def, rarity);
   const w: Weapon = { uid: uidc++, def, rarity, level, traits, ammo: 0, reloadT: 0, cd: 0 };
   w.ammo = weaponStats(w, baseStats()).mag;

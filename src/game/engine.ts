@@ -316,7 +316,6 @@ export class Game {
     };
     this.rerolls = s.rerolls;
     this.familiar = { x: this.p.x, y: this.p.y };
-    if (!this.campaign) this.dropStarterItems();
     this.setBanner('Trick or Treat... or FIGHT!', 'Survive the night. Boss arrives at 5:00');
     this.computeFlow(true);
     if (this.campaign) {
@@ -343,10 +342,6 @@ export class Game {
     if (this.treatGuideComplete) return;
     this.tutorialHouse = this.map.houses.filter(h => h.prop.kind === 'house' && !h.trick && !h.visited && !blockedCircle(this.map, h.door.x, h.door.y, this.p.r) && this.reachable(h.door.x, h.door.y))
       .sort((a, b) => Math.hypot(a.door.x - this.p.x, a.door.y - this.p.y) - Math.hypot(b.door.x - this.p.x, b.door.y - this.p.y))[0] ?? null;
-  }
-
-  private dropStarterItems() {
-    this.dropWeapon(this.p.x + 1.6, this.p.y - 1.2, makeWeapon(['nerf', 'shotgun', 'roman', 'soaker'][Math.floor(Math.random() * 4)], 1));
   }
 
   private freeSpot(x: number, y: number, reachable = false) {
@@ -392,7 +387,6 @@ export class Game {
     for (const bubble of this.bubbles) bubble.life = Math.max(0.1, bubble.life - dt);
     if (this.input.pressed.has(' ') || this.input.pressed.has('enter') || this.introTime >= 17) {
       this.state = 'play'; this.bubbles = [];
-      this.dropStarterItems();
       this.setBanner('HIDE & SHRIEK', 'Rescue four friends. One companion can fight beside you.');
       gameAudio.play('guardian', 0.4);
     }
@@ -2208,9 +2202,9 @@ export class Game {
     this.state = 'vending';
   }
   vendingPrice() { return vendingCost(this.vendingPlays); }
-  vendingPool(): VendingPrize[] { return vendingCatalogue(this.scrolls, hasFullGame()); }
+  vendingPool(): VendingPrize[] { return vendingCatalogue(this.scrolls); }
   spinVending(): VendingSpin | null {
-    if (this.state !== 'vending' || !this.vendingActive || (this.vendingSpin && this.vendingSpin.status !== 'claimed')) return null;
+    if (this.state !== 'vending' || !this.vendingActive || (this.vendingSpin && !['claimed', 'rejected'].includes(this.vendingSpin.status))) return null;
     const cost = this.vendingPrice();
     if (this.p.coins < cost) return null;
     const spin = createVendingSpin(this.vendingPool(), ++this.vendingId, cost);
@@ -2229,7 +2223,6 @@ export class Game {
     const spin = this.vendingSpin;
     if (this.state !== 'vending' || !this.vendingActive || spin?.status !== 'won') return false;
     const prize = spin.winner;
-    if (prize.premium && !hasFullGame()) return false;
     if (prize.kind === 'weapon' && (!Number.isInteger(slot) || slot < 0 || slot > 1)) return false;
     spin.status = 'claimed'; // Mark before applying: double clicks cannot grant twice.
     if (prize.kind === 'treat') {
@@ -2246,13 +2239,20 @@ export class Game {
     gameAudio.play('pickup', .35);
     return true;
   }
+  rejectVending(): boolean {
+    const spin = this.vendingSpin;
+    if (this.state !== 'vending' || !this.vendingActive || spin?.status !== 'won' || spin.winner.kind !== 'weapon') return false;
+    spin.status = 'rejected';
+    this.input.pressed.clear();
+    return true;
+  }
   closeVending() {
     if (this.state !== 'vending' || !this.vendingActive) return;
     const spin = this.vendingSpin;
     if (spin?.status === 'spinning') return;
     if (spin?.status === 'won') {
       if (spin.winner.kind === 'treat') this.claimVending();
-      else return; // Never discard a paid-for gun without choosing a slot.
+      else this.rejectVending(); // Leaving explicitly rejects an unwanted gun; no refund or duplicate drop.
     }
     this.vendingActive = false; this.input.pressed.clear(); this.state = 'play'; this.p.invuln = .8;
   }

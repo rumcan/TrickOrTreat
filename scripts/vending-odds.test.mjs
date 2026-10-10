@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { weightedPick, vendingCost, VENDING_RARITY_ODDS } from '../src/game/vending-odds.ts';
 test('earned-coin cost begins at 60 and rises modestly each play', () => {
-  assert.equal(vendingCost(0), 60); assert.equal(vendingCost(1), 75); assert.equal(vendingCost(2), 94);
+  assert.equal(vendingCost(0), 60); assert.equal(vendingCost(1), 78); assert.equal(vendingCost(2), 101);
+  for (let play = 1; play < 50; play++) assert.ok(vendingCost(play) > vendingCost(play - 1));
   assert.equal(vendingCost(-1), 60);
 });
 test('rarity odds total 100 and keep powerful drops rare', () => {

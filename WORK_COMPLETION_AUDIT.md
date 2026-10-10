@@ -2,9 +2,15 @@
 
 Checked 2026-10-10. This audit combines the previous completed expansion with the latest artwork, UI, balance, rescue and purchase requests. Later explicit enemy-scaling and premium-skill requests supersede the earlier XP-only balancing restriction.
 
-## Latest release submission: mobile, logo, leaderboard and vending reel
+## Priority follow-up: easy wins and mobile
 
-Uploaded as RUN 1.1.6 on 2026-10-10 with leaderboard/shop server config `zd5wSy5tCfJVFxFyEpAg`. RUN initially placed the release in Review; Public remained on approved 1.1.5 at the initial readback. Publication approval is controlled by RUN, not by the deploy command. Source is prepared on `feature/mobile-leaderboard-vending-release` for a PR targeting `main`.
+The ordered checklist is in `REQUESTED_WORK_PLAN.md`. Batch 1 is implemented and its public RUN upload is in progress. Later instructions now explicitly permit free players to win premium vending prizes; this supersedes the historical preview-only implementation below. Premium vending prizes last for the run and do not grant the permanent entitlement. Spin prices now rise 30%, and unwanted weapons can be rejected and the orange exit used immediately after settlement.
+
+Verification: TypeScript, vending odds/claim/reject/premium entitlement guards, desktop hover/mobile overlay behaviour, Pea-only starts, static costumes, full-height replay, fullscreen request and denial fallback, native multitouch at four sizes, 17 existing bug regressions, menu/layout regression and 234-asset production desktop/phone smoke passed. Browser fullscreen requires the Play gesture and host/browser support; physical phone certification is not claimed. The unfinished high-resolution card-art work is safely parked and is excluded from Batch 1.
+
+## Approved public release: mobile, logo, leaderboard and vending reel
+
+RUN 1.1.6 was approved publicly on 2026-10-10 with server config `zd5wSy5tCfJVFxFyEpAg`. Public hosted checks verified the exact audited bundle, 234 assets, free gameplay, active permanent 100-Bit purchase, and live survival/rescue all-time leaderboard configuration. Source merged through [PR #9](https://github.com/rumcan/TrickOrTreat/pull/9), merge `bbbc256bba641ee631e00da504b97dc3ea5a4816`; local main was synchronized.
 
 - Main-menu left drawer: signed-in RUN usernames and longest survival times; separate neighbourhood/rescue boards, all-time ordering, own rank, pagination, refresh/retry, keyboard focus handling and phone layout. Guests, missing profiles and the SDK's synthetic local mock identity cannot view or query the boards. No fake seed names are configured.
 - Production runs of at least 10 seconds submit elapsed gameplay seconds at the run result, never paused/loading time. Per-run guards block duplicate submissions, account changes, local development and preview runs; a later endless result can improve the record. Submission failures preserve local saves and do not pretend a rank was accepted.

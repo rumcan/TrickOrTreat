@@ -9,6 +9,7 @@ import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack,
 import { HudSnap, Game } from '../game/engine';
 import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/data';
 import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
+import { requestGameFullscreen } from './fullscreen';
 import { Banner, Keycap } from './kit';
 import { FACES, HERO_COLORS, BannerKind } from './art';
 import RadioPill from './RadioPill';
@@ -98,7 +99,7 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
           <button className="hm-iconbtn hm-desk hm-mobile-access" title="Your run build (I)" aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
           <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
           <button className="hm-iconbtn" title="Pause (Esc)" aria-label="Pause" {...buttonPress(() => { if (game.state === 'play') game.state = 'pause'; })}><PauseIcon size={16} /></button>
-          <button className="hm-iconbtn hm-desk" title="Fullscreen" aria-label="Fullscreen" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => undefined)}><Maximize size={15} /></button>
+          <button className="hm-iconbtn hm-desk hm-mobile-access" title="Fullscreen" aria-label="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={15} /></button>
         </div>
       </div>
       {/* the orange rule is the XP meter */}

@@ -216,7 +216,7 @@ export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBa
           <Chip icon={<CandyIcon size={22} />} className="!text-2xl" color="#b98aff">{save.soul}</Chip>
           <KitButton variant="cream" size="sm" icon={ChevronLeft} onClick={onBack}>Back</KitButton>
         </div>
-        {onAgain && <KitButton onClick={onAgain}>Play again with these talents</KitButton>}
+        {onAgain && <KitButton className="talent-replay" onClick={onAgain}>Play again with these talents</KitButton>}
         <div className="font-cond2 text-[12px] font-semibold text-[#9aa0a6]">Soul Candy is earned at the end of every run (kills, time survived, boss).</div>
 
         <div className="kit-panel p-4" style={{ borderColor: TALENT_COLORS[focus.branch], boxShadow: `0 0 0 1px #000, 0 0 30px ${TALENT_COLORS[focus.branch]}22` }}>

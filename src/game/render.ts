@@ -133,7 +133,8 @@ export class Renderer {
       this.heroSil = tinted(this.hero.img, '#7fd8ff', 1);
       this.heroFlash = tinted(this.hero.img, '#ff3030', 1);
     }
-    const zoom = clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35);
+    const mobile = cv.parentElement?.classList.contains('touch-game');
+    const zoom = mobile ? clamp(Math.min(vw / 1400, vh / 850), 0.42, 0.85) : clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35);
     const p = g.p;
     const touchViewport = cv.parentElement?.classList.contains('touch-game');
     const hudTop = cv.parentElement?.querySelector<HTMLElement>('.hm-topbar')?.offsetHeight || (vw < 640 ? (touchViewport ? 76 : 48) : 56);
