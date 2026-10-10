@@ -51,6 +51,31 @@ try {
     return { count: g.friends.length, active: g.activeFriend === f.hero, status: f.status, near: Math.hypot(f.x - g.p.x, f.y - g.p.y) < 3, gun: f.weapon.def.id, offer: g.friendChoice };
   });
   assert.deepEqual(joined, { count: 1, active: true, status: 'rescued', near: true, gun: 'nerf', offer: null });
+  // the companion keeps up: the player runs flat out for 8 seconds, with a dash, and the helper never falls behind
+  const follow = await page.evaluate(async () => {
+    const { screenDirToWorld } = await import('/src/game/config.ts');
+    const g = window.__tot.game, f = g.friends[0], dt = 1 / 30, home = { x: g.p.x, y: g.p.y, fx: f.x, fy: f.y };
+    g.enemies = [];
+    let worst = 0, travelled = 0, heading = 0;
+    for (let i = 0; i < 240; i++) {
+      // run at full player speed, turning whenever the way is blocked; a dash burst in the middle
+      const speed = (i >= 100 && i < 106 ? 13 : 3.4 * g.stats.move);
+      for (let tries = 0; tries < 8; tries++) {
+        const w = screenDirToWorld(Math.cos(heading), Math.sin(heading)), x = g.p.x, y = g.p.y;
+        g.moveCircle(g.p, w.x * speed * dt, w.y * speed * dt, g.p.r);
+        const moved = Math.hypot(g.p.x - x, g.p.y - y);
+        if (moved > speed * dt * 0.6) { travelled += moved; break; }
+        g.p.x = x; g.p.y = y; heading += Math.PI / 4;
+      }
+      g.time += dt; g.computeFlow(false, dt); g.updateTeam(dt);
+      if (i > 30) worst = Math.max(worst, Math.hypot(f.x - g.p.x, f.y - g.p.y));
+    }
+    const end = Math.hypot(f.x - g.p.x, f.y - g.p.y);
+    g.p.x = home.x; g.p.y = home.y; f.x = home.fx; f.y = home.fy; g.computeFlow(true); // back to open ground for the next checks
+    return { worst, travelled, end };
+  });
+  assert.ok(follow.travelled > 20, `The run must cover real ground (${follow.travelled.toFixed(1)} tiles)`);
+  assert.ok(follow.worst < 5 && follow.end < 2.5, `The helper keeps pace with a running player (worst gap ${follow.worst.toFixed(1)}, final ${follow.end.toFixed(1)} tiles)`);
   // the companion fights
   await page.evaluate(() => { const g = window.__tot.game, f = g.friends[0]; f.weapon.ammo = 40; g.spawnEnemy('zombie', f.x + 2, f.y).spawnT = 0; });
   await page.waitForFunction(() => window.__tot.game.friends[0].weapon.ammo < 40);

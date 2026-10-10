@@ -179,6 +179,8 @@ export interface RescueFriend {
   channel?: boolean; pauseT?: number; burst?: boolean;
   /** facing (world direction) and whether they are walking: picks the aiming sprite */
   faceX?: number; faceY?: number; moving?: boolean;
+  /** seconds spent well behind the player (they rejoin when it gets long) */
+  farT?: number;
 }
 
 export interface Player {
@@ -520,11 +522,16 @@ export class Game {
     if (distance > (this.state === 'downed' ? 0.7 : 1.6)) {
       const direction = this.flowDir(friend.x, friend.y);
       const dx = direction?.x ?? (this.p.x - friend.x) / (distance || 1), dy = direction?.y ?? (this.p.y - friend.y) / (distance || 1);
-      this.moveCircle(friend, dx * this.stats.move * 1.05 * dt, dy * this.stats.move * 1.05 * dt, friend.r);
+      // Following comes first. The helper runs at the player's own pace (same 3.4 tiles/s base and move bonuses), a
+      // little quicker so they close the gap, and sprints when they have fallen behind (a dash, a corner).
+      const pace = 3.4 * this.stats.move * (distance > 4 ? 1.6 : 1.1);
+      this.moveCircle(friend, dx * pace * dt, dy * pace * dt, friend.r);
       friend.anim += dt * 8; friend.back = dy < 0; friend.flip = dx < 0;
       friend.moving = true; friend.faceX = dx; friend.faceY = dy;
     } else { friend.anim += dt * 3; friend.moving = false; }
-    if (distance > 18 && this.state !== 'downed') Object.assign(friend, this.freeSpot(this.p.x + 1, this.p.y + 1));
+    // never left behind: far away, or stuck out of reach for a few seconds, they turn up beside the player
+    friend.farT = distance > 5 ? (friend.farT ?? 0) + dt : 0;
+    if ((distance > 12 || friend.farT > 3) && this.state !== 'downed') { Object.assign(friend, this.freeSpot(this.p.x + 1, this.p.y + 1, true)); friend.farT = 0; }
     for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
       friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8; this.playerReviveProgress = 0;
     }

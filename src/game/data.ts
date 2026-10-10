@@ -236,7 +236,7 @@ export const SCROLLS: Scroll[] = [
   { id: 'fireball', name: "Firestarter Stare", quote: "Don't make her angry.", icon: '🔥', rarity: 1, desc: '+20% Burn chance on hit', max: 4, apply: (s) => (s.burn += 0.2) },
   { id: 'pop', name: "Short-Circuit Spark", quote: "Malfunction! Need input!", icon: '⚡', rarity: 1, desc: '+20% Shock chance on hit', max: 4, apply: (s) => (s.shock += 0.2) },
   { id: 'gummy', name: "Slimed!", quote: "It's all over you. And them.", icon: '🟢', rarity: 1, desc: '+20% Ecto chance on hit', max: 4, apply: (s) => (s.ecto += 0.2) },
-  { id: 'pepper', name: "Bug-Hunt Flamethrower", quote: "Get away from her!", icon: '🌶️', rarity: 2, desc: 'Burn deals +60% damage', max: 3, apply: (s) => (s.burnDmg *= 1.6) },
+  { id: 'pepper', name: "Bug-Hunt Flame Fuel", quote: "Get away from her!", icon: '🌶️', rarity: 2, desc: 'Burn deals +60% damage', max: 3, apply: (s) => (s.burnDmg *= 1.6) },
   { id: 'sweater', name: "1.21 Jigawatts", quote: "Great Scott! Lightning never strikes once.", icon: '🧶', rarity: 2, desc: 'Shock chains to +2 more enemies', max: 3, apply: (s) => (s.chain += 2) },
   { id: 'taffy', name: "Sewer Ooze Canister", quote: "Glows in the dark. Mutates everything else.", icon: '☣️', rarity: 2, desc: 'Ecto enemies take +15% more damage', max: 3, apply: (s) => (s.ectoAmp += 0.15) },
   { id: 'fangs', name: "Lost-Boy Fangs", quote: "Sleep all day. Party all night.", icon: '🧛', rarity: 1, desc: '10% chance to heal 2 HP on kill', max: 4, apply: (s) => (s.vamp += 0.1) },

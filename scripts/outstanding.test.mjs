@@ -49,8 +49,8 @@ try {
   await inventory.getByRole('button', { name: 'Close inventory' }).click();
   await page.evaluate(async () => {
     const g = window.__tot.game;
-    const { COSTUME_BY_ID } = await import('/src/game/data.ts');
-    const id = Object.keys(COSTUME_BY_ID).find(id => id !== g.p.costume);
+    const { HERO_COSTUME } = await import('/src/game/data.ts');
+    const id = HERO_COSTUME[g.hero]; // only a kid's own costume can lie on the ground
     g.enemies = []; g.pickups = []; g.dropCostume(g.p.x + .4, g.p.y, id);
     g.state = 'play'; g.updateInteract();
   });
