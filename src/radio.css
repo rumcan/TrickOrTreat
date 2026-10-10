@@ -36,8 +36,12 @@
 @keyframes radio-pop { from { opacity: 0; transform: translateY(var(--radio-pop-y, -4px)); } }
 .radio-pill[data-drop="up"] { --radio-pop-y: 4px; }
 @media (prefers-reduced-motion: reduce) { .radio-pill .radio-note, .radio-pill .radio-now-text, .radio-pill .radio-slider { animation: none !important; } }
-/* Phones: just the play key; a long press shows the line for a moment. */
+.radio-pill .radio-ico-desk, .radio-pill .radio-ico-phone { display: grid; place-items: center; }
+.radio-pill .radio-ico-phone { display: none; }
+/* Phones: just the play key, drawn as a speaker so it reads as "mute music"; a long press shows the line for a moment. */
 @media (max-width: 650px) {
+  .radio-pill .radio-ico-desk, .radio-pill .radio-note { display: none; }
+  .radio-pill .radio-ico-phone { display: grid; }
   .radio-pill .radio-step, .radio-pill .radio-skip, .radio-pill .radio-vol, .radio-pill .radio-now { display: none; }
   .radio-pill[data-peek="1"] .radio-now { display: block; position: absolute; z-index: 60; max-width: 70vw; margin: 0; padding: 8px 12px; background: var(--pp-paper-bg); border: 2px solid #06090b; border-left: 4px solid #ef7c17; box-shadow: 0 4px 0 rgba(0, 0, 0, .45); }
   .radio-pill[data-peek="1"][data-drop="down"] .radio-now { top: calc(100% + 6px); }

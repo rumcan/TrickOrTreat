@@ -44,7 +44,7 @@ try {
     await mobile.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
     await mobile.getByRole('button', { name: 'Go trick-or-treating' }).tap();
     await mobile.getByTestId('touch-move').waitFor();
-    await mobile.getByTestId('touch-aim').waitFor();
+    assert.equal(await mobile.getByTestId('touch-aim').count(), 0, 'Movement is drag-anywhere; there is no aim stick');
     assert.equal(await mobile.evaluate(() => typeof window.__tot), 'undefined', 'Touch controls must not require development globals');
     await mobile.getByRole('button', { name: 'Map', exact: true }).tap();
     await mobile.getByRole('button', { name: 'Map', exact: true }).tap();

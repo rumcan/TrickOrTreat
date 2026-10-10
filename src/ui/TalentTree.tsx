@@ -1,4 +1,5 @@
 import { useMemo, useState, useSyncExternalStore } from 'react';
+import { useBack } from './back';
 import { expansion, hasFullGame } from '../game/expansion';
 import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, COSTUMES } from '../game/data';
 import { makeRng } from '../game/config';
@@ -9,6 +10,7 @@ import { CandyIcon } from './common';
 type NodeState = 'maxed' | 'owned' | 'available' | 'locked';
 
 export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBack: () => void; onAgain?: () => void; earned?: number }) {
+  useBack(onBack);
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const [, force] = useState(0);
   const [sel, setSel] = useState<string>('sharp');

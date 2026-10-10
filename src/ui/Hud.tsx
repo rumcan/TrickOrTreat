@@ -5,14 +5,14 @@
 //  · a bottom ink TAB STRIP (guns / skill / dash; the gun in hand is the "paper" tab) with a paper DRAWER
 //    that opens above it for whatever needs you right now (revive, cannon, doorstep, pickups);
 //  · NOTICES as paper slips with a 4px orange left edge.
-import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon } from 'lucide-react';
+import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon, X } from 'lucide-react';
 import { HudSnap, Game } from '../game/engine';
 import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/data';
 import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
-import { requestGameFullscreen } from './fullscreen';
+import { requestGameFullscreen, canFullscreen } from './fullscreen';
 import { Banner, Keycap } from './kit';
 import { FACES, HERO_COLORS, BannerKind } from './art';
-import RadioPill from './RadioPill';
+import RadioPill, { MusicToggle } from './RadioPill';
 import { TAG_DEFS, TAG_ORDER } from '../game/build';
 import { buttonPress } from './button-press';
 
@@ -99,7 +99,8 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
           <button className="hm-iconbtn hm-desk hm-mobile-access" title="Your run build (I)" aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
           <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
           <button className="hm-iconbtn" title="Pause (Esc)" aria-label="Pause" {...buttonPress(() => { if (game.state === 'play') game.state = 'pause'; })}><PauseIcon size={16} /></button>
-          <button className="hm-iconbtn hm-desk hm-mobile-access" title="Fullscreen" aria-label="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={15} /></button>
+          {/* only where the host or browser can actually do it: on phones inside RUN it cannot */}
+          {canFullscreen() && <button className="hm-iconbtn hm-desk hm-mobile-access" title="Fullscreen" aria-label="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={15} /></button>}
         </div>
       </div>
       {/* the orange rule is the XP meter */}
@@ -243,6 +244,8 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
     <div className="pointer-events-none absolute inset-0 select-none font-ui text-[#f2e6c9]">
       <TopBar s={s} game={game} />
       {!s.bigMap && <Rail s={s} game={game} />}
+      <MusicToggle className="hm-music pointer-events-auto" />
+      {s.bigMap && <button type="button" className="hm-mapclose pointer-events-auto" {...buttonPress(() => { game.bigMap = false; })}><X size={16} strokeWidth={3} /> Close map</button>}
 
       {/* walkie-talkie notices: paper slips under the minimap */}
       <div className="hm-notices">

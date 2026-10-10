@@ -1,4 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useBack } from './back';
 import { createPortal } from 'react-dom';
 import { expansion, hasFullGame } from '../game/expansion';
 import { COSTUMES, HERO_INFO, SCROLLS, TALENTS, WEAPONS } from '../game/data';
@@ -10,6 +11,7 @@ const guns = WEAPONS.filter(w => w.premium), treats = SCROLLS.filter(t => t.prem
 const costumes = COSTUMES.filter(c => c.premium), talents = TALENTS.filter(t => t.premium);
 
 export function UnlockShowcase({ onClose, onPlay }: { onClose: () => void; onPlay: () => void }) {
+  useBack(onClose);
   const state = useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const dialog = useRef<HTMLDivElement>(null), owned = hasFullGame();
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useBack } from './back';
 import { Trophy, X, RotateCw, Clock3, ChevronRight } from 'lucide-react';
 import { leaderboard } from '../game/leaderboard';
 import type { BoardEntry, BoardMode, BoardRank } from '../game/leaderboard-service';
@@ -21,6 +22,7 @@ export function LeaderboardDrawer() {
     return () => { window.removeEventListener('focus', sync); clearInterval(timer); };
   }, []);
   const close = () => { setOpen(false); triggerRef.current?.focus(); };
+  useBack(close, open);
   const load = async (next?: string) => {
     const ticket = ++generation.current;
     setBusy(true); setError('');

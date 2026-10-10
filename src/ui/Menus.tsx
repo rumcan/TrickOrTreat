@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock } from 'lucide-react';
+import { Play, Users, Lollipop, Backpack, Settings as Gear, LogOut, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
@@ -16,6 +16,8 @@ import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 import { SplashArt } from './SplashArt';
 import { LeaderboardDrawer } from './LeaderboardDrawer';
+import { useBack } from './back';
+import { canFullscreen, requestGameFullscreen } from './fullscreen';
 
 const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
@@ -30,9 +32,15 @@ function KeyArt({ dim = 0, blur }: { dim?: number; blur?: boolean }) {
 }
 
 function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) {
+  useBack(() => onClose?.(), !!onClose);
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
-      {children}
+    <div className="absolute inset-0 z-50 bg-black/75">
+      {/* margin:auto centring, so a popup taller than the phone starts at its top instead of being cut off above it */}
+      <div className="modal-scroll flex h-full overflow-y-auto overscroll-contain p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
+        <div className="m-auto flex w-full justify-center">{children}</div>
+      </div>
+      {/* phones: always-visible way out, pinned over the scrolling content */}
+      {onClose && <button type="button" className="modal-close" aria-label="Close popup" onClick={onClose}><X size={20} strokeWidth={3} /></button>}
     </div>
   );
 }
@@ -50,48 +58,51 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
     <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
       <LeaderboardDrawer />
-      <div className="relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 pt-[150px] sm:p-8 sm:pt-12 lg:pt-12">
-        <header aria-label="Game header" className="flex flex-col items-center gap-2">
+      {/* Layout lives in index.css (.title-*): phones get one screen with no scrolling, in portrait and landscape. */}
+      <div className="title-wrap relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 sm:p-8 sm:pt-12 lg:pt-12">
+        <header aria-label="Game header" className="title-head flex flex-col items-center gap-2">
           {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
-          <div className="absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
-          <LogoImg className="kit-bob w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
+          <div className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
+          <LogoImg className="title-logo kit-bob w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
             {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
           </div>
         </header>
-        <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col">
-          <div className="flex flex-1 items-center py-5">
-          <section aria-label="Character selection" className="kit-panel w-full bg-[#0e0f13]/90 p-3 sm:p-4">
-            <h1 className="mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
+        <div className="title-main mx-auto flex w-full max-w-4xl flex-1 flex-col">
+          <div className="title-pick flex flex-1 items-center py-5">
+          <section aria-label="Character selection" className="title-panel kit-panel w-full bg-[#0e0f13]/90 p-3 sm:p-4">
+            <h1 className="title-h1 mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
             <div className="grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids">
               {HERO_INFO.map((kid, index) => {
                 const selected = index === save.hero, locked = index >= 3 && !hasFullGame();
                 return <button key={kid.name} aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`} aria-pressed={selected} onClick={() => setHero(index)} className="group relative min-w-0 overflow-hidden rounded border-2 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffc453]" style={{ borderColor: selected ? '#ffc453' : '#3a3d44', background: HERO_COLORS[index] }}>
-                  <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className={`h-24 w-full object-cover object-top sm:h-44 ${selected ? '' : 'opacity-80 group-hover:opacity-100'}`} />
-                  <div className={`bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}</div>
-                  {locked && <span className="absolute inset-x-0 bottom-8 bg-black/75 py-0.5 text-[9px] uppercase tracking-wide text-[#ffc453]">Full game</span>}
+                  <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className={`title-portrait h-24 w-full object-cover object-top sm:h-44 ${selected ? '' : 'opacity-80 group-hover:opacity-100'}`} />
+                  <div className={`title-kid bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}</div>
+                  {locked && <span className="title-lock absolute inset-x-0 bottom-8 bg-black/75 py-0.5 text-[9px] uppercase tracking-wide text-[#ffc453]">Full game</span>}
                   {selected && <span aria-hidden="true" className="absolute right-1 top-1 rounded bg-[#ffc453] px-1 text-xs font-bold text-black">✓</span>}
                 </button>;
               })}
             </div>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="title-go mt-3 flex flex-wrap items-center justify-between gap-3">
               <div aria-live="polite" className="min-w-0 flex-1">
                 <div className="font-cond text-xl">{hero.name} <span className="text-sm text-[#9aa0a6]">· {hero.title}</span></div>
-                <p className="mt-1 text-xs text-[#e6dcc4]">{hero.passive} · {hero.skill} ({hero.cd}s)</p>
+                <p className="title-passive mt-1 text-xs text-[#e6dcc4]">{hero.passive} · {hero.skill} ({hero.cd}s)</p>
                 <p className="mt-1 hidden text-xs text-[#9aa0a6] sm:block">{hero.skillDesc}</p>
                 {!allowed && <p className="mt-1 text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
               </div>
-              <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="w-full sm:w-auto">Go trick-or-treating</KitButton>
+              <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-play w-full sm:w-auto">Go trick-or-treating</KitButton>
             </div>
           </section>
           </div>
-          <nav className="flex shrink-0 flex-wrap items-center justify-center gap-2">
+          <nav className="title-nav flex shrink-0 flex-wrap items-center justify-center gap-2">
             <KitButton size="sm" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
             <KitButton size="sm" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
             {SHOW_ATLAS && <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>}
             <KitButton size="sm" variant="dark" icon={Gamepad2} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
             <KitButton size="sm" variant="dark" icon={Gear} iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
+            {/* only where it can work; never floating over other buttons */}
+            {canFullscreen() && <KitButton size="sm" variant="dark" icon={Maximize} iconColor="#f4e6c4" className="title-fullscreen" onClick={() => requestGameFullscreen(true)}>Fullscreen</KitButton>}
           </nav>
         </div>
       </div>
@@ -125,6 +136,7 @@ function HowToModal({ onClose }: { onClose: () => void }) {
 
 // ================= CHARACTER SELECT =================
 export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setHero: (h: number) => void; onBack: () => void; onPlay: () => void }) {
+  useBack(onBack);
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const allowed = save.hero < 3 || hasFullGame();
   const i = save.hero;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useBack } from './back';
 import { Game } from '../game/engine';
 import { baseStats, COSTUME_BY_ID, HERO_INFO, SCROLL_BY_ID } from '../game/data';
 import { KitButton, KitTitle } from './kit';
@@ -8,6 +9,7 @@ import { SCROLL_TAGS } from '../game/build';
 
 /** Reads the actual applied run state, not the collection of possible drops. */
 export function RunInventory({ game, onClose }: { game: Game; onClose: () => void }) {
+  useBack(onClose);
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'effects' | 'synergies' | 'damage'>('effects');
   const tabs = [['effects', 'Collected effects'], ['synergies', 'Synergies & tiers'], ['damage', 'Damage breakdown']] as const;
