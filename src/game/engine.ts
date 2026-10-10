@@ -1,5 +1,6 @@
 import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
 import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
+import { G } from './art/tiles';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
@@ -1692,6 +1693,7 @@ export class Game {
       this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
       this.relightHouses();
+      this.relocateShops();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
       for (const creature of this.enemies) creature.dead = true;
       this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
@@ -2538,6 +2540,62 @@ export class Game {
     this.p.invuln = 1;
   }
   /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
+  /** game time of the last shop move (the screen-edge arrows for the candy machines show for a while after it) */
+  shopsMovedAt = -999;
+  /**
+   * After every boss the Candy Lady's stand and the candy machines set up somewhere else in the open part of town, so
+   * the night keeps the player moving. Their arrow at the screen edge and their minimap markers follow them.
+   */
+  relocateShops() {
+    const m = this.map, taken: { x: number; y: number }[] = [];
+    this.computeFlow(true);
+    for (const shop of m.shops) {
+      const pr = shop.prop, spot = this.shopSpot(pr.fw, pr.fh, shop, taken);
+      if (!spot) { taken.push({ x: shop.x, y: shop.y }); continue; }
+      const cells = (x0: number, y0: number, x1: number, y1: number, v: number) => {
+        for (let cy = Math.max(0, Math.floor(y0 * CR)); cy < Math.min(CH, Math.ceil(y1 * CR)); cy++)
+          for (let cx = Math.max(0, Math.floor(x0 * CR)); cx < Math.min(CW, Math.ceil(x1 * CR)); cx++) m.coll[cy * CW + cx] = v;
+      };
+      cells(pr.x0, pr.y0, pr.x0 + pr.fw, pr.y0 + pr.fh, 0); // the old pitch is open ground again
+      for (const l of pr.sp.lights) {
+        const lamp = m.lights.find(q => Math.abs(q.x - (pr.x0 + l.x)) < 1e-6 && Math.abs(q.y - (pr.y0 + l.y)) < 1e-6);
+        if (lamp) { lamp.x = spot.x + l.x; lamp.y = spot.y + l.y; }
+      }
+      pr.x0 = spot.x; pr.y0 = spot.y;
+      if (pr.big) { cells(pr.x0 + 0.02, pr.y0 + 0.02, pr.x0 + pr.fw - 0.02, pr.y0 + pr.fh - 0.02, 2); shop.x = pr.x0 + pr.fw / 2; shop.y = pr.y0 + pr.fh + 0.4; }
+      else { cells(pr.x0 + 0.2, pr.y0 + 0.3, pr.x0 + 0.8, pr.y0 + 0.75, 2); shop.x = pr.x0 + 0.5; shop.y = pr.y0 + 1.2; }
+      taken.push({ x: shop.x, y: shop.y });
+    }
+    this.shopsMovedAt = this.time;
+    this.computeFlow(true);
+    this.toast('The Candy Lady packed up and moved. Follow the orange arrow to her new spot.');
+  }
+  /** a clear, reachable pitch for a shop: away from where it was, from the player, from doors and from the other shops */
+  private shopSpot(fw: number, fh: number, old: { x: number; y: number }, taken: { x: number; y: number }[]) {
+    const m = this.map, p = this.p;
+    const clear = (x: number, y: number) => {
+      // the footprint plus a tile all round, and two tiles in front where the customer stands
+      for (let ty = y - 1; ty <= y + fh + 1; ty++) for (let tx = x - 1; tx <= x + fw; tx++) {
+        if (tx < 2 || ty < 2 || tx >= MAP_W - 2 || ty >= MAP_H - 2 || m.ground[ty * MAP_W + tx] === G.ROAD) return false;
+        for (let cy = ty * CR; cy < (ty + 1) * CR; cy++) for (let cx = tx * CR; cx < (tx + 1) * CR; cx++) if (m.coll[cy * CW + cx]) return false;
+      }
+      return true;
+    };
+    for (const [far, apart] of [[20, 14], [14, 10], [9, 7], [5, 4]]) {
+      for (let i = 0; i < 300; i++) {
+        const x = 2 + Math.floor(Math.random() * (MAP_W - 4 - fw)), y = 2 + Math.floor(Math.random() * (MAP_H - 5 - fh));
+        const cx = x + fw / 2, cy = y + fh + 0.4;
+        if (Math.hypot(cx - old.x, cy - old.y) < far || Math.hypot(cx - p.x, cy - p.y) < 8) continue;
+        if (taken.some(t => Math.hypot(cx - t.x, cy - t.y) < apart)) continue;
+        if (!this.reachable(cx, cy) || !clear(x, y)) continue;
+        if (m.houses.some(h => Math.hypot(h.door.x - cx, h.door.y - cy) < 3.5) || m.gates.some(g => Math.hypot(g.x - cx, g.y - cy) < 4)) continue;
+        if (m.hideouts.some(h => Math.hypot(h.x - cx, h.y - cy) < 4) || m.turrets.some(t => Math.hypot(t.x - cx, t.y - cy) < 4)) continue;
+        if (m.props.some(pr => !pr.removed && pr.x0 < x + fw + 1 && pr.x0 + pr.fw > x - 1 && pr.y0 < y + fh + 2 && pr.y0 + pr.fh > y - 1)) continue;
+        return { x, y };
+      }
+    }
+    return null;
+  }
   private relightHouses() {
     const hs = this.map.houses;
     for (const h of hs) {

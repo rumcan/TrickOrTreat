@@ -100,7 +100,7 @@ export class Renderer {
         ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a + s, b + s / 2); ctx.lineTo(a, b + s); ctx.lineTo(a - s, b + s / 2); ctx.fill();
       }
     for (const p of g.map.props) {
-      if (!p.big && p.kind !== 'tree') continue;
+      if ((!p.big && p.kind !== 'tree') || p.kind === 'shop') continue;
       ctx.fillStyle = p.kind === 'house' ? '#8a6fae' : p.kind === 'shop' ? '#ff9a2a' : p.kind === 'tree' ? '#14251a' : '#888';
       const pts = [P(p.x0, p.y0), P(p.x0 + p.fw, p.y0), P(p.x0 + p.fw, p.y0 + p.fh), P(p.x0, p.y0 + p.fh)];
       ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts) ctx.lineTo(q[0], q[1]); ctx.fill();
@@ -947,6 +947,11 @@ export class Renderer {
       }
     }
     for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`);
+    // where to shop: the stand always, the candy machines for a minute after they move
+    if (g.state === 'play' && !g.bigMap) for (const shop of m.shops) {
+      const stand = shop.prop.kind !== 'vending';
+      if (stand || g.time - g.shopsMovedAt < 60) ind(shop.x, shop.y, '#ff9a2a', stand ? 'Shop' : 'Candy machine');
+    }
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
@@ -1002,8 +1007,21 @@ export class Renderer {
       const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + MAP_H * s), my + ((x + y) * s) / 2];
       ctx.fillStyle = '#ff4a4a';
       for (const e of g.enemies) { const [a, b] = MP(e.x, e.y); const z = (e.elite ? 4 : 2) * k; ctx.fillRect(a - z / 2, b - z / 2, z, z); }
-      for (const q of g.pickups) if (q.kind === 'chest' || q.kind === 'weapon') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = q.kind === 'chest' ? '#ffcf3a' : RARITY[q.weapon!.rarity].color; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
-      for (const shp of m.shops) { const [a, b] = MP(shp.x, shp.y); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(a, b, 3 * k, 0, Math.PI * 2); ctx.fill(); }
+      // Loot on the ground is not marked: the map shows where to go, not every bag and gun.
+      for (const shp of m.shops) {
+        // the Candy Lady's stand: an orange awning; candy machines: a small orange block
+        const [a, b] = MP(shp.x, shp.y), stand = shp.prop.kind !== 'vending', r = (stand ? 5 : 3) * k;
+        ctx.fillStyle = '#ff9a2a'; ctx.strokeStyle = '#1a0d02'; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (stand) { ctx.moveTo(a - r, b); ctx.lineTo(a, b - r); ctx.lineTo(a + r, b); ctx.lineTo(a + r * 0.7, b + r * 0.8); ctx.lineTo(a - r * 0.7, b + r * 0.8); ctx.closePath(); }
+        else ctx.rect(a - r, b - r, r * 2, r * 2);
+        ctx.fill(); ctx.stroke();
+        if (big) {
+          ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+          ctx.lineWidth = 3; ctx.strokeText(stand ? 'Shop' : 'Candy machine', a, b - r - 2);
+          ctx.fillStyle = '#ffd9a8'; ctx.fillText(stand ? 'Shop' : 'Candy machine', a, b - r - 2);
+        }
+      }
       ctx.fillStyle = '#fff1b8';
       ctx.globalAlpha = 0.6 + Math.sin(this.t * 4) * 0.4;
       for (const h of m.houses) {
@@ -1012,7 +1030,6 @@ export class Renderer {
         ctx.beginPath(); ctx.moveTo(a, b - 4 * k); ctx.lineTo(a + 3 * k, b); ctx.lineTo(a, b + 4 * k); ctx.lineTo(a - 3 * k, b); ctx.fill();
       }
       ctx.globalAlpha = 1;
-      for (const q of g.pickups) if (q.kind === 'costume') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = '#c46bff'; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
       // Rescue locations stay visible even while their district gate is locked.
       if (g.campaign) for (const friend of g.friends) {
         if (friend.status === 'rescued') continue;
