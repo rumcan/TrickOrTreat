@@ -6,12 +6,12 @@ import type { VendingPrize } from '../game/vending';
 import { VENDING_RARITY_ODDS } from '../game/vending-odds';
 import { gameAudio } from '../game/audio';
 import { RARITY } from '../game/config';
-import { WeaponCard, TreatArt, weaponUrl, RARITY_KIT } from './common';
+import { WeaponCard, TreatArt, GunArt, RARITY_KIT } from './common';
 import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 
 function PrizeArt({ prize }: { prize: VendingPrize }) {
-  return prize.kind === 'treat' ? <TreatArt id={prize.scroll.id} /> : <img src={weaponUrl(prize.weapon.def.id)} alt="" draggable={false} className="vending-gun" />;
+  return prize.kind === 'treat' ? <TreatArt id={prize.scroll.id} /> : <GunArt id={prize.weapon.def.id} className="vending-gun" />;
 }
 function PrizeDetails({ prize, game }: { prize: VendingPrize; game: Game }) {
   return <>
@@ -109,7 +109,7 @@ export function VendingMachine({ game, onDone }: { game: Game; onDone: () => voi
     </div></section>}
     <div className="vending-controls"><button ref={spinButton} className="hm-btn" disabled={spinning || unclaimed || game.p.coins < game.vendingPrice()} onClick={() => { hidePeek(); if (game.spinVending()) update(); }}><Sparkles size={18} /> {spin ? 'Spin again' : 'Spin the machine'} · {game.vendingPrice()} coins</button><button className="hm-btn ghost" disabled={spinning} aria-expanded={catalogueOpen} onClick={() => setCatalogueOpen(!catalogueOpen)}>Prize catalogue & odds</button><button className="hm-btn vending-exit" disabled={spinning} onClick={leave}>Back to the streets</button></div>
     {game.p.coins < game.vendingPrice() && !spinning && !unclaimed && <p className="vending-note">Find {game.vendingPrice() - game.p.coins} more coins to play. Every spin gives one prize; coins are earned in-game only.</p>}
-    {catalogueOpen && <section className="vending-catalogue" aria-label="Prize catalogue"><h3>What’s inside</h3><p>Prize rarity odds: {VENDING_RARITY_ODDS.map((chance, r) => `${RARITY[r].name} ${chance}%`).join(' · ')}. Normally 75% treats / 25% guns within each rarity; if all one-off treats in a rarity are owned, that rarity awards guns instead.</p><p>The reel is a visual showcase, not the probability table. Everyone can win premium prizes. Duplicate stackable treats are allowed; owned one-off powers are excluded. Prices rise 30% after every spin.</p><div className="vending-catalogue-grid">{catalogue.filter(prize => prize.kind === 'treat' || prize.rarity === 3).map(prize => <button key={prize.key} onMouseEnter={() => preview(prize)} onMouseLeave={hidePeek} onFocus={() => preview(prize)} onBlur={hidePeek} style={{ borderColor: RARITY_KIT[prize.rarity] }}><div><PrizeArt prize={prize} /></div><strong>{prizeName(prize)}</strong><small>{prize.premium ? `Premium ${prize.kind === 'weapon' ? 'gun' : 'treat'} · everyone can win` : prize.kind === 'weapon' ? 'Gun · Common–Legendary' : `${RARITY[prize.rarity].name} treat`}</small></button>)}</div></section>}
+    {catalogueOpen && <section className="vending-catalogue" aria-label="Prize catalogue"><h3>What’s inside</h3><p>Prize rarity odds: {VENDING_RARITY_ODDS.map((chance, r) => `${RARITY[r].name} ${chance}%`).join(' · ')}. Normally 75% treats / 25% guns within each rarity; if all one-off treats in a rarity are owned, that rarity awards guns instead.</p><p>The reel is a visual showcase, not the probability table. Everyone can win premium prizes. Stackable treats can be won until they reach their maximum; owned one-off powers are excluded. Prices rise 30% after every spin.</p><div className="vending-catalogue-grid">{catalogue.filter(prize => prize.kind === 'treat' || prize.rarity === 3).map(prize => <button key={prize.key} onMouseEnter={() => preview(prize)} onMouseLeave={hidePeek} onFocus={() => preview(prize)} onBlur={hidePeek} style={{ borderColor: RARITY_KIT[prize.rarity] }}><div><PrizeArt prize={prize} /></div><strong>{prizeName(prize)}</strong><small>{prize.premium ? `Premium ${prize.kind === 'weapon' ? 'gun' : 'treat'} · everyone can win` : prize.kind === 'weapon' ? 'Gun · Common–Legendary' : `${RARITY[prize.rarity].name} treat`}</small></button>)}</div></section>}
     {peek && <aside className="vending-peek" role="region" aria-label="Prize details"><button className="records-icon" aria-label="Close prize details" onClick={() => setPeek(null)}><X /></button><div className="paper-kicker">Inspecting · {prizeName(peek)}</div><PrizeDetails prize={peek} game={game} /></aside>}
   </div></div>;
 }

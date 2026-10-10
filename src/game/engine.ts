@@ -2587,6 +2587,20 @@ export class Game {
     }
   }
 
+  /** An opened district takes its hedge blockade with it: every wall tile whose surrounding areas are all open goes. */
+  private clearBarriers() {
+    const open = this.map.gates.map(g => g.opened);
+    for (const b of this.map.barriers) {
+      if (b.cleared || !b.needs.every(i => open[i])) continue;
+      b.cleared = true;
+      let k = 0;
+      for (let cy = b.y * CR; cy < (b.y + 1) * CR; cy++) for (let cx = b.x * CR; cx < (b.x + 1) * CR; cx++) this.map.coll[cy * CW + cx] = b.under[k++];
+      if (!b.prop) continue;
+      b.prop.removed = true;
+      if (Math.hypot(b.x - this.p.x, b.y - this.p.y) < this.viewR + 2) this.particle(b.x + 0.5, b.y + 0.5, 0.6, rand(-1.5, 1.5), rand(-1.5, 1.5), rand(1, 3), 0.9, '#3f7a3a', 4, 'sq');
+    }
+  }
+
   // ---------- director ----------
   private spawnPos(fly: boolean) {
     const p = this.p;
@@ -2676,8 +2690,9 @@ export class Game {
       gate.opened = true;
       gameAudio.play('unlock', 0.5);
       for (const [cx, cy] of gate.cells) this.map.coll[cy * CW + cx] = 0;
-      this.computeFlow(true);
       for (const pr of this.map.props) if (gate.propIds.includes(pr.id)) pr.removed = true;
+      this.clearBarriers();
+      this.computeFlow(true);
       this.pickups.push({ x: gate.x, y: gate.y, z: 3, vz: 0, vx: 0, vy: 0, kind: 'chest', value: 0, mag: false, t: 0, dead: false });
       this.setBanner(`${gate.name} IS OPEN!`, 'New streets to explore — a Treat Bag waits at the gate', 'loot');
       for (let i = 0; i < 30; i++) this.particle(gate.x, gate.y, 0.3, rand(-3, 3), rand(-3, 3), rand(2, 6), 1, ['#7CFF64', '#FFC453', '#F9781B'][i % 3], 5, i % 2 ? 'glow' : 'sq');

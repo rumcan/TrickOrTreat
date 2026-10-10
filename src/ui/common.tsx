@@ -6,7 +6,7 @@ import { imgUrl } from '../game/assets';
 import { treatArt } from '../game/art/treats';
 import { RARITY } from '../game/config';
 import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO } from '../game/data';
-import { ART, PORTRAITS, HERO_COLORS } from './art';
+import { ART, PORTRAITS, HERO_COLORS, gunArtUrl } from './art';
 import { Keycap, KitTitle } from './kit';
 
 export { imgUrl };
@@ -116,8 +116,8 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
     <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
       <div className="flex items-center gap-3">
-        <div className="flex h-14 w-20 shrink-0 items-center justify-center">
-          <img src={weaponUrl(w.def.id)} className="h-10 w-20 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 3px 0 rgba(0,0,0,0.6))' }} alt="" />
+        <div className="h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+          <GunArt id={w.def.id} />
         </div>
         <div className="min-w-0">
           <div className="font-cond text-xl uppercase leading-tight text-[#f2e6c9]">{w.def.name}</div>
@@ -279,6 +279,10 @@ export function InfoPanel({ className = '' }: { className?: string }) {
 }
 
 /** the 80s/90s-movie card art for a treat (procedural, or the generated PNG when one is dropped in) */
+/** the painted card art of a gun: fills its frame like TreatArt does */
+export function GunArt({ id, className = '', alt = '' }: { id: string; className?: string; alt?: string }) {
+  return <img src={gunArtUrl(id)} alt={alt} draggable={false} className={`block h-full w-full object-cover ${className}`} />;
+}
 export function TreatArt({ id, className = '' }: { id: string; className?: string }) {
   return <img src={imgUrl(treatArt(id))} alt="" draggable={false} className={`block h-full w-full object-cover ${className}`} />;
 }

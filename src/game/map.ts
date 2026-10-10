@@ -19,6 +19,8 @@ export interface PropInst {
   interact?: 'shop';
   fade?: number; // runtime alpha
   removed?: boolean;
+  /** scattered yard decoration (bushes, fences, pumpkins…): may be cleared to keep a front door reachable */
+  decor?: boolean;
 }
 export interface Gate {
   id: number;
@@ -29,6 +31,16 @@ export interface Gate {
   dir: 'n' | 'e' | 's' | 'w';
   x: number; y: number;
   opened: boolean;
+}
+/** one tile of a district hedge blockade: it goes away once every area it separates is open */
+export interface Barrier {
+  x: number; y: number;
+  prop: PropInst | null;
+  /** gate indices (GameMap.gates) that must all be open before this tile clears */
+  needs: number[];
+  /** the tile's collision cells from before the blockade was laid, restored when it clears */
+  under: number[];
+  cleared: boolean;
 }
 export interface LightSrc { x: number; y: number; r: number; color: string; i: number; flicker: number }
 export interface HouseInst {
@@ -52,6 +64,7 @@ export interface GameMap {
   shops: { x: number; y: number; prop: PropInst }[];
   houses: HouseInst[];
   gates: Gate[];
+  barriers: Barrier[];
   /** mountable Candy Cannons: (x, y) is the jungle-gym deck centre */
   turrets: { x: number; y: number; gym: PropInst }[];
   /** rescue campaign: the gazebo each friend hides at, in gate order (north, east, south, west) */
@@ -136,7 +149,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   const addSmall = (sp: PropSprite, x: number, y: number, kind: SmallKind, allowHard = false, force = false) => {
     if (!force && !free(x, y, 1, 1, allowHard)) return null;
     const shadowR: Record<SmallKind, number> = { tree: 0.55, bush: 0.4, hedge: 0, fencex: 0, fencey: 0, grave: 0.25, pumpkin: 0.2, lamp: 0.15, mailbox: 0.15, trash: 0.18, hydrant: 0.13, vending: 0.35, scarecrow: 0.3, bench: 0.3, speaker: 0.1, sign: 0.2 };
-    const p: PropInst = { id: pid++, sp, x0: x, y0: y, fw: 1, fh: 1, big: false, kind, shadow: shadowR[kind] };
+    const p: PropInst = { id: pid++, sp, x0: x, y0: y, fw: 1, fh: 1, big: false, kind, shadow: shadowR[kind], decor: !force && kind !== 'lamp' && kind !== 'vending' };
     props.push(p);
     occupy(x, y, 1, 1);
     const c = 0.5;
@@ -433,7 +446,46 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     addSmall(getHayScarecrow(), 15, 15, 'scarecrow', false, true);
     for (let i = 0; i < 5; i++) addSmall(getTree('dead', i % 3), 4 + Math.floor(rnd() * 16), 4 + Math.floor(rnd() * 3), 'tree');
   }
-  } // Premium landmark rewards, playground and mounted weapons.
+  } else {
+    // Free town: the same corner lots are ordinary neighbourhood built from the stock props, so no part of the map is
+    // an empty field. The premium landmarks above (and the Candy Cannons) stay with the full game.
+    const parkingLot = (x0: number, y0: number, cols: number, rows: number) => {
+      paint(x0, y0, x0 + cols * 2, y0 + rows * 4 - 1, G.DRIVEWAY);
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (rnd() < 0.7) addBig(getCar(Math.floor(rnd() * 4), true), x0 + 1 + c * 2, y0 + 1 + r * 4, 'car', 0.5);
+      for (const [lx, ly] of [[x0, y0], [x0 + cols * 2, y0], [x0, y0 + rows * 4 - 1], [x0 + cols * 2, y0 + rows * 4 - 1]]) addSmall(getLamp(), lx, ly, 'lamp', true);
+    };
+    const playground = (x0: number, y0: number) => {
+      paint(x0, y0, x0 + 8, y0 + 7, G.DIRT); // wood chips
+      addBig(getSwings(), x0 + 1, y0 + 1, 'swings', 0.3, 1);
+      addBig(getSwings(), x0 + 5, y0 + 1, 'swings', 0.3, 1);
+      addBig(getMerryGoRound(), x0 + 3, y0 + 4, 'merrygoround', 0.2, 1);
+      for (const [bx, by] of [[x0, y0 + 4], [x0 + 8, y0 + 4], [x0 + 4, y0 + 7]]) addSmall(getBench(), bx, by, 'bench');
+      for (const [lx, ly] of [[x0, y0], [x0 + 8, y0 + 7]]) addSmall(getLamp(), lx, ly, 'lamp', true);
+    };
+    const pumpkinPatch = (x0: number, y0: number, x1: number, y1: number) => {
+      for (let y = y0; y <= y1; y += 2) for (let x = x0; x <= x1; x++) {
+        if (occ[idx(x, y)]) continue;
+        ground[idx(x, y)] = G.DIRT;
+        if (rnd() < 0.3) addSmall(getPumpkin(Math.floor(rnd() * 2)), x, y, 'pumpkin');
+      }
+      addSmall(getHayScarecrow(), x0 + 3, y0 + 3, 'scarecrow');
+      addSmall(getHayScarecrow(), x1 - 3, y1 - 3, 'scarecrow');
+    };
+    houseBlock(5, 6, false);    // NW: Elm Court
+    houseBlock(74, 6, false);   // NE: Hollow Pines North
+    houseBlock(5, 75, false);   // SW: Chapel Row
+    houseBlock(74, 75, false);  // SE: Lantern Court
+    // beside the school: staff parking and the playground
+    parkingLot(50, 5, 4, 2);
+    playground(60, 5);
+    scatterTrees(49, 15, 68, 20, 8, ['oak']);
+    for (let i = 0; i < 3; i++) addSmall(getPumpkin(i % 2), 52 + i * 6, 14, 'pumpkin');
+    // south-east: a pumpkin patch and a gravel lot
+    pumpkinPatch(50, 74, 67, 82);
+    parkingLot(51, 85, 6, 1);
+    scatterTrees(49, 84, 68, 90, 5, ['oak', 'dead']);
+    for (const [x0, y0] of [[3, 3], [73, 3], [3, 73], [73, 73]]) scatterTrees(x0, y0, x0 + 17, y0 + 17, 5, ['oak', 'dead', 'pine']);
+  }
 
   // ---- hideouts: every gated district has a gazebo, and that is where the missing friends wait ----
   const hideouts: GameMap['hideouts'] = [];
@@ -475,20 +527,37 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   // ================= GATED DISTRICT WALLS =================
   // Hedge blockade lines seal each outer district behind a single gate.
   const gates: Gate[] = [];
+  const barriers: Barrier[] = [], barrierAt = new Set<number>();
   const hedgeWall = (axis: 'x' | 'y', line: number, line2: number, gaps: number[]) => {
     for (let t = 1; t <= 92; t++) {
       if (gaps.includes(t)) continue;
       const x = axis === 'x' ? t : line, y = axis === 'x' ? line : t;
       const x2 = axis === 'x' ? t : line2, y2 = axis === 'x' ? line2 : t;
       for (const [hx, hy] of [[x, y], [x2, y2]]) {
+        if (!inMap(hx, hy) || barrierAt.has(idx(hx, hy))) continue; // walls cross: one tile, one barrier
+        barrierAt.add(idx(hx, hy));
+        const under: number[] = [];
+        for (let cy = hy * CR; cy < (hy + 1) * CR; cy++) for (let cx = hx * CR; cx < (hx + 1) * CR; cx++) under.push(coll[cy * CW + cx]);
         // Progression boundaries are solid even when a decorative prop occupies the tile.
         // They also block ghost costumes; ordinary garden hedges remain phaseable.
         markRect(hx, hy, hx + 1, hy + 1, 2);
-        if (!inMap(hx, hy) || occ[idx(hx, hy)]) continue;
-        const p: PropInst = { id: pid++, sp: getHedge(), x0: hx, y0: hy, fw: 1, fh: 1, big: false, kind: 'hedge', shadow: 0 };
-        props.push(p);
-        occupy(hx, hy, 1, 1);
-        markRect(hx, hy, hx + 1, hy + 1, 2);
+        // A tile clears when every area around it is open: the centre always is, the north row (school yard and both
+        // corners beyond it) with gate 0, the east column below it with gate 1, downtown with gate 2, the west with gate 3.
+        const needs = new Set<number>();
+        for (const dx of [-1.4, 1.4]) for (const dy of [-1.4, 1.4]) {
+          const col = hx + 0.5 + dx < 23 ? 0 : hx + 0.5 + dx < 47 ? 1 : 2, row = hy + 0.5 + dy < 23 ? 0 : hy + 0.5 + dy < 71 ? 1 : 2;
+          if (row === 0) needs.add(0);
+          else if (col === 2) needs.add(1);
+          else if (col === 0) needs.add(3);
+          else if (row === 2) needs.add(2);
+        }
+        let prop: PropInst | null = null;
+        if (!occ[idx(hx, hy)]) {
+          prop = { id: pid++, sp: getHedge(), x0: hx, y0: hy, fw: 1, fh: 1, big: false, kind: 'hedge', shadow: 0 };
+          props.push(prop);
+          occupy(hx, hy, 1, 1);
+        }
+        barriers.push({ x: hx, y: hy, prop, needs: [...needs], under, cleared: false });
       }
     }
   };
@@ -569,7 +638,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   houses.filter(h => h.prop.kind === 'house').forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
   // Meet on the open central sidewalk, not inside the randomized housing lot.
-  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, turrets, hideouts, start: { x: 35, y: 45 } };
+  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, barriers, turrets, hideouts, start: { x: 35, y: 45 } };
   for (const venue of houses.filter(h => h.prop.kind !== 'house')) {
     if (!blockedCircle(map, venue.door.x, venue.door.y, 0.3)) continue;
     const { x0, y0, fw, fh } = venue.prop;
@@ -586,6 +655,75 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     best = distance; map.start = { x, y };
   }
   if (!Number.isFinite(best)) throw new Error('No safe starting clearing in the central neighbourhood');
+
+  // ---- every doorbell can be rung ----
+  // Yards are decorated at random, and a back fence, a pair of bushes or a hedge can wall a front door in. Collision
+  // of every prop stays inside its own tile, so a chain of empty tiles is always walkable. Flood the town from the
+  // start with every district open; for each door the flood cannot touch, clear the fewest decorations that reconnect it.
+  const opens = new Uint8Array(N); // tiles that open during the night: gates and hedge blockades
+  for (const b of barriers) opens[idx(b.x, b.y)] = 1;
+  for (const g of gates) for (const [cx, cy] of g.cells) opens[idx(Math.floor(cx / CR), Math.floor(cy / CR))] = 1;
+  const fixed = new Uint8Array(N); // buildings, cars, lamps, landmarks: never cleared
+  const decorAt = new Map<number, PropInst[]>();
+  for (const p of props) {
+    if (p.decor) { const list = decorAt.get(idx(p.x0, p.y0)); if (list) list.push(p); else decorAt.set(idx(p.x0, p.y0), [p]); continue; }
+    for (let y = p.y0; y < p.y0 + p.fh; y++) for (let x = p.x0; x < p.x0 + p.fw; x++) if (inMap(x, y)) fixed[idx(x, y)] = 1;
+  }
+  const empty = (x: number, y: number) => {
+    if (opens[idx(x, y)]) return true;
+    for (let cy = y * CR; cy < (y + 1) * CR; cy++) for (let cx = x * CR; cx < (x + 1) * CR; cx++) if (coll[cy * CW + cx]) return false;
+    return true;
+  };
+  /** 0 walkable · 1 blocked only by decoration · 2 solid */
+  const tileCost = (x: number, y: number) => (empty(x, y) ? 0 : !fixed[idx(x, y)] && decorAt.has(idx(x, y)) ? 1 : 2);
+  const STEPS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const flood = () => {
+    const seen = new Uint8Array(N), queue = [idx(Math.floor(map.start.x), Math.floor(map.start.y))];
+    seen[queue[0]] = 1;
+    for (let h = 0; h < queue.length; h++) {
+      const x = queue[h] % MAP_W, y = Math.floor(queue[h] / MAP_W);
+      for (const [dx, dy] of STEPS) {
+        const nx = x + dx, ny = y + dy;
+        if (!inMap(nx, ny) || seen[idx(nx, ny)] || !empty(nx, ny)) continue;
+        seen[idx(nx, ny)] = 1; queue.push(idx(nx, ny));
+      }
+    }
+    return seen;
+  };
+  let reach = flood();
+  for (const house of houses) {
+    const door = idx(Math.floor(house.door.x), Math.floor(house.door.y));
+    if (reach[door]) continue;
+    // fewest-removals path (0-1 search) from the doorstep out to anywhere the player can already walk
+    const cost = new Int32Array(N).fill(1 << 30), from = new Int32Array(N).fill(-1), deque = [door];
+    cost[door] = tileCost(door % MAP_W, Math.floor(door / MAP_W)) === 1 ? 1 : 0;
+    let goal = -1;
+    while (deque.length) {
+      const cur = deque.shift()!;
+      if (reach[cur]) { goal = cur; break; }
+      const x = cur % MAP_W, y = Math.floor(cur / MAP_W);
+      for (const [dx, dy] of STEPS) {
+        const nx = x + dx, ny = y + dy;
+        if (!inMap(nx, ny)) continue;
+        const step = tileCost(nx, ny), n = idx(nx, ny);
+        if (step === 2 || cost[cur] + step >= cost[n]) continue;
+        cost[n] = cost[cur] + step; from[n] = cur;
+        if (step) deque.push(n); else deque.unshift(n);
+      }
+    }
+    if (goal < 0) continue; // walled in by buildings alone: nothing a decoration pass may fix
+    for (let t = goal; t >= 0; t = from[t]) {
+      const cleared = decorAt.get(t);
+      if (!cleared || empty(t % MAP_W, Math.floor(t / MAP_W))) continue;
+      const x = t % MAP_W, y = Math.floor(t / MAP_W);
+      for (const p of cleared) props.splice(props.indexOf(p), 1);
+      decorAt.delete(t);
+      for (let cy = y * CR; cy < (y + 1) * CR; cy++) for (let cx = x * CR; cx < (x + 1) * CR; cx++) coll[cy * CW + cx] = 0;
+      // a cleared jack-o'-lantern takes its glow with it (porch lights are never on a decoration tile's account)
+      for (let i = lights.length - 1; i >= 0; i--) if (Math.floor(lights[i].x) === x && Math.floor(lights[i].y) === y && !houses.some(h => h.light === lights[i])) lights.splice(i, 1);
+    }
+    reach = flood();
+  }
   return map;
 }
 
