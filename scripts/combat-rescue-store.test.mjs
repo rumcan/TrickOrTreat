@@ -77,21 +77,47 @@ try {
     }
     const nav = new Game(0, save(), input(), true, 1337); nav.state = 'play';
     nav.pickups = [{ x: 90, y: 90, z: 0, vz: 0, vx: 0, vy: 0, kind: 'chest', value: 1, mag: false, t: 0, dead: false }];
-    const labels = [], originalText = CanvasRenderingContext2D.prototype.fillText;
+    const labels = [], rectangles = [], originalText = CanvasRenderingContext2D.prototype.fillText;
+    const originalRect = CanvasRenderingContext2D.prototype.fillRect;
+    const shielded = nav.spawnEnemy('skeleton', nav.p.x + 2, nav.p.y, true, null);
+    shielded.spawnT = 0; shielded.shield = shielded.maxShield / 2; shielded.burnT = 1;
     const canvas = document.createElement('canvas');
     canvas.style.cssText = 'position:fixed;width:1440px;height:900px;pointer-events:none;opacity:0'; document.body.append(canvas);
     CanvasRenderingContext2D.prototype.fillText = function(text, ...args) { labels.push(String(text)); return originalText.call(this, text, ...args); };
+    CanvasRenderingContext2D.prototype.fillRect = function(x, y, w, h) { rectangles.push({ color: this.fillStyle, x, y, w, h }); return originalRect.call(this, x, y, w, h); };
     try {
       const { Renderer } = await import('/src/game/render.ts');
       const renderer = new Renderer(canvas, 0);
       renderer.render(nav, 1 / 60);
+      const healthBar = rectangles.find(r => r.color === '#ff3b3b' && r.w === 60 && r.h === 6);
+      const shieldBar = rectangles.find(r => r.color === '#76ddff' && r.w === 30 && r.h === 4);
+      require(healthBar && shieldBar && shieldBar.x === healthBar.x && shieldBar.y + shieldBar.h < healthBar.y, 'Light-blue shield line is above enemy health');
+      require(rectangles.some(r => r.x === healthBar.x && r.w === 5 && r.h === 4 && r.y > healthBar.y + healthBar.h), 'Status markers do not obscure the shield');
       require(labels.some(t => t.includes('gate') || t.startsWith('Rescue ')), 'Screen points toward next kid');
       require(!labels.includes(String.fromCodePoint(0x1f383)), 'No bag indicator arrows');
       nav.bigMap = true; labels.length = 0; renderer.render(nav, 1 / 60);
       for (const f of nav.friends) require(labels.some(t => t.includes(HERO_INFO[f.hero].name)), 'Every missing kid marked on full map');
-    } finally { CanvasRenderingContext2D.prototype.fillText = originalText; canvas.remove(); }
+    } finally { CanvasRenderingContext2D.prototype.fillText = originalText; CanvasRenderingContext2D.prototype.fillRect = originalRect; canvas.remove(); }
     return { waveHealthMultiplier: regular.maxHp / hp, bosses, rescueSites: sites, powers, navigation: true };
   });
   assert.deepEqual(errors, []); console.log(JSON.stringify(result));
+  await page.getByRole('button', { name: 'Go trick-or-treating' }).click();
+  await page.waitForFunction(() => window.__tot?.game);
+  await page.evaluate(() => {
+    const g = window.__tot.game; g.state = 'play'; g.hitStop = 999; g.banner = null; g.enemies = [];
+    g.boss = g.spawnEnemy('king', g.p.x + 3, g.p.y);
+    g.boss.hp = g.boss.maxHp = 200; g.boss.shield = g.boss.maxShield = 100;
+    g.damageEnemy(g.boss, 50, '#fff', false, true);
+  });
+  const shield = page.getByTestId('boss-shield'), health = page.getByTestId('boss-health');
+  await page.waitForFunction(() => document.querySelector('[data-testid="boss-shield"] > div')?.style.width === '50%');
+  const shieldBox = await shield.boundingBox(), healthBox = await health.boundingBox();
+  assert.ok(shieldBox.y + shieldBox.height < healthBox.y, 'Boss shield is above health');
+  assert.equal(await shield.locator('div').evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(118, 221, 255)');
+  assert.equal(await health.locator('i').evaluate(e => e.style.width), '100%', 'Shield-only hit preserves health');
+  await page.evaluate(() => { const g = window.__tot.game; g.damageEnemy(g.boss, 70, '#fff', false, true); });
+  await page.waitForFunction(() => document.querySelector('[data-testid="boss-shield"] > div')?.style.width === '0%' && document.querySelector('[data-testid="boss-health"] > i')?.style.width === '90%');
+  assert.deepEqual(errors, []);
+  console.log('Light-blue enemy/boss shields sit above HP, stay clear of status indicators, and deplete before health takes overflow damage.');
   console.log('Wave scaling, shield absorption/recharge/pause, 200 unobstructed rescue sites, powerful premium skills and complete responsive catalogue passed.');
 } finally { await browser.close(); }

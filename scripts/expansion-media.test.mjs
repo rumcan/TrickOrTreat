@@ -25,7 +25,11 @@ try {
   await page.screenshot({ path: 'art/world/checks/rescue-intro.png' });
   await page.keyboard.press('Space');
   await page.waitForFunction(() => window.__tot.game.state === 'play');
-  await page.evaluate(() => { const g = window.__tot.game; g.p.invuln = 999; g.state = 'levelup'; g.choose('sugar'); g.state = 'levelup'; g.choose('sugar'); g.state = 'levelup'; g.choose('walkie'); });
+  await page.evaluate(async () => {
+    const { SCROLL_BY_ID } = await import('/src/game/data.ts');
+    const g = window.__tot.game; g.p.invuln = 999;
+    for (const id of ['sugar', 'sugar', 'walkie']) { g.pendingLevels = 1; g.openLevelUp('level'); g.choices = [SCROLL_BY_ID[id]]; g.choose(id); }
+  });
   await page.keyboard.press('i');
   await page.getByRole('dialog', { name: 'Run inventory' }).waitFor();
   await page.getByRole('textbox', { name: 'Search collected treats' }).fill('friend');

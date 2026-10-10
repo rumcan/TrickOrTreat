@@ -1,4 +1,27 @@
-# Complete artwork and run-build polish
+# Rare Epic costumes, late-wave counters and gameplay fixes
+
+## Loot and late-wave combat
+
+- All kids start without a costume. Costume Master now improves rare finds and worn skill power, not starting equipment.
+- All ten costumes are Epic with substantially stronger abilities, purple loot glows and rarity badges. Base costume chance is approximately 1.14% per bag or 2.5% per house/elite/special kill.
+- From wave 11, fire/lightning/ecto-immune creatures appear. Wave 13 adds ricochet wards and armor; wave 15 adds shells requiring piercing 2+.
+- Special frequency rises gradually to 40%; plenty of ordinary enemies remain easy to mow down. After wave 10, special/boss HP grows 18% per wave versus 6% for the lower-health crowd. Earlier waves are unchanged.
+- Short, muted resistance reasons appear above creatures when hits are blocked or reduced, with strict clutter limits.
+- Enemy and boss shield lines are light blue and sit above health. Status indicators cannot obscure them; shields absorb damage before health, with only excess damage carrying through.
+- Reduce the base automatic loot pickup radius from 1.7 to 1.0 world units. Treat and talent range bonuses retain their existing effects.
+
+## Gameplay fixes
+
+- No free healing by repeatedly swapping HP costumes or weapon resonance.
+- Clear held movement and firing controls when the window loses focus.
+- Respect elemental immunity for companion beams; sync companion weapons after bag upgrades and weapon pickups.
+- Keep rescue guardian health and shield scaling consistent.
+- Preserve the death screen and safe boss shop when multiple events happen in the same frame; clear queued chain reactions between encounters.
+- Ignore destroyed enemy shots. Fast player shots use swept creature/wall collision and resolve impacts in travel order.
+- Prevent duplicate reward selection and accidental key-repeat picks.
+- Compact nearby XP into ground piles without vacuuming distant loot or losing its XP value.
+
+## Artwork and run-build polish
 
 - Raise small held guns to the kids' hands, above the hips, for players and companions.
 - All five new character portraits and matching HUD faces, with centered landing-page selection.
@@ -14,7 +37,7 @@
 - Add soft swoosh, click and tick detail; lift SFX tone slightly while retaining gain limits and muted treble.
 - Use the supplied landscape splash on desktop and portrait splash on upright phones.
 - Replace the RUN thumbnail with the supplied square poster.
-- Monster HP compounds by 60% and damage by 12% each wave, including living enemies; endless mode carries the progression forward.
+- Opening monster HP compounds by 60% per wave; after wave 10, special/boss HP grows 18% versus 6% for the easy crowd. Damage grows 12% per wave.
 - Rechargeable lieutenant and boss shields, readable blue shield bars and shield-break feedback.
 - Rescue kids spawn in reachable, scenery-free clearings; rescue/gate arrows replace bag arrows, with visible world beacons.
 - Overcharged Maya and Leo skills: team recovery, shield-breaking EMP, powerful night blast, invulnerability and temporary double/triple damage.

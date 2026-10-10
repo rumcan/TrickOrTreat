@@ -118,3 +118,20 @@ the release build.
 - [x] Publish this completed build privately: RUN version 1.1.2, game AFjPSjQH9kbcCl57sgO3, unchanged server config h3QTycdrvZA6xrhxsh7s.
 - [x] Release PR created: [#6](https://github.com/rumcan/TrickOrTreat/pull/6); GitHub records the final merge status.
 - [ ] Activate paid checkout only after the Bits-price choice is confirmed (100 Bits remains an inactive draft).
+
+## Rare costumes and special enemies (public RUN 1.1.3)
+
+- [x] Start every kid without a costume, including old Costume Master saves; remove the guaranteed starter costume pickup.
+- [x] Make all ten costumes Epic with stronger real powers and rarity badges/glows. Lower costume bag weight to 1/88 and house/elite/special chance to 2.5%; Costume Master improves discovery and worn skill power instead of starting gear.
+- [x] Introduce fire/lightning/ecto immunity from wave 11; ricochet wards and piercing-countered armor from wave 13; sealed shells needing piercing 2+ from wave 15.
+- [x] Increase special frequency gradually from 12% to 40%, with ordinary enemies staying the majority. Preserve early-wave scaling; after wave 10, grow special HP by 18% and easy-crowd HP by 6% per wave.
+- [x] Route bullets, beams, explosions, elemental procs and death-spread synergies through appropriate defenses; do not let neutral skill damage bypass piercing-only shells.
+- [x] Add subdued 10px resistance explanations above enemies, throttled and capped at eight concurrent hints.
+- [x] Test bare starts, Epic costume powers, all six counter types, mixed hordes and prior gameplay flows.
+- [x] Complete a detailed bug review, correct all 17 reproduced cases and verify targeted regressions, TypeScript, production build and production smoke tests. See BUG_AUDIT.md.
+- [x] Upload the latest build to RUN: version 1.1.3, unchanged server config h3QTycdrvZA6xrhxsh7s.
+- [x] Request public release of version 1.1.3. RUN initially placed the game in Review; approval subsequently completed.
+- [x] Verify the hosted review build: byte-identical audited game code, all 234 artwork assets loaded, gameplay/catalogue/inventory working and no developer controls.
+- [x] RUN review approval: Public tag verified at version 1.1.3.
+- [x] Verify public guest access without a share key or authenticated account: exact audited bundle, 234 artwork assets, gameplay, catalogue and inventory all passed.
+- Source integration follows the subsequent merge request: release branch `feature/public-release-1.1.3`, targeting `main`; GitHub records the authoritative PR/merge state.

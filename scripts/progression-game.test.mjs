@@ -13,7 +13,7 @@ try {
   await page.getByRole('button', { name: /skip intro/ }).click();
   const result = await page.evaluate(async () => {
     const g = window.__tot.game;
-    const { xpFor, rewardRangeFor } = await import('/src/game/progression.ts');
+    const { xpFor, rewardRangeFor, BAG_LOOT } = await import('/src/game/progression.ts');
     g.state = 'pause'; g.pickups = []; g.stats.xpGain = 1;
     g.p.level = 1; g.p.xp = 0; g.p.xpNext = xpFor(1); g.pendingLevels = 0;
     g.pickups.push({ x: g.p.x, y: g.p.y, z: 0, vz: 0, vx: 0, vy: 0, kind: 'xp3', value: 1000, mag: false, t: 1, dead: false });
@@ -67,8 +67,11 @@ try {
     }
     const before = g.scrollOrder.length, random = Math.random;
     try {
-      // 0.36 lies in the treat interval of the new bag table.
-      Math.random = () => .36;
+      // Derive the treat interval so costume-rarity rebalancing cannot stale this test.
+      const total = BAG_LOOT.reduce((sum, [, weight]) => sum + weight, 0);
+      const prior = BAG_LOOT.slice(0, BAG_LOOT.findIndex(([kind]) => kind === 'treat')).reduce((sum, [, weight]) => sum + weight, 0);
+      const treatWeight = BAG_LOOT.find(([kind]) => kind === 'treat')[1];
+      Math.random = () => (prior + treatWeight / 2) / total;
       g.openBag(g.p.x, g.p.y);
     } finally { Math.random = random; }
     if (g.scrollOrder.length !== before + 1) throw new Error('Bag treat reward did not apply');

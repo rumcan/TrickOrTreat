@@ -6,7 +6,7 @@ export function xpFor(level: number): number {
 
 /** Incidental bags grant treats about 11% of the time (previously 22%); doorbells remain the reliable source. */
 export const BAG_LOOT: readonly (readonly [string, number])[] = [
-  ['gun', 30], ['treat', 10], ['upgrade', 14], ['hoard', 14], ['aid', 10], ['costume', 10],
+  ['gun', 39], ['treat', 10], ['upgrade', 14], ['hoard', 14], ['aid', 10], ['costume', 1],
 ];
 
 export interface RewardRange { min: number; max: number; label: string }

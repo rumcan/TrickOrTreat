@@ -23,7 +23,7 @@ function CostumeCard({ id, hero, title }: { id: string; hero: number; title: str
     <div className="hm-slip flex w-72 gap-2.5 !p-3" style={{ borderLeftColor: c.color }}>
       <div className="-my-2 shrink-0"><HeroPreview hero={hero} size={0.9} walking costume={id} /></div>
       <div>
-        <div className="hm-kicker">{title}</div>
+        <div className="hm-kicker">{title} <span className="text-[#c69fff]">· Epic</span></div>
         <div className="font-cond text-lg uppercase leading-tight" style={{ color: c.color }}>{c.name}</div>
         <div className="mt-1 text-[12px] font-semibold leading-snug text-[#f2e8d4]">{c.power}</div>
         <div className="mt-1 text-[12px] leading-snug text-[#8fdc7a]">{c.perks}</div>
@@ -261,11 +261,11 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             <span className="font-cond text-xl uppercase leading-none text-[#f2e8d4]">{s.boss.name}</span>
             <span className="font-num text-[11px] text-[#8f8676]">{Math.max(0, Math.ceil((s.boss.hp / s.boss.max) * 100))}%</span>
           </div>
-          <div className="hm-progress mt-1.5 !h-2.5"><i style={{ width: pct(s.boss.hp, s.boss.max) }} /></div>
           {s.boss.maxShield > 0 && <div className="mt-2 text-xs text-[#a7edff]">
             <div className="flex justify-between gap-3"><span>Shield {Math.ceil(s.boss.shield)} / {Math.ceil(s.boss.maxShield)}</span><span>{s.boss.shieldT > 0 ? `Recharges in ${Math.ceil(s.boss.shieldT)}s` : 'Recharging'}</span></div>
-            <div className="mt-1 h-1.5 bg-black/60"><div className="h-full bg-[#66dfff]" style={{ width: pct(s.boss.shield, s.boss.maxShield) }} /></div>
+            <div data-testid="boss-shield" title="Shield absorbs damage before health" className="mt-1 h-1 bg-black/60"><div className="h-full bg-[#76ddff]" style={{ width: pct(s.boss.shield, s.boss.maxShield) }} /></div>
           </div>}
+          <div data-testid="boss-health" className="hm-progress mt-1.5 !h-2.5"><i style={{ width: pct(s.boss.hp, s.boss.max) }} /></div>
         </div>
       )}
 
