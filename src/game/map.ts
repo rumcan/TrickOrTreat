@@ -19,6 +19,8 @@ export interface PropInst {
   interact?: 'shop';
   fade?: number; // runtime alpha
   removed?: boolean;
+  /** scattered yard decoration (bushes, fences, pumpkins…): may be cleared to keep a front door reachable */
+  decor?: boolean;
 }
 export interface Gate {
   id: number;
@@ -147,7 +149,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   const addSmall = (sp: PropSprite, x: number, y: number, kind: SmallKind, allowHard = false, force = false) => {
     if (!force && !free(x, y, 1, 1, allowHard)) return null;
     const shadowR: Record<SmallKind, number> = { tree: 0.55, bush: 0.4, hedge: 0, fencex: 0, fencey: 0, grave: 0.25, pumpkin: 0.2, lamp: 0.15, mailbox: 0.15, trash: 0.18, hydrant: 0.13, vending: 0.35, scarecrow: 0.3, bench: 0.3, speaker: 0.1, sign: 0.2 };
-    const p: PropInst = { id: pid++, sp, x0: x, y0: y, fw: 1, fh: 1, big: false, kind, shadow: shadowR[kind] };
+    const p: PropInst = { id: pid++, sp, x0: x, y0: y, fw: 1, fh: 1, big: false, kind, shadow: shadowR[kind], decor: !force && kind !== 'lamp' && kind !== 'vending' };
     props.push(p);
     occupy(x, y, 1, 1);
     const c = 0.5;
@@ -653,6 +655,75 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     best = distance; map.start = { x, y };
   }
   if (!Number.isFinite(best)) throw new Error('No safe starting clearing in the central neighbourhood');
+
+  // ---- every doorbell can be rung ----
+  // Yards are decorated at random, and a back fence, a pair of bushes or a hedge can wall a front door in. Collision
+  // of every prop stays inside its own tile, so a chain of empty tiles is always walkable. Flood the town from the
+  // start with every district open; for each door the flood cannot touch, clear the fewest decorations that reconnect it.
+  const opens = new Uint8Array(N); // tiles that open during the night: gates and hedge blockades
+  for (const b of barriers) opens[idx(b.x, b.y)] = 1;
+  for (const g of gates) for (const [cx, cy] of g.cells) opens[idx(Math.floor(cx / CR), Math.floor(cy / CR))] = 1;
+  const fixed = new Uint8Array(N); // buildings, cars, lamps, landmarks: never cleared
+  const decorAt = new Map<number, PropInst[]>();
+  for (const p of props) {
+    if (p.decor) { const list = decorAt.get(idx(p.x0, p.y0)); if (list) list.push(p); else decorAt.set(idx(p.x0, p.y0), [p]); continue; }
+    for (let y = p.y0; y < p.y0 + p.fh; y++) for (let x = p.x0; x < p.x0 + p.fw; x++) if (inMap(x, y)) fixed[idx(x, y)] = 1;
+  }
+  const empty = (x: number, y: number) => {
+    if (opens[idx(x, y)]) return true;
+    for (let cy = y * CR; cy < (y + 1) * CR; cy++) for (let cx = x * CR; cx < (x + 1) * CR; cx++) if (coll[cy * CW + cx]) return false;
+    return true;
+  };
+  /** 0 walkable · 1 blocked only by decoration · 2 solid */
+  const tileCost = (x: number, y: number) => (empty(x, y) ? 0 : !fixed[idx(x, y)] && decorAt.has(idx(x, y)) ? 1 : 2);
+  const STEPS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const flood = () => {
+    const seen = new Uint8Array(N), queue = [idx(Math.floor(map.start.x), Math.floor(map.start.y))];
+    seen[queue[0]] = 1;
+    for (let h = 0; h < queue.length; h++) {
+      const x = queue[h] % MAP_W, y = Math.floor(queue[h] / MAP_W);
+      for (const [dx, dy] of STEPS) {
+        const nx = x + dx, ny = y + dy;
+        if (!inMap(nx, ny) || seen[idx(nx, ny)] || !empty(nx, ny)) continue;
+        seen[idx(nx, ny)] = 1; queue.push(idx(nx, ny));
+      }
+    }
+    return seen;
+  };
+  let reach = flood();
+  for (const house of houses) {
+    const door = idx(Math.floor(house.door.x), Math.floor(house.door.y));
+    if (reach[door]) continue;
+    // fewest-removals path (0-1 search) from the doorstep out to anywhere the player can already walk
+    const cost = new Int32Array(N).fill(1 << 30), from = new Int32Array(N).fill(-1), deque = [door];
+    cost[door] = tileCost(door % MAP_W, Math.floor(door / MAP_W)) === 1 ? 1 : 0;
+    let goal = -1;
+    while (deque.length) {
+      const cur = deque.shift()!;
+      if (reach[cur]) { goal = cur; break; }
+      const x = cur % MAP_W, y = Math.floor(cur / MAP_W);
+      for (const [dx, dy] of STEPS) {
+        const nx = x + dx, ny = y + dy;
+        if (!inMap(nx, ny)) continue;
+        const step = tileCost(nx, ny), n = idx(nx, ny);
+        if (step === 2 || cost[cur] + step >= cost[n]) continue;
+        cost[n] = cost[cur] + step; from[n] = cur;
+        if (step) deque.push(n); else deque.unshift(n);
+      }
+    }
+    if (goal < 0) continue; // walled in by buildings alone: nothing a decoration pass may fix
+    for (let t = goal; t >= 0; t = from[t]) {
+      const cleared = decorAt.get(t);
+      if (!cleared || empty(t % MAP_W, Math.floor(t / MAP_W))) continue;
+      const x = t % MAP_W, y = Math.floor(t / MAP_W);
+      for (const p of cleared) props.splice(props.indexOf(p), 1);
+      decorAt.delete(t);
+      for (let cy = y * CR; cy < (y + 1) * CR; cy++) for (let cx = x * CR; cx < (x + 1) * CR; cx++) coll[cy * CW + cx] = 0;
+      // a cleared jack-o'-lantern takes its glow with it (porch lights are never on a decoration tile's account)
+      for (let i = lights.length - 1; i >= 0; i--) if (Math.floor(lights[i].x) === x && Math.floor(lights[i].y) === y && !houses.some(h => h.light === lights[i])) lights.splice(i, 1);
+    }
+    reach = flood();
+  }
   return map;
 }
 

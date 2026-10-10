@@ -29,6 +29,7 @@
     "test:run-purchase": "node scripts/run-purchase.test.mjs",
     "test:mobile": "node --test scripts/touch-input.test.mjs && node scripts/mobile.test.mjs",
     "test:house-guide-streets": "node --test scripts/street-geometry.test.mjs && node scripts/house-guide-streets.test.mjs",
+    "test:doors": "node scripts/door-access.test.mjs",
     "test:presentation": "node scripts/presentation.test.mjs",
     "test:landing": "node scripts/landing.test.mjs",
     "test:outstanding": "node scripts/outstanding.test.mjs",

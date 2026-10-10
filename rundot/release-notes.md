@@ -5,6 +5,8 @@
 - The hedge blockade around a district is removed when that district opens. Garden hedges stay as decoration.
 - The free town's empty corner lots are now built up: four more blocks of houses (16 new doorbells), a parking lot
   and playground beside the school, and a pumpkin patch with a gravel lot in the south-east.
+- Every front door can be reached. About two houses per town were walled in by a back fence, bushes or a hedge and
+  could not be trick-or-treated; the town now clears the few decorations in the way.
 
 # Phone fixes: drag to move, one-screen menu, Back closes popups
 
