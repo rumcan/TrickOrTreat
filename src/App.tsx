@@ -19,6 +19,8 @@ import { HERO_INFO } from './game/data';
 import { SplashArt } from './ui/SplashArt';
 import { TouchControls, useTouchMode } from './ui/TouchControls';
 import { VendingMachine } from './ui/VendingMachine';
+import { requestMobileFullscreen, requestGameFullscreen } from './ui/fullscreen';
+import { Maximize } from 'lucide-react';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
@@ -75,7 +77,7 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
     if (gg && gg.state === 'shop') gg.closeShop();
     refresh();
   }, [refresh]);
-  const restart = useCallback(() => setRunId((n) => n + 1), []);
+  const restart = useCallback(() => { requestMobileFullscreen(); setRunId((n) => n + 1); }, []);
 
   return (
     <div className={`ingame absolute inset-0 cursor-none bg-black ${touchMode ? 'touch-game' : ''}`}>
@@ -108,7 +110,7 @@ export default function App() {
   const [save, setSave] = useState<Save>(() => loadSave());
   const [campaign, setCampaign] = useState(false);
   useEffect(() => { void expansion.restore(); }, []);
-  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(rescue); setScreen('game'); };
+  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(rescue); setScreen('game'); };
 
   useEffect(() => {
     const unlock = (event: Event) => {
@@ -157,6 +159,7 @@ export default function App() {
   return (
     <div className="game-shell relative w-screen overflow-hidden bg-[#0e0f13]">
       {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
+      {screen !== 'game' && <button className="menu-fullscreen" aria-label="Fullscreen" title="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={18} /></button>}
       {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}

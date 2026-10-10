@@ -11,10 +11,11 @@ try {
   await page.waitForFunction(() => window.__tot?.game.state === 'play');
   const poolChecks = await page.evaluate(async () => {
     const { vendingCatalogue, createVendingSpin } = await import('/src/game/vending.ts');
-    const free = vendingCatalogue({ glass: 1, sugar: 99 }, false), paid = vendingCatalogue({}, true);
+    const free = vendingCatalogue({ glass: 1, sugar: 99 }), paid = vendingCatalogue({});
     const total = free.reduce((sum, p) => sum + p.weight, 0);
     if (Math.abs(total - 100) > .001) throw new Error('Free prize weights must sum to 100');
-    if (free.some(p => p.premium && p.weight > 0)) throw new Error('Locked prizes are winnable for free players');
+    if (!free.some(p => p.premium && p.weight > 0)) throw new Error('Premium prizes must be winnable for free players');
+    if (free.some(p => p.kind === 'weapon' && p.premium && !p.weapon.def.premium)) throw new Error('Premium gun was replaced by a pea shooter');
     if (paid.filter(p => p.premium).some(p => p.weight <= 0)) throw new Error('Owned premium prizes are not in the pool');
     if (free.find(p => p.key === 'treat:glass').weight !== 0 || free.find(p => p.key === 'treat:sugar').weight <= 0) throw new Error('One-off/stackable ownership rules lost');
     for (let rarity = 0; rarity <= 4; rarity++) {
@@ -23,7 +24,7 @@ try {
     }
     for (let i = 0; i < 500; i++) {
       const spin = createVendingSpin(free, i, 60);
-      if (spin.winner.premium || spin.reel[spin.stop] !== spin.winner) throw new Error('Preview won or reel misses actual winner');
+      if (spin.reel[spin.stop] !== spin.winner) throw new Error('Reel misses actual winner');
       if (!spin.reel[spin.stop - 1].premium || !spin.reel[spin.stop + 1].premium) throw new Error('No settled premium previews');
     }
     const g = window.__tot.game; g.director = () => {}; g.enemies = []; g.p.invuln = 999;
@@ -69,9 +70,9 @@ try {
   await premium.hover();
   const peek = machine.getByRole('region', { name: 'Prize details' });
   await peek.waitFor();
-  assert.ok(await peek.getByText('Full game preview · cannot win until unlocked', { exact: true }).isVisible());
+  assert.ok(await peek.getByText('Premium gun · everyone can win this run prize', { exact: true }).isVisible());
   assert.ok(await peek.getByText('DPS', { exact: true }).isVisible());
-  await peek.getByRole('button', { name: 'Close prize details' }).click();
+  await page.mouse.move(0, 0); await peek.waitFor({ state: 'detached' });
   await page.screenshot({ path: 'art/world/checks/vending-desktop.png' });
   const kind = await page.evaluate(() => window.__tot.game.vendingSpin.winner.kind);
   if (kind === 'treat') await machine.getByRole('button', { name: 'Collect treat', exact: true }).click();
@@ -86,13 +87,34 @@ try {
     const old = g.p.weapons[0], spin = g.spinVending();
     const gun = g.vendingPool().find(p => p.kind === 'weapon' && !p.premium && p.rarity === 4);
     spin.winner = gun; spin.reel[spin.stop] = gun; g.settleVending(spin.id);
-    g.closeVending(); const stays = g.state === 'vending';
+    const stays = g.state === 'vending';
     const invalid = g.claimVending(99); const claimed = g.claimVending(0), duplicate = g.claimVending(0);
     const exact = g.p.weapons[0] === gun.weapon, dropped = g.pickups.some(p => p.weapon === old);
     g.closeVending();
     return { stays, invalid, claimed, duplicate, exact, dropped, state: g.state };
   });
   assert.deepEqual(gunCheck, { stays: true, invalid: false, claimed: true, duplicate: false, exact: true, dropped: true, state: 'play' });
+  const premiumCheck = await page.evaluate(async () => {
+    const { hasFullGame } = await import('/src/game/expansion.ts');
+    const { makeWeapon } = await import('/src/game/data.ts');
+    const g = window.__tot.game; g.p.coins = 9999;
+    const results = [];
+    for (const kind of ['weapon', 'treat']) {
+      g.openVending(g.map.shops.find(s => s.prop.kind === 'vending').prop);
+      const spin = g.spinVending(), prize = g.vendingPool().find(p => p.premium && p.kind === kind && p.weight > 0);
+      spin.winner = prize; spin.reel[spin.stop] = prize; g.settleVending(spin.id);
+      results.push(g.claimVending(1));
+      results.push(kind === 'weapon' ? g.p.weapons[1].def.id === prize.weapon.def.id : g.scrolls[prize.scroll.id] > 0);
+      g.closeVending();
+    }
+    g.openVending(g.map.shops.find(s => s.prop.kind === 'vending').prop);
+    const spin = g.spinVending(), original = g.p.weapons[0], drops = g.pickups.length;
+    spin.winner = g.vendingPool().find(p => p.kind === 'weapon'); g.settleVending(spin.id);
+    const rejected = g.rejectVending(), duplicate = g.rejectVending(), claimed = g.claimVending(0);
+    g.closeVending();
+    return { results, owned:hasFullGame(), gate:makeWeapon('gloom', 2).def.id, rejected, duplicate, claimed, same:g.p.weapons[0] === original, drops:g.pickups.length === drops, state:g.state };
+  });
+  assert.deepEqual(premiumCheck, { results:[true,true,true,true], owned:false, gate:'pea', rejected:true, duplicate:false, claimed:false, same:true, drops:true, state:'play' });
   await page.waitForFunction(() => window.__tot.game.state === 'play');
   for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }, { width: 844, height: 390 }]) {
     await page.setViewportSize(viewport);
@@ -103,9 +125,11 @@ try {
     await page.waitForFunction(() => window.__tot.game.vendingSpin?.status === 'won');
     const b = await machine.boundingBox(); assert.ok(b.x >= 0 && b.x + b.width <= viewport.width);
     const premium = page.locator('.vending-tile.is-winner').locator('xpath=preceding-sibling::button[1]');
-    await premium.click(); await peek.waitFor();
-    assert.ok(await peek.locator('.vending-effect').isVisible(), 'Tap inspects treat effects on phones');
-    await peek.getByRole('button', { name: 'Close prize details' }).click();
+    if (viewport.width <= 640) {
+      await premium.click();
+      assert.equal(await peek.count(), 0, 'No transient prize overlay on narrow/mobile screens');
+      assert.ok(await machine.getByRole('region', { name: 'Winning prize' }).isVisible());
+    }
     await page.screenshot({ path: `art/world/checks/vending-${viewport.width}x${viewport.height}.png` });
     const kind = await page.evaluate(() => window.__tot.game.vendingSpin.winner.kind);
     if (kind === 'treat') await machine.getByRole('button', { name: 'Collect treat', exact: true }).click();
@@ -114,5 +138,5 @@ try {
     await machine.waitFor({ state: 'detached' });
   }
   assert.deepEqual(errors, []);
-  console.log('Free/owned pools, true rarity odds, premium inspection, actual machine interaction, paused spins, one-charge/one-claim guards, exact stop/winner, weapon slots/drop and portrait/small-phone/landscape layouts passed.');
+  console.log('Premium prizes for free players without permanent unlock, increasing costs, reject/leave, transient desktop hover, no phone overlays, exact winner, paused spins and claim guards passed.');
 } finally { await browser.close(); }

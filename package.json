@@ -39,6 +39,7 @@
     "test:leaderboard": "node --test scripts/leaderboard.test.mjs && node scripts/leaderboard-ui.test.mjs",
     "test:leaderboard:production": "node scripts/leaderboard-production.test.mjs",
     "test:vending": "node --test scripts/vending-odds.test.mjs && node scripts/vending.test.mjs",
+    "test:easy-wins": "node scripts/easy-wins.test.mjs",
     "audio:generate": "node scripts/generate-sounds.mjs"
   },
   "dependencies": {

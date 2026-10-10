@@ -1,27 +1,24 @@
-import { SCROLLS, WEAPONS, makeWeapon, rollInscriptions, weaponStats, baseStats } from './data';
+import { SCROLLS, WEAPONS, makeWeapon } from './data';
 import type { Scroll, Weapon } from './data';
 import { VENDING_RARITY_ODDS, VENDING_TREAT_SHARE, weightedPick } from './vending-odds';
 
 export type VendingPrize = { kind: 'treat'; scroll: Scroll; rarity: number; premium: boolean; key: string; weight: number }
   | { kind: 'weapon'; weapon: Weapon; rarity: number; premium: boolean; key: string; weight: number };
-export interface VendingSpin { id: number; reel: VendingPrize[]; winner: VendingPrize; stop: number; status: 'spinning' | 'won' | 'claimed'; cost: number }
+export interface VendingSpin { id: number; reel: VendingPrize[]; winner: VendingPrize; stop: number; status: 'spinning' | 'won' | 'claimed' | 'rejected'; cost: number }
 export const prizeName = (prize: VendingPrize) => prize.kind === 'treat' ? prize.scroll.name : prize.weapon.def.name;
 
-/** Preview and reward pools are distinct: locked items never change free-player odds. */
-export function vendingCatalogue(owned: Record<string, number>, fullGame: boolean) {
+/** The earned-coin machine can award premium prizes without granting permanent ownership. */
+export function vendingCatalogue(owned: Record<string, number>) {
   const catalogue: VendingPrize[] = [];
   for (const scroll of SCROLLS) {
     catalogue.push({ kind: 'treat', scroll, rarity: scroll.rarity, premium: !!scroll.premium, key: `treat:${scroll.id}`, weight: 0 });
   }
   for (const def of WEAPONS) for (let rarity = 0; rarity <= 4; rarity++) {
-    const weapon = !def.premium || fullGame ? makeWeapon(def.id, rarity) : {
-      uid: -1, def, rarity, level: 1, traits: rollInscriptions(def, rarity), ammo: 0, reloadT: 0, cd: 0,
-    };
-    weapon.ammo = weaponStats(weapon, baseStats()).mag;
+    const weapon = makeWeapon(def.id, rarity, 1, true);
     catalogue.push({ kind: 'weapon', weapon, rarity, premium: !!def.premium, key: `weapon:${def.id}:${rarity}`, weight: 0 });
   }
   for (let rarity = 0; rarity <= 4; rarity++) {
-    const eligible = catalogue.filter(p => p.rarity === rarity && (!p.premium || fullGame)
+    const eligible = catalogue.filter(p => p.rarity === rarity
       && (p.kind === 'weapon' || p.scroll.max > 1 || !(owned[p.scroll.id] > 0)));
     const treats = eligible.filter(p => p.kind === 'treat'), guns = eligible.filter(p => p.kind === 'weapon');
     const treatShare = guns.length ? treats.length ? VENDING_TREAT_SHARE : 0 : 1;

@@ -1,3 +1,13 @@
+# Easy wins and mobile visibility
+
+- Everyone can win premium guns and treats from earned-coin vending spins, clearly labelled Premium. Prizes last for the run and do not permanently unlock the expansion.
+- Spin prices start at 60 coins and rise 30% each time. Reject unwanted guns, or leave the machine; orange exit buttons make the choice visible.
+- Desktop prize hover disappears automatically; touch/mobile screens show only the won item's full detail card.
+- Fix the talent replay button's height and padding. All runs now start with only the Pea Shooter, without a free ground gun.
+- Clean up radio wording, remove the In game preview tile, square skill icons and use static premium costume previews.
+- Request fullscreen on mobile Play, provide a fullscreen button, and preserve gameplay when the browser or embedding host denies it.
+- Reduce mobile world zoom, stick/action sizes and HUD clutter while retaining 44px touch targets.
+
 # Mobile controls, faster logo, leaderboard and vending prizes
 
 - Add independent movement and aim/fire touch sticks, mobile action buttons and responsive portrait/landscape menus.

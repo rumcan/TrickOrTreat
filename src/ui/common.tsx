@@ -54,12 +54,28 @@ export function SkillIcon({ hero, size = 40 }: { hero: number; size?: number }) 
 
 // ============ SPRITE PREVIEW ============
 /** Animated in-game sprite. Only repaints when the frame changes (9 fps). */
-export function HeroPreview({ hero, size = 2, walking = true, costume = null }: { hero: number; size?: number; walking?: boolean; costume?: string | null }) {
+export function HeroPreview({ hero, size = 2, walking = true, costume = null, staticFrame = false }: { hero: number; size?: number; walking?: boolean; costume?: string | null; staticFrame?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const s = heroSheet(hero, costume);
     const c = ref.current!;
     const ctx = c.getContext('2d')!;
+    if (staticFrame) {
+      // Choose an idle cell that is least clipped at its edges; no walking or fake ground shadow.
+      const probe = document.createElement('canvas'); probe.width = s.fw; probe.height = s.fh;
+      const pc = probe.getContext('2d', { willReadFrequently: true })!;
+      let selected = 0, best = Infinity;
+      for (let f = 0; f < (s.rowFrames[0] || 1); f++) {
+        pc.clearRect(0, 0, s.fw, s.fh); blitFrame(pc, s, s.img, 0, f, s.ax, s.ay);
+        const pixels = pc.getImageData(0, 0, s.fw, s.fh).data;
+        let clipped = 0;
+        for (let y = 0; y < s.fh; y++) for (let x = 0; x < s.fw; x++) if ((x === 0 || y === 0 || x === s.fw - 1 || y === s.fh - 1) && pixels[(y * s.fw + x) * 4 + 3] > 32) clipped++;
+        if (clipped < best) { best = clipped; selected = f; }
+      }
+      ctx.clearRect(0, 0, c.width, c.height); ctx.scale(size, size);
+      blitFrame(ctx, s, s.img, 0, selected, s.ax, s.ay);
+      return;
+    }
     let raf = 0, last = -1;
     const t0 = performance.now();
     const row = walking ? 1 : 0;
@@ -80,7 +96,7 @@ export function HeroPreview({ hero, size = 2, walking = true, costume = null }: 
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [hero, size, walking, costume]);
+  }, [hero, size, walking, costume, staticFrame]);
   return <canvas ref={ref} width={64 * size} height={96 * size} className="block" />;
 }
 
@@ -199,7 +215,7 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
           </div>
         </div>
         <div className="mt-4 flex gap-3 border border-[#b9a77c] bg-[#e2d2a6] p-2.5">
-          <div className="border-2 border-[#3a2f20]"><SkillIcon hero={hero} size={52} /></div>
+          <div className="h-14 w-14 shrink-0 self-start overflow-hidden border-2 border-[#3a2f20]"><SkillIcon hero={hero} size={52} /></div>
           <div className="min-w-0">
             <div className="font-cond2 text-lg font-bold uppercase leading-tight text-[#1d1d1b]">{h.skill} <span className="font-semibold normal-case text-[#4a4130]">({h.cd}s)</span></div>
             <div className="text-[13px] leading-snug text-[#2c2618]">{h.skillDesc}</div>

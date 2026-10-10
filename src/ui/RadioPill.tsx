@@ -31,7 +31,7 @@ export default function RadioPill({ compact = false }: { compact?: boolean }) {
   const { settings, playing, text, station } = view;
   const label = !settings.enabled ? 'Turn the radio on' : `Turn the radio off (${station.name})`;
   return (
-    <div ref={root} className={`radio-pill ${compact ? 'compact' : ''}`} data-drop={place.up ? 'up' : 'down'} data-align={place.left ? 'left' : 'right'} data-on={settings.enabled ? '1' : '0'} data-playing={playing ? '1' : '0'} data-peek={peek ? '1' : '0'} role="group" aria-label="Radio" title={`${station.name}: ${station.genre}. Music from Heavy Metal GP, tuned for Halloween.`} onPointerDown={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === 'Escape') setVol(false); e.stopPropagation(); }}>
+    <div ref={root} className={`radio-pill ${compact ? 'compact' : ''}`} data-drop={place.up ? 'up' : 'down'} data-align={place.left ? 'left' : 'right'} data-on={settings.enabled ? '1' : '0'} data-playing={playing ? '1' : '0'} data-peek={peek ? '1' : '0'} role="group" aria-label="Radio" title={`${station.name}: ${station.genre}. Maple Falls after-dark radio.`} onPointerDown={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === 'Escape') setVol(false); e.stopPropagation(); }}>
       <button type="button" className="radio-step" aria-label="Previous station" data-sound="none" onClick={() => radio.stepStation(-1)} disabled={!settings.enabled}><ChevronLeft size={14} /></button>
       <button
         type="button"

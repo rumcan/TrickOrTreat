@@ -5,7 +5,7 @@ import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, app
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
-import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, HeroPreview, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon, TreatArt, Inscriptions } from './common';
+import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, fmtTime, weaponUrl, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon, TreatArt, Inscriptions } from './common';
 import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
 import { RunInventory } from './RunInventory';
 import { TalentTree } from './TalentTree';
@@ -161,10 +161,6 @@ export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setH
               <img src={FACES[k]} alt={h.name} draggable={false} className={`h-full w-full object-cover ${k === i ? '' : 'opacity-70 saturate-50'}`} />
             </button>
           ))}
-          <div className="kit-panel ml-2 flex h-16 items-end overflow-hidden px-2" title="In-game sprite">
-            <div className="-mb-1"><HeroPreview hero={i} size={0.75} walking /></div>
-            <span className="mb-1.5 ml-1 font-cond2 text-[10px] font-bold uppercase tracking-widest text-[#9aa0a6]">In game</span>
-          </div>
         </div>
         <div className="flex gap-3">
           <KitButton variant="dark" icon={ChevronLeft} onClick={onBack}>Back</KitButton>
