@@ -84,21 +84,66 @@ try {
   await page.waitForFunction(() => window.__tot.game.state === 'downed');
   await page.evaluate(() => { const g = window.__tot.game, f = g.friends[0]; f.x = g.p.x + 0.4; f.y = g.p.y; });
   await page.waitForFunction(() => window.__tot.game.state === 'play' && window.__tot.game.p.hp > 0, null, { timeout: 15000 });
-  // the second free kid can still be offered, the first cannot be offered twice
+  // A friend goes down: a doorstep can still offer the other kid, and taking that card puts a second helper in the fight.
   const second = await page.evaluate(() => {
-    const g = window.__tot.game, random = Math.random, seen = new Set();
-    g.p.invuln = 1e9;
+    const g = window.__tot.game, random = Math.random, seen = new Set(), first = g.friends[0];
+    g.p.invuln = 1e9; g.enemies = [];
+    first.hp = 0;
     for (let i = 0; i < 40; i++) { Math.random = () => 0; try { g.openLevelUp('house', 3, 0); } finally { Math.random = random; } if (g.friendChoice !== null) seen.add(g.friendChoice); }
-    const first = g.friends[0].hero;
     g.chooseFriend();
-    return { repeats: seen.has(first), offered: [...seen].length, team: g.friends.length, activeUnchanged: g.activeFriend === first };
+    const joined = g.friends[1];
+    joined.weapon.ammo = 40; g.spawnEnemy('zombie', joined.x + 1.5, joined.y).spawnT = 0;
+    return { repeats: seen.has(first.hero), offered: [...seen].length, team: g.friends.length, state: g.state };
   });
-  assert.deepEqual(second, { repeats: false, offered: 1, team: 2, activeUnchanged: true });
-  await page.waitForTimeout(400);
+  assert.deepEqual(second, { repeats: false, offered: 1, team: 2, state: 'play' });
+  await page.waitForFunction(() => window.__tot.game.friends[1].weapon.ammo < 40, null, { timeout: 15000 }); // the new friend fights while the first is down
+  // the fallen friend: a sign above them, a beacon on the map, and 30 seconds on the clock
+  const sign = await page.evaluate(async () => {
+    const { FRIEND_DOWN_TIME } = await import('/src/game/engine.ts');
+    const { game: g, renderer } = window.__tot, ctx = renderer.ctx, fill = ctx.fillText.bind(ctx), arc = ctx.arc.bind(ctx);
+    g.enemies = [];
+    const first = g.friends[0];
+    first.x = g.p.x + 4; first.y = g.p.y; // out of reach, in view
+    g.updateTeam(1); // one second on the clock
+    const texts = []; let arcs = 0;
+    ctx.fillText = (text, ...rest) => { texts.push(String(text)); fill(text, ...rest); };
+    ctx.arc = (...args) => { arcs++; arc(...args); };
+    try { renderer.render(g, 0.001); } finally { ctx.fillText = fill; ctx.arc = arc; }
+    return { limit: FRIEND_DOWN_TIME, down: first.downT, sign: texts.find(t => /REVIVE/.test(t)), prompt: g.rescuePrompt, arcs };
+  });
+  assert.equal(sign.limit, 30);
+  assert.ok(sign.down >= 1 && /^(E|TAP INTERACT) · REVIVE · \d+s$/.test(sign.sign || ''), `A fallen friend shows a revive sign with the time left (${sign.sign})`);
+  assert.ok(sign.arcs > 0, 'The minimap draws a beacon for the fallen friend');
+  // walk over and press E: they get back up
+  const revived = await page.evaluate(() => {
+    const g = window.__tot.game, first = g.friends[0];
+    first.x = g.p.x + 0.8; first.y = g.p.y; g.input.keys.add('e');
+    g.p.hurtT = 0; // the hit from the knock-down check above is long over in real play; a fresh hit would only pause the revive
+    let prompt = '';
+    for (let i = 0; i < 120 && first.hp <= 0; i++) { g.updateTeam(1 / 30); prompt = g.rescuePrompt || prompt; }
+    g.input.keys.delete('e');
+    return { hp: first.hp, prompt, downT: first.downT };
+  });
+  assert.ok(revived.hp > 0 && /Helping/.test(revived.prompt) && revived.downT === 0, 'Holding E beside a fallen friend revives them');
+  // nobody comes: after 30 seconds they are out for the night, and may be met at a door again
+  const lost = await page.evaluate(() => {
+    const g = window.__tot.game, first = g.friends[0], hero = first.hero, random = Math.random;
+    first.hp = 0; first.x = g.p.x + 6; first.y = g.p.y;
+    for (let i = 0; i < 29 * 30; i++) g.updateTeam(1 / 30);
+    const before = g.friends.includes(first);
+    for (let i = 0; i < 2 * 30; i++) g.updateTeam(1 / 30);
+    let again = false;
+    for (let i = 0; i < 40 && !again; i++) { Math.random = () => 0; try { g.openLevelUp('house', 3, 0); } finally { Math.random = random; } again = g.friendChoice === hero; }
+    g.choose(g.choices[0].id);
+    return { before, after: g.friends.includes(first), team: g.friends.length, again, state: g.state };
+  });
+  assert.deepEqual(lost, { before: true, after: false, team: 1, again: true, state: 'play' });
+  await page.waitForTimeout(300);
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: /Friends & shared guns/ }).click();
-  assert.equal(await page.getByRole('button', { name: 'Choose helper' }).count(), 2, 'Both friends can be chosen as the helper');
+  assert.equal(await page.getByRole('button', { name: 'Choose helper' }).count(), 0, 'Nobody has to be chosen: the whole team fights');
+  await page.getByText(/Every friend on your team fights beside you/).waitFor();
   await page.screenshot({ path: 'art/world/checks/free-friend-team.png' });
   assert.deepEqual(errors, []);
-  console.log(`Free-game friend card: offered at ${(odds.rate * 100).toFixed(1)}% of doorsteps as one of three cards, joins, fights, revives; a second friend joins the team without replacing the helper.`);
+  console.log(`Free-game friend card: offered at ${(odds.rate * 100).toFixed(1)}% of doorsteps as one of three cards, joins, keeps pace, fights and revives; a second friend fights alongside; a fallen friend shows a sign and map beacon, can be revived for 30 seconds and is then out for the night.`);
 } finally { await browser.close(); }

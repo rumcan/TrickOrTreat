@@ -243,7 +243,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
   const items = [
     { label: 'Resume', sub: 'back to the night', on: onResume },
     { label: 'Your run build (I)', sub: 'treats · synergies · damage math', on: () => setPanel('inventory') },
-    ...(game.friends.length ? [{ label: 'Friends & shared guns', sub: 'pick your helper', on: () => setPanel('team') }] : []),
+    ...(game.friends.length ? [{ label: 'Friends & shared guns', sub: 'your team and their guns', on: () => setPanel('team') }] : []),
     { label: 'Settings', sub: 'sound · brightness · gore', on: () => setPanel('settings') },
     { label: 'Controls', sub: 'keys and mouse', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')) },
     { label: 'Restart run', sub: 'same kid, fresh night', on: onRestart },
@@ -289,7 +289,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
       {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
-      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Only one helper fights at a time. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {game.activeFriend === f.hero ? '· active' : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.map.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><KitButton size="sm" className="mt-2" onClick={() => { game.selectFriend(f.hero); setHover(n => n + 1); }}>Choose helper</KitButton><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
+      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? (f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.map.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
     </div>
   );
 }
@@ -421,8 +421,8 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
                 <div className="hm-label mt-3">Companion</div>
                 <div className="hm-pick-desc">Fights beside you with a Foam Blaster and helps you up once a minute if you fall.</div>
                 <div className="mt-auto flex items-baseline justify-between pt-3">
-                  <span className="hm-label !text-[#8f8676]">{game.activeFriend === null ? 'Joins now' : 'Joins the team'}</span>
-                  <span className="font-num text-[12px] text-[#c9bda6]">{game.activeFriend === null ? 'your helper' : 'swap helpers when paused'}</span>
+                  <span className="hm-label !text-[#8f8676]">Joins now</span>
+                  <span className="font-num text-[12px] text-[#c9bda6]">{game.friends.some(f => f.status === 'rescued') ? 'one more helper' : 'your first helper'}</span>
                 </div>
               </div>
             </button>

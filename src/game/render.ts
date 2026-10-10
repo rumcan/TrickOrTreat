@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret } from './engine';
+import { Game, Enemy, Turret, FRIEND_DOWN_TIME } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -292,7 +292,6 @@ export class Renderer {
       if (g.mounted < 0) items.push(playerItem);
     }
     if (g.friends.length) for (const friend of g.friends) {
-      if (g.state !== 'intro' && friend.status === 'rescued' && friend.hero !== g.activeFriend) continue;
       const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
       const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
       if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
@@ -323,9 +322,21 @@ export class Renderer {
           ctx.restore();
           ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f2e6c9';
           ctx.strokeStyle = '#100c12'; ctx.lineWidth = 3;
-          const label = `${HERO_INFO[friend.hero].name}${down ? ' · needs help' : ''}`;
-          ctx.strokeText(label, 0, -95); ctx.fillText(label, 0, -95);
-          if (friend.status === 'rescued' && g.state !== 'intro') { ctx.fillStyle = '#211a25'; ctx.fillRect(-20, -87, 40, 4); ctx.fillStyle = '#66d2b7'; ctx.fillRect(-20, -87, 40 * friend.hp / friend.maxHp, 4); }
+          const fallen = friend.status === 'rescued' && friend.hp <= 0 && g.state !== 'intro';
+          const label = `${HERO_INFO[friend.hero].name}${down && !fallen ? ' · needs help' : ''}`;
+          ctx.strokeText(label, 0, fallen ? -40 : -95); ctx.fillText(label, 0, fallen ? -40 : -95);
+          if (fallen) {
+            // a sign above a fallen friend: what to press and how long is left
+            const left = Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
+            const text = `${touchViewport ? 'TAP INTERACT' : 'E'} · REVIVE · ${left}s`;
+            ctx.font = '700 16px "Barlow Condensed", system-ui, sans-serif';
+            const w = ctx.measureText(text).width + 20;
+            ctx.fillStyle = left <= 10 ? '#d33838' : '#fb8016'; ctx.strokeStyle = '#06090b'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(-w / 2, -82 + bob, w, 26, 4); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-6, -56 + bob); ctx.lineTo(6, -56 + bob); ctx.lineTo(0, -48 + bob); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#1d1d1b'; ctx.textBaseline = 'middle'; ctx.fillText(text, 0, -67 + bob); ctx.textBaseline = 'alphabetic';
+          }
+          if (friend.status === 'rescued' && g.state !== 'intro' && !fallen) { ctx.fillStyle = '#211a25'; ctx.fillRect(-20, -87, 40, 4); ctx.fillStyle = '#66d2b7'; ctx.fillRect(-20, -87, 40 * friend.hp / friend.maxHp, 4); }
           ctx.restore();
         } });
     }
@@ -935,6 +946,7 @@ export class Renderer {
         ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
       }
     }
+    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`);
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
@@ -1012,6 +1024,22 @@ export class Renderer {
           ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
           ctx.strokeStyle = '#07141a'; ctx.lineWidth = 3; ctx.strokeText(HERO_INFO[friend.hero].name, a, b - 8 * k);
           ctx.fillStyle = '#ffffff'; ctx.fillText(HERO_INFO[friend.hero].name, a, b - 8 * k);
+        }
+      }
+      // a fallen friend: a pulsing beacon, so they can be found before their 30 seconds run out
+      for (const friend of g.friends) {
+        if (friend.status !== 'rescued' || friend.hp > 0) continue;
+        const [a, b] = MP(friend.x, friend.y), pulse = (this.t * 1.6) % 1;
+        ctx.strokeStyle = `rgba(255,106,138,${1 - pulse})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(a, b, (5 + pulse * 12) * k, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#ff6a8a'; ctx.strokeStyle = '#1a070c';
+        ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#1a070c'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
+        if (big) {
+          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`;
+          ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+          ctx.strokeStyle = '#1a070c'; ctx.lineWidth = 3; ctx.strokeText(label, a, b - 8 * k);
+          ctx.fillStyle = '#ffd0da'; ctx.fillText(label, a, b - 8 * k);
         }
       }
       if (g.boss) { const [a, b] = MP(g.boss.x, g.boss.y); ctx.fillStyle = '#ff8a1e'; ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); }

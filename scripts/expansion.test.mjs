@@ -59,7 +59,7 @@ try {
     g.pickups = [{ x: second.x, y: second.y, z: 0, vz: 0, vx: 0, vy: 0, kind: 'xp2', value: 0, mag: false, t: 0, dead: false, friendOnly: true }];
     const xp = g.p.xp; g.updatePickups(0.03);
     out.playerCantTakeFriendCandy = !g.pickups[0].dead && g.p.xp === xp;
-    g.updateTeam(0.03); out.friendCandy = second.candy === 1 && g.pickups[0].dead;
+    g.updateTeam(0.03); out.friendCandy = f.candy + second.candy === 1 && g.pickups[0].dead; // any friend on the team may grab it
     g.kills = 80; g.endRun(false); const paid = g.save.soul; g.endRun(false);
     out.onceOnlyReward = g.save.soul === paid && paid > 0;
     const counts = data.HERO_INFO.length;
