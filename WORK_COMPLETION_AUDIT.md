@@ -27,7 +27,7 @@ Checked 2026-10-10. This audit combines the previous completed expansion with th
 | Pretty purchase page displaying everything unlocked and a CTA | Complete: both kids, four guns, three treats, two costumes and nine talents, generated art, restore and permanent-unlock CTA | Full catalogue checked against live data, desktop/phone fit, image decode and Escape/focus restoration |
 | Hide Collection on live/production | Complete; development-only, including query override protection | Production browser assertion |
 | Publish latest update privately | Complete: RUN 1.1.2, private game AFjPSjQH9kbcCl57sgO3 | Deploy CLI confirmed success and private visibility |
-| Create PR and merge main | Pending release verification and GitHub merge | Remote main and open-PR state checked |
+| Create PR and merge main | [Release PR #6](https://github.com/rumcan/TrickOrTreat/pull/6), targeting main | GitHub records the authoritative merge state and merge commit |
 | Activate approximately $1 permanent Bits unlock | Awaiting user price confirmation; draft 100 Bits remains inactive | Entitlement tests pass; no real checkout invoked |
 
 ## Verification run

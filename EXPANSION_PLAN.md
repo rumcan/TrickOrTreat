@@ -116,5 +116,5 @@ the release build.
 - [x] Build an accessible responsive purchase catalogue displaying every premium kid, gun, treat, costume and talent, with generated artwork, a permanent-unlock CTA and restore support.
 - [x] Validate combat and shields, 200 unobstructed rescue spawns, desktop/mobile catalogue, current UI and prior rescue/encounter regressions.
 - [x] Publish this completed build privately: RUN version 1.1.2, game AFjPSjQH9kbcCl57sgO3, unchanged server config h3QTycdrvZA6xrhxsh7s.
-- [ ] Create and merge the release PR; GitHub records the final merge status.
+- [x] Release PR created: [#6](https://github.com/rumcan/TrickOrTreat/pull/6); GitHub records the final merge status.
 - [ ] Activate paid checkout only after the Bits-price choice is confirmed (100 Bits remains an inactive draft).
