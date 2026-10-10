@@ -1,5 +1,6 @@
 // ===== UI kit primitives (art/concept/ui-kit.webp) =====
 import type { CSSProperties, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { ART, BANNER_ART, BannerKind } from './art';
 
@@ -134,5 +135,16 @@ export function Toast({ face, children }: { face: string; children: ReactNode })
 }
 
 export function LogoImg({ className = '', small }: { className?: string; small?: boolean }) {
-  return <img src={small ? ART.logoSm : ART.logo} alt="Trick or Treat — Maple Falls" className={className} draggable={false} style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.7))' }} />;
+  const src = small ? ART.logoSm : ART.logo;
+  const [decodedSrc, setDecodedSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    const image = new Image();
+    image.fetchPriority = 'high';
+    image.src = src;
+    // Reveal only a complete decoded frame; slow connections must not paint PNG-like strips.
+    void image.decode().then(() => { if (active) setDecodedSrc(src); }).catch(() => undefined);
+    return () => { active = false; };
+  }, [src]);
+  return <img src={src} alt="Trick or Treat — Maple Falls" width={small ? 640 : 1240} height={small ? 239 : 462} decoding="async" fetchPriority="high" className={className} draggable={false} style={{ height: 'auto', opacity: decodedSrc === src ? 1 : 0, filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.7))' }} />;
 }

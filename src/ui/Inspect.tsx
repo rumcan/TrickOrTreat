@@ -35,7 +35,7 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
   const rc = RARITY_KIT[found.rarity];
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center overflow-y-auto bg-[rgba(2,5,7,0.72)] p-3 backdrop-blur-[3px]" role="dialog" aria-label="Inspect weapon">
-      <div className="paper-panel paper-panel--rule kit-pop w-full max-w-[860px] !p-4 sm:!p-6" style={{ borderTopColor: found.rarity ? rc : undefined }}>
+      <div className="paper-panel paper-panel--rule kit-pop m-auto w-full max-w-[860px] shrink-0 !p-4 sm:!p-6" style={{ borderTopColor: found.rarity ? rc : undefined }}>
         <div className="paper-kicker">Found on the ground · game paused</div>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="paper-title !text-[clamp(28px,4vw,40px)]">{found.def.name}</h2>

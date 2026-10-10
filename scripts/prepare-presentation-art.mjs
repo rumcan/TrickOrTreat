@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { prepareLogo } from './prepare-logo.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'art', 'new');
 const output = path.join(root, 'public');
@@ -14,6 +15,7 @@ if (posterArgument >= 0 && (!requestedPoster || path.basename(requestedPoster) !
 if (!thumbnailOnly) {
   await fs.mkdir(path.join(output, 'images'), { recursive: true });
   await fs.copyFile(path.join(source, 'newlogo.png'), path.join(output, 'images', 'newlogo.png'));
+  await prepareLogo();
   for (const name of ['splash', 'splash_portrait']) {
     await sharp(path.join(source, `${name}.png`)).webp({ quality: 90 }).toFile(path.join(output, 'images', `${name}.webp`));
   }

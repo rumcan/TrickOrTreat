@@ -1,3 +1,13 @@
+# Mobile controls, faster logo, leaderboard and vending prizes
+
+- Add independent movement and aim/fire touch sticks, mobile action buttons and responsive portrait/landscape menus.
+- Replace the large loading-logo PNG with transparent, preloaded WebP and reveal it only after decoding.
+- Add a logged-in-only main-menu leaderboard drawer with named survival/rescue records and all-time rankings.
+- Submit eligible completed runs; anonymous, mock and development sessions do not submit scores.
+- Replace map vending shops with an earned-coin prize reel, explicit rarity odds, inspectable missed prizes and detailed winner cards.
+- Free players can use the machine. Premium prizes are clearly marked preview-only unless the full game is owned; no Bits or keys are charged for spins.
+- Pause gameplay during the reel and guarantee a single charge and claim, including explicit weapon-slot selection.
+
 # Rare Epic costumes, late-wave counters and gameplay fixes
 
 ## Loot and late-wave combat

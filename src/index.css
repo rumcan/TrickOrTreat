@@ -28,6 +28,9 @@ body,
 #root {
   height: 100%;
 }
+.game-shell { height: 100vh; height: 100dvh; }
+.game-canvas { touch-action: none; }
+.touch-manual { display: none; }
 body {
   font-family: "Barlow", system-ui, sans-serif;
   background: #0e0f13;
@@ -465,6 +468,7 @@ button.kit-tile:not(:disabled):hover {
 .hm-tabs { display: flex; height: 54px; background: #121b20; border-top: 1px solid #2a3437; pointer-events: auto; box-shadow: 0 -8px 30px rgba(0, 0, 0, .35); }
 .hm-tab { position: relative; flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 9px; min-width: 64px; padding: 0 14px; border-right: 1px solid #3b4445; color: #e4d4bc; }
 .hm-tab:last-child { border-right: 0; }
+.hm-tab:focus-visible { outline: 2px solid #ffe3b2; outline-offset: -3px; }
 .hm-tab.active { background: var(--pp-paper-bg); color: #fff4dc; }
 .hm-tab.active::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: #ef7c17; }
 .hm-tab.empty { opacity: .5; }
@@ -475,6 +479,72 @@ button.kit-tile:not(:disabled):hover {
 .hm-drawer { pointer-events: auto; padding: 10px 16px 12px; background: var(--pp-paper-bg); border-top: 4px solid #ef7c17; color: #f2e8d4; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 -12px 45px rgba(0, 0, 0, .35); }
 .hm-drawer-main { color: #fff0da; font: 700 16px/1.2 "Barlow Condensed", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
 .hm-drawer-note { margin-top: 6px; color: #c9bda6; font: 600 12px/1.3 "Barlow", sans-serif; }
+
+/* Touch controls: independent captured pointers, above the weapon dock. */
+.touch-game { --hm-top: calc(56px + env(safe-area-inset-top, 0px)); --touch-bottom: calc(74px + env(safe-area-inset-bottom, 0px)); cursor: auto; }
+.touch-game .hm-topbar { padding-top: env(safe-area-inset-top, 0px); }
+.touch-controls { position: absolute; inset: 0; z-index: 25; pointer-events: none; user-select: none; -webkit-user-select: none; }
+.touch-stick { position: absolute; bottom: var(--touch-bottom); width: 112px; height: 112px; border: 2px solid #b1ccc173; border-radius: 50%; background: radial-gradient(circle, #102b34a8, #0c151bc9); box-shadow: inset 0 0 0 10px #b5dcc110, 0 3px 12px #0006; pointer-events: auto; touch-action: none; -webkit-touch-callout: none; }
+.touch-stick--move { left: max(16px, env(safe-area-inset-left, 0px)); }
+.touch-stick--aim { right: max(16px, env(safe-area-inset-right, 0px)); border-color: #efb26c99; background: radial-gradient(circle, #3d281daa, #14181bce); }
+.touch-stick-label { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: #e3f4ea; font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: .11em; }
+.touch-stick--aim .touch-stick-label { color: #ffe2b5; }
+.touch-stick-cross { position: absolute; inset: 24px; border: 1px solid #bdd6cc29; border-radius: 50%; }
+.touch-stick-knob { position: absolute; width: 42px; height: 42px; left: calc(50% - 21px); top: calc(50% - 21px); border: 2px solid #d1efdeba; border-radius: 50%; background: linear-gradient(#79a9a9dd, #26474eee); box-shadow: 0 3px 8px #0008; pointer-events: none; }
+.touch-stick--aim .touch-stick-knob { background: linear-gradient(#ffc573dc, #895226ed); border-color: #ffe2af; }
+.touch-actions { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--touch-bottom) + 132px); display: flex; gap: 8px; }
+.touch-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 56px; min-height: 54px; padding: 5px 2px; color: #fff4de; border: 1px solid #bfb39a; border-radius: 12px; background: #15252deb; box-shadow: 0 3px 8px #0005; pointer-events: auto; touch-action: manipulation; font: 700 11px/1.1 "Barlow Condensed", sans-serif; }
+.touch-action--interact { border-color: #84db9f; color: #c8ffd9; }
+.touch-action--skill { border-color: #e0af6f; color: #ffe1b2; }
+.touch-action--dash { border-color: #78cee5; color: #c6f4ff; }
+.touch-action:disabled { opacity: .45; }
+.touch-action:not(:disabled):active { background: #486568; transform: scale(.96); }
+.touch-action:focus-visible { outline: 2px solid #fff0d2; outline-offset: 3px; }
+.touch-context { position: absolute; bottom: calc(var(--touch-bottom) + 196px); left: 50%; transform: translateX(-50%); width: min(340px, calc(100% - 24px)); padding: 7px 10px; border: 1px solid #80d79a99; border-radius: 8px; background: #10231ced; color: #f0fff5; text-align: center; font: 600 12px/1.3 "Barlow", sans-serif; }
+.touch-game .hm-dock { bottom: env(safe-area-inset-bottom, 0px); min-width: min(360px, 94vw); }
+.touch-game .hm-tabs { height: 52px; }
+.touch-game .hm-tab { min-height: 44px; }
+.touch-game .hm-tab-ability, .touch-game .hm-drawer, .touch-game .hm-nearby { display: none; }
+.touch-game .hm-mobile-access { display: grid; }
+.touch-game .hm-chip.hot { display: none; }
+.touch-game .hm-iconbtn { width: 44px; height: 44px; border-radius: 8px; touch-action: manipulation; }
+.touch-game .hm-notices { max-height: 92px; overflow: hidden; }
+@media (max-width: 639px) {
+  .touch-game { --hm-top: calc(76px + env(safe-area-inset-top, 0px)); }
+  .touch-game .hm-topbar { padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); gap: 4px; }
+  .touch-game .hm-topbar > div:first-child { gap: 6px; }
+  .touch-game .hm-topbar > div:first-child > div:last-child { width: min(118px, calc(100vw - 212px)); }
+  .touch-game .hm-topbar > div:last-of-type { align-self: flex-start; padding-top: 4px; }
+  .touch-game .hm-topbar > div:last-of-type > div:last-child { gap: 4px; padding-left: 2px; }
+  .touch-game .hm-clock { top: auto; bottom: 6px; left: auto; right: 10px; height: auto; transform: none; padding: 0; background: none; }
+  .touch-game .hm-time { font-size: 15px; }
+  .touch-game .hm-time-sub { display: none; }
+  .touch-game .hm-boss { width: calc(100% - 24px); top: calc(var(--hm-top) + 12px); }
+  .touch-game .hm-boss .font-cond { font-size: 16px; }
+}
+@media (max-width: 359px) {
+  .touch-stick { width: 96px; height: 96px; }
+  .touch-stick--move { left: 10px; }
+  .touch-stick--aim { right: 10px; }
+  .touch-actions { gap: 6px; bottom: calc(var(--touch-bottom) + 114px); }
+  .touch-context { bottom: calc(var(--touch-bottom) + 178px); }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .touch-game { --touch-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .touch-stick { width: 100px; height: 100px; }
+  .touch-actions { bottom: calc(var(--touch-bottom) + 8px); }
+  .touch-context { bottom: calc(var(--touch-bottom) + 74px); width: min(340px, calc(100% - 260px)); }
+  .touch-game .hm-dock { min-width: min(360px, 55vw); max-width: 55vw; }
+  .touch-game .hm-notices { display: none; }
+  .touch-game .hm-boss { padding: 4px 8px; }
+}
+@media (pointer: coarse) {
+  .touch-manual { display: block; }
+  .touch-game [role="tab"] { min-height: 44px; }
+  .touch-game input[type="search"], .touch-game input[type="text"], .touch-game input:not([type]) { font-size: 16px; }
+  .hm-backdrop { padding-top: max(12px, env(safe-area-inset-top, 0px)); padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+  button { touch-action: manipulation; }
+}
 
 /* ── HexMatch-style modals (pause, level-up, shop), dark paper ── */
 .hm-backdrop { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 16px; background: rgba(2, 5, 7, .74); backdrop-filter: blur(4px); }
@@ -583,6 +653,102 @@ button.kit-tile:not(:disabled):hover {
 .unlock-footer .kit-btn:disabled { opacity: 1; background: #253345; border-color: #718198; color: white; }
 .unlock-footer p { font-size: 12px; margin-top: 5px; }
 .unlock-footer > div { min-width: 0; }
+
+/* Signed-in night records: a left drawer, never a panel over the character picker. */
+.records-trigger { position:absolute; z-index:45; left:0; top:150px; display:flex; align-items:center; gap:10px; min-height:48px; padding:10px 14px; border:1px solid #96743f; border-left:0; border-radius:0 8px 8px 0; background:linear-gradient(135deg,#162a2e,#0d161b); color:#ffdc93; box-shadow:0 5px 24px #0008; font-weight:700; }
+.records-backdrop { position:absolute; inset:0; z-index:80; background:#020609a8; backdrop-filter:blur(5px); }
+.records-drawer { width:min(420px,100%); height:100%; display:flex; flex-direction:column; gap:18px; padding:24px; padding-top:calc(24px + env(safe-area-inset-top)); padding-bottom:calc(20px + env(safe-area-inset-bottom)); color:#fff6e6; background:linear-gradient(155deg,#193036,#0b151c 65%); border-right:2px solid #d49443; box-shadow:15px 0 60px #0009; overflow:auto; animation:records-enter .22s ease-out; }
+@keyframes records-enter { from { transform:translateX(-100%); } to { transform:translateX(0); } }
+.records-drawer header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.records-drawer h2 { display:flex; align-items:center; gap:10px; margin:6px 0; font-family:Anton,sans-serif; font-size:28px; text-transform:uppercase; color:#ffc873; }
+.records-icon { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:1px solid #668087; border-radius:6px; color:#fff; background:#111f28; flex-shrink:0; }
+.records-icon:disabled { opacity:.4; }
+.records-intro, .records-drawer p { font-size:14px; line-height:1.55; color:#d9e9e8; }
+.records-tabs { display:flex; padding:4px; border:1px solid #45636a; background:#061219; border-radius:8px; gap:4px; }
+.records-tabs button { min-height:44px; flex:1; border-radius:5px; font-weight:700; font-size:13px; }
+.records-tabs button[aria-pressed=true] { background:#b77d35; color:#fff; }
+.records-you { display:flex; flex-direction:column; gap:6px; padding:13px; font-size:13px; border:1px solid #438274; border-radius:6px; background:#1c3b35; }
+.records-you strong { overflow-wrap:anywhere; color:#c0f7da; }
+.records-list { flex:1; min-height:100px; }
+.records-row { display:flex; align-items:center; gap:12px; padding:15px 8px; border-bottom:1px solid #3f575e; font-size:14px; }
+.records-rank { min-width:32px; color:#ffd188; font-family:'Roboto Mono',monospace; }
+.records-row > strong { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.records-row small { color:#97edc2; margin-left:6px; font-size:10px; }
+.records-row.is-you { border-radius:5px; background:#244c40; }
+.records-time { display:flex; gap:5px; align-items:center; flex-shrink:0; font-family:'Roboto Mono',monospace; color:#fff; }
+.records-drawer footer { display:flex; flex-wrap:wrap; gap:10px; }
+.records-drawer footer .hm-btn { min-height:44px; display:flex; align-items:center; gap:8px; }
+.records-drawer footer small { width:100%; line-height:1.6; color:#bdd0d2; }
+
+/* The Midnight Candy Machine uses earned coins only; preview cards never fake the odds. */
+.vending-backdrop { position:absolute; inset:0; z-index:60; display:flex; padding:20px; overflow:auto; background:#020608d9; backdrop-filter:blur(5px); }
+.vending-machine { position:relative; margin:auto; width:min(1050px,100%); flex-shrink:0; padding:24px; border:2px solid #a9763f; border-top:4px solid #ffbd61; border-radius:14px; color:#fff6e5; background:radial-gradient(ellipse at 50% 0,#354154,#17232b 48%,#0f181f); box-shadow:0 20px 90px #0009,inset 0 1px #fff2; }
+.vending-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }
+.vending-header h2 { display:flex; align-items:center; gap:10px; margin:5px 0 10px; font-family:Anton,sans-serif; font-size:clamp(25px,3.5vw,38px); line-height:1.15; text-transform:uppercase; color:#ffd092; }
+.vending-header p { color:#d5e6e6; font-size:14px; }
+.vending-wallet { display:flex; gap:10px; align-items:center; color:#ffca76; flex-shrink:0; }
+.vending-wallet strong { font-family:'Roboto Mono',monospace; font-size:22px; }
+.vending-reel-frame { position:relative; overflow:hidden; margin-top:24px; padding:18px 0; border:1px solid #677680; border-radius:9px; background:#061016; box-shadow:inset 0 0 40px #000; }
+.vending-reel-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,#061016cf,transparent 9%,transparent 91%,#061016cf); }
+.vending-reel { display:flex; gap:10px; width:max-content; will-change:transform; }
+.vending-tile { position:relative; display:flex; flex-direction:column; flex-shrink:0; width:162px; min-height:176px; overflow:hidden; border:1px solid #4d6570; border-bottom:4px solid var(--prize-color); border-radius:5px; background:linear-gradient(#29404c,#12222a); text-align:left; transition:background .15s; }
+.vending-tile:not(:disabled):hover, .vending-tile:focus-visible { outline:2px solid var(--prize-color); outline-offset:-2px; background:#344956; }
+.vending-tile-art { height:88px; width:100%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#040a1070; }
+.vending-tile-art .vending-gun { width:85%; height:auto; max-height:75px; object-fit:contain; }
+.vending-tile > span { padding:7px 9px 0; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--prize-color); }
+.vending-tile > strong { padding:4px 9px 8px; font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; line-height:1.15; }
+.vending-tile > small { display:flex; gap:4px; align-items:center; padding:0 9px 7px; font-size:9px; color:#ffe0a2; }
+.vending-tile.is-winner { background:linear-gradient(#53504a,#243b3b); border:2px solid var(--prize-color); border-bottom-width:4px; box-shadow:0 0 20px color-mix(in srgb,var(--prize-color) 35%,transparent); }
+.vending-marker { position:absolute; z-index:2; top:0; bottom:0; left:50%; width:2px; background:#ffe2a280; pointer-events:none; }
+.vending-marker svg { position:absolute; top:-6px; left:-16px; width:34px; height:34px; color:#ffcf70; fill:#ffcf70; filter:drop-shadow(0 2px 3px #000); }
+.vending-state { margin:16px 0; color:#ffdc98; font-size:17px; font-weight:700; text-align:center; }
+.vending-winner { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; padding:18px; margin:20px 0; border:1px solid #728278; border-radius:8px; background:#152d2c; animation:prize-reveal .3s ease-out; }
+@keyframes prize-reveal { from { opacity:0; transform:translateY(8px) scale(.98); } to { opacity:1; transform:none; } }
+.vending-treat-detail { padding:14px; border:1px solid; border-radius:6px; background:#101d25; }
+.vending-detail-art { height:130px; margin:-14px -14px 14px; overflow:hidden; border-radius:5px 5px 0 0; }
+.vending-detail-art img { object-fit:contain; background:#070f16; }
+.vending-treat-detail h3 { font-family:Anton,sans-serif; font-size:23px; text-transform:uppercase; line-height:1.2; margin:8px 0; }
+.vending-quote { margin:8px 0; font-size:13px; font-style:italic; color:#dbe2d7; }
+.vending-effect { display:flex; flex-direction:column; gap:6px; padding:12px; margin:12px 0; border-radius:5px; background:#294036; color:#cbffb3; }
+.vending-effect small { font-size:10px; letter-spacing:.14em; }
+.vending-effect strong { font-size:16px; }
+.vending-owned { margin-top:12px; font-size:12px; color:#d1e0db; }
+.vending-claim { display:flex; flex-direction:column; justify-content:center; align-items:stretch; gap:14px; }
+.vending-claim h3, .vending-catalogue h3 { font-family:Anton,sans-serif; font-size:26px; text-transform:uppercase; color:#ffcc83; }
+.vending-claim p, .vending-catalogue p { font-size:14px; color:#e1e8e4; line-height:1.5; }
+.vending-collected { color:#b4fbb8 !important; font-weight:700; }
+.vending-controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.vending-machine .hm-btn { min-height:46px; display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:normal; line-height:1.3; }
+.vending-note { font-size:13px; color:#ffdfaa; margin-top:14px; }
+.vending-premium { display:flex; align-items:center; gap:6px; font-size:12px; color:#ffdb94; margin:8px 0; }
+.vending-catalogue { margin-top:24px; padding-top:18px; border-top:1px solid #5b7077; }
+.vending-catalogue p { margin:10px 0; }
+.vending-catalogue-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:18px; }
+.vending-catalogue-grid button { display:flex; flex-direction:column; border:1px solid; border-radius:5px; padding:10px; gap:8px; background:#0d1a22; text-align:left; }
+.vending-catalogue-grid button > div { height:76px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.vending-catalogue-grid .vending-gun { width:100%; max-height:70px; object-fit:contain; }
+.vending-catalogue-grid strong { font-size:13px; }
+.vending-catalogue-grid small { font-size:11px; color:#ffd8a4; }
+.vending-peek { position:fixed; z-index:95; right:24px; top:max(24px,env(safe-area-inset-top)); width:min(360px,calc(100vw - 24px)); max-height:calc(100dvh - 48px); overflow:auto; padding:16px; border:2px solid #c6a666; border-radius:9px; background:#0c1821f7; box-shadow:0 12px 60px #000b; animation:prize-reveal .15s ease-out; }
+.vending-peek > button { float:right; margin:0 0 10px 10px; }
+.vending-peek > .paper-kicker { min-height:44px; padding-top:8px; }
+.vending-machine button:focus-visible, .records-backdrop button:focus-visible, .records-trigger:focus-visible { outline:2px solid #ffde95; outline-offset:3px; }
+@media (max-width:700px) {
+  .records-trigger { top:110px; font-size:12px; padding:8px 10px; gap:6px; }
+  .records-drawer { padding-left:18px; padding-right:18px; }
+  .vending-backdrop { padding:8px; padding-top:calc(8px + env(safe-area-inset-top)); padding-bottom:calc(8px + env(safe-area-inset-bottom)); }
+  .vending-machine { padding:16px 12px; }
+  .vending-header { flex-wrap:wrap; gap:12px; }
+  .vending-wallet { width:100%; }
+  .vending-wallet button { margin-left:auto; }
+  .vending-tile { width:130px; min-height:160px; }
+  .vending-tile-art { height:72px; }
+  .vending-tile > strong { font-size:15px; }
+  .vending-winner { grid-template-columns:1fr; padding:12px; }
+  .vending-controls { flex-direction:column; align-items:stretch; }
+  .vending-peek { top:auto; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); max-height:80dvh; }
+}
+@media (prefers-reduced-motion:reduce) { .records-drawer, .vending-winner, .vending-peek { animation:none; } }
 @media (max-width: 700px) {
   .unlock-backdrop { padding: 5px; }
   .unlock-page { max-height: 98dvh; }

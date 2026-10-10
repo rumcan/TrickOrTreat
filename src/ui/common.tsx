@@ -222,7 +222,11 @@ function CtrlRow({ k, label }: { k: React.ReactNode; label: string }) {
 /** two-column controls panel from the kit */
 export function ControlsPanel({ className = '' }: { className?: string }) {
   return (
-    <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
+      <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
+        <div className="touch-manual col-span-full mb-3 border-b border-white/20 pb-3 text-sm leading-relaxed text-white">
+          <strong className="block text-[#b5f4cb]">Touch controls</strong>
+          Left thumb: move. Right thumb: aim and fire. Without manual aiming, your gun automatically targets nearby monsters. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
+        </div>
       <div>
         <CtrlRow k={<><Keycap>W</Keycap><Keycap>A</Keycap><Keycap>S</Keycap><Keycap>D</Keycap></>} label="Move" />
         <CtrlRow k={<Keycap>LMB</Keycap>} label="Aim / Shoot" />

@@ -36,5 +36,31 @@ try {
   await page.getByRole('dialog', { name: 'Run inventory' }).waitFor();
   await page.screenshot({ path: 'art/world/checks/production-inventory.png' });
   assert.deepEqual(errors, []);
+  for (const viewport of [{ width: 390, height: 844 }, { width: 844, height: 390 }]) {
+    const context = await browser.newContext({ viewport, hasTouch: true, isMobile: true });
+    const mobile = await context.newPage();
+    const mobileErrors = []; mobile.on('pageerror', error => mobileErrors.push(error.message));
+    await mobile.goto(process.env.TOT_PRODUCTION_URL || 'http://127.0.0.1:5174/');
+    await mobile.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
+    await mobile.getByRole('button', { name: 'Go trick-or-treating' }).tap();
+    await mobile.getByTestId('touch-move').waitFor();
+    await mobile.getByTestId('touch-aim').waitFor();
+    assert.equal(await mobile.evaluate(() => typeof window.__tot), 'undefined', 'Touch controls must not require development globals');
+    await mobile.getByRole('button', { name: 'Map', exact: true }).tap();
+    await mobile.getByRole('button', { name: 'Map', exact: true }).tap();
+    await mobile.getByRole('button', { name: 'Your run build', exact: true }).tap();
+    await mobile.getByRole('dialog', { name: 'Run inventory' }).waitFor();
+    assert.equal(await mobile.getByTestId('touch-move').count(), 0);
+    await mobile.getByRole('button', { name: 'Close inventory', exact: true }).tap();
+    await mobile.getByTestId('touch-move').waitFor();
+    await mobile.getByRole('button', { name: 'Pause', exact: true }).tap();
+    await mobile.getByRole('button', { name: /Resume/i }).waitFor();
+    assert.equal(await mobile.getByTestId('touch-move').count(), 0);
+    await mobile.getByRole('button', { name: /Resume/i }).tap();
+    await mobile.getByTestId('touch-move').waitFor();
+    assert.deepEqual(mobileErrors, []);
+    console.log(`Production ${viewport.width}x${viewport.height}: touch controls, map/build access and pause/resume work without development tools.`);
+    await context.close();
+  }
   console.log(`Production build: ${Object.keys(manifest.overrides).length} packed assets loaded; free gameplay and inventory work; developer preview absent; unpaid expansion remains locked.`);
 } finally { await browser.close(); }

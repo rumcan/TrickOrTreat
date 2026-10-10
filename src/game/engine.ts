@@ -2,7 +2,12 @@ import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, 
 import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
 import { settings } from './settings';
 import { gameAudio } from './audio';
-import { hasFullGame } from './expansion';
+import { expansion, hasFullGame } from './expansion';
+import { leaderboard } from './leaderboard';
+import type { RunRecord } from './leaderboard-service';
+import { vendingCatalogue, createVendingSpin } from './vending';
+import type { VendingSpin, VendingPrize } from './vending';
+import { vendingCost } from './vending-odds';
 import { Build, rollCrit, rateOverflow, overflow } from './build';
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
@@ -22,6 +27,7 @@ export class Input {
   keys = new Set<string>();
   pressed = new Set<string>();
   mx = 0; my = 0; mdown = false; rdown = false; rpressed = false; wheel = 0; mouseActive = false;
+  touchMoveX = 0; touchMoveY = 0; touchAimX = 0; touchAimY = 0; touchFiring = false; touchActive = false;
   private el: HTMLElement;
   constructor(el: HTMLElement) {
     this.el = el;
@@ -48,6 +54,7 @@ export class Input {
     this.mx = e.clientX - r.left;
     this.my = e.clientY - r.top;
     this.mouseActive = true;
+    this.touchActive = false;
   };
   md = (e: MouseEvent) => {
     if (e.button === 0) this.mdown = true;
@@ -59,9 +66,23 @@ export class Input {
   };
   wh = (e: WheelEvent) => (this.wheel += Math.sign(e.deltaY));
   cm = (e: Event) => e.preventDefault();
+  tap(key: string) { this.pressed.add(key.toLowerCase()); }
+  setTouchMove(x: number, y: number) {
+    this.touchMoveX = x; this.touchMoveY = y;
+    this.touchActive = true; this.mouseActive = false;
+  }
+  setTouchAim(x: number, y: number) {
+    this.touchAimX = x; this.touchAimY = y; this.touchFiring = Math.hypot(x, y) > 0;
+    this.touchActive = true; this.mouseActive = false;
+  }
+  clearTouch = () => {
+    this.touchMoveX = this.touchMoveY = this.touchAimX = this.touchAimY = 0;
+    this.touchFiring = false;
+  };
   reset = () => {
     this.keys.clear(); this.pressed.clear();
     this.mdown = false; this.rdown = false; this.rpressed = false; this.wheel = 0;
+    this.clearTouch();
   };
   visibility = () => { if (document.hidden) this.reset(); };
   endFrame() {
@@ -126,7 +147,7 @@ export interface Zone { kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn'; x:
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
 
-export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect';
+export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect';
 
 export interface RescueFriend {
   hero: number; x: number; y: number; r: number; gate: number;
@@ -197,6 +218,12 @@ export class Game {
   rerolls = 0;
   shopHealBuys = 0;
   shopTreatBuys = 0;
+  vendingPlays = 0;
+  vendingSpin: VendingSpin | null = null;
+  private vendingId = 0;
+  private vendingActive = false;
+  private recordRun: RunRecord | null = leaderboard.beginRun();
+  recordUpload: Promise<string> | null = null;
   boss: Enemy | null = null;
   bossSpawned = false;
   bossKilled = false;
@@ -215,7 +242,7 @@ export class Game {
   private warned = new Set<number>();
   /** M / Tab: big map overlay */
   bigMap = false;
-  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'costume' | 'house' | 'turret'; ref: Pickup | PropInst | HouseInst } | null = null;
+  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'vending' | 'costume' | 'house' | 'turret'; ref: Pickup | PropInst | HouseInst } | null = null;
   /** Candy Cannons on the playground jungle gyms; `mounted` is the index of the one the kid is manning (-1: on foot) */
   turrets: Turret[] = [];
   mounted = -1;
@@ -700,7 +727,7 @@ export class Game {
 
   private updatePlayer(dt: number) {
     const p = this.p, inp = this.input, s = this.stats;
-    let sx = 0, sy = 0;
+    let sx = inp.touchMoveX ?? 0, sy = inp.touchMoveY ?? 0;
     if (inp.keys.has('w') || inp.keys.has('arrowup')) sy -= 1;
     if (inp.keys.has('s') || inp.keys.has('arrowdown')) sy += 1;
     if (inp.keys.has('a') || inp.keys.has('arrowleft')) sx -= 1;
@@ -723,7 +750,8 @@ export class Game {
     let mx = 0, my = 0;
     if (p.moving) {
       const d = screenDirToWorld(sx, sy);
-      mx = d.x; my = d.y;
+      const strength = Math.min(1, Math.hypot(sx, sy));
+      mx = d.x * strength; my = d.y * strength;
     }
     // dash
     p.dashRecharge += dt;
@@ -739,7 +767,8 @@ export class Game {
       gameAudio.play('dash', 0.5);
       p.invuln = Math.max(p.invuln, 0.3);
       const dx = p.moving ? mx : p.aimX, dy = p.moving ? my : p.aimY;
-      p.dashX = dx; p.dashY = dy;
+      const dashLength = Math.hypot(dx, dy) || 1;
+      p.dashX = dx / dashLength; p.dashY = dy / dashLength;
       this.dashHit.clear();
       for (let i = 0; i < 12; i++) this.particle(p.x, p.y, 0.1, rand(-1, 1), rand(-1, 1), rand(0.5, 1.5), 0.4, '#e8f0ff', 3, 'sq');
     }
@@ -819,11 +848,16 @@ export class Game {
     if (p.dashCharges < s.dashCharges && p.dashRecharge >= 2.2) { p.dashCharges++; p.dashRecharge = 0; }
     if (inp.pressed.has(' ') || inp.pressed.has('shift')) { this.dismount(); return; }
     // aim: mouse while held, otherwise the nearest monster in range
-    const manual = inp.mdown;
+    const manual = inp.mdown || inp.touchFiring;
     let target: Enemy | null = null;
     if (manual) {
-      const m = this.mouseWorld(), dx = m.x - t.x, dy = m.y - t.y, l = Math.hypot(dx, dy) || 1;
-      t.aimX = dx / l; t.aimY = dy / l;
+      if (inp.touchFiring) {
+        const aim = screenDirToWorld(inp.touchAimX, inp.touchAimY);
+        t.aimX = aim.x; t.aimY = aim.y;
+      } else {
+        const m = this.mouseWorld(), dx = m.x - t.x, dy = m.y - t.y, l = Math.hypot(dx, dy) || 1;
+        t.aimX = dx / l; t.aimY = dy / l;
+      }
     } else {
       target = this.findTarget(TURRET.range);
       if (target) { const dx = target.x - t.x, dy = target.y - t.y, l = Math.hypot(dx, dy) || 1; t.aimX = dx / l; t.aimY = dy / l; }
@@ -905,6 +939,8 @@ export class Game {
     gameAudio.play(victory ? 'victory' : 'hurt');
     this.state = victory ? 'victory' : 'dead';
     this.bankRewards();
+    this.recordUpload = leaderboard.finish(this.recordRun, this.campaign ? 'rescue' : 'survival', this.time,
+      { hero: HERO_INFO[this.hero].name, wave: this.wave, bosses: this.bossWins, victory }, expansion.snapshot().preview);
   }
   /** tally essence and bank only what hasn't been paid yet (safe to call at victory and again at the very end) */
   private bankRewards() {
@@ -1008,12 +1044,17 @@ export class Game {
     const st = weaponStats(w, s);
     w.cd -= dt;
     // aim
-    const manual = this.input.mdown;
+    const manual = this.input.mdown || this.input.touchFiring;
     let target: Enemy | null = null;
     if (manual) {
-      const m = this.mouseWorld();
-      const dx = m.x - p.x, dy = m.y - p.y, l = Math.hypot(dx, dy) || 1;
-      p.aimX = dx / l; p.aimY = dy / l;
+      if (this.input.touchFiring) {
+        const aim = screenDirToWorld(this.input.touchAimX, this.input.touchAimY);
+        p.aimX = aim.x; p.aimY = aim.y;
+      } else {
+        const m = this.mouseWorld();
+        const dx = m.x - p.x, dy = m.y - p.y, l = Math.hypot(dx, dy) || 1;
+        p.aimX = dx / l; p.aimY = dy / l;
+      }
       p.aiming = true;
     } else {
       target = this.findTarget(st.range);
@@ -1286,6 +1327,7 @@ export class Game {
     let dx = m.x - p.x, dy = m.y - p.y;
     let l = Math.hypot(dx, dy) || 1;
     if (!this.input.mouseActive) { dx = p.aimX; dy = p.aimY; l = 1; }
+    if (this.input.touchActive) { dx = p.aimX * 7; dy = p.aimY * 7; l = 7; }
     const range = Math.min(l, 7);
     const tx = p.x + (dx / l) * range, ty = p.y + (dy / l) * range;
     if (this.hero === 0) {
@@ -2088,7 +2130,9 @@ export class Game {
     }
     for (const sh of this.map.shops) {
       const d = (sh.x - p.x) ** 2 + (sh.y - p.y) ** 2;
-      if (d < bd * 1.4) { bd = d; best = { kind: 'shop', label: "Shop: Candy Lady's Treats", ref: sh.prop }; }
+      if (d < bd * 1.4) { bd = d; best = sh.prop.kind === 'vending'
+        ? { kind: 'vending', label: 'Play the Midnight Candy Machine · earned coins only', ref: sh.prop }
+        : { kind: 'shop', label: "Shop: Candy Lady's Treats", ref: sh.prop }; }
     }
     for (const h of this.map.houses) {
       if (h.visited) continue;
@@ -2125,6 +2169,8 @@ export class Game {
         this.scatterLoot(k.x, k.y, first);
         for (let i = 0; i < 20; i++) this.particle(k.x, k.y, 0.3, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.8, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
         this.pickups = this.pickups.filter((x) => !x.dead);
+      } else if (best.kind === 'vending') {
+        this.openVending(best.ref as PropInst);
       } else {
         this.state = 'shop';
       }
@@ -2151,6 +2197,64 @@ export class Game {
     this.inspecting = null;
     if (this.state === 'inspect') this.state = 'play';
     this.input.pressed.clear();
+  }
+
+  // ---------- earned-coin vending reel ----------
+  openVending(prop: PropInst) {
+    if (this.state !== 'play' || prop.kind !== 'vending' || !this.map.shops.some(shop => shop.prop === prop)) return;
+    this.vendingActive = true;
+    this.vendingSpin = null;
+    this.input.pressed.clear();
+    this.state = 'vending';
+  }
+  vendingPrice() { return vendingCost(this.vendingPlays); }
+  vendingPool(): VendingPrize[] { return vendingCatalogue(this.scrolls, hasFullGame()); }
+  spinVending(): VendingSpin | null {
+    if (this.state !== 'vending' || !this.vendingActive || (this.vendingSpin && this.vendingSpin.status !== 'claimed')) return null;
+    const cost = this.vendingPrice();
+    if (this.p.coins < cost) return null;
+    const spin = createVendingSpin(this.vendingPool(), ++this.vendingId, cost);
+    if (!spin) return null;
+    this.p.coins -= cost; this.vendingPlays++;
+    this.vendingSpin = spin;
+    gameAudio.play('click', .25);
+    return spin;
+  }
+  settleVending(id: number) {
+    if (this.state !== 'vending' || !this.vendingActive || this.vendingSpin?.id !== id || this.vendingSpin.status !== 'spinning') return;
+    this.vendingSpin.status = 'won';
+    gameAudio.play('unlock', .35);
+  }
+  claimVending(slot = -1): boolean {
+    const spin = this.vendingSpin;
+    if (this.state !== 'vending' || !this.vendingActive || spin?.status !== 'won') return false;
+    const prize = spin.winner;
+    if (prize.premium && !hasFullGame()) return false;
+    if (prize.kind === 'weapon' && (!Number.isInteger(slot) || slot < 0 || slot > 1)) return false;
+    spin.status = 'claimed'; // Mark before applying: double clicks cannot grant twice.
+    if (prize.kind === 'treat') {
+      this.scrolls[prize.scroll.id] = (this.scrolls[prize.scroll.id] || 0) + 1;
+      this.scrollOrder.push(prize.scroll.id);
+      this.recalcStats();
+    } else {
+      const old = this.p.weapons[slot];
+      if (old) { old.reloadT = 0; this.dropWeapon(this.p.x, this.p.y, old); }
+      this.p.weapons[slot] = prize.weapon;
+      this.p.cur = slot; this.syncTeamWeapons();
+    }
+    this.input.pressed.clear();
+    gameAudio.play('pickup', .35);
+    return true;
+  }
+  closeVending() {
+    if (this.state !== 'vending' || !this.vendingActive) return;
+    const spin = this.vendingSpin;
+    if (spin?.status === 'spinning') return;
+    if (spin?.status === 'won') {
+      if (spin.winner.kind === 'treat') this.claimVending();
+      else return; // Never discard a paid-for gun without choosing a slot.
+    }
+    this.vendingActive = false; this.input.pressed.clear(); this.state = 'play'; this.p.invuln = .8;
   }
 
   // ---------- level up / shop ----------

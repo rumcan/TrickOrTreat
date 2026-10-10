@@ -135,7 +135,10 @@ export class Renderer {
     }
     const zoom = clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35);
     const p = g.p;
-    const tx = isoX(p.x, p.y), ty = isoY(p.x, p.y) - 40;
+    const touchViewport = cv.parentElement?.classList.contains('touch-game');
+    const hudTop = cv.parentElement?.querySelector<HTMLElement>('.hm-topbar')?.offsetHeight || (vw < 640 ? (touchViewport ? 76 : 48) : 56);
+    const controlsOffset = touchViewport ? (vw < 640 ? Math.min(130, vh * 0.16) : 28) : 0;
+    const tx = isoX(p.x, p.y), ty = isoY(p.x, p.y) - 40 + controlsOffset / zoom;
     if (g.vw === 1) { g.camX = tx; g.camY = ty; }
     g.camX += (tx - g.camX) * Math.min(1, dt * 8);
     g.camY += (ty - g.camY) * Math.min(1, dt * 8);
@@ -871,7 +874,7 @@ export class Renderer {
     if (tutorial && !g.treatGuideComplete && !tutorial.visited && !g.tot && g.state === 'play' && !g.bigMap) {
       const [sx, sy] = toS(isoX(tutorial.door.x, tutorial.door.y), isoY(tutorial.door.x, tutorial.door.y));
       {
-        const miniWidth = Math.min(230, vw * 0.22), miniBottom = (vw < 640 ? 48 : 56) + 3 + 16 + miniWidth / 2 + 6;
+        const miniWidth = Math.min(230, vw * 0.22), miniBottom = hudTop + 3 + 16 + miniWidth / 2 + 6;
         const underMap = sx > vw - miniWidth - 110 && sy < miniBottom + 100;
         const onScreen = !underMap && sx >= 85 && sx <= vw - 85 && sy >= 170 && sy <= vh - 115;
         const angle = Math.atan2(sy - vh / 2, sx - vw / 2);
@@ -891,7 +894,7 @@ export class Renderer {
         ctx.restore(); ctx.fillStyle = '#0c211bef'; ctx.strokeStyle = '#63d991'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.roundRect(-78, -84, 156, 26, 8); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#e4ffeb'; ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? 'RING THE BELL · E' : 'FIRST TREATS', 0, -71);
+        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP INTERACT' : 'RING THE BELL · E') : 'FIRST TREATS', 0, -71);
         ctx.restore();
       }
     }
@@ -951,8 +954,8 @@ export class Renderer {
     if (this.minimap) {
       const big = g.bigMap;
       const mw = big ? Math.min(vw * 0.72, vh * 1.5) : Math.min(230, vw * 0.22), sc = mw / this.minimap.width, mh = this.minimap.height * sc;
-      // tucked under the HUD's top bar (56px, 48px on phones, + its 3px rule)
-      const top = (vw < 640 ? 48 : 56) + 3;
+      // Follow the real HUD height, including touch layout and safe-area padding.
+      const top = hudTop + 3;
       const mx = big ? (vw - mw) / 2 : vw - mw - 16, my = big ? (vh - mh) / 2 : top + 16;
       const k = big ? 2 : 1;
       if (big) {
