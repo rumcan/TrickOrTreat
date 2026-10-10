@@ -42,6 +42,7 @@
     "art:logo": "node scripts/prepare-logo.mjs",
     "art:guns": "node scripts/prepare-gun-art.mjs",
     "art:talents": "node scripts/prepare-talent-art.mjs",
+    "art:banner": "node scripts/prepare-banner-art.mjs",
     "test:logo": "node scripts/logo-loading.test.mjs",
     "test:leaderboard": "node --test scripts/leaderboard.test.mjs && node scripts/leaderboard-ui.test.mjs",
     "test:leaderboard:production": "node scripts/leaderboard-production.test.mjs",

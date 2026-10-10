@@ -634,6 +634,25 @@ button.kit-tile:not(:disabled):hover {
   .talent-side { flex: 0 0 372px; overflow-y: auto; border-top: 0; border-left: 5px solid var(--pp-orange); padding: 22px 20px 18px; box-shadow: -18px 0 50px rgba(0, 0, 0, .55); }
 }
 
+/* ── End of the night: plate, dark-paper summary with hairline cards, one way forward (the talent constellations) ── */
+.end-screen { position: absolute; inset: 0; display: flex; overflow-y: auto; padding: 16px; background: rgba(4, 4, 9, .84); backdrop-filter: blur(3px); }
+.end-column { width: 100%; max-width: 620px; margin: auto; }
+.end-plate { display: block; width: 100%; height: auto; box-shadow: 0 0 34px rgba(255, 40, 40, .35), 0 14px 40px rgba(0, 0, 0, .6); }
+.end-panel { margin-top: 14px; padding: 18px 20px 20px; background: var(--pp-paper-bg); border: 1px solid rgba(242, 232, 212, .16); border-top: 5px solid var(--pp-orange); box-shadow: 0 18px 50px rgba(0, 0, 0, .55); color: var(--pp-text); }
+.end-stat { padding: 9px 12px 10px; background: var(--pp-card); border: 1px solid rgba(242, 232, 212, .16); border-left: 4px solid var(--pp-orange); }
+.end-stat .label { display: flex; align-items: center; gap: 6px; color: var(--pp-mute); font: 700 11px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.end-stat b { display: block; margin-top: 4px; color: #fff0da; font: 400 28px/1 "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
+.end-rows { margin: 14px 0 0; border-top: 1px solid var(--pp-line); }
+.end-rows > div { display: flex; justify-content: space-between; gap: 16px; padding: 6px 2px; border-bottom: 1px solid var(--pp-hairline); font: 600 15px/1.25 "Barlow", sans-serif; }
+.end-rows dt { color: var(--pp-text-2); }
+.end-rows dd { margin: 0; color: #d9a8ff; font-variant-numeric: tabular-nums; }
+.end-total { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; padding: 12px 14px; background: var(--pp-bar); border: 1px solid rgba(217, 168, 255, .4); }
+.end-total b { color: #d9a8ff; font: 400 46px/1 "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
+.end-total span { color: #fff0da; font: 700 15px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.end-total small { display: block; margin-top: 4px; color: var(--pp-mute); font: 500 12px/1.2 "Barlow", sans-serif; letter-spacing: 0; text-transform: none; }
+.end-panel .hm-btn { cursor: pointer; }
+.end-panel .hm-btn.end-next { min-height: 56px; font-size: 20px; }
+
 /* ── HexMatch-style modals (pause, level-up, shop), dark paper ── */
 .hm-backdrop { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 16px; background: rgba(2, 5, 7, .74); backdrop-filter: blur(4px); }
 .hm-modal { width: min(1060px, 100%); max-width: 100%; margin: auto; background: var(--pp-paper-bg); border: 3px solid #06090b; border-top: 5px solid #ef7c17; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 4px 0 rgba(0, 0, 0, .45), 0 25px 80px rgba(0, 0, 0, .6); padding: 26px 30px 22px; color: #f2e8d4; }

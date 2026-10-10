@@ -8,7 +8,7 @@ import { CandyIcon } from './common';
 type NodeState = 'maxed' | 'owned' | 'available' | 'locked';
 const BASE = (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_URL || './';
 
-export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBack: () => void; onAgain?: () => void; earned?: number }) {
+export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }: { save: Save; onBack: () => void; onAgain?: () => void; earned?: number; backLabel?: string }) {
   useBack(onBack);
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const [, force] = useState(0);
@@ -201,7 +201,7 @@ export function TalentTree({ save, onBack, onAgain, earned }: { save: Save; onBa
               <b>{save.soul}</b>
             </div>
           </div>
-          <button className="hm-btn ghost" onClick={onBack}><ChevronLeft size={18} strokeWidth={3} /> Back</button>
+          <button className="hm-btn ghost" onClick={onBack}><ChevronLeft size={18} strokeWidth={3} /> {backLabel}</button>
         </div>
         {onAgain && <button className="hm-btn talent-replay w-full" onClick={onAgain}>Play again with these talents</button>}
 
