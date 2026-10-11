@@ -32,8 +32,12 @@ try {
       // read in one step: React swaps the static boot screen for its own copy at an arbitrary moment
       assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.boot-loop i')).animationIterationCount), 'infinite', 'Loading shows a looping animation, not a stalled progress bar');
       releaseLogo();
-      await page.waitForFunction(() => document.querySelector('img[alt="Trick or Treat — Maple Falls"]')?.style.opacity === '1');
-      const complete = await logo.evaluate(img => ({ height: img.getBoundingClientRect().height, width: img.getBoundingClientRect().width, complete: img.complete, naturalWidth: img.naturalWidth }));
+      // waited for and measured in one step: React swaps the static boot screen for its own copy at an arbitrary moment,
+      // and a logo caught mid-swap measures 0x0
+      const complete = await page.waitForFunction(() => {
+        const img = [...document.querySelectorAll('img[alt="Trick or Treat — Maple Falls"]')].find(i => i.style.opacity === '1' && i.getBoundingClientRect().height > 0);
+        return img ? { height: img.getBoundingClientRect().height, width: img.getBoundingClientRect().width, complete: img.complete, naturalWidth: img.naturalWidth } : null;
+      }).then(handle => handle.jsonValue());
       assert.ok(complete.complete && complete.naturalWidth === 1240);
       assert.ok(Math.abs(complete.height - pending.height) < .05, 'Decode must not shift loading screen layout');
       assert.ok(Math.abs(complete.width - pending.width) < .05);

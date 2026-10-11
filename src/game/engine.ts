@@ -149,6 +149,8 @@ export interface Enemy {
   hit: number; burnT: number; burnDps: number; burnAcc: number; ectoT: number; stunT: number; atkCd: number; kx: number; ky: number;
   /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (up to HAUNT_MAX) */
   vuln?: number;
+  /** Cryo Ray: chill builds toward 1 (slowing), then the monster is frozen solid for a while */
+  chill?: number; frozenT?: number;
   shootT: number; lungeT: number; lungeX: number; lungeY: number; p1: number; p2: number; p3: number; orbitT: number; dead: boolean; elite: boolean; spawnT: number;
 }
 export interface Bullet {
@@ -159,17 +161,29 @@ export interface Bullet {
   z?: number;
   /** the gun that fired it (inscription triggers) · gentler homing strength · split-off child shot */
   src?: Weapon; homeK?: number; child?: boolean;
+  /** special guns: where the last piece of trail was laid · a boomerang on its way back · already detonated */
+  lx?: number; ly?: number; back?: boolean; spent?: boolean;
+  /** the life it was fired with (flames grow as they age) */
+  max?: number;
+  /** fired by a friend: the gun's inscriptions are the kid's business, and a boomerang flies back to `by` */
+  mate?: boolean; by?: { x: number; y: number };
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
 export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
 export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
 export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number }
-export interface Zone { kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string }
+export interface Zone {
+  kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn' | 'trail' | 'vortex'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string;
+  /** flash: half-angle of the cone · trail: the far end of the line · vortex: blast radius, crit flag and whether it wrecks scenery */
+  arc?: number; x1?: number; y1?: number; blast?: number; crit?: boolean; demolish?: boolean; done?: boolean;
+  /** boom: big enough to play the painted fireball */
+  sprite?: boolean;
+}
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
 
-export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect';
+export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect' | 'discard';
 
 export interface RescueFriend {
   hero: number; x: number; y: number; r: number; gate: number;
@@ -201,6 +215,10 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 export const FRIEND_CARD_CHANCE = 0.2;
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
 export const FRIEND_DOWN_TIME = 30;
+/** special guns: ticks of ramp a stream can build · share of a shot's damage a lingering trail deals per tick · seconds frozen */
+const STREAM_RAMP_MAX = 20, TRAIL_TICK = 0.35, FREEZE_TIME = 2.4;
+/** structural damage a car and a house take before they go up (an Annihilator shell deals 60, a lick of flame 2.5) */
+const CAR_HP = 50, HOUSE_HP = 170;
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
@@ -607,12 +625,21 @@ export class Game {
     friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
     const damage = st.dmg * 0.65 * this.stats.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02);
     gameAudio.play('shot', 0.2);
-    if (weapon.def.kind === 'beam') this.hitscan(friend.x, friend.y, Math.cos(angle), Math.sin(angle), { ...st, dmg: damage }, weapon.def.color, weapon.def.elem ?? null);
+    const def = weapon.def;
+    if (def.kind === 'beam') {
+      // the special beams keep their trick in a friend's hands: the Cryo Ray chills, the Phase Lance leaves its wake
+      if (def.chill || def.stream) this.hitSrc = weapon;
+      const len = this.hitscan(friend.x, friend.y, Math.cos(angle), Math.sin(angle), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5);
+      this.hitSrc = null;
+      if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(angle) * len, y1: friend.y + Math.sin(angle) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color });
+    } else if (def.kind === 'slash') this.swing(weapon, friend.x, friend.y, angle, { ...st, dmg: damage }, false);
     else for (let i = 0; i < st.pellets; i++) {
-      const a = angle + rand(-weapon.def.spread, weapon.def.spread);
-      this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * weapon.def.speed, vy: Math.sin(a) * weapon.def.speed, dmg: damage, r: 0.1,
-        life: st.range / Math.max(weapon.def.speed, 1), pierce: st.pierce, bounce: st.bounce, kind: weapon.def.kind, color: weapon.def.color,
-        crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: weapon.def.explode, hit: [], vamp: false, dead: false, spin: 0, element: weapon.def.elem ?? null });
+      const a = angle + rand(-def.spread, def.spread), life = st.range / Math.max(def.speed, 1);
+      this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * def.speed, vy: Math.sin(a) * def.speed, dmg: damage, r: 0.1,
+        life, max: life, pierce: st.pierce, bounce: st.bounce, kind: def.kind, color: def.color,
+        crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: def.explode, hit: [], vamp: false, dead: false, spin: 0, element: def.elem ?? null,
+        // only the special guns carry their gun along (trail, boomerang, seeker, singularity, demolition); it flies back to the friend
+        ...(def.trail || def.boomerang || def.homing || def.vortex || def.demolish || def.scorch ? { src: weapon, mate: true, by: friend, lx: friend.x, ly: friend.y, home: !!def.homing || undefined, homeK: def.homing } : {}) });
     }
   }
 
@@ -627,6 +654,9 @@ export class Game {
     this.build = new Build({ hero: this.hero, talents: this.save.talents, costume: this.p?.costume ?? null, scrolls: this.scrolls ?? {}, weapon: this.p ? this.weapon : null });
     const b = this.build;
     s.maxHp *= b.hpMore();
+    // extreme treats have the last word, whatever else is stacked
+    if (s.frail) s.maxHp = 1;
+    if (s.bare) s.maxShield = 0;
     s.rate *= b.rateMore();
     s.critDmg *= b.critMore();
     if (b.ks('summon', 3)) { s.orbit += 2; s.familiar *= 2; }
@@ -752,6 +782,7 @@ export class Game {
     if (!this.combatActive()) { inp.endFrame(); return; }
     if (this.state === 'play') this.updatePickups(dt);
     this.updateFx(dt);
+    this.updateWrecks(dt);
     this.director(dt);
     this.updateTeam(dt);
     if (!this.combatActive()) { inp.endFrame(); return; }
@@ -1085,7 +1116,7 @@ export class Game {
 
   // ---------- inscriptions ----------
   private ins(w: Weapon | null | undefined, id: string) { return !!w && w.traits.includes(id); }
-  private fxOf(w: Weapon) { return (w.fx ??= { shots: 0, combo: 0, comboT: 0, fresh: 0, hasty: 0 }); }
+  private fxOf(w: Weapon) { return (w.fx ??= { shots: 0, combo: 0, comboT: 0, fresh: 0, hasty: 0, ramp: 0, rampT: 0 }); }
   /** trigger-inscription damage multiplier for the shot about to leave the barrel */
   private shotMul(w: Weapon) {
     const fx = this.fxOf(w);
@@ -1117,6 +1148,7 @@ export class Game {
       const fx = ww.fx;
       fx.fresh -= dt; fx.hasty -= dt; fx.comboT -= dt;
       if (fx.comboT <= 0) fx.combo = 0;
+      if ((fx.rampT = (fx.rampT ?? 0) - dt) <= 0) fx.ramp = 0; // a stream cools off the moment it is let go
     }
     if (!w) return;
     const st = weaponStats(w, s);
@@ -1189,12 +1221,26 @@ export class Game {
     // muzzle flash
     this.particle(mx, my, 0.45, 0, 0, 0, 0.08, d.color, 22, 'glow');
     if (d.kind === 'beam') {
+      let beam = st;
+      if (d.stream) {
+        // held on target the stream ramps: +6% a tick, up to +120%
+        const fx = this.fxOf(w);
+        fx.ramp = Math.min(STREAM_RAMP_MAX, (fx.ramp ?? 0) + 1); fx.rampT = 0.4;
+        beam = { ...st, dmg: st.dmg * (1 + fx.ramp * 0.06) };
+      }
       for (let i = 0; i < n; i++) {
         const a = base + (n > 1 ? (i - (n - 1) / 2) * 0.12 : 0);
         this.hitSrc = w;
-        this.hitscan(mx, my, Math.cos(a), Math.sin(a), st, d.color);
+        const len = this.hitscan(mx, my, Math.cos(a), Math.sin(a), beam, d.color, d.elem ?? null, d.stream ? 7 + (this.fxOf(w).ramp ?? 0) * 0.25 : 5);
         this.hitSrc = null;
+        // Phase Lance: the bolt's wake hangs in the air and keeps cutting
+        if (d.trail) this.zones.push({ kind: 'trail', x: mx, y: my, x1: mx + Math.cos(a) * len, y1: my + Math.sin(a) * len, r: 0.42, t: 0, life: d.trail, dmg: st.dmg * TRAIL_TICK, tick: 0, color: d.color });
       }
+      return;
+    }
+    if (d.kind === 'slash') {
+      // Thunder Sabre: one swing hits everything in the arc, whatever stands in front of whatever
+      this.swing(w, p.x, p.y, base, st, true);
       return;
     }
     for (let i = 0; i < n; i++) {
@@ -1208,14 +1254,34 @@ export class Game {
       const cr = this.crit(st.crit, st.critMul);
       const haunted = this.ins(w, 'haunted');
       this.bullets.push({
-        x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, dmg: st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), r: d.kind === 'rocket' || d.kind === 'balloon' ? 0.2 : 0.12,
+        x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, dmg: st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), r: d.kind === 'rocket' || d.kind === 'balloon' || d.kind === 'shell' || d.kind === 'void' || d.kind === 'flame' || d.kind === 'glaive' ? 0.22 : 0.12,
         life: st.range / sp + 0.05, pierce: st.pierce, bounce: st.bounce, kind: d.kind, color: d.color, crit: cr.layers, fire: st.fire, shock: st.shock, ecto: st.ecto,
-        explode: d.explode * this.stats.skillPow ** 0.3, hit: [], vamp: st.vamp, dead: false, spin: rand(0, 6), src: w, home: haunted || undefined, homeK: haunted ? 2.4 : undefined,
+        explode: d.explode * this.stats.skillPow ** 0.3, hit: [], vamp: st.vamp, dead: false, spin: rand(0, 6), src: w, home: haunted || !!d.homing || undefined, homeK: haunted ? 2.4 : d.homing,
+        lx: mx, ly: my, max: st.range / sp + 0.05,
       });
     }
   }
 
-  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null) {
+  /** a blade swung from (x, y) toward `base`: everything in the arc is cut (the kid's swings can crit, a friend's do not) */
+  private swing(w: Weapon, x: number, y: number, base: number, st: ReturnType<typeof weaponStats>, crits: boolean) {
+    const d = w.def, R = st.range, half = d.arc ?? 0.9;
+    this.zones.push({ kind: 'flash', x, y, r: R, t: 0, life: 0.2, dmg: 0, tick: 0, ang: base, arc: half, color: d.color });
+    this.hitSrc = w;
+    for (const e of this.enemies) {
+      if (e.dead || e.spawnT > 0) continue;
+      const ex = e.x - x, ey = e.y - y, dist = Math.hypot(ex, ey);
+      if (dist > R + e.r) continue;
+      let da = Math.atan2(ey, ex) - base;
+      da = Math.atan2(Math.sin(da), Math.cos(da));
+      if (Math.abs(da) > half && dist > 0.9) continue;
+      if (!e.def.fly && !lineOfSight(this.map, x, y, e.x, e.y)) continue;
+      const cr = crits ? this.crit(st.crit, st.critMul) : { layers: 0, mul: 1 };
+      this.applyHit(e, st.dmg * (cr.layers ? cr.mul : crits && this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, ex / (dist || 1), ey / (dist || 1), crits && st.vamp, false, { element: d.elem ?? null, pierce: 99 });
+      if (this.bossBreak) break;
+    }
+    this.hitSrc = null;
+  }
+  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null, width = 5) {
     let len = st.range;
     // walls
     for (let t = 0; t < st.range; t += 1 / CR) {
@@ -1235,9 +1301,25 @@ export class Game {
     for (const [, e] of hits) {
       if (pierce-- <= 0) break;
       const cr = this.crit(st.crit, st.critMul);
-      this.applyHit(e, st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, dx, dy, st.vamp, false, { element, pierce: st.pierce });
+      const chill = this.hitSrc?.def.chill, stream = !!this.hitSrc?.def.stream;
+      // a stream stops at the first monster it touches, so the beam is drawn that far
+      if (stream && st.pierce === 0) len = Math.max(0.3, (e.x - x) * dx + (e.y - y) * dy);
+      this.applyHit(e, st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, stream ? dx * 0.15 : dx, stream ? dy * 0.15 : dy, st.vamp, stream && this.streamTick++ % 4 !== 0, { element, pierce: stream ? 99 : st.pierce });
+      if (chill && !e.dead) this.chillEnemy(e, chill);
     }
-    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: 5 });
+    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: width });
+    return len;
+  }
+  private streamTick = 0;
+  /** Cryo Ray: chill slows; at full chill the monster locks solid (bosses only slow) */
+  private chillEnemy(e: Enemy, amount: number) {
+    if ((e.frozenT ?? 0) > 0) return;
+    e.chill = Math.min(1, (e.chill ?? 0) + amount);
+    if (e.chill >= 1 && !e.def.boss) {
+      e.chill = 0; e.frozenT = FREEZE_TIME; e.stunT = Math.max(e.stunT, FREEZE_TIME);
+      this.text(e.x, e.y, 'FROZEN', '#9fe8ff', 12);
+      for (let i = 0; i < 8; i++) this.particle(e.x, e.y, rand(0.2, 1.2), rand(-1, 1), rand(-1, 1), rand(0.5, 2), 0.5, '#d8f6ff', 4, 'sq');
+    }
   }
 
   /** core hit routine for all player damage sources */
@@ -1276,6 +1358,7 @@ export class Game {
       if (bd.ks('ecto', 1)) e.vuln = Math.min(HAUNT_MAX, (e.vuln ?? 0) + 0.04); // Haunting
     }
     if (e.vuln) dmg *= 1 + e.vuln;
+    if ((e.frozenT ?? 0) > 0) dmg *= 1.6; // brittle
     // crit keystones
     if (crit) {
       if (bd.ks('crit', 1)) { this.streak = Math.min(STREAK_MAX, this.streak + 1); this.streakT = 3; }
@@ -1370,7 +1453,8 @@ export class Game {
   explode(x: number, y: number, r0: number, dmg0: number, elem: Elem | null, fromPlayer = true, crit = false, profile: DamageProfile = { element: elem }) {
     const bd = this.build;
     const r = fromPlayer ? r0 * bd.blastRadius() : r0, dmg = fromPlayer ? dmg0 * bd.blastMore() : dmg0;
-    this.zones.push({ kind: 'boom', x, y, r, t: 0, life: 0.45, dmg: 0, tick: 0, color: elem ? ELEM[elem].color : '#ffb347' });
+    const big = fromPlayer && (!elem || elem === 'fire') && r >= 2;
+    this.zones.push({ kind: 'boom', x, y, r, t: 0, life: big ? 0.8 : 0.45, dmg: 0, tick: 0, color: elem ? ELEM[elem].color : '#ffb347', sprite: big });
     this.shake = Math.max(this.shake, 4 + r * 2);
     for (let i = 0; i < 22; i++) {
       const a = rand(0, Math.PI * 2), sp = rand(1, 4) * r;
@@ -1392,6 +1476,7 @@ export class Game {
       });
     }
     this.decals.push({ x, y, r: r * 0.6, color: 'rgba(20,10,5,0.5)', life: 20, rot: rand(0, 6) });
+    if (fromPlayer && profile.demolish) this.demolish(x, y, r, 60, dmg);
   }
 
   // ---------- skills ----------
@@ -1641,6 +1726,11 @@ export class Game {
         if (spreadEcto) o.ectoT = Math.max(o.ectoT, 4);
       });
     }
+    if ((e.frozenT ?? 0) > 0) {
+      // frozen solid: it shatters, and the shards hurt what stands close
+      this.queueBlast(e.x, e.y, 1.4, Math.max(6, e.maxHp * 0.25));
+      for (let i = 0; i < 14; i++) { const a = rand(0, Math.PI * 2); this.particle(e.x, e.y, 0.5, Math.cos(a) * 4, Math.sin(a) * 4, rand(1, 4), 0.6, i % 2 ? '#d8f6ff' : '#9fe8ff', 5, 'sq'); }
+    }
     if (this.blastKill && bd.ks('blast', 3)) this.queueBlast(e.x, e.y, 1.1, Math.max(8, e.maxHp * 0.15) * Math.min(3, this.stats.dmg) * 0.5);
     const src = this.hitSrc;
     if (src) {
@@ -1738,7 +1828,9 @@ export class Game {
       } else e.burnDps = 0;
       const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 0.001;
       let mx = 0, my = 0;
-      let speed = d.speed * (e.ectoT > 0 ? 0.6 : 1) * (e.elite && !d.elite ? 1.1 : 1);
+      if (e.chill) e.chill = Math.max(0, e.chill - dt * 0.2);
+      if (e.frozenT) e.frozenT = Math.max(0, e.frozenT - dt);
+      let speed = d.speed * (e.ectoT > 0 ? 0.6 : 1) * (e.elite && !d.elite ? 1.1 : 1) * (1 - 0.55 * (e.chill ?? 0));
       if (e.stunT > 0) {
         e.stunT -= dt;
         speed = 0;
@@ -1885,15 +1977,32 @@ export class Game {
     for (const b of this.bullets) {
       if (b.dead) continue;
       b.initialPierce ??= b.pierce;
+      const def = b.src?.def;
+      if (def?.boomerang && !b.child) {
+        if (!b.back && b.life <= dt) this.turnBack(b); // far point reached
+        if (b.back) {
+          const to = b.by ?? this.p, hx = to.x - b.x, hy = to.y - b.y, hl = Math.hypot(hx, hy), sp = Math.hypot(b.vx, b.vy) || 1;
+          if (hl < 0.55) { b.dead = true; continue; } // caught
+          b.vx = (hx / hl) * sp; b.vy = (hy / hl) * sp;
+        }
+      }
       const px = b.x, py = b.y;
       const travelDt = Math.min(dt, Math.max(0, b.life));
       const moveX = b.vx * travelDt, moveY = b.vy * travelDt;
       // Sample the whole swept path: fast shots must not skip thin wall cells.
       const steps = Math.max(1, Math.ceil(Math.hypot(moveX, moveY) * CR * 2));
       let wall = false;
-      for (let i = 1; i <= steps; i++) {
+      if (b.back) { b.x = px + moveX; b.y = py + moveY; } // a returning glaive comes home over the rooftops
+      else for (let i = 1; i <= steps; i++) {
         b.x = px + moveX * i / steps; b.y = py + moveY * i / steps;
         if (cellAt(this.map, b.x, b.y) === 2) { wall = true; break; }
+      }
+      if (wall && def?.boomerang && !b.child) { wall = false; b.x = px; b.y = py; this.turnBack(b); } // it turns at a wall instead of stopping
+      if (wall && def?.demolish && def.kind === 'flame') this.demolish(b.x, b.y, 0.5, 2.5, b.dmg);
+      // Grid Disc: lay the neon line behind it, a piece at a time
+      if (def?.trail && !b.child && b.lx !== undefined && (Math.hypot(b.x - b.lx, b.y - b.ly!) > 0.9 || wall || b.life - dt <= 0)) {
+        this.zones.push({ kind: 'trail', x: b.lx, y: b.ly!, x1: b.x, y1: b.y, r: 0.38, t: 0, life: def.trail, dmg: b.dmg * TRAIL_TICK, tick: 0, color: b.color });
+        b.lx = b.x; b.ly = b.y;
       }
       b.life -= dt;
       if (b.z) b.z = Math.max(0, b.z - dt * 130);
@@ -1918,7 +2027,10 @@ export class Game {
         if (!b.homeK && Math.random() < 0.5) this.particle(b.x, b.y, 0.5, 0, 0, 0.3, 0.3, '#c46bff', 5, 'glow');
       }
       if (b.kind === 'water' || b.kind === 'fire') if (Math.random() < 0.3) this.particle(b.x, b.y, 0.4, 0, 0, -0.5, 0.25, b.color, 4, 'glow');
-      if (b.kind === 'rocket') this.particle(px, py, 0.45, rand(-0.3, 0.3), rand(-0.3, 0.3), 0.5, 0.4, '#bbb', 5, 'sq');
+      if (b.kind === 'rocket' || b.kind === 'shell') this.particle(px, py, 0.45, rand(-0.3, 0.3), rand(-0.3, 0.3), 0.5, 0.4, '#bbb', 5, 'sq');
+      else if (b.kind === 'missile') { if (Math.random() < 0.6) this.particle(px, py, 0.45, rand(-0.2, 0.2), rand(-0.2, 0.2), 0.4, 0.3, '#cfc8c0', 3, 'sq'); }
+      else if (b.kind === 'glaive' || b.kind === 'disc') { if (Math.random() < 0.5) this.particle(px, py, 0.45, 0, 0, 0, 0.25, b.color, 5, 'glow'); }
+      else if (b.kind === 'flame') { if (Math.random() < 0.35) this.particle(b.x, b.y, 0.5, rand(-0.6, 0.6), rand(-0.6, 0.6), rand(0.5, 1.6), 0.3, Math.random() < 0.5 ? '#ffb347' : '#ff5a1a', rand(4, 8), 'glow'); }
       const pathX = b.x - px, pathY = b.y - py, pathSq = pathX * pathX + pathY * pathY;
       const hits: [number, Enemy][] = [];
       this.query((px + b.x) / 2, (py + b.y) / 2, Math.sqrt(pathSq) / 2 + 1.5, (e) => {
@@ -1934,20 +2046,19 @@ export class Game {
         if (e.dead) continue;
         b.hit.push(e.id);
         const l = Math.hypot(b.vx, b.vy) || 1;
-        this.hitSrc = b.src ?? null;
+        this.hitSrc = b.mate ? null : b.src ?? null;
         if (b.explode > 0) {
-          const profile = this.projectileProfile(b);
-          this.explode(px + pathX * at, py + pathY * at, b.explode, b.dmg, profile.element ?? null, true, !!b.crit, profile);
+          b.x = px + pathX * at; b.y = py + pathY * at;
+          this.detonate(b);
           if (b.shock > 0 && Math.random() < b.shock) this.chain(e, b.dmg * 0.5);
           this.hitSrc = null;
-          b.dead = true;
           if (this.bossBreak) return;
           break;
         }
         this.applyHit(e, b.dmg, b.crit, b.fire, b.shock, b.ecto, b.vx / l, b.vy / l, b.vamp, false, this.projectileProfile(b));
         this.hitSrc = null;
         if (this.bossBreak) return;
-        if (b.src && !b.child && b.hit.length === 1 && this.ins(b.src, 'split')) {
+        if (b.src && !b.mate && !b.child && b.hit.length === 1 && this.ins(b.src, 'split')) {
           // Two-for-One: the shot splits into two smaller ones on its first hit
           const a0 = Math.atan2(b.vy, b.vx);
           for (const da of [-0.55, 0.55]) this.bullets.push({ ...b, x: px + pathX * at, y: py + pathY * at, vx: Math.cos(a0 + da) * l, vy: Math.sin(a0 + da) * l, dmg: b.dmg * 0.45, hit: [...b.hit], child: true, pierce: 0, initialPierce: 0, life: Math.max(0.3, b.life * 0.7) });
@@ -1971,7 +2082,8 @@ export class Game {
             b.life = Math.max(b.life, 0.6);
           } else b.dead = true;
           break; // A ricochet changes the trajectory; don't hit old-path targets.
-        } else b.dead = true;
+        } else if (def?.scorch) this.bulletDie(b); // a flame that ends on a monster can still set the ground alight
+        else b.dead = true;
       }
       // Creature impacts before a wall resolve first; surviving shots then hit it.
       if (!b.dead && wall) {
@@ -1989,13 +2101,33 @@ export class Game {
     this.bullets = this.bullets.filter((b) => !b.dead);
   }
 
+  /** Star Glaive: turn for home, a little faster, free to hit everything a second time */
+  private turnBack(b: Bullet) {
+    b.back = true; b.life = 4; b.hit = [];
+    b.vx *= -1.2; b.vy *= -1.2;
+  }
   private projectileProfile(b: Bullet): DamageProfile {
-    return { element: b.element !== undefined ? b.element : b.src?.def.elem ?? (b.kind === 'fire' || b.kind === 'rocket' ? 'fire' : b.kind === 'hex' ? 'ecto' : null), pierce: b.initialPierce ?? b.pierce, ricochet: !!b.ricocheted };
+    return { element: b.element !== undefined ? b.element : b.src?.def.elem ?? (b.kind === 'fire' || b.kind === 'rocket' ? 'fire' : b.kind === 'hex' ? 'ecto' : null), pierce: b.initialPierce ?? b.pierce, ricochet: !!b.ricocheted, demolish: !!b.src?.def.demolish && !b.child };
   }
   private bulletDie(b: Bullet) {
+    if (b.explode > 0) { this.detonate(b); return; }
     b.dead = true;
-    if (b.explode > 0) { const profile = this.projectileProfile(b); this.explode(b.x, b.y, b.explode, b.dmg, profile.element ?? null, true, !!b.crit, profile); }
-    else for (let i = 0; i < 3; i++) this.particle(b.x, b.y, 0.4, rand(-1, 1), rand(-1, 1), rand(0.5, 1.5), 0.2, b.color, 2, 'sq');
+    const def = b.src?.def;
+    // Dragon's Breath: some of the fire sticks to the ground
+    if (def?.scorch && !b.child && Math.random() < 0.3 && this.zones.length < 90 && cellAt(this.map, b.x, b.y) === 0) this.zones.push({ kind: 'fire', x: b.x, y: b.y, r: 0.75, t: 0, life: 2.6, dmg: b.dmg * 1.2, tick: 0 });
+    for (let i = 0; i < 3; i++) this.particle(b.x, b.y, 0.4, rand(-1, 1), rand(-1, 1), rand(0.5, 1.5), 0.2, b.color, 2, 'sq');
+  }
+  /** an explosive shot going off where it is: a blast, or for the Event Horizon a singularity that blasts later */
+  private detonate(b: Bullet) {
+    if (b.spent) return;
+    b.spent = true; b.dead = true;
+    const profile = this.projectileProfile(b), def = b.src?.def;
+    if (def?.vortex && !b.child) {
+      this.zones.push({ kind: 'vortex', x: b.x, y: b.y, r: 3.4, t: 0, life: def.vortex, dmg: b.dmg, tick: 0, color: b.color, blast: b.explode, crit: !!b.crit, demolish: profile.demolish });
+      gameAudio.play('skill', 0.35);
+      return;
+    }
+    this.explode(b.x, b.y, b.explode, b.dmg, profile.element ?? null, true, !!b.crit, profile);
   }
 
   private updateEBullets(dt: number) {
@@ -2036,6 +2168,32 @@ export class Game {
             if (Math.hypot(e.x - z.x, e.y - z.y) < z.r + e.r) this.applyHit(e, z.dmg, false, 0.35, 0, 0, 0, 0, false, true, { element: 'fire' });
           });
         }
+      } else if (z.kind === 'trail') {
+        // a lingering line: whatever stands on it is cut every tick
+        z.tick -= dt;
+        if (z.tick <= 0) {
+          z.tick = 0.3;
+          const x1 = z.x1 ?? z.x, y1 = z.y1 ?? z.y, lx = x1 - z.x, ly = y1 - z.y, l2 = lx * lx + ly * ly || 1e-6;
+          this.query((z.x + x1) / 2, (z.y + y1) / 2, Math.sqrt(l2) / 2 + z.r + 0.6, (e) => {
+            const at = clamp(((e.x - z.x) * lx + (e.y - z.y) * ly) / l2, 0, 1);
+            if (Math.hypot(e.x - z.x - lx * at, e.y - z.y - ly * at) < z.r + e.r) this.applyHit(e, z.dmg, false, 0, 0, 0, 0, 0, false, true, { pierce: 99 });
+          });
+        }
+      } else if (z.kind === 'vortex') {
+        // Event Horizon: everything nearby is dragged to the middle, then it goes off
+        this.query(z.x, z.y, z.r + 0.5, (e) => {
+          const dx = z.x - e.x, dy = z.y - e.y, d = Math.hypot(dx, dy) || 1;
+          if (d > z.r) return;
+          const f = (e.def.boss ? 1.2 : 7) / Math.max(1, e.def.mass * 0.5) * Math.min(1, d);
+          const nx = e.x + (dx / d) * f * dt, ny = e.y + (dy / d) * f * dt;
+          if (e.def.fly || e.def.phase || e.def.boss || cellAt(this.map, nx, ny) === 0) { e.x = nx; e.y = ny; }
+        });
+        if (Math.random() < 0.7) { const a = rand(0, Math.PI * 2); this.particle(z.x + Math.cos(a) * z.r, z.y + Math.sin(a) * z.r, 0.6, -Math.cos(a) * 5, -Math.sin(a) * 5, 0, 0.45, '#d59bff', 5, 'glow'); }
+        if (!z.done && z.t >= z.life) {
+          z.done = true;
+          this.explode(z.x, z.y, z.blast ?? 2.2, z.dmg, 'ecto', true, !!z.crit, { element: 'ecto', demolish: z.demolish });
+          if (this.bossBreak) return;
+        }
       } else if (z.kind === 'tornado') {
         z.tick -= dt;
         const pullR = z.r * 1.8;
@@ -2061,6 +2219,58 @@ export class Game {
       }
     }
     this.zones = this.zones.filter((z) => z.t < z.life);
+  }
+
+  // ---------- demolition (cars and houses) ----------
+  /**
+   * Heavy weapons wreck the street: a car caught in the blast at (x, y), or a house hit directly, takes `points` of structural damage. A car
+   * goes up like a bomb; a house burns down and never answers its door again, but it spills what was inside.
+   */
+  private demolish(x: number, y: number, r: number, points: number, dmg: number) {
+    for (const pr of this.map.props) {
+      if (pr.removed || pr.wreck || (pr.kind !== 'car' && pr.kind !== 'house')) continue;
+      const nx = clamp(x, pr.x0, pr.x0 + pr.fw), ny = clamp(y, pr.y0, pr.y0 + pr.fh);
+      // a house only suffers from a hit on the house itself: a fight on its lawn does not burn it down by accident
+      if (Math.hypot(nx - x, ny - y) > (pr.kind === 'house' ? Math.min(r, 0.7) : r * 0.6)) continue;
+      pr.hp = (pr.hp ?? (pr.kind === 'car' ? CAR_HP : HOUSE_HP)) - points;
+      pr.burnT = Math.max(pr.burnT ?? 0, 2.5); // it catches for a moment even when it survives
+      if (pr.hp > 0) continue;
+      const cx = pr.x0 + pr.fw / 2, cy = pr.y0 + pr.fh / 2, house = pr.kind === 'house';
+      pr.wreck = true; pr.boomT = 0; pr.burnT = house ? 40 : 16;
+      this.hitStop = Math.max(this.hitStop, 0.05);
+      gameAudio.play('impact', 0.9);
+      this.explode(cx, cy, house ? 3.4 : 2.6, Math.max(20, dmg * 2), 'fire', true, false, { element: 'fire' }); // no chain of wrecks from one blast
+      this.shake = Math.max(this.shake, house ? 16 : 11);
+      for (let i = 0; i < (house ? 3 : 1); i++) this.zones.push({ kind: 'fire', x: cx + rand(-pr.fw, pr.fw) * 0.45, y: pr.y0 + pr.fh + 0.5 + rand(0, 0.6), r: 0.9, t: 0, life: 5, dmg: Math.max(3, dmg * 0.3), tick: 0 });
+      if (house) {
+        const h = this.map.houses.find(q => q.prop === pr);
+        if (h) {
+          h.gone = true; h.visited = true; h.trick = false;
+          if (h.light) h.light.i = 0;
+          if (this.tutorialHouse === h) this.selectTutorialHouse();
+          if (this.tot?.house === h) this.cancelTot(false);
+          // what was inside lands on the lawn
+          for (let i = 0; i < 10; i++) this.dropPickup(h.door.x, h.door.y, 'coin', 3);
+          for (let i = 0; i < 6; i++) this.dropPickup(h.door.x, h.door.y, 'xp3', 4);
+          if (Math.random() < 0.35) this.dropWeapon(h.door.x + 0.4, h.door.y + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
+        }
+        this.text(cx, cy, 'HOUSE DOWN!', '#ff8a1e', 18);
+      } else {
+        for (let i = 0; i < 4; i++) this.dropPickup(cx, cy, 'coin', 2);
+        this.text(cx, cy, 'KABOOM!', '#ffcf3a', 16);
+      }
+    }
+  }
+  /** burning wrecks: their timers, their smoke, and the heat that hurts monsters standing against them */
+  private updateWrecks(dt: number) {
+    for (const pr of this.map.props) {
+      if (!pr.burnT && pr.boomT === undefined) continue;
+      if (pr.boomT !== undefined && (pr.boomT += dt) > 1.2) pr.boomT = undefined;
+      if (pr.burnT) {
+        pr.burnT = Math.max(0, pr.burnT - dt);
+        if (Math.random() < 0.25) this.particle(pr.x0 + rand(0, pr.fw), pr.y0 + rand(0, pr.fh), rand(1, 2.5), rand(-0.3, 0.3), rand(-0.3, 0.3), rand(1, 2), rand(0.6, 1.2), '#3a3230', rand(5, 9), 'sq');
+      }
+    }
   }
 
   // ---------- pickups ----------
@@ -2255,6 +2465,34 @@ export class Game {
         this.state = 'shop';
       }
     }
+  }
+
+  // ---------- discarding a treat ----------
+  /** the treat the player is being asked about (the world is paused while the question is up) */
+  discarding: string | null = null;
+  private discardReturn: GameState = 'play';
+  /** ask "discard this treat?": from the left rail while playing, or from the run build screen */
+  askDiscard(id: string) {
+    if (!['play', 'inventory', 'pause'].includes(this.state) || !(this.scrolls[id] > 0) || !SCROLL_BY_ID[id]) return;
+    this.discardReturn = this.state; this.discarding = id; this.state = 'discard';
+    this.input.pressed.clear();
+  }
+  /** yes: one copy of the treat is gone for good and the build is recalculated. Either way, back to where we were. */
+  answerDiscard(yes: boolean) {
+    if (this.state !== 'discard') return;
+    const id = this.discarding;
+    if (yes && id && this.scrolls[id] > 0) {
+      if (--this.scrolls[id] <= 0) delete this.scrolls[id];
+      const at = this.scrollOrder.lastIndexOf(id);
+      if (at >= 0) this.scrollOrder.splice(at, 1);
+      this.recalcStats();
+      this.p.dashCharges = Math.min(this.p.dashCharges, this.stats.dashCharges);
+      for (const w of this.p.weapons) if (w) w.ammo = Math.min(w.ammo, weaponStats(w, this.stats).mag);
+      gameAudio.play('click', 0.4);
+    }
+    this.discarding = null;
+    this.state = this.discardReturn;
+    this.input.pressed.clear();
   }
 
   // ---------- weapon inspect ----------
@@ -2599,6 +2837,7 @@ export class Game {
   private relightHouses() {
     const hs = this.map.houses;
     for (const h of hs) {
+      if (h.gone) continue; // burnt down
       h.visited = false;
       h.trick = false;
       if (h.light) h.light.i = h.lightI;

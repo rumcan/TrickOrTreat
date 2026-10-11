@@ -1361,6 +1361,222 @@
         380,
         400
       ]
+    },
+    "treatart_mixtape": {
+      "file": "treats/mixtape.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_batteries": {
+      "file": "treats/batteries.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_token": {
+      "file": "treats/token.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_masher": {
+      "file": "treats/masher.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_skates": {
+      "file": "treats/skates.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_yoyo": {
+      "file": "treats/yoyo.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_cartoons": {
+      "file": "treats/cartoons.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_denim": {
+      "file": "treats/denim.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_lunchmoney": {
+      "file": "treats/lunchmoney.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_slurp": {
+      "file": "treats/slurp.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_griptape": {
+      "file": "treats/griptape.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_berserk": {
+      "file": "treats/berserk.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_forcefield": {
+      "file": "treats/forcefield.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "icon_annihilator": {
+      "file": "guns/icon_annihilator.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_cryo": {
+      "file": "guns/icon_cryo.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_disc": {
+      "file": "guns/icon_disc.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_glaive": {
+      "file": "guns/icon_glaive.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_incinerator": {
+      "file": "guns/icon_incinerator.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_lance": {
+      "file": "guns/icon_lance.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_sabre": {
+      "file": "guns/icon_sabre.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_singularity": {
+      "file": "guns/icon_singularity.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_stream": {
+      "file": "guns/icon_stream.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_swarm": {
+      "file": "guns/icon_swarm.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "fx_explosion": {
+      "file": "fx/fx_explosion.webp",
+      "scale": 2
+    },
+    "fx_fire": {
+      "file": "fx/fx_fire.webp",
+      "scale": 2
+    },
+    "treatart_goldfever": {
+      "file": "treats/goldfever.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_kaiju": {
+      "file": "treats/kaiju.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_oneshot": {
+      "file": "treats/oneshot.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
     }
   }
 }

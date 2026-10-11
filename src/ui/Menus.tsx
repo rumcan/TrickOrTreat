@@ -322,6 +322,42 @@ function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: W
   );
 }
 
+// ================= DISCARD A TREAT =================
+/** "Discard this treat?" Yes removes one copy for good (useful for the double-edged ones); No changes nothing. */
+export function DiscardTreat({ game, onDone }: { game: Game; onDone: () => void }) {
+  const sc = game.discarding ? SCROLL_BY_ID[game.discarding] : null;
+  const answer = (yes: boolean) => { game.answerDiscard(yes); onDone(); };
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { const k = e.key.toLowerCase(); if (k === 'y' || k === 'enter') answer(true); else if (k === 'n' || k === 'escape') answer(false); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  });
+  if (!sc) return null;
+  const n = game.scrolls[sc.id] || 0, rc = RARITY_KIT[sc.rarity];
+  return (
+    <div className="hm-backdrop" role="dialog" aria-modal="true" aria-label={`Discard ${sc.name}?`}>
+      <div className="hm-modal kit-pop !w-[min(520px,100%)]">
+        <div className="paper-kicker">Your treats · game paused</div>
+        <h2 className="hm-modal-title !text-[clamp(30px,5vw,44px)]">Discard this treat?</h2>
+        <span className="hm-rule" />
+        <div className="mt-5 flex items-center gap-4">
+          <span className="hm-thumb h-[76px] w-[134px] shrink-0 !aspect-auto" style={{ borderColor: rc }}><TreatArt id={sc.id} /></span>
+          <div className="min-w-0">
+            <div className="hm-label" style={{ color: rc }}>{RARITY_NAMES[sc.rarity]} treat{n > 1 ? ` · you hold ${n}` : ''}</div>
+            <div className="font-cond text-2xl uppercase leading-tight text-[#fff0da]">{sc.name}</div>
+            <div className="mt-1 text-[15px] font-semibold text-[#f2e8d4]">{sc.desc}</div>
+          </div>
+        </div>
+        <p className="mt-4 text-sm text-[#c9bda6]">{n > 1 ? 'One copy is thrown away for good.' : 'It is thrown away for good.'} You get nothing back for it.</p>
+        <div className="hm-foot">
+          <button className="hm-btn ghost" onClick={() => answer(false)}>No, keep it</button>
+          <button className="hm-btn" onClick={() => answer(true)}>Yes, discard</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ================= LEVEL UP =================
 export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const [, force] = useState(0);

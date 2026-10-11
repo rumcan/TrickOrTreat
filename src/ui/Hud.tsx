@@ -122,10 +122,10 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {treats.slice(0, max).map(([id, n]) => {
         const sc = SCROLL_BY_ID[id];
         return (
-          <div key={id} className="hm-rail-row" title={`${sc.name} ×${n}: ${sc.desc}`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }}>
+          <button type="button" key={id} className="hm-rail-row hm-rail-treat" aria-label={`${sc.name}${n > 1 ? ` ×${n}` : ''}. Click to discard.`} title={`${sc.name} ×${n}: ${sc.desc} · click to discard`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }} onClick={() => game.askDiscard(id)}>
             <span className="hm-rail-art" style={{ borderColor: RARITY_KIT[sc.rarity] }}><TreatArt id={id} /></span>
             {n > 1 && <span className="hm-rail-n">×{n}</span>}
-          </div>
+          </button>
         );
       })}
       {treats.length > max && <button className="hm-rail-row hm-rail-more" onClick={() => game.state === 'play' && (game.state = 'inventory')}>+{treats.length - max}<small>more</small></button>}
