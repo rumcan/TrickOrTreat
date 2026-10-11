@@ -1072,7 +1072,7 @@ export class Renderer {
         ctx.restore(); ctx.fillStyle = '#0c211bef'; ctx.strokeStyle = '#63d991'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.roundRect(-78, -84, 156, 26, 8); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#e4ffeb'; ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP INTERACT' : 'RING THE BELL · E') : onScreen || route.length < 7 ? 'FIRST TREATS' : 'FOLLOW THE DOTS', 0, -71);
+        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP TO RING THE BELL' : 'RING THE BELL · E') : onScreen || route.length < 7 ? 'FIRST TREATS' : 'FOLLOW THE DOTS', 0, -71);
         ctx.restore();
       }
     }

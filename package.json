@@ -27,6 +27,7 @@
     "test:weapon-layout": "node scripts/weapon-layout.test.mjs",
     "test:free-friend": "node scripts/free-friend.test.mjs",
     "test:new-guns": "node scripts/new-guns.test.mjs",
+    "test:tap": "node scripts/tap-to-interact.test.mjs",
     "test:earn-full-game": "node scripts/earn-full-game.test.mjs",
     "test:first-door": "node scripts/first-door-route.test.mjs",
     "test:boss-minions": "node scripts/boss-minions.test.mjs",

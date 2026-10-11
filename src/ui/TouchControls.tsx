@@ -37,6 +37,8 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
   const input = game.input;
   const pointer = useRef<number | null>(null);
   const origin = useRef({ x: 0, y: 0 });
+  // a quick touch that never became a drag is a tap: it does what the Interact button does
+  const press = useRef({ x: 0, y: 0, at: 0, moved: 0 });
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null);
   const reset = () => { pointer.current = null; input.setTouchMove(0, 0); setStick(null); };
   useEffect(() => {
@@ -59,6 +61,7 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
   const move = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (pointer.current !== event.pointerId) return;
     event.preventDefault();
+    press.current.moved = Math.max(press.current.moved, Math.hypot(event.clientX - press.current.x, event.clientY - press.current.y));
     let dx = event.clientX - origin.current.x, dy = event.clientY - origin.current.y;
     const length = Math.hypot(dx, dy);
     // a long drag pulls the centre along, so turning around never needs the finger to travel all the way back
@@ -72,13 +75,21 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
     const scale = Math.min(1, DRAG_RADIUS / (Math.hypot(dx, dy) || 1));
     setStick({ ...origin.current, dx: dx * scale, dy: dy * scale });
   };
-  const end = (event: ReactPointerEvent<HTMLDivElement>) => { if (pointer.current === event.pointerId) reset(); };
+  const end = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (pointer.current !== event.pointerId) return;
+    // New players tap the door, the bag or the gun itself, not a button at the bottom of the screen. When something
+    // is in reach (the prompt is showing), a tap anywhere on the play area is "interact".
+    const tap = event.type === 'pointerup' && performance.now() - press.current.at < 350 && press.current.moved < 14;
+    reset();
+    if (tap && (game.interact || game.mounted >= 0 || (game.rescuePrompt && !/Defeat/.test(game.rescuePrompt))) && !game.tot) { input.touchActive = true; input.mouseActive = false; input.tap('e'); }
+  };
   return <div className="touch-surface" role="group" aria-label="Drag anywhere to move" data-testid="touch-move"
     onPointerDown={event => {
       if (pointer.current !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
       event.preventDefault();
       if (game.bigMap) { game.bigMap = false; return; } // a tap on the open map puts it away
       pointer.current = event.pointerId;
+      press.current = { x: event.clientX, y: event.clientY, at: performance.now(), moved: 0 };
       origin.current = { x: event.clientX, y: event.clientY };
       event.currentTarget.setPointerCapture(event.pointerId);
       input.setTouchMove(0, 0);
@@ -101,12 +112,12 @@ export function TouchControls({ game, s }: { game: Game; s: HudSnap }) {
   const action = (key: string) => { input.touchActive = true; input.mouseActive = false; input.tap(key); };
   return <div className="touch-controls" aria-label="Touch game controls">
     <div className="touch-actions">
-      <button type="button" className="touch-action touch-action--interact" aria-label="Interact" disabled={!interact || !!s.tot} {...buttonPress(() => action('e'))}><DoorOpen size={20} /><span>{s.turret ? 'Climb down' : s.rescue ? 'Revive' : 'Interact'}</span></button>
+      <button type="button" className={`touch-action touch-action--interact${interact && !s.tot ? ' touch-action--ready' : ''}`} aria-label="Interact" disabled={!interact || !!s.tot} {...buttonPress(() => action('e'))}><DoorOpen size={20} /><span>{s.turret ? 'Climb down' : s.rescue ? 'Revive' : 'Interact'}</span></button>
       <button type="button" className="touch-action" aria-label="Reload weapon" disabled={!s.weapons[s.cur] || !!s.tot} {...buttonPress(() => action('r'))}><RotateCw size={20} /><span>Reload</span></button>
       <button type="button" className="touch-action touch-action--skill" aria-label="Use hero skill" disabled={s.skillCd > 0 || !!s.tot} {...buttonPress(() => action('f'))}><Zap size={20} /><span>{s.skillCd > 0 ? `${Math.ceil(s.skillCd)}s` : 'Skill'}</span></button>
       <button type="button" className="touch-action touch-action--dash" aria-label={s.tot ? 'Flee doorstep' : 'Dash'} disabled={!s.tot && !s.turret && s.dashCharges <= 0} {...buttonPress(() => action(' '))}><Wind size={20} /><span>{s.tot ? 'Flee' : 'Dash'}</span></button>
     </div>
-    {(s.interact || s.rescue || s.tot) && <div className="touch-context" role="status">{s.tot ? 'Waiting for treats. Tap Flee to escape.' : s.rescue?.label || s.interact}</div>}
+    {(s.interact || s.rescue || s.tot) && <div className="touch-context" role="status">{s.tot ? 'Waiting for treats. Tap Flee to escape.' : `Tap the screen: ${s.rescue?.label || s.interact}`}</div>}
     {s.time < 12 && !s.interact && !s.rescue && !s.tot && <div className="touch-context touch-help">Drag anywhere to move. Your kid aims and fires automatically.</div>}
   </div>;
 }

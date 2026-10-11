@@ -499,6 +499,10 @@ button.kit-tile:not(:disabled):hover {
 .touch-action--skill { border-color: #e0af6f; color: #ffe1b2; }
 .touch-action--dash { border-color: #78cee5; color: #c6f4ff; }
 .touch-action:disabled { opacity: .45; }
+/* something is in reach: the Interact key calls for attention (a tap anywhere on the play area does the same) */
+.touch-action--ready { animation: touch-ready 1s ease-in-out infinite; background: #1f5a37; }
+@keyframes touch-ready { 0%, 100% { box-shadow: 0 0 0 0 #84db9f00; transform: scale(1); } 50% { box-shadow: 0 0 0 6px #84db9f66; transform: scale(1.07); } }
+@media (prefers-reduced-motion: reduce) { .touch-action--ready { animation: none; } }
 .touch-action:not(:disabled):active { background: #486568; transform: scale(.96); }
 .touch-action:focus-visible { outline: 2px solid #fff0d2; outline-offset: 3px; }
 .touch-context { position: absolute; bottom: calc(var(--touch-bottom) + 72px); left: 50%; transform: translateX(-50%); width: min(300px, calc(100% - 24px)); padding: 5px 8px; border: 1px solid #80d79a99; border-radius: 8px; background: #10231ccd; color: #f0fff5; text-align: center; font: 600 11px/1.25 "Barlow", sans-serif; }
