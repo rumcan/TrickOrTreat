@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Game, Input, HudSnap } from './game/engine';
 import { Renderer } from './game/render';
 import { preloadAll } from './game/preload';
+import { artLoadFailed } from './game/assets';
 import { loadSave, storeSave, Save } from './game/data';
 import { Hud } from './ui/Hud';
 import { LogoImg } from './ui/kit';
@@ -127,6 +128,8 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
   const [label, setLabel] = useState('Waking up the dead…');
+  /** the painted art did not arrive: ask before starting in the built-in drawings */
+  const [artProblem, setArtProblem] = useState(false);
   const [save, setSave] = useState<Save>(() => loadSave());
   const [campaign, setCampaign] = useState(false);
   useEffect(() => { void expansion.restore(); }, []);
@@ -147,6 +150,7 @@ export default function App() {
   useEffect(() => {
     // the loading screen's own logo and background come first; only then the sprite manifest and the rest of the UI art
     preloadSplash().then(() => Promise.all([preloadAll((_, text) => setLabel(text)), preloadUiArt()])).then(() => {
+      if (artLoadFailed()) { setArtProblem(true); return; }
       setScreen('title');
       // ?export: lets scripts/export-art.mjs pull PNGs of the procedural art
       if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => Object.assign(window, { __totExport: m.exportArt, __totRegen: m.exportRegen }));
@@ -169,8 +173,18 @@ export default function App() {
         <div className="boot-shade" />
         <div className="boot-body">
           <LogoImg className="boot-logo" />
-          <div className="boot-loop" role="progressbar" aria-label="Loading"><i /></div>
-          <div className="boot-label">{label}</div>
+          {artProblem ? (
+            <div className="boot-problem" role="alert">
+              <div className="boot-label">The game's artwork did not finish loading. Check your connection and try again.</div>
+              <div className="boot-problem-actions">
+                <button type="button" className="boot-btn" onClick={() => location.reload()}>Try again</button>
+                <button type="button" className="boot-btn boot-btn--quiet" onClick={() => { setArtProblem(false); setScreen('title'); }}>Play anyway</button>
+              </div>
+            </div>
+          ) : (<>
+            <div className="boot-loop" role="progressbar" aria-label="Loading"><i /></div>
+            <div className="boot-label">{label}</div>
+          </>)}
         </div>
       </div>
     );

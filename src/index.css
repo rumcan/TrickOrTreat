@@ -916,3 +916,9 @@ button.kit-tile:not(:disabled):hover {
   .unlock-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; }
   .unlock-card { padding: 12px; }
 }
+
+/* the loading screen when the painted art did not arrive */
+.boot-problem { display: grid; gap: 14px; justify-items: center; max-width: 30rem; padding: 0 16px; text-align: center; }
+.boot-problem-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.boot-btn { min-height: 44px; padding: 8px 22px; border: 2px solid #fb8016; border-radius: 6px; background: #fb8016; color: #14100c; font: 700 16px/1 "Barlow Condensed", system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.boot-btn--quiet { background: transparent; color: #f2e6c9; border-color: #6a6f78; }
