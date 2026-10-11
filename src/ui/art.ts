@@ -19,7 +19,7 @@ export const ART = {
 
 /** painted card art per gun id (scripts/prepare-gun-art.mjs); the small in-world sprites are separate (icon_<id>) */
 export const GUN_ART_IDS = ['pea', 'nerf', 'shotgun', 'roman', 'soaker', 'balloon', 'rocket', 'laser', 'slingshot', 'gloom', 'marshmallow', 'bubblegum', 'acorn',
-  'stream', 'disc', 'sabre', 'glaive', 'swarm', 'singularity', 'annihilator', 'incinerator', 'lance', 'cryo'];
+  'flamer', 'stream', 'disc', 'sabre', 'glaive', 'swarm', 'singularity', 'annihilator', 'incinerator', 'lance', 'cryo'];
 export const gunArtUrl = (id: string) => img(`guns/${GUN_ART_IDS.includes(id) ? id : 'pea'}.webp`);
 
 /** per hero (HERO_INFO order): tall card portrait and round HUD face */

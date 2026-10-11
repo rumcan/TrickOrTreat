@@ -4,7 +4,7 @@ import { chromium } from 'playwright-core';
 
 // The ten "screen weapon" guns each work their own way, the heavy ones wreck cars and houses, common treats are small
 // stackable boosts, the extreme treats trade something away, and any treat can be discarded from the side rail.
-const NEW_FREE = ['stream', 'disc', 'sabre', 'glaive', 'swarm'], NEW_FULL = ['singularity', 'annihilator', 'incinerator', 'lance', 'cryo'];
+const NEW_FREE = ['stream', 'disc', 'sabre', 'glaive', 'swarm', 'flamer'], NEW_FULL = ['singularity', 'annihilator', 'incinerator', 'lance', 'cryo'];
 const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
@@ -43,12 +43,16 @@ try {
       extreme: ['forcefield', 'berserk', 'oneshot', 'kaiju', 'goldfever'].map(id => { const s = SCROLLS.find(q => q.id === id); return s ? `${id}:${!!s.premium}:${s.max}` : `${id}:missing`; }),
       oldCommon: SCROLLS.filter(s => ['sugar', 'jawbreaker', 'popRocks'].includes(s.id)).map(s => s.rarity),
       lance: WEAPON_BY_ID.lance.trail,
+      fuel: SCROLLS.find(s => s.id === 'pepper').name, fuelArt: allAssets().find(a => a.spec.key === 'treatart_pepper')?.file ?? '',
     };
   });
   for (const id of NEW_FREE) assert.ok(catalogue.free.includes(id), `${id} is a free gun`);
   for (const id of NEW_FULL) assert.ok(catalogue.full.includes(id), `${id} is a full-game gun`);
   for (const id of [...NEW_FREE, ...NEW_FULL]) assert.ok(catalogue.painted.includes(id), `${id} has a painted in-hand sprite`);
   assert.deepEqual(catalogue.demolish.sort(), ['annihilator:true', 'incinerator:true'], 'Only full-game guns wreck the street');
+  // the flamethrower picture belongs to the gun; the burn treat is a can of fuel
+  assert.equal(catalogue.fuel, 'Bug-Hunt Flame Fuel');
+  assert.equal(catalogue.fuelArt, 'treats/pepper.webp', 'The burn treat no longer shows a gun');
   assert.ok(catalogue.commons.length >= 10, 'There is a tier of common treats');
   for (const c of catalogue.commons) assert.ok(c.max >= 3 && !c.premium, `Common treat ${c.id} is free and stacks`);
   assert.deepEqual(catalogue.extreme, ['forcefield:true:1', 'berserk:true:1', 'oneshot:true:1', 'kaiju:true:1', 'goldfever:true:1'], 'Five one-off extreme treats in the full game');
@@ -112,6 +116,7 @@ try {
   assert.ok(shot.singularity.bullets.includes('void') && shot.singularity.zones.includes('vortex') && shot.singularity.pull > 0.15 && shot.singularity.zones.includes('boom'), `Event Horizon drags monsters in, then explodes (pull ${shot.singularity.pull.toFixed(2)})`);
   assert.ok(shot.annihilator.bullets.includes('shell') && shot.annihilator.zones.includes('boom'), 'Annihilator fires exploding shells');
   assert.ok(shot.incinerator.bullets.includes('flame') && shot.incinerator.zones.includes('fire'), `Dragon's Breath leaves burning ground (${JSON.stringify(shot.incinerator)})`);
+  assert.ok(shot.flamer.bullets.includes('flame') && shot.flamer.zones.includes('fire'), `The free Bug-Hunt Flamethrower is a real gun that sets the ground alight (${JSON.stringify(shot.flamer)})`);
   assert.ok(shot.lance.beams > 0 && shot.lance.zones.includes('trail') && shot.lance.hurt >= 3, 'Phase Lance pierces the pack and its wake keeps cutting');
   assert.ok(shot.cryo.beams > 0 && shot.cryo.frozen, 'Cryo Ray freezes a monster solid');
 

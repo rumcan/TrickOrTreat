@@ -27,7 +27,7 @@ const SPECS: Record<string, ArtSpec> = {
   fireball: { bg: 'fire', motif: 'eyes', c: '#ffb43c', prompt: 'a pair of eyes glowing with fire, a psychic girl starting fires with a stare' },
   pop: { bg: 'vhs', motif: 'robot', c: '#7fd8ff', c2: '#ffe14a', prompt: 'a cute tank-tread robot head throwing sparks after a lightning strike, malfunction' },
   gummy: { bg: 'vhs', motif: 'slime', c: '#7cff64', prompt: 'a big splash of glowing green slime dripping down, getting slimed' },
-  pepper: { bg: 'fire', motif: 'flamethrower', c: '#ff7a1a', prompt: 'a chunky sci-fi marine flamethrower spitting fire in a dark alien hive' },
+  pepper: { bg: 'fire', motif: 'canister', c: '#ff7a1a', prompt: 'a battered red sci-fi marine fuel canister with a coiled hose and a lick of fire at the valve (the fuel, not the flamethrower: that is a gun)' },
   sweater: { bg: 'space', motif: 'bolt', c: '#ffe14a', c2: '#7fd8ff', prompt: 'a lightning bolt striking a town clock tower at exactly 10:04, 1.21 jigawatts' },
   taffy: { bg: 'woods', motif: 'canister', c: '#7cff64', prompt: 'a dented canister leaking glowing green ooze in a sewer, mutagen' },
   fangs: { bg: 'woods', motif: 'fangs', c: '#ff4d6d', c2: '#fff3c4', prompt: 'a grinning pair of vampire fangs under a boardwalk moon, teen vampire gang' },

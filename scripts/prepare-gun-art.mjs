@@ -17,14 +17,20 @@ const FLIP = new Set(['lance']);
  */
 const GRIP = {
   stream: [0.17, 0.78], disc: [0.2, 0.55], sabre: [0.1, 0.5], glaive: [0.32, 0.5], swarm: [0.3, 0.88], singularity: [0.2, 0.8],
-  annihilator: [0.24, 0.85], incinerator: [0.26, 0.56], lance: [0.3, 0.78], cryo: [0.2, 0.85],
+  annihilator: [0.24, 0.85], incinerator: [0.26, 0.56], lance: [0.3, 0.78], cryo: [0.2, 0.85], flamer: [0.42, 0.9],
 };
+/** masters painted mid-shot: the in-world sprite keeps only this left share of the picture (the gun, without its flame) */
+const ICON_KEEP = { flamer: 0.645 };
 const ICON_W = 256, ICON_H = 128, HAND = [64, 80];
 const master = async (file, id) => (FLIP.has(id) ? sharp(await sharp(file).flop().png().toBuffer()) : sharp(file));
 
 async function gunIcon(file, id) {
   const [gx, gy] = GRIP[id];
-  const cut = await (await master(file, id)).trim({ threshold: 1 }).png().toBuffer();
+  let cut = await (await master(file, id)).trim({ threshold: 1 }).png().toBuffer();
+  if (ICON_KEEP[id]) {
+    const whole = await sharp(cut).metadata();
+    cut = await sharp(await sharp(cut).extract({ left: 0, top: 0, width: Math.round(whole.width * ICON_KEEP[id]), height: whole.height }).png().toBuffer()).trim({ threshold: 1 }).png().toBuffer();
+  }
   const { width, height } = await sharp(cut).metadata();
   // as big as fits around the hand: 4px margins, and never wider than the longest painted toy gun
   const k = Math.min((HAND[0] - 4) / (gx * width), (ICON_W - HAND[0] - 4) / ((1 - gx) * width), (HAND[1] - 4) / (gy * height), (ICON_H - HAND[1] - 4) / ((1 - gy) * height), 216 / width);

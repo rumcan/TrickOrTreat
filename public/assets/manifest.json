@@ -1251,7 +1251,7 @@
       ]
     },
     "treatart_pepper": {
-      "file": "generated/world/treatart_pepper-5bfc49cf6456ceb9.png",
+      "file": "treats/pepper.webp",
       "scale": 4,
       "anchor": [
         480,
@@ -1576,6 +1576,14 @@
       "anchor": [
         480,
         272
+      ]
+    },
+    "icon_flamer": {
+      "file": "guns/icon_flamer.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
       ]
     }
   }
