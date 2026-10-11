@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Play, Users, Lollipop, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
 import { Game } from '../game/engine';
-import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
+import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
@@ -10,6 +10,7 @@ import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
 import { RunInventory } from './RunInventory';
 import { TalentTree } from './TalentTree';
 import { gameAudio } from '../game/audio';
+import { tutorialSeen, forgetTutorial, rememberTutorial } from '../game/tutorial';
 import { expansion, hasFullGame } from '../game/expansion';
 import { ExpansionUnlock } from './ExpansionUnlock';
 import { UnlockShowcase } from './UnlockShowcase';
@@ -211,6 +212,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           <SettingRow label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
           <SettingRow label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
           <SettingRow label="Monster names" desc="Labels above monsters with a special power"><Toggle label="Monster names" on={settings.names} onChange={(v) => set(() => (settings.names = v))} /></SettingRow>
+          <SettingRow label="Tutorial" desc="Professor Fizz's walkie-talkie lesson on your next run"><Toggle label="Tutorial on the next run" on={!tutorialSeen()} onChange={(v) => { if (v) forgetTutorial(); else rememberTutorial('never'); force((n) => n + 1); }} /></SettingRow>
           <SettingRow label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
           <SettingRow label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="rounded border border-[#4a4d55] bg-[#13151b] p-2 text-[#f2e6c9]"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
           <SettingRow label="Sound effects" desc="Soft low-pass rumbling effects"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
@@ -516,7 +518,7 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
                 </div>
               </div>
               <div className="text-[13px] text-[#c9bda6]">+14% damage · +3% fire rate per level</div>
-              <button className="hm-btn" disabled={p.coins < upgradeCost(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Level {w.level + 1} · {upgradeCost(w)} coins</button>
+              <button className="hm-btn" disabled={p.coins < game.upgradePrice(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Level {w.level + 1} · {game.upgradePrice(w) ? `${game.upgradePrice(w)} coins` : 'FREE'}</button>
             </div>
           ))}
           <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #e8433c' }}>

@@ -1103,13 +1103,14 @@ export class Renderer {
       ctx.textAlign = 'center';
       ctx.fillText(label, clamp(ex - Math.cos(a) * 22, 95, vw - 95), clamp(ey - Math.sin(a) * 22, 90, vh - 110));
     };
-    const tutorial = g.tutorialHouse;
-    if (tutorial && !g.treatGuideComplete && !tutorial.visited && !g.tot && g.state === 'play' && !g.bigMap) {
-      const [sx, sy] = toS(isoX(tutorial.door.x, tutorial.door.y), isoY(tutorial.door.x, tutorial.door.y));
+    // the guide: dots on the ground and an arrow, to the first house on every run and to the tutorial's stops
+    const guide = g.guide;
+    if (guide && !g.tot && g.state === 'play' && !g.bigMap) {
+      const [sx, sy] = toS(isoX(guide.x, guide.y), isoY(guide.x, guide.y));
       {
         // the way to walk there: a line of green dots, round whatever is in the way. Drawn over the night and the
         // scenery, so the route still reads in the dark and behind a house.
-        const way = g.treatRoute();
+        const way = g.guideRoute();
         if (way.length > 6) {
           ctx.save();
           const march = Math.floor(this.t * 6) % 4;
@@ -1130,7 +1131,7 @@ export class Renderer {
         const underMap = sx > vw - miniWidth - 110 && sy < miniBottom + 100;
         const onScreen = !underMap && sx >= 85 && sx <= vw - 85 && sy >= 170 && sy <= vh - 115;
         // off screen the arrow points the way to WALK (a few tiles along the route), not straight at a door behind a wall
-        const route = g.treatRoute(), ahead = route[Math.min(route.length - 1, 22)];
+        const route = g.guideRoute(), ahead = route[Math.min(route.length - 1, 22)];
         const [wx, wy] = ahead ? toS(isoX(ahead.x, ahead.y), isoY(ahead.x, ahead.y)) : [sx, sy];
         const angle = Math.atan2(wy - vh / 2, wx - vw / 2);
         let ax = onScreen ? sx : clamp(vw / 2 + Math.cos(angle) * vw, 90, vw - 90);
@@ -1149,13 +1150,17 @@ export class Renderer {
         ctx.restore(); ctx.fillStyle = '#0c211bef'; ctx.strokeStyle = '#63d991'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.roundRect(-78, -84, 156, 26, 8); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#e4ffeb'; ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP TO RING THE BELL' : 'RING THE BELL · E') : onScreen || route.length < 7 ? 'FIRST TREATS' : 'FOLLOW THE DOTS', 0, -71);
+        const near = Math.hypot(guide.x - p.x, guide.y - p.y) < (guide.kind === 'house' ? 1.1 : 1.6);
+        const far = (name: string) => onScreen || route.length < 7 ? name : 'FOLLOW THE DOTS';
+        ctx.fillText(guide.kind === 'house' ? (near ? (touchViewport ? 'TAP TO RING THE BELL' : 'RING THE BELL · E') : far('FIRST TREATS'))
+          : guide.kind === 'machine' ? (near ? (touchViewport ? 'TAP FOR A FREE SPIN' : 'FREE SPIN · E') : far('CANDY MACHINE'))
+          : (near ? (touchViewport ? 'TAP: FREE UPGRADE' : 'FREE UPGRADE · E') : far('THE SHOP')), 0, -71);
         ctx.restore();
       }
     }
     // First-timers do not know the Starcade can be walked into: until they have been inside once, a pink arrow hangs
     // over its door (and points to it from the edge of the screen). It waits for the first-treat guide to finish.
-    const starcade = ARCADE_OPEN && !g.arcadeSeen && m.kind !== 'arcade' && g.treatGuideComplete && g.state === 'play' && !g.bigMap && !g.tot
+    const starcade = ARCADE_OPEN && !g.arcadeSeen && m.kind !== 'arcade' && g.treatGuideComplete && !g.tutorial?.holding && g.state === 'play' && !g.bigMap && !g.tot
       ? m.houses.find(h => h.prop.kind === 'arcade' && !h.gone) : undefined;
     if (starcade) {
       const [dx, dy] = toS(isoX(starcade.door.x, starcade.door.y), isoY(starcade.door.x, starcade.door.y));

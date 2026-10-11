@@ -1,5 +1,7 @@
 export const VENDING_RARITY_ODDS = [50, 30, 15, 4, 1] as const;
 export const VENDING_TREAT_SHARE = .75;
+/** one spin in five wins nothing worth having */
+export const VENDING_DUD_SHARE = .2;
 export function vendingCost(plays: number) {
   const count = Number.isFinite(plays) ? Math.max(0, Math.floor(plays)) : 0;
   return Math.min(Number.MAX_SAFE_INTEGER, Math.round(60 * Math.pow(1.30, count)));

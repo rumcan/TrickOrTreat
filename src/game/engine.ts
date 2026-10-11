@@ -8,6 +8,7 @@ import { settings } from './settings';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
 import * as storage from './storage';
+import { Tutorial, rememberTutorial } from './tutorial';
 import { leaderboard } from './leaderboard';
 import type { RunRecord } from './leaderboard-service';
 import { vendingCatalogue, createVendingSpin } from './vending';
@@ -311,6 +312,43 @@ export class Game {
   bubbles: Bubble[] = [];
   housesVisited = 0;
   /** One approachable, non-trick house for the opening guide, per run. */
+  /** the starting tutorial (see tutorial.ts): null on every run that does not have one */
+  tutorial: Tutorial | null = null;
+  startTutorial() {
+    if (this.tutorial) return;
+    this.tutorial = new Tutorial();
+    // the night's opening banner waits with the night
+    this.heldBanner = this.banner; this.banner = null;
+  }
+  private heldBanner: Game['banner'] = null;
+  /** the player skipped it (this time, or for good): the night starts and nothing is free any more */
+  skipTutorial(never = false) {
+    if (!this.tutorial) return;
+    this.tutorial = null;
+    if (never) rememberTutorial('never');
+  }
+  /** a machine or shop the kid can walk to, as a spot to stand on beside it (nearest by walking) */
+  guideSpot(kind: 'machine' | 'shop'): { x: number; y: number } | null {
+    let best: { x: number; y: number } | null = null, bd = Infinity;
+    for (const sh of this.map.shops) {
+      if ((sh.prop.kind === 'vending') !== (kind === 'machine')) continue;
+      const spot = this.freeSpot(sh.x, sh.y, true);
+      if (Math.hypot(spot.x - sh.x, spot.y - sh.y) > 1.2) continue; // nowhere to stand within reach of it
+      const d = this.flow[Math.floor(spot.y * CR) * CW + Math.floor(spot.x * CR)];
+      if (d < bd) { bd = d; best = spot; }
+    }
+    return best;
+  }
+  /** where the dots and the arrow lead right now: the first house on every run, then the tutorial's two stops */
+  get guide(): { kind: 'house' | 'machine' | 'shop'; x: number; y: number } | null {
+    if (this.map.kind === 'arcade') return null;
+    const t = this.tutorial;
+    if (t?.holding && t.step !== 'treat') return t.spot ? { kind: t.step as 'machine' | 'shop', ...t.spot } : null;
+    const h = this.tutorialHouse;
+    return h && !this.treatGuideComplete && !h.visited ? { kind: 'house', x: h.door.x, y: h.door.y } : null;
+  }
+  /** the way to walk to the guide's target (empty when there is no guide) */
+  guideRoute() { const to = this.guide; return to ? this.routeTo(to.x, to.y) : []; }
   tutorialHouse: HouseInst | null = null;
   treatGuideComplete = false;
   treatGuideNotice = false;
@@ -519,7 +557,11 @@ export class Game {
   treatRoute(): { x: number; y: number }[] {
     const h = this.tutorialHouse;
     if (!h || this.treatGuideComplete || h.visited) return [];
-    const door = Math.floor(h.door.y * CR) * CW + Math.floor(h.door.x * CR);
+    return this.routeTo(h.door.x, h.door.y);
+  }
+  /** the walking route from the kid to a spot, cached until the kid steps into another cell */
+  private routeTo(x: number, y: number): { x: number; y: number }[] {
+    const door = Math.floor(y * CR) * CW + Math.floor(x * CR);
     const key = this.flowCell * 4 + door % 4 + door * 1e7; // the route only changes when the kid steps into another cell
     if (key === this.routeKey) return this.route;
     this.routeKey = key;
@@ -929,6 +971,8 @@ export class Game {
   private combatActive() { return this.state === 'play' || this.state === 'downed'; }
   update(dtRaw: number) {
     const inp = this.input;
+    this.tutorial?.update(this);
+    if (this.heldBanner && !this.tutorial?.holding) { this.banner = { ...this.heldBanner, t: 3.5 }; this.heldBanner = null; } // the night begins
     if (this.state === 'intro') {
       this.updateIntro(Math.min(dtRaw, 0.05));
       inp.endFrame();
@@ -950,7 +994,7 @@ export class Game {
       return;
     }
     const dt = Math.min(dtRaw, 1 / 30);
-    this.time += dt;
+    if (!this.tutorial?.holding) this.time += dt; // the night waits for the tutorial
     this.premiumPowerT = Math.max(0, this.premiumPowerT - dt);
     if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
     const downed = this.state === 'downed';
@@ -2846,15 +2890,17 @@ export class Game {
     this.input.pressed.clear();
     this.state = 'vending';
   }
-  vendingPrice() { return vendingCost(this.vendingPlays); }
+  vendingPrice() { return this.tutorial?.freeSpin ? 0 : vendingCost(this.vendingPlays); }
   vendingPool(): VendingPrize[] { return vendingCatalogue(this.scrolls); }
   spinVending(): VendingSpin | null {
     if (this.state !== 'vending' || !this.vendingActive || (this.vendingSpin && !['claimed', 'rejected'].includes(this.vendingSpin.status))) return null;
-    const cost = this.vendingPrice();
+    const cost = this.vendingPrice(), free = !!this.tutorial?.freeSpin;
     if (this.p.coins < cost) return null;
-    const spin = createVendingSpin(this.vendingPool(), ++this.vendingId, cost);
+    // the tutorial's free spin always wins something real
+    const spin = createVendingSpin(free ? this.vendingPool().filter(prize => prize.kind !== 'dud') : this.vendingPool(), ++this.vendingId, cost);
     if (!spin) return null;
-    this.p.coins -= cost; this.vendingPlays++;
+    if (free) this.tutorial!.freeSpin = false;
+    else { this.p.coins -= cost; this.vendingPlays++; }
     this.vendingSpin = spin;
     gameAudio.play('click', .25);
     return spin;
@@ -2870,6 +2916,7 @@ export class Game {
     const prize = spin.winner;
     if (prize.kind === 'weapon' && (!Number.isInteger(slot) || slot < 0 || slot > 1)) return false;
     spin.status = 'claimed'; // Mark before applying: double clicks cannot grant twice.
+    if (prize.kind === 'dud') { this.input.pressed.clear(); return true; } // nothing to hand over
     if (prize.kind === 'treat') {
       this.scrolls[prize.scroll.id] = (this.scrolls[prize.scroll.id] || 0) + 1;
       this.scrollOrder.push(prize.scroll.id);
@@ -2897,8 +2944,8 @@ export class Game {
     const spin = this.vendingSpin;
     if (spin?.status === 'spinning') return;
     if (spin?.status === 'won') {
-      if (spin.winner.kind === 'treat') this.claimVending();
-      else this.rejectVending(); // Leaving explicitly rejects an unwanted gun; no refund or duplicate drop.
+      if (spin.winner.kind === 'weapon') this.rejectVending(); // Leaving explicitly rejects an unwanted gun; no refund or duplicate drop.
+      else this.claimVending();
     }
     this.vendingActive = false; this.input.pressed.clear(); this.state = 'play'; this.p.invuln = .8;
   }
@@ -3268,12 +3315,15 @@ export class Game {
   shopUpgrade(slot: number) {
     const w = this.p.weapons[slot];
     if (!w) return;
-    const c = upgradeCost(w);
+    const c = this.upgradePrice(w);
     if (this.p.coins < c) return;
     this.p.coins -= c;
+    if (this.tutorial?.freeUpgrade) this.tutorial.freeUpgrade = false;
     w.level++;
     this.syncTeamWeapons();
   }
+  /** what the shop asks for the next level of a gun (the tutorial's first upgrade is free) */
+  upgradePrice(w: Weapon) { return this.tutorial?.freeUpgrade ? 0 : upgradeCost(w); }
   healCost() { return 30 + this.shopHealBuys * 15; }
   treatCost() { return Math.round(70 * Math.pow(1.35, this.shopTreatBuys)); }
   shopHeal() {
@@ -3401,6 +3451,7 @@ export class Game {
   }
 
   private director(dt: number) {
+    if (this.tutorial?.holding) return; // no monsters until Professor Fizz is done
     if (this.calmT > 0) this.wavePause += dt;
     if (this.bossBreak || this.calmT > 0 || (this.bossKilled && !this.endless)) return;
     const t=this.time, fight=!!this.boss&&!this.boss.dead;

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Game, Input, HudSnap } from './game/engine';
 import { Renderer } from './game/render';
 import { preloadAll } from './game/preload';
+import { tutorialWanted } from './game/tutorial';
+import { Walkie } from './ui/Walkie';
 import { artLoadFailed } from './game/assets';
 import { loadSave, storeSave, Save } from './game/data';
 import { Hud } from './ui/Hud';
@@ -40,6 +42,7 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
     const cv = canvasRef.current!;
     const input = new Input(cv);
     const game = new Game(save.hero, save, input, campaign);
+    if (tutorialWanted()) game.startTutorial(); // a first-timer's night starts with Professor Fizz on the walkie
     const renderer = new Renderer(cv, game.hero);
     gameRef.current = game;
     if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) (window as unknown as { __tot: unknown }).__tot = { game, renderer };
@@ -115,6 +118,7 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
           <Pause game={g} onResume={() => { g.state = 'play'; refresh(); }} onRestart={restart} onQuit={() => { g.endRun(false); refresh(); }} />
         </div>
       )}
+      {g && snap && g.tutorial && <Walkie key={runId} game={g} state={snap.state} onChange={refresh} />}
       {g && snap?.state === 'inventory' && <div className="cursor-auto"><RunInventory game={g} onClose={() => { g.state = 'play'; refresh(); }} /></div>}
       {g && (snap?.state === 'dead' || snap?.state === 'victory') && (
         <div className="absolute inset-0 z-40 cursor-auto">
