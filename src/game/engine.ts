@@ -217,6 +217,11 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 /** free game: chance that a doorstep bowl also holds a friend who wants to tag along (one of the three cards) */
 export const FRIEND_CARD_CHANCE = 0.2;
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
+/**
+ * The Starcade interior is not finished (there is no way back out yet), so its door is closed: the arcade is an
+ * ordinary building to trick-or-treat at, as it was before. Set to true to work on the interior.
+ */
+export const ARCADE_OPEN = false;
 export const FRIEND_DOWN_TIME = 30;
 /** seconds of calm after every boss (the clock only runs while the kid is free to move) */
 export const BUY_WINDOW = 20;
@@ -314,6 +319,7 @@ export class Game {
 
   /** Keep run progress and per-scene loot; never reset or duplicate rewards on entry. */
   travelArcade(target:'town'|'arcade') {
+    if(!ARCADE_OPEN&&target==='arcade') return; // closed until the interior is ready (leaving stays possible)
     if(this.state!=='play'||this.mounted>=0||this.tot) return;
     const inside=this.map.kind==='arcade';
     if((target==='arcade')===inside) return;
@@ -2511,7 +2517,7 @@ export class Game {
         : { kind: 'shop', label: "Shop: Candy Lady's Treats", ref: sh.prop }; }
     }
     for (const h of this.map.houses) {
-      if(h.prop.kind==='arcade'&&!h.gone){
+      if(ARCADE_OPEN&&h.prop.kind==='arcade'&&!h.gone){
         const d=(h.door.x-p.x)**2+(h.door.y-p.y)**2;
         if(d<Math.min(bd,1.5**2)){bd=d;best={kind:'portal',label:'Enter the Starcade',ref:{...h.door,label:'Enter the Starcade',target:'arcade'}};}
         continue;
@@ -3262,7 +3268,7 @@ export class Game {
   // ---------- HUD snapshot ----------
   snapshot() {
     const p = this.p, s = this.stats;
-    const townHouses=this.rescueMap.houses.filter(h=>h.prop.kind!=='arcade');
+    const townHouses=this.rescueMap.houses.filter(h=>!ARCADE_OPEN||h.prop.kind!=='arcade');
     const arcadeHouses=this.map.kind==='arcade'?this.map.houses:this.arcadeScene?.map.houses;
     return {
       hp: p.hp, maxHp: s.maxHp, shield: p.shield, maxShield: s.maxShield, level: p.level, xp: p.xp, xpNext: p.xpNext, coins: p.coins, kills: this.kills, time: this.time,
@@ -3276,7 +3282,7 @@ export class Game {
       rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,
       costumesFound: this.costumesFound, doorsRung: this.housesVisited,
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
-      housesLeft:townHouses.filter(h=>!h.visited).length+(arcadeHouses?arcadeHouses.filter(h=>!h.visited).length:3), housesTotal:townHouses.length+3,
+      housesLeft:townHouses.filter(h=>!h.visited).length+(!ARCADE_OPEN?0:arcadeHouses?arcadeHouses.filter(h=>!h.visited).length:3), housesTotal:townHouses.length+(ARCADE_OPEN?3:0),
       banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, shield: this.boss.shield, maxShield: this.boss.maxShield, shieldT: this.boss.shieldT, name: BOSS_NAMES[this.boss.type] } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
       bossIn: this.boss || (this.bossKilled && !this.endless) ? null : Math.max(0, (this.endless || this.campaign ? this.nextBossAt : 300) - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
     };
