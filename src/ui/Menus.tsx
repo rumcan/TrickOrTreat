@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Play, Users, Lollipop, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
 import { Game } from '../game/engine';
-import { HERO_INFO, Save, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
+import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
@@ -12,6 +12,7 @@ import { TalentTree } from './TalentTree';
 import { gameAudio } from '../game/audio';
 import { expansion, hasFullGame } from '../game/expansion';
 import { ExpansionUnlock } from './ExpansionUnlock';
+import { UnlockShowcase } from './UnlockShowcase';
 import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 import { SplashArt } from './SplashArt';
@@ -51,6 +52,7 @@ const SHOW_ATLAS = import.meta.env.DEV;
 
 export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
+  const [showcase, setShowcase] = useState(false);
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const allowed = save.hero < 3 || hasFullGame();
   const hero = HERO_INFO[save.hero];
@@ -63,11 +65,14 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
         <header aria-label="Game header" className="title-head flex flex-col items-center gap-2">
           {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
           <div className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
-          <LogoImg className="title-logo kit-bob w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
+          <LogoImg className="title-logo w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
             {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
           </div>
+          {/* the free way into the full game, right under the Essence it counts; it opens the showcase, which shows the progress */}
+          {!hasFullGame() && <button type="button" className="unlock-badge" onClick={() => setShowcase(true)} aria-label="Reach 15,000 Essence to unlock the full game. Limited time. See what is in it."><img src={ART.badge15k} alt="" draggable={false} className="kit-bob" /></button>}
+          {showcase && <UnlockShowcase onClose={() => setShowcase(false)} onPlay={onCampaign} />}
         </header>
         <div className="title-main mx-auto flex w-full max-w-4xl flex-1 flex-col">
           <div className="title-pick flex flex-1 items-center py-5">
@@ -575,6 +580,9 @@ export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; 
             <b>+{tally}</b>
             <span>essence earned<small>Balance {game.save.soul} · spend it on permanent talents</small></span>
           </div>
+          {game.fullGameEarned
+            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. Hide &amp; Shriek is yours: the rescue campaign, Maya and Leo, and every full-game gun, treat and talent.</p>
+            : !hasFullGame() && <p className="end-unlock end-unlock--progress">Full game unlocks free at {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence earned · {essenceEarned(game.save).toLocaleString('en-US')} so far</p>}
           {recordMessage && <p role="status" className="mt-3 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
           <div className="mt-4 flex flex-col gap-2">
             {win && !game.victorious && <button className="hm-btn ghost w-full" onClick={onContinue}><Play size={17} fill="currentColor" /> Endless night</button>}

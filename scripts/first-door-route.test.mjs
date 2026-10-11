@@ -31,6 +31,13 @@ try {
         if (g.map.coll[cell(route[i].x, route[i].y)] !== 0) { problems.push(`seed ${seed}: the route crosses something solid`); break; }
         if (i && Math.abs(route[i].x - route[i - 1].x) + Math.abs(route[i].y - route[i - 1].y) > 0.26) { problems.push(`seed ${seed}: the route jumps`); break; }
       }
+      // no car is parked across a doorstep, anywhere in town
+      const cars = g.map.props.filter(q => q.kind === 'car' && !q.removed);
+      if (!cars.length) problems.push(`seed ${seed}: the town has no cars left`);
+      for (const q of g.map.houses) for (const c of cars) {
+        const d = Math.hypot(q.door.x - Math.max(c.x0, Math.min(c.x0 + c.fw, q.door.x)), q.door.y - Math.max(c.y0, Math.min(c.y0 + c.fh, q.door.y)));
+        if (d < 2.2) { problems.push(`seed ${seed}: a car is parked ${d.toFixed(1)} tiles from ${q.owner}'s door`); break; }
+      }
       detours.push(+(route.length / CR / Math.hypot(h.door.x - g.p.x, h.door.y - g.p.y)).toFixed(2));
       if (g.treatRoute() !== route) problems.push(`seed ${seed}: the route is rebuilt every frame`);
     }

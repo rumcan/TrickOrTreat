@@ -25,7 +25,7 @@ try {
   assert.equal(await page.getByRole('button', { name: /Preview expansion locally/ }).count(), 0);
   assert.equal(await page.getByRole('button', { name: 'Collection', exact: true }).count(), 0, 'No art collection in production');
   assert.equal(await page.evaluate(() => typeof window.__tot), 'undefined');
-  await page.getByRole('button', { name: 'Discover the full game' }).click();
+  await page.getByRole('button', { name: 'Support the creator' }).click();
   const showcase = page.getByRole('dialog', { name: 'HIDE & SHRIEK' });
   await showcase.waitFor();
   assert.equal(await showcase.getByRole('button', { name: /Purchase currently unavailable|Checking ownership/ }).isDisabled(), true);

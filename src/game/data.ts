@@ -1,6 +1,6 @@
 import * as storage from './storage';
 import { Elem, RARITY } from './config';
-import { hasFullGame } from './expansion';
+import { expansion, hasFullGame } from './expansion';
 
 // ================= STATS =================
 export interface Stats {
@@ -506,7 +506,19 @@ export const HOMEOWNERS = ['Mrs. Henderson', 'Mr. Kowalski', 'Old Man Jenkins', 
 export const GIVE_LINES = ['Here you go, sweetie!', 'Take two, I won\'t tell!', 'Full-size bars this year!', 'Careful out there tonight…', 'Happy Halloween, dear!', 'Ooh, last of the good stuff!'];
 
 const SAVE_KEY = 'tot_survivors_save_v1';
-export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number }
+/** Essence earned over all runs (spent or not) above which the full game unlocks without buying it */
+export const ESSENCE_UNLOCK = 15000;
+export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number }
+/** what a save has earned in total: its own count, or (older saves) what it holds plus what its talents cost */
+export function essenceEarned(s: Save) {
+  let invested = 0;
+  for (const tal of TALENTS) for (let l = 0; l < Math.min(tal.max, s.talents?.[tal.id] || 0); l++) invested += tal.cost(l);
+  return Math.max(s.earned ?? 0, (s.soul || 0) + invested);
+}
+/** more than ESSENCE_UNLOCK earned: the full game is the player's, on this save */
+function syncEarnedUnlock(s: Save) {
+  if (essenceEarned(s) > ESSENCE_UNLOCK) expansion.grantEarned();
+}
 export function loadSave(): Save {
   try {
     const s = JSON.parse(storage.getItem(SAVE_KEY) || '');
@@ -516,13 +528,18 @@ export function loadSave(): Save {
       const rank = Math.min(tal.max, finite(s.talents?.[tal.id]));
       if (rank) talents[tal.id] = rank;
     }
-    return { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave) };
+    const save: Save = { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave), earned: finite(s.earned) };
+    save.earned = essenceEarned(save);
+    syncEarnedUnlock(save);
+    return save;
   } catch {
     return { soul: 60, talents: {}, best: 0, hero: 0 };
   }
 }
 export function storeSave(s: Save) {
+  s.earned = essenceEarned(s);
   storage.setItem(SAVE_KEY, JSON.stringify(s));
+  syncEarnedUnlock(s);
 }
 
 export function applyTalents(s: Stats, t: Record<string, number>) {

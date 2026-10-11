@@ -7,7 +7,7 @@ try {
   await page.goto('http://127.0.0.1:5173/');
   await page.getByRole('button', { name:'Go trick-or-treating' }).waitFor({timeout:120000});
   assert.doesNotMatch(await page.getByRole('group', {name:'Radio',exact:true}).getAttribute('title'), /heavy metal gp/i);
-  await page.getByRole('button', {name:'Discover the full game'}).click();
+  await page.getByRole('button', {name:'Support the creator'}).click();
   const costumes = page.locator('.unlock-costume-art canvas');
   assert.ok(await costumes.count() >= 2);
   const before = await costumes.evaluateAll(list => list.map(c => c.toDataURL()));

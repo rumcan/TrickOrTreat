@@ -1,0 +1,206 @@
+[
+  {
+    "key": "arcade_clutter_bigfoot",
+    "file": "arcade/arcade_clutter_bigfoot.webp",
+    "category": "prop",
+    "w": 288,
+    "h": 292,
+    "anchor": [
+      144,
+      204
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "desc": "Starcade bigfoot",
+    "prompt": "Transparent isometric nostalgic arcade bigfoot, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_robot",
+    "file": "arcade/arcade_clutter_robot.webp",
+    "category": "prop",
+    "w": 288,
+    "h": 292,
+    "anchor": [
+      144,
+      204
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "desc": "Starcade robot",
+    "prompt": "Transparent isometric nostalgic arcade robot, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_poster",
+    "file": "arcade/arcade_clutter_poster.webp",
+    "category": "prop",
+    "w": 192,
+    "h": 244,
+    "anchor": [
+      96,
+      180
+    ],
+    "footprint": [
+      2,
+      0.5
+    ],
+    "desc": "Starcade poster",
+    "prompt": "Transparent isometric nostalgic arcade poster, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_jukebox",
+    "file": "arcade/arcade_clutter_jukebox.webp",
+    "category": "prop",
+    "w": 192,
+    "h": 204,
+    "anchor": [
+      96,
+      140
+    ],
+    "footprint": [
+      1.5,
+      1
+    ],
+    "desc": "Starcade jukebox",
+    "prompt": "Transparent isometric nostalgic arcade jukebox, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_gumball",
+    "file": "arcade/arcade_clutter_gumball.webp",
+    "category": "prop",
+    "w": 160,
+    "h": 188,
+    "anchor": [
+      80,
+      132
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade gumball",
+    "prompt": "Transparent isometric nostalgic arcade gumball, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_vhs",
+    "file": "arcade/arcade_clutter_vhs.webp",
+    "category": "prop",
+    "w": 224,
+    "h": 175,
+    "anchor": [
+      112,
+      103
+    ],
+    "footprint": [
+      2,
+      1
+    ],
+    "desc": "Starcade vhs",
+    "prompt": "Transparent isometric nostalgic arcade vhs, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_chair",
+    "file": "arcade/arcade_clutter_chair.webp",
+    "category": "prop",
+    "w": 173,
+    "h": 150,
+    "anchor": [
+      86.5,
+      90.2
+    ],
+    "footprint": [
+      1.2,
+      1
+    ],
+    "desc": "Starcade chair",
+    "prompt": "Transparent isometric nostalgic arcade chair, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_plant",
+    "file": "arcade/arcade_clutter_plant.webp",
+    "category": "prop",
+    "w": 160,
+    "h": 188,
+    "anchor": [
+      80,
+      132
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade plant",
+    "prompt": "Transparent isometric nostalgic arcade plant, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_popcorn",
+    "file": "arcade/arcade_clutter_popcorn.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade popcorn",
+    "prompt": "Transparent isometric nostalgic arcade popcorn, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_soda",
+    "file": "arcade/arcade_clutter_soda.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade soda",
+    "prompt": "Transparent isometric nostalgic arcade soda, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_pizza_box",
+    "file": "arcade/arcade_clutter_pizza_box.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade pizza_box",
+    "prompt": "Transparent isometric nostalgic arcade pizza_box, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  },
+  {
+    "key": "arcade_clutter_tickets",
+    "file": "arcade/arcade_clutter_tickets.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade tickets",
+    "prompt": "Transparent isometric nostalgic arcade tickets, warm amber upper-left lighting, navy shadows, matching Starcade reference."
+  }
+]

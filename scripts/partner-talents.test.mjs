@@ -41,11 +41,17 @@ try {
     };
     expansion.preview(); // the full-game stars count from here on
     res.campaignStart = game({ sleepover: 1 }, true).friends.filter(f => f.status === 'rescued').length; // the campaign hides its friends as before
+    // found in hide and seek: twice the health and damage, a better gun; and no friend cards at doors for full-game players
+    const rescue = game({}, true), hidden = rescue.friends[0];
+    const freeDoor = game({}); let offers = 0;
+    for (let i = 0; i < 200; i++) { freeDoor.openLevelUp('house', 3, 0); if (freeDoor.friendChoice !== null) offers++; }
+    res.found = { flag: hidden.found === true, maxHp: hidden.maxHp, gun: hidden.weapon.rarity, doorOffersWithFullGame: offers };
     const plain = shoot({}), fast = shoot({ walkie: 3 }), two = shoot({ double: 1 }), crit = shoot({ sharpeye: 3 }), far = shoot({ range: 3 }), hard = shoot({ buddy: 5 });
     res.shoot = { plain: plain.bullets, two: two.bullets, rate: +(plain.cd / fast.cd).toFixed(2), crit: +(crit.dmg / plain.dmg).toFixed(2), far: +(far.life / plain.life).toFixed(2), hard: +(hard.dmg / plain.dmg).toFixed(2) };
     // out of reach without the telephone, in reach with it
     const reach = (talents) => { const s = shoot(talents); s.e.x = s.f.x + 4.6; s.f.weapon.cd = 0; s.g.bullets = []; s.g.friendShoot(s.f, 0.016); return s.g.bullets.length; };
     res.reach = { without: reach({}), with: reach({ range: 3 }) };
+    { const s = shoot({}); s.f.found = true; s.f.weapon.cd = 0; s.g.bullets = []; const random = Math.random; Math.random = () => 0.5; try { s.g.friendShoot(s.f, 0.016); } finally { Math.random = random; } res.found.dmg = +(s.g.bullets[0].dmg / plain.dmg).toFixed(2); }
     res.gun = { plain: plain.f.weapon.rarity, better: shoot({ borrow: 2 }).f.weapon.rarity };
 
     // ---- staying alive ----
@@ -65,6 +71,7 @@ try {
   assert.deepEqual(out.sleepover, { alone: 0, friends: 1, status: 'rescued', notSelf: true, helper: true, maxHp: 155, hp: 155, base: 80, gun: 'nerf' }, 'Sleepover Plans and Shared Snacks');
   assert.equal(out.campaignStart, 0, 'The rescue campaign still hides every friend');
   assert.deepEqual(out.shoot, { plain: 1, two: 2, rate: 1.24, crit: 2, far: 1.45, hard: 1.4 }, 'Walkie Check, Double Team, Eagle-Eyed Pals, Tin-Can Telephone, Fist Bump');
+  assert.deepEqual(out.found, { flag: true, maxHp: 160, gun: 2, doorOffersWithFullGame: 0, dmg: 2 }, 'A friend found in hide and seek is twice as strong; full-game players get no door-bell friends');
   assert.deepEqual(out.reach, { without: 0, with: 1 }, 'The telephone lets friends hit what was out of reach');
   assert.deepEqual(out.gun, { plain: 1, better: 3 }, 'Hand-Me-Down Blaster');
   assert.ok(out.regen >= 18 && out.regen <= 20, `Pinky Promise heals 4.5 HP a second (10 → ${out.regen} in 2s)`);

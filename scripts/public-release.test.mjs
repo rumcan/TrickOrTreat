@@ -58,7 +58,7 @@ try {
   assert.equal(await game.getByRole('button', { name: 'Collection', exact: true }).count(), 0);
   assert.equal(await game.getByRole('button', { name: /Preview expansion locally/ }).count(), 0);
   assert.equal(await game.evaluate(() => typeof window.__tot), 'undefined');
-  await game.getByRole('button', { name: 'Discover the full game' }).click();
+  await game.getByRole('button', { name: /Support the creator|Discover the full game/ }).click();
   const showcase = game.getByRole('dialog', { name: 'HIDE & SHRIEK' }); await showcase.waitFor();
   await showcase.getByRole('button', { name: 'Close full game showcase' }).click();
   await game.getByRole('button', { name: 'Go trick-or-treating' }).click();

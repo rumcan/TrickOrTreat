@@ -60,7 +60,7 @@ try {
     return { missingFriends: g.friends.filter(f => f.status !== 'rescued').length, bosses, freeCycle: true };
   });
   assert.equal(result.bosses.length, 12);
-  assert.equal(result.missingFriends, 4);
+  assert.equal(result.missingFriends, 2); // the two other neighbourhood kids; Maya and Leo work at the Starcade now
   assert.equal(result.freeCycle, true);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify(result));

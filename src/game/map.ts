@@ -171,6 +171,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
       case 'grave': markRect(x + 0.25, y + 0.3, x + 0.75, y + 0.7, 1); break;
       case 'vending': markRect(x + 0.2, y + 0.3, x + 0.8, y + 0.75, 2); break;
       case 'lamp': markRect(x + 0.4, y + 0.4, x + 0.6, y + 0.6, 2); break;
+      case 'pumpkin': break; // a pumpkin on the ground is scenery: the kid and the monsters walk straight over it
       default: markRect(x + 0.35, y + 0.35, x + 0.65, y + 0.65, 1);
     }
     addLights(sp, x, y);
@@ -664,6 +665,20 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     best = distance; map.start = { x, y };
   }
   if (!Number.isFinite(best)) throw new Error('No safe starting clearing in the central neighbourhood');
+
+  // ---- no car on a doorstep ----
+  // Driveway and car-park cars are placed without looking at the doors, and a door round the side of a house can end
+  // up with a station wagon across it: reachable through a gap, but nobody finds the gap. Such a car is simply not there.
+  const DOORSTEP = 2.2;
+  for (let i = props.length - 1; i >= 0; i--) {
+    const p = props[i];
+    if (p.kind !== 'car') continue;
+    const blocks = houses.some(h => Math.hypot(h.door.x - Math.max(p.x0, Math.min(p.x0 + p.fw, h.door.x)), h.door.y - Math.max(p.y0, Math.min(p.y0 + p.fh, h.door.y))) < DOORSTEP);
+    if (!blocks) continue;
+    props.splice(i, 1);
+    for (let cy = Math.floor(p.y0 * CR); cy < Math.ceil((p.y0 + p.fh) * CR); cy++) for (let cx = Math.floor(p.x0 * CR); cx < Math.ceil((p.x0 + p.fw) * CR); cx++) coll[cy * CW + cx] = 0;
+    for (const l of p.sp.lights) { const at = lights.findIndex(q => Math.abs(q.x - (p.x0 + l.x)) < 1e-6 && Math.abs(q.y - (p.y0 + l.y)) < 1e-6); if (at >= 0) lights.splice(at, 1); }
+  }
 
   // ---- every doorbell can be rung ----
   // Yards are decorated at random, and a back fence, a pair of bushes or a hedge can wall a front door in. Collision

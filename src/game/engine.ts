@@ -2,9 +2,11 @@ import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, 
 import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
 import { G } from './art/tiles';
 import { buildArcadeMap } from './arcade-map';
+import {ARCADE_STAFF} from './arcade-layout';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
+import * as storage from './storage';
 import { leaderboard } from './leaderboard';
 import type { RunRecord } from './leaderboard-service';
 import { vendingCatalogue, createVendingSpin } from './vending';
@@ -14,7 +16,7 @@ import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMB
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, BulletKind, storeSave,
   COSTUME_BY_ID, HERO_COSTUME, GIVE_LINES,
 } from './data';
 
@@ -188,7 +190,7 @@ export interface Zone {
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
 
-export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect' | 'discard';
+export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect' | 'discard' | 'hire';
 
 export interface RescueFriend {
   hero: number; x: number; y: number; r: number; gate: number;
@@ -203,6 +205,8 @@ export interface RescueFriend {
   farT?: number;
   /** seconds spent down (see FRIEND_DOWN_TIME) */
   downT?: number;
+  /** found in hide and seek: fights at FOUND_FRIEND strength */
+  found?: boolean;
 }
 
 export interface Player {
@@ -218,12 +222,20 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 
 /** free game: chance that a doorstep bowl also holds a friend who wants to tag along (one of the three cards) */
 export const FRIEND_CARD_CHANCE = 0.2;
+/**
+ * A friend found in hide and seek (the rescue campaign) is worth the search: twice the damage and twice the health of
+ * a kid who simply tags along from a doorstep, and a gun one rarity better.
+ */
+export const FOUND_FRIEND = { dmg: 2, hp: 2, gun: 1 };
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
 /**
- * The Starcade interior is not finished (there is no way back out yet), so its door is closed: the arcade is an
- * ordinary building to trick-or-treat at, as it was before. Set to true to work on the interior.
+ * The vector-guided Starcade has a tested return portal and persistent scene state.
+ * Keep this switch available to close entry without trapping a kid already inside.
  */
-export const ARCADE_OPEN = false;
+// Open everywhere, the published game included. Set to false to close the door again: the arcade then is an ordinary
+// trick-or-treat building and Maya and Leo hide at the gazebos like the others.
+export const ARCADE_OPEN: boolean = true;
+const ARCADE_SEEN_KEY = 'tot_arcade_seen_v1';
 /** seconds a gun lies on the ground before it is gone (it blinks for the last ten) */
 export const GUN_GROUND_TIME = 120;
 export const FRIEND_DOWN_TIME = 30;
@@ -324,7 +336,7 @@ export class Game {
   private warned = new Set<number>();
   /** M / Tab: big map overlay */
   bigMap = false;
-  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'vending' | 'costume' | 'house' | 'turret' | 'portal'; ref: Pickup | PropInst | HouseInst | NonNullable<GameMap['portals']>[number] } | null = null;
+  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'vending' | 'costume' | 'house' | 'turret' | 'portal' | 'hire'; ref: Pickup | PropInst | HouseInst | NonNullable<GameMap['portals']>[number] | typeof ARCADE_STAFF[number] } | null = null;
   private townScene: {map:GameMap;enemies:Enemy[];pickups:Pickup[];decals:Decal[];turrets:Turret[]} | null = null;
   private arcadeScene: {map:GameMap;enemies:Enemy[];pickups:Pickup[];decals:Decal[];turrets:Turret[]} | null = null;
   private arcadeReturn: {x:number;y:number} | null = null;
@@ -332,8 +344,10 @@ export class Game {
   get rescueMap() { return this.townScene?.map ?? this.map; }
 
   /** Keep run progress and per-scene loot; never reset or duplicate rewards on entry. */
+  /** this player has been inside the Starcade before (kept between runs): until then an arrow points at its door */
+  arcadeSeen = storage.getItem(ARCADE_SEEN_KEY) === '1';
   travelArcade(target:'town'|'arcade') {
-    if(!ARCADE_OPEN&&target==='arcade') return; // closed until the interior is ready (leaving stays possible)
+    if(!ARCADE_OPEN&&target==='arcade') return; // emergency entry switch; leaving stays possible
     if(this.state!=='play'||this.mounted>=0||this.tot) return;
     const inside=this.map.kind==='arcade';
     if((target==='arcade')===inside) return;
@@ -343,7 +357,7 @@ export class Game {
     if(this.boss&&!this.boss.dead){this.toast('Finish the boss fight before changing rooms.');return;}
     const snapshot={map:this.map,enemies:this.enemies,pickups:this.pickups,decals:this.decals,turrets:this.turrets};
     if(inside)this.arcadeScene=snapshot;
-    else {this.townScene=snapshot;this.arcadeReturn={...arcade!.door};}
+    else {this.townScene=snapshot;this.arcadeReturn={...arcade!.door};if(!this.arcadeSeen){this.arcadeSeen=true;storage.setItem(ARCADE_SEEN_KEY,'1');}}
     const next=inside?this.townScene!:this.arcadeScene??{map:buildArcadeMap(),enemies:[],pickups:[],decals:[],turrets:[]};
     this.map=next.map;this.enemies=next.enemies;this.pickups=next.pickups;this.decals=next.decals;this.turrets=next.turrets;
     Object.assign(this.p,inside?this.arcadeReturn!:this.map.start);
@@ -403,6 +417,19 @@ export class Game {
   campaign = false;
   friends: RescueFriend[] = [];
   activeFriend: number | null = null;
+  hiredArcadeStaff = new Set<number>();
+  hiringHero: number | null = null;
+  get availableArcadeStaff() { return ARCADE_STAFF.filter(s=>s.hero!==this.hero&&!this.hiredArcadeStaff.has(s.hero)&&!this.friends.some(f=>f.hero===s.hero)); }
+  get hiringStaff() { return this.availableArcadeStaff.find(s=>s.hero===this.hiringHero)??null; }
+  closeHire() { if(this.state!=='hire')return;this.hiringHero=null;this.state='play';this.input.pressed.clear(); }
+  hireStaff() {
+    const staff=this.hiringStaff;
+    if(!hasFullGame())return;
+    if(this.state!=='hire'||this.map.kind!=='arcade'||!staff||this.p.coins<staff.cost||Math.hypot(staff.x-this.p.x,staff.y-this.p.y)>2)return;
+    this.p.coins-=staff.cost;this.hiredArcadeStaff.add(staff.hero);this.addFriend(staff.hero);
+    this.closeHire();this.p.invuln=Math.max(this.p.invuln,1);gameAudio.play('revive',.5);
+    this.setBanner(`${HERO_INFO[staff.hero].name.toUpperCase()} CLOCKS OUT!`,'They fight beside you, share your gun upgrades and can revive you.','loot');
+  }
   introTime = 0;
   introLine = -1;
   downedTime = 0;
@@ -445,10 +472,12 @@ export class Game {
       const gateCells = this.map.gates.flatMap(gate => gate.cells.map(([x, y]) => ({ index: y * CW + x, value: this.map.coll[y * CW + x] })));
       for (const cell of gateCells) this.map.coll[cell.index] = 0;
       this.computeFlow(true);
-      this.friends = HERO_INFO.map((_, i) => i).filter(i => i !== this.hero).map((id, i) => {
+      // Maya and Leo are the older arcade workers, not part of the hide-and-seek group.
+      // (only while the Starcade is open: with its door closed they hide at the gazebos like the others)
+      this.friends = (ARCADE_OPEN ? [0, 1, 2] : HERO_INFO.map((_, i) => i)).filter(i => i !== this.hero).map((id, i) => {
         const pos = this.rescueSpot(sites[i][0], sites[i][1]);
         return { hero: id, ...pos, r: 0.24, gate: i, status: 'locked', guardian: null, progress: 0,
-          hp: this.friendMaxHp, maxHp: this.friendMaxHp, weapon: this.friendGun(), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
+          hp: this.friendMaxHp * FOUND_FRIEND.hp, maxHp: this.friendMaxHp * FOUND_FRIEND.hp, weapon: this.friendGun(FOUND_FRIEND.gun), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0, found: true };
       });
       for (const cell of gateCells) this.map.coll[cell.index] = cell.value;
       this.computeFlow(true);
@@ -542,8 +571,8 @@ export class Game {
     for (const bubble of this.bubbles) bubble.life = Math.max(0.1, bubble.life - dt);
     if (this.input.pressed.has(' ') || this.input.pressed.has('enter') || this.introTime >= 17) {
       this.state = 'play'; this.bubbles = [];
-      this.setBanner('HIDE & SHRIEK', 'Your friends are hiding at the gazebos. One companion can fight beside you.');
-      this.toast('Each friend waits at a gazebo behind a district gate. Follow the cyan arrow.');
+      this.setBanner('HIDE & SHRIEK', 'Find your friends at the gazebos. Everyone you rescue fights beside you.');
+      this.toast(ARCADE_OPEN ? 'Follow the cyan arrows to your friends. Maya and Leo are working at the Starcade concessions.' : 'Each friend waits at a gazebo behind a district gate. Follow the cyan arrow.');
       gameAudio.play('guardian', 0.4);
     }
   }
@@ -621,7 +650,7 @@ export class Game {
           f.status = 'rescued'; f.progress = 0; f.channel = false;
           if (this.activeFriend === null) this.activeFriend = f.hero;
           this.syncTeamWeapons(); gameAudio.play('revive');
-          this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS SAFE!`, 'They fight beside you from now on. Pause to share weapons.', 'loot'); this.rescuePrompt = '';
+          this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS SAFE!`, 'Found friends fight at double strength. Pause to share weapons.', 'loot'); this.rescuePrompt = '';
         }
       } else { f.channel = false; f.progress = Math.max(0, f.progress - dt * 2); }
     }
@@ -736,7 +765,7 @@ export class Game {
     friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
     // Eagle-Eyed Pals: a friend's crit is double damage (their own roll; it does not feed the kid's crit talents)
     const lucky = mate.mateCrit > 0 && Math.random() < mate.mateCrit;
-    const damage = st.dmg * 0.65 * mate.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02) * (lucky ? 2 : 1);
+    const damage = st.dmg * 0.65 * mate.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02) * (lucky ? 2 : 1) * (friend.found ? FOUND_FRIEND.dmg : 1);
     if (lucky && !weapon.def.stream) this.text(friend.x, friend.y, 'CRIT!', '#ff4fd8', 11);
     gameAudio.play('shot', 0.2);
     const def = weapon.def;
@@ -774,7 +803,7 @@ export class Game {
     s.maxHp *= b.hpMore();
     // friends grow with the Buddy System: more max HP is also that much more HP right now
     for (const f of this.friends ?? []) {
-      const max = FRIEND_HP + s.mateHp;
+      const max = (FRIEND_HP + s.mateHp) * (f.found ? FOUND_FRIEND.hp : 1);
       if (f.maxHp !== max) { if (f.hp > 0) f.hp = Math.max(1, f.hp + max - f.maxHp); f.maxHp = max; }
     }
     // extreme treats have the last word, whatever else is stacked
@@ -868,6 +897,7 @@ export class Game {
     if (inp.pressed.has('escape') || inp.pressed.has('p')) {
       if (this.state === 'play') this.state = 'pause';
       else if (this.state === 'pause' || this.state === 'inventory') this.state = 'play';
+      else if (this.state === 'hire') this.closeHire();
     }
     if (this.state !== 'play' && this.state !== 'downed') {
       inp.endFrame();
@@ -1182,12 +1212,17 @@ export class Game {
     this.essence = { combat: Math.floor(this.xpCollected / 6), kills: Math.floor(this.kills / 8), survival: Math.floor(this.time / 6), bosses: this.bossWins * 120, waves: this.wave * 25 };
     this.soulEarned = Object.values(this.essence).reduce((sum, value) => sum + value, 0);
     const additional = Math.max(0, this.soulEarned - this.soulPaid);
+    const had = hasFullGame();
+    this.save.earned = essenceEarned(this.save) + additional; // counted before the new Essence lands in the balance
     this.save.soul += additional;
     this.soulPaid += additional;
     this.save.best = Math.max(this.save.best, Math.floor(this.time));
     this.save.bestWave = Math.max(this.save.bestWave ?? 0, this.wave);
     storeSave(this.save);
+    if (!had && hasFullGame()) this.fullGameEarned = true; // this run took the save past ESSENCE_UNLOCK
   }
+  /** this run's Essence unlocked the full game (the end screen says so) */
+  fullGameEarned = false;
 
   // ---------- weapons ----------
   private findTarget(range: number) {
@@ -2588,11 +2623,20 @@ export class Game {
       const d=(portal.x-p.x)**2+(portal.y-p.y)**2;
       if(d<Math.min(bd,1.8**2)){bd=d;best={kind:'portal',label:portal.label,ref:portal};}
     }
+    if(this.map.kind==='arcade')for(const staff of this.availableArcadeStaff){
+      const d=(staff.x-p.x)**2+(staff.y-p.y)**2;
+      if(d<Math.min(bd,1.6**2)){bd=d;best={kind:'hire',label:hasFullGame()?`Recruit ${HERO_INFO[staff.hero].name} · ${staff.cost} coins`:`${HERO_INFO[staff.hero].name} · joins you in the full game`,ref:staff};}
+    }
     this.interact = best;
     if (best && best.kind === 'weapon') this.nearbyWeapon = (best.ref as Pickup).weapon!;
     if (best && best.kind === 'costume') this.nearbyCostume = (best.ref as Pickup).costume!;
     if (best && this.input.pressed.has('e')) {
-      if (best.kind === 'portal') {
+      if (best.kind === 'hire' && !hasFullGame()) {
+        // Maya and Leo are full-game kids: free players meet them here, and that is all
+        this.input.pressed.clear(); this.toast(`${HERO_INFO[(best.ref as typeof ARCADE_STAFF[number]).hero].name} can be recruited in the full game.`);
+      } else if (best.kind === 'hire') {
+        this.hiringHero=(best.ref as typeof ARCADE_STAFF[number]).hero;this.state='hire';this.input.pressed.clear();gameAudio.play('click',.35);
+      } else if (best.kind === 'portal') {
         this.travelArcade((best.ref as NonNullable<GameMap['portals']>[number]).target);
       } else if (best.kind === 'turret') {
         this.mountTurret(this.turrets.findIndex((t) => t.gym === best!.ref));
@@ -2883,7 +2927,9 @@ export class Game {
     }
     // Free game: now and then one of the cards is a kid who wants to come along (the rescue campaign finds its friends
     // at the gazebos instead). Only the free kids, and never one who is already with you.
-    const recruits = this.campaign ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
+    // Full-game players do not get them at doors at all: their friends are the ones they find in hide and seek (far
+    // stronger) and the Starcade crew.
+    const recruits = this.campaign || hasFullGame() ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
     this.friendChoice = recruits.length && n >= 2 && Math.random() < FRIEND_CARD_CHANCE ? recruits[Math.floor(Math.random() * recruits.length)] : null;
     const loot = n - (this.friendChoice === null ? 0 : 1);
     let guns = 0;
@@ -2979,7 +3025,7 @@ export class Game {
     const best = Math.max(1, ...this.p.weapons.map(w => w?.level ?? 1));
     return Math.max(1, Math.max(this.p.level, best - 1) - (Math.random() < 0.4 ? 1 : 0));
   }
-  private friendGun() { return makeWeapon('nerf', Math.min(4, 1 + (this.stats?.mateGun ?? 0))); }
+  private friendGun(better = 0) { return makeWeapon('nerf', Math.min(4, 1 + better + (this.stats?.mateGun ?? 0))); }
   /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
   /** game time of the last shop move (the screen-edge arrows for the candy machines show for a while after it) */
   shopsMovedAt = -999;
@@ -3187,8 +3233,11 @@ export class Game {
   // ---------- director ----------
   private spawnPos(fly: boolean) {
     const p = this.p;
+    // A compact room may fit entirely on a large screen. Keep its spawn ring
+    // inside the room instead of silently stopping waves on high-res displays.
+    const b=this.map.bounds,ring=b?Math.min(this.viewR,Math.min(b.x1-b.x0,b.y1-b.y0)*.4):this.viewR;
     for (let i = 0; i < 14; i++) {
-      const a = rand(0, Math.PI * 2), d = this.viewR + rand(0.5, 3);
+      const a = rand(0, Math.PI * 2), d = ring + rand(0.5, 3);
       const x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
       if (x < 1 || y < 1 || x > MAP_W - 1 || y > MAP_H - 1) continue;
       if (cellAt(this.map, x, y) !== 0) continue;

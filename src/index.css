@@ -491,14 +491,20 @@ button.kit-tile:not(:disabled):hover {
 .touch-controls { position: absolute; inset: 0; z-index: 25; pointer-events: none; user-select: none; -webkit-user-select: none; }
 /* Movement: a finger anywhere on the play area. The surface sits under the HUD; the ring only shows while dragging. */
 .touch-surface { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.touch-drag { position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border: 2px solid #d1efde4d; border-radius: 50%; background: radial-gradient(circle, #102b3426, #0c151b4d); pointer-events: none; }
-.touch-drag i { position: absolute; left: calc(50% - 20px); top: calc(50% - 20px); width: 40px; height: 40px; border: 2px solid #d1efdeba; border-radius: 50%; background: linear-gradient(#79a9a9cc, #26474edd); box-shadow: 0 3px 8px #0008; }
+/* the drag stick: small and faint, a hint of where the thumb landed rather than a control on top of the game */
+.touch-drag { position: absolute; width: 72px; height: 72px; margin: -36px 0 0 -36px; border: 1px solid #d1efde2e; border-radius: 50%; background: radial-gradient(circle, #102b3414, #0c151b26); pointer-events: none; }
+.touch-drag i { position: absolute; left: calc(50% - 13px); top: calc(50% - 13px); width: 26px; height: 26px; border: 1px solid #d1efde73; border-radius: 50%; background: linear-gradient(#79a9a955, #26474e66); }
 .touch-actions { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--touch-bottom) + 10px); display: flex; gap: 8px; }
 .touch-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 58px; min-height: 52px; padding: 4px 1px; color: #fff4de; border: 1px solid #bfb39a; border-radius: 9px; background: #15252dce; pointer-events: auto; touch-action: manipulation; font: 700 11px/1.1 "Barlow Condensed", sans-serif; }
 .touch-action--interact { border-color: #84db9f; color: #c8ffd9; }
 .touch-action--skill { border-color: #e0af6f; color: #ffe1b2; }
 .touch-action--dash { border-color: #78cee5; color: #c6f4ff; }
 .touch-action:disabled { opacity: .45; }
+/* something is in reach: the Interact key calls for attention (a tap anywhere on the play area does the same) */
+.touch-action--ready { animation: touch-ready 1s ease-in-out infinite; background: #1f5a37; }
+/* a glow only: the key itself must not move or grow under the thumb */
+@keyframes touch-ready { 0%, 100% { box-shadow: 0 0 0 0 #84db9f00; } 50% { box-shadow: 0 0 0 6px #84db9f77; } }
+@media (prefers-reduced-motion: reduce) { .touch-action--ready { animation: none; } }
 .touch-action:not(:disabled):active { background: #486568; transform: scale(.96); }
 .touch-action:focus-visible { outline: 2px solid #fff0d2; outline-offset: 3px; }
 .touch-context { position: absolute; bottom: calc(var(--touch-bottom) + 72px); left: 50%; transform: translateX(-50%); width: min(300px, calc(100% - 24px)); padding: 5px 8px; border: 1px solid #80d79a99; border-radius: 8px; background: #10231ccd; color: #f0fff5; text-align: center; font: 600 11px/1.25 "Barlow", sans-serif; }
@@ -576,7 +582,8 @@ button.kit-tile:not(:disabled):hover {
 @media (max-width: 639px) {
   .title-wrap { justify-content: flex-start; gap: 8px; padding: calc(54px + env(safe-area-inset-top, 0px)) 12px max(10px, env(safe-area-inset-bottom, 0px)); }
   .title-head { gap: 6px; }
-  .title-logo { width: min(300px, 74vw, 42dvh); }
+  .title-logo { width: min(300px, 74vw, 34dvh); }
+  .title-head .unlock-badge { width: min(240px, 60vw, 24dvh); } /* the badge shares the header with the logo: both give way on a short screen */
   .title-main { gap: 8px; min-height: 0; }
   .title-pick { padding: 0; }
   .title-h1 { margin-bottom: 6px; font-size: 17px; line-height: 1.1; }
@@ -597,7 +604,8 @@ button.kit-tile:not(:disabled):hover {
   .title-wrap { display: grid; grid-template-columns: minmax(170px, 32%) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "head pick" "nav pick"; gap: 8px 16px; padding: calc(10px + env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
   .title-main { display: contents; }
   .title-head { grid-area: head; justify-content: center; gap: 6px; padding-top: 38px; }
-  .title-logo { width: min(100%, 300px, 62dvh); }
+  .title-logo { width: min(100%, 300px, 50dvh); }
+  .title-head .unlock-badge { width: min(100%, 190px, 40dvh); }
   .title-pick { grid-area: pick; padding: 46px 0 0; align-items: center; min-height: 0; }
   .title-panel { padding: 10px; }
   .title-h1 { display: none; }
@@ -765,6 +773,17 @@ button.kit-tile:not(:disabled):hover {
 .unlock-card-art { height: 155px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; background: #0a111ac0; overflow: hidden; }
 .unlock-card-art img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .unlock-card-art.unlock-card-gun { background: #060b16; }
+/* the 15K Essence badge on the title screen: between the logo and the kids, under the Essence counter */
+.unlock-badge { display: block; width: min(330px, 70vw); margin: 0 auto; padding: 0; border: 0; background: none; cursor: pointer; transition: transform .12s ease-out, filter .12s ease-out; }
+.unlock-badge img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .55)); }
+.unlock-badge:hover, .unlock-badge:focus-visible { transform: scale(1.04); filter: brightness(1.12); outline: none; }
+/* the free way in: a line of text and a thin progress bar */
+.unlock-earn { margin-top: 6px; color: #c8f7d4; font-size: 13px; }
+.unlock-earn > span { display: block; height: 5px; margin-top: 5px; background: #0b1218; border: 1px solid #3d5a4a; }
+.unlock-earn > span > i { display: block; height: 100%; background: #45da79; }
+.end-unlock { margin-top: 12px; padding: 10px 12px; border-left: 4px solid #45da79; background: #0f2a1ccc; color: #dfffe8; font-size: 14px; line-height: 1.4; }
+.end-unlock b { display: block; font: 400 22px Anton, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #8dffab; }
+.end-unlock--progress { border-left-color: #5b7077; background: #0d1418cc; color: #c9d6d2; font-size: 13px; text-align: center; }
 /* eight-frame effect strips played with steps(): the explosion once every couple of seconds, the fire on a loop */
 .unlock-fx { width: 150px; height: 150px; background-size: 800% 100%; background-repeat: no-repeat; animation: unlock-fx 2.2s steps(8, jump-none) infinite; }
 .unlock-fx-loop { animation-duration: 0.7s; }

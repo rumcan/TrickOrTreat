@@ -13,6 +13,8 @@ export const ART = {
   kitLogo: img('newlogo_sm.webp?v=4'),
   pause: img('ui/pause_art.webp'),
   youDied: img('ui/youdied.webp'),
+  /** "Reach 15K Essence to unlock premium" (scripts/prepare-badge-art.mjs) */
+  badge15k: img('ui/badge_15k.webp'),
   infoPumpkin: img('ui/info_pumpkin.webp'),
   skillPumpkin: img('ui/skill_pumpkin.webp'),
 };
