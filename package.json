@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:arcade": "node scripts/arcade.test.mjs",
+    "art:arcade:export": "node scripts/export-arcade-art.mjs",
+    "art:arcade:pack": "node scripts/prepare-arcade-art.mjs",
     "dev": "vite",
     "build": "vite build && node scripts/pack-release-assets.mjs",
     "preview": "vite preview",

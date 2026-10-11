@@ -1,7 +1,7 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
 import { Game, Enemy, Turret } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
-import { PropInst } from './map';
+import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
 import { AIM, HeroAim, heroAim, aimDir } from './art/hero-aim';
 import { weaponIcon, pickupIcon, glow, lightSprite, explosionSheet, flameSheet, FX_FRAMES } from './art/fx';
@@ -61,6 +61,8 @@ export class Renderer {
   /** burnt-out versions of wrecked cars and houses, made the first time each sprite is wrecked */
   private charred = new WeakMap<object, HTMLCanvasElement>();
   minimap: HTMLCanvasElement | null = null;
+  private renderedMap: GameMap | null = null;
+  private minimapGrid = MAP_H;
   vignette: HTMLCanvasElement | null = null;
   leaves: { x: number; y: number; vx: number; vy: number; r: number; c: string }[] = [];
   dpr = 1;
@@ -92,11 +94,13 @@ export class Renderer {
 
   private buildMinimap(g: Game) {
     const s = 3;
-    const { c, ctx } = makeCanvas((MAP_W + MAP_H) * s, ((MAP_W + MAP_H) * s) / 2);
+    const grid=this.minimapGrid=g.map.bounds?Math.ceil(Math.max(g.map.bounds.x1,g.map.bounds.y1)+3):MAP_H;
+    const { c, ctx } = makeCanvas(grid*2*s,grid*s);
     const col: Record<number, string> = { [G.GRASS]: '#2c4626', [G.ROAD]: '#2a2a31', [G.SIDEWALK]: '#77787b', [G.DIRT]: '#3d2c22', [G.GRAVEL]: '#4a4744', [G.DARKGRASS]: '#1f3324', [G.DRIVEWAY]: '#6a6b6e', [G.FLAGSTONE]: '#3a5a32', [G.FIELD]: '#2f5a2a' };
-    const P = (x: number, y: number): [number, number] => [(x - y) * s + MAP_H * s, ((x + y) * s) / 2];
-    for (let y = 0; y < MAP_H; y++)
-      for (let x = 0; x < MAP_W; x++) {
+    if(g.map.kind==='arcade'){col[G.FLAGSTONE]='#29233c';col[G.DARKGRASS]='#0b0d17';}
+    const P = (x: number, y: number): [number, number] => [(x - y) * s + grid * s, ((x + y) * s) / 2];
+    for (let y = 0; y < grid; y++)
+      for (let x = 0; x < grid; x++) {
         ctx.fillStyle = col[g.map.ground[y * MAP_W + x]] || '#000';
         const [a, b] = P(x, y);
         ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a + s, b + s / 2); ctx.lineTo(a, b + s); ctx.lineTo(a - s, b + s / 2); ctx.fill();
@@ -135,7 +139,7 @@ export class Renderer {
       this.light.height = Math.ceil(cv.height / 2);
       this.buildVignette(cv.width, cv.height);
     }
-    if (!this.minimap) this.buildMinimap(g);
+    if (!this.minimap || this.renderedMap !== g.map) { this.buildMinimap(g); this.renderedMap=g.map; }
     if (g.p.costume !== this.costume) {
       this.costume = g.p.costume;
       this.hero = heroSheet(this.heroIdx, this.costume);
@@ -180,6 +184,7 @@ export class Renderer {
         const sx = isoX(x, y), sy = isoY(x, y);
         if (sx + HW < vx0 || sx - HW > vx1 || sy + TW < vy0 || sy > vy1) continue;
         const i = y * MAP_W + x;
+        if(m.kind==='arcade'&&m.ground[i]===G.DARKGRASS)continue;
         ctx.drawImage(m.tiles[i], sx - HW, sy);
         const ov = m.overlays[i];
         for (let k = 0; k < ov.length; k++) ctx.drawImage(ov[k], sx - HW, sy);
@@ -304,6 +309,7 @@ export class Renderer {
       if (g.mounted < 0) items.push(playerItem);
     }
     if (g.friends.length) for (const friend of g.friends) {
+      if(g.map.kind==='arcade'&&friend.status!=='rescued')continue;
       const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
       const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
       if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
@@ -995,7 +1001,7 @@ export class Renderer {
         ctx.restore();
       }
     }
-    if (g.campaign && g.state !== 'intro') {
+    if (g.campaign && g.state !== 'intro' && m.kind !== 'arcade') {
       // One readable objective arrow: prefer a kid whose district is already open.
       const missing = g.friends.filter(f => f.status !== 'rescued');
       missing.sort((a, b) => Number(a.status === 'locked') - Number(b.status === 'locked') || Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
@@ -1022,10 +1028,11 @@ export class Renderer {
       const stand = shop.prop.kind !== 'vending';
       if (stand || g.time - g.shopsMovedAt < 60) ind(shop.x, shop.y, '#ff9a2a', stand ? 'Shop' : 'Candy machine');
     }
+    for(const portal of m.portals??[])ind(portal.x,portal.y,'#64f0ad','EXIT · Maple Falls');
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
-    for (const l of this.leaves) {
+    if(m.kind!=='arcade') for (const l of this.leaves) {
       l.x += l.vx * dt * 0.5 + Math.sin(this.t + l.r) * 0.0005;
       l.y += l.vy * dt * 0.5;
       if (l.y > 1.05) { l.y = -0.05; l.x = Math.random(); }
@@ -1074,7 +1081,7 @@ export class Renderer {
       ctx.strokeRect(mx - 6.5, my - 6.5, mw + 13, mh + 13);
       ctx.drawImage(this.minimap, mx, my, mw, mh);
       const s = 3 * sc;
-      const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + MAP_H * s), my + ((x + y) * s) / 2];
+      const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + this.minimapGrid * s), my + ((x + y) * s) / 2];
       ctx.fillStyle = '#ff4a4a';
       for (const e of g.enemies) { const [a, b] = MP(e.x, e.y); const z = (e.elite ? 4 : 2) * k; ctx.fillRect(a - z / 2, b - z / 2, z, z); }
       // Loot on the ground is not marked: the map shows where to go, not every bag and gun.
@@ -1093,6 +1100,11 @@ export class Renderer {
         }
       }
       ctx.fillStyle = '#fff1b8';
+      for(const poi of [...(m.pois??[]),...(m.portals??[]).map(q=>({...q,name:'EXIT'}))]) {
+        const [a,b]=MP(poi.x,poi.y);ctx.fillStyle=poi.name==='EXIT'?'#6affbd':'#e79fff';ctx.fillRect(a-2*k,b-2*k,4*k,4*k);
+        if(big){ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.fillText(poi.name,a,b-5*k);}
+      }
+      ctx.fillStyle = '#fff1b8';
       ctx.globalAlpha = 0.6 + Math.sin(this.t * 4) * 0.4;
       for (const h of m.houses) {
         if (h.visited) continue;
@@ -1101,7 +1113,7 @@ export class Renderer {
       }
       ctx.globalAlpha = 1;
       // Rescue locations stay visible even while their district gate is locked.
-      if (g.campaign) for (const friend of g.friends) {
+      if (g.campaign && m.kind !== 'arcade') for (const friend of g.friends) {
         if (friend.status === 'rescued') continue;
         const [a, b] = MP(friend.x, friend.y);
         ctx.fillStyle = '#6ef4ff'; ctx.strokeStyle = '#07141a'; ctx.lineWidth = 2;
@@ -1141,7 +1153,7 @@ export class Renderer {
         ctx.fillText('M A P L E   F A L L S', mx - 6, my - 34);
         ctx.font = '32px Anton, Impact, sans-serif';
         ctx.fillStyle = '#fff0da';
-        ctx.fillText('TONIGHT\'S STREETS', mx - 6, my - 14);
+        ctx.fillText(m.kind==='arcade'?'THE STARCADE':'TONIGHT\'S STREETS', mx - 6, my - 14);
         ctx.fillStyle = '#ed7414';
         ctx.fillRect(mx + 268, my - 24, 61, 4);
         ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';

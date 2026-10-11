@@ -59,6 +59,11 @@ export interface HouseInst {
 }
 
 export interface GameMap {
+  kind?: 'town' | 'arcade';
+  name?: string;
+  bounds?: {x0:number;y0:number;x1:number;y1:number};
+  portals?: { x:number; y:number; label:string; target:'town'|'arcade' }[];
+  pois?: {x:number;y:number;name:string}[];
   ground: Uint8Array;
   tiles: Img[];
   overlays: Img[][];
