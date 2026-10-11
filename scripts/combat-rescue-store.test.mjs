@@ -36,7 +36,7 @@ try {
     const regular = g.spawnEnemy('zombie', g.p.x + 6, g.p.y), hp = regular.maxHp;
     regular.hp *= .5;
     for (let wave = 2; wave <= 6; wave++) {
-      const oldHp = regular.maxHp, threat = g.threat(); g.time = (wave - 1) * 60; g.director(.001);
+      const oldHp = regular.maxHp, threat = g.threat(); g.bossRound = wave - 1; g.director(.001); // a wave begins when the boss before it has fallen
       require(Math.abs(regular.maxHp / oldHp - 1.65) < .0001 && g.threat() > threat, 'Every wave strengthens living monsters');
       require(Math.abs(regular.hp / regular.maxHp - .5) < .0001, 'Wave does not heal damaged monster');
     }

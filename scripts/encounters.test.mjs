@@ -26,7 +26,7 @@ try {
       const level = g.p.weapons[0].level; g.shopUpgrade(0); if (g.p.weapons[0].level !== level + 1) throw new Error('Cannot upgrade after boss');
       rounds.push({ type, cleared: true, coins: g.p.coins }); g.calmT = 0; g.pickups = []; g.pendingLevels = 0;
     }
-    if (!g.bossKilled || g.bossWins !== 4) throw new Error('Campaign finale not recorded');
+    if (g.bossKilled || g.bossWins !== 4) throw new Error('Four bosses down: the night goes on to twenty-four');
     settings.gore = 'green';
     for (let n = 0; n < 150; n++) g.killEnemy(g.spawnEnemy('zombie', g.p.x + n % 3, g.p.y + n % 4));
     if (g.particles.length > 900 || g.decals.length > 160) throw new Error('Unbounded gore buffers');

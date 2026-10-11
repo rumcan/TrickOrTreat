@@ -44,11 +44,9 @@ try {
     await go.click();
     await page.waitForFunction(() => !!window.__tot?.game);
     assert.equal(await page.evaluate(() => window.__tot.game.hero), hero, 'Go must start the selected kid');
-    assert.equal(await page.evaluate(() => window.__tot.game.campaign), hero >= 3);
-    if (hero >= 3) {
-      await page.getByRole('button', { name: /skip intro/ }).click();
-      await page.waitForFunction(() => window.__tot.game.state === 'play');
-    }
+    // hide and seek is shelved: whichever kid starts, it is the same night with no intro scene
+    assert.equal(await page.evaluate(() => window.__tot.game.campaign), false);
+    await page.waitForFunction(() => window.__tot.game.state === 'play');
     await page.evaluate(() => window.__tot.game.endRun(false));
     // the night ends at the talent constellations; the way back to the title is there
     await page.getByRole('button', { name: 'Spend essence on talents' }).click();

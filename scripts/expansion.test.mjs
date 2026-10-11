@@ -31,6 +31,7 @@ try {
     // Open every gate through the real director; don't bypass collision.
     g.time = 245; g.p.invuln = 999;
     g.director(1 / 30);
+    if (g.boss) { g.enemies = []; g.boss = null; } // (a friend's guardian only steps out between bosses)
     g.computeFlow(true);
     out.gates = g.map.gates.every(gate => gate.opened);
     out.reachableSites = g.friends.map(f => ({ hero: f.hero, free: cellAt(g.map, f.x, f.y) === 0, reachable: g.reachable(f.x, f.y) }));
