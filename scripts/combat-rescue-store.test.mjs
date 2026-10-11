@@ -6,7 +6,7 @@ try {
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
-  await page.getByRole('button', { name: 'Discover the full game' }).click();
+  await page.getByRole('button', { name: 'Support the creator' }).click();
   const dialog = page.getByRole('dialog', { name: 'HIDE & SHRIEK' });
   const catalog = await page.evaluate(async () => {
     const d = await import('/src/game/data.ts');
@@ -21,7 +21,7 @@ try {
     await page.screenshot({ path: `art/world/checks/unlock-${size.width}.png` });
   }
   await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'detached' });
-  assert.equal(await page.getByRole('button', { name: 'Discover the full game' }).evaluate(e => e === document.activeElement), true);
+  assert.equal(await page.getByRole('button', { name: 'Support the creator' }).evaluate(e => e === document.activeElement), true);
   const result = await page.evaluate(async () => {
     const { Game } = await import('/src/game/engine.ts');
     const { expansion } = await import('/src/game/expansion.ts');

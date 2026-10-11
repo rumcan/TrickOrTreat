@@ -577,7 +577,7 @@ button.kit-tile:not(:disabled):hover {
   .title-wrap { justify-content: flex-start; gap: 8px; padding: calc(54px + env(safe-area-inset-top, 0px)) 12px max(10px, env(safe-area-inset-bottom, 0px)); }
   .title-head { gap: 6px; }
   .title-logo { width: min(300px, 74vw, 34dvh); }
-  .unlock-badge { width: min(240px, 60vw, 24dvh); } /* the badge shares the header with the logo: both give way on a short screen */
+  .title-head .unlock-badge { width: min(240px, 60vw, 24dvh); } /* the badge shares the header with the logo: both give way on a short screen */
   .title-main { gap: 8px; min-height: 0; }
   .title-pick { padding: 0; }
   .title-h1 { margin-bottom: 6px; font-size: 17px; line-height: 1.1; }
@@ -599,7 +599,7 @@ button.kit-tile:not(:disabled):hover {
   .title-main { display: contents; }
   .title-head { grid-area: head; justify-content: center; gap: 6px; padding-top: 38px; }
   .title-logo { width: min(100%, 300px, 50dvh); }
-  .unlock-badge { width: min(100%, 190px, 40dvh); }
+  .title-head .unlock-badge { width: min(100%, 190px, 40dvh); }
   .title-pick { grid-area: pick; padding: 46px 0 0; align-items: center; min-height: 0; }
   .title-panel { padding: 10px; }
   .title-h1 { display: none; }

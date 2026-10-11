@@ -39,7 +39,7 @@ try {
   assert.deepEqual(storefront.item.resolvedPrice.finalPrice, expected.price);
   assert.equal(storefront.quantity, 0, 'Unpaid fresh session stays locked');
   await game.getByRole('button', { name: 'Restore purchase / retry' }).click();
-  await game.getByRole('button', { name: 'Discover the full game' }).click();
+  await game.getByRole('button', { name: /Support the creator|Discover the full game/ }).click();
   const dialog = game.getByRole('dialog', { name: 'HIDE & SHRIEK' });
   const buy = dialog.getByRole('button', { name: `Unlock forever - ${expected.price.value} RUN Bits`, exact: true });
   await buy.waitFor({ timeout: 30000 });

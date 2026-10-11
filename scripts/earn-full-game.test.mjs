@@ -60,7 +60,7 @@ try {
   // on screen: the showcase shows the other way in and how far along you are
   await page.reload();
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
-  await page.getByRole('button', { name: 'Discover the full game' }).click();
+  await page.getByRole('button', { name: 'Support the creator' }).click();
   const line = page.locator('.unlock-earn');
   await line.waitFor();
   assert.match(await line.innerText(), /more than 15,000 Essence\. So far: 5,000\./, 'The showcase shows the free way in and the progress');
