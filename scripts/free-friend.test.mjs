@@ -7,7 +7,7 @@ const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto(process.env.TOT_ARCADE_URL || 'http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   await page.getByRole('button', { name: 'Go trick-or-treating' }).click();
   await page.waitForFunction(() => window.__tot?.game);
@@ -34,6 +34,10 @@ try {
     return { rate: offers / 600, chance: FRIEND_CARD_CHANCE };
   });
   assert.ok(Math.abs(odds.rate - odds.chance) < 0.07, `Friend cards appear at about ${odds.chance * 100}% of doorsteps (saw ${(odds.rate * 100).toFixed(1)}%)`);
+  // The odds simulation ended on a paused level-up. Return to play for one UI
+  // snapshot before opening the house offer, just as a real doorstep does.
+  await page.evaluate(() => { const g=window.__tot.game;g.state='play';g.pendingLevels=0; });
+  await page.waitForTimeout(200);
   // force an offer and take it through the real card
   await page.evaluate(() => {
     const g = window.__tot.game, random = Math.random;

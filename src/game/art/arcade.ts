@@ -3,13 +3,13 @@ import { makeCanvas, projector, isoBox, poly, diamondPath } from './draw';
 import type { PropSprite } from './props';
 import type { ArcadeKind } from '../arcade-layout';
 
-export const ARCADE_ART_KINDS: ArcadeKind[] = ['cabinet','pinball','skeeball','airhockey','foosball','prizes','pizza','booth','stage','photo','tokens','party','wall'];
+export const ARCADE_ART_KINDS: ArcadeKind[] = ['cabinet','cabinet_retro','cabinet_racer','cabinet_back','cabinet_back_alt','pinball','pinball_back','skeeball','airhockey','foosball','prizes','pizza','booth','stage','photo','tokens','party','wall'];
 export const ARCADE_ART_SIZES: Record<ArcadeKind,[number,number]> = {
-  cabinet:[.55,.75], pinball:[.65,1.15], skeeball:[2.1,2.7], airhockey:[2.1,1.2], foosball:[1.5,1],
+  cabinet:[.55,.75], cabinet_retro:[.55,.75], cabinet_racer:[.55,.75], cabinet_back:[.55,.75], cabinet_back_alt:[.55,.75], pinball:[.65,1.15], pinball_back:[.65,1.15], skeeball:[2.1,2.7], airhockey:[2.1,1.2], foosball:[1.5,1],
   prizes:[5,1.2], pizza:[6,1.4], booth:[2.4,1.3], stage:[5,2.4], photo:[.8,.7], tokens:[.55,.6], party:[3,1.8], wall:[8,.15],
 };
 const cache = new Map<string,PropSprite>();
-const neon: Record<string,string> = {cabinet:'#19bfff',pinball:'#ff8b23',skeeball:'#ff572e',prizes:'#f253db',pizza:'#ff792c',photo:'#e354df',tokens:'#ffcf56'};
+const neon: Record<string,string> = {cabinet:'#19bfff',cabinet_retro:'#baf456',cabinet_racer:'#ff516c',cabinet_back:'#19bfff',cabinet_back_alt:'#baf456',pinball:'#ff8b23',pinball_back:'#e867ce',skeeball:'#ff572e',prizes:'#f253db',pizza:'#ff792c',photo:'#e354df',tokens:'#ffcf56'};
 const labels: Record<string,string> = {cabinet:'STAR RAID',pinball:'NIGHT RUN',skeeball:'SKEE-BALL',prizes:'PRIZES',pizza:'PIZZA',stage:'MIDNIGHT MATINEE',photo:'PHOTO BOOTH',tokens:'TOKENS',party:'HAPPY BIRTHDAY'};
 
 /** Isometric vector masters remain available if an illustrated asset fails. */
@@ -22,22 +22,37 @@ export function getArcadeFixture(kind: ArcadeKind, fw=ARCADE_ART_SIZES[kind][0],
   const draw=()=>{
     const {c,ctx}=makeCanvas(w,h), P=projector(fh*64+16,top);
     const col=neon[kind]||'#ed8634';
+    const cabinet=kind.startsWith('cabinet'), pinball=kind.startsWith('pinball'), back=kind.includes('_back');
     const box=(x:number,y:number,a:number,b:number,z:number,t:number,colors=[col,'#462842','#211c37'])=>isoBox(ctx,P,x,y,x+a,y+b,z,t,colors[0],colors[1],colors[2]);
-    if(kind!=='pinball'&&kind!=='airhockey'&&kind!=='foosball')box(0,0,fw,fh,0,kind==='wall'?142:kind==='photo'?108:kind==='tokens'?80:kind==='stage'?18:kind==='booth'?24:44);
-    if(kind==='cabinet'||kind==='pinball') {
-      if(kind==='cabinet'){
+    if(!pinball&&kind!=='airhockey'&&kind!=='foosball')box(0,0,fw,fh,0,kind==='wall'?142:kind==='photo'?108:kind==='tokens'?80:kind==='stage'?18:kind==='booth'?24:44);
+    if(cabinet||pinball) {
+      if(cabinet&&back){
+        poly(ctx,[P(fw,0,0),P(fw,fh,0),P(fw,fh,104),P(fw,fh*.72,104),P(fw,fh*.72,96),P(fw,fh*.4,61),P(fw,0,53)],'#162238',col,1);
+        poly(ctx,[P(0,fh*.72,104),P(fw,fh*.72,104),P(fw,fh,104),P(0,fh,104)],'#344453',col,1);
+        poly(ctx,[P(0,fh,0),P(fw,fh,0),P(fw,fh,104),P(0,fh,104)],kind==='cabinet_back_alt'?'#3c4530':'#243246',col,1);
+        for(const z of [28,34,40,74,80,86]){
+          const a=P(.06,fh,z),b=P(fw-.06,fh,z);ctx.strokeStyle='#090e18';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();
+        }
+        poly(ctx,[P(.14,fh,48),P(fw-.14,fh,48),P(fw-.14,fh,64),P(.14,fh,64)],'#ab9270');
+      }else if(cabinet){
         box(0,0,fw,fh*.28,44,104,['#263547','#101624','#081222']);
         poly(ctx,[P(fw,0,0),P(fw,fh,0),P(fw,fh,53),P(fw,fh*.6,61),P(fw,fh*.28,96),P(fw,fh*.28,104),P(fw,0,104)],'#1c273c',col,1);
         poly(ctx,[P(0,0,104),P(fw,0,104),P(fw,fh*.28,104),P(0,fh*.28,104)],'#293e55',col,1);
         poly(ctx,[P(0,fh*.28,96),P(fw,fh*.28,96),P(fw,fh*.6,61),P(0,fh*.6,61)],'#163e65',col,2);
         poly(ctx,[P(0,fh*.6,61),P(fw,fh*.6,61),P(fw,fh,53),P(0,fh,53)],'#29374c',col,2);
+      }else if(back){
+        for(const x of [.06,fw-.12])for(const y of [.06,fh-.12])box(x,y,.06,.06,0,38);
+        poly(ctx,[P(0,0,39),P(fw,0,39),P(fw,fh,51),P(0,fh,51)],'#614775',col,2);
+        poly(ctx,[P(fw,0,39),P(fw,fh,51),P(fw,fh,44),P(fw,0,32)],'#31273e',col,1);
+        box(0,fh-.12,fw,.12,51,96,['#96578f','#38223d','#231d31']);
+        for(const z of [66,72,78]){const a=P(.08,fh,z),b=P(fw-.08,fh,z);ctx.strokeStyle='#0e1322';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();}
       }else{
         for(const x of [.06,fw-.12])for(const y of [.06,fh-.12])box(x,y,.06,.06,0,38);
         poly(ctx,[P(0,0,51),P(fw,0,51),P(fw,fh,39),P(0,fh,39)],'#163e65',col,2);
         poly(ctx,[P(fw,0,51),P(fw,fh,39),P(fw,fh,32),P(fw,0,44)],'#293746',col,1);
         box(0,0,fw,.12,51,96,['#bf7536','#4c2a3e','#231d31']);
       }
-      const [x,y]=P(fw/2,fh*.8,kind==='cabinet'?56:43);ctx.fillStyle='#ff343f';ctx.beginPath();ctx.arc(x,y,2.5,0,7);ctx.fill();
+      if(!back){const [x,y]=P(fw/2,fh*.8,cabinet?56:43);ctx.fillStyle='#ff343f';ctx.beginPath();ctx.arc(x,y,2.5,0,7);ctx.fill();}
     } else if(kind==='skeeball') {
       for(let i=0;i<3;i++){const x=i*fw/3,a=fw/3-.05;box(x,0,a,.4,0,72,['#974935','#4e2837','#321e36']);poly(ctx,[P(x,.4,37),P(x+a,.4,37),P(x+a,fh,20),P(x,fh,20)],'#a36a44',col,2);const [cx,cy]=P(x+a/2,.2,54);ctx.strokeStyle='#ffe876';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,10,5,0,0,7);ctx.stroke();}
     } else if(kind==='airhockey'||kind==='foosball') {
@@ -60,6 +75,17 @@ export function getArcadeFixture(kind: ArcadeKind, fw=ARCADE_ART_SIZES[kind][0],
   const e=propAsset({key,file:`arcade/${key}.webp`,category:'prop',w,h,anchor:[ax,ay],footprint:[fw,fh],desc:`Starcade ${kind}`,prompt:`Isolated 2:1 dimetric Halloween 1990 arcade ${kind}; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint ${fw}x${fh}.`},draw);
   const out={img:e.img,w:e.w,h:e.h,ax:e.anchor[0],ay:e.anchor[1],fw,fh,lights:kind==='booth'||kind==='wall'?[]:[{x:fw/2,y:fh/2,r:2,color:neon[kind]||'#ff9a2a',i:.3}]};
   cache.set(key,out);return out;
+}
+
+/** A walk-over doorway marker, projected with the same 64/32 ground basis. */
+export function getArcadeExitMat(){
+  return asset({key:'arcade_v2_exit_mat',file:'arcade/v2/exit_mat.webp',category:'overlay',w:192,h:96,footprint:[2,1],desc:'Green EXIT welcome mat',prompt:'Exact 2:1 dimetric dark forest-green woven doorway mat, cream EXIT lettering and a bright green arrow toward the lower-left edge. Transparent exterior, no furniture or shadows.'},()=>{
+    const {c,ctx}=makeCanvas(192,96),P=projector(64,0);
+    poly(ctx,[P(0,0,0),P(2,0,0),P(2,1,0),P(0,1,0)],'#153d31','#92ef94',3);
+    poly(ctx,[P(.12,.12,0),P(1.88,.12,0),P(1.88,.88,0),P(.12,.88,0)],'#205a40','#e1cc8f',2);
+    ctx.save();ctx.transform(1,.5,-1,.5,64,0);ctx.fillStyle='#fff6cf';ctx.font='900 25px sans-serif';ctx.textAlign='center';ctx.fillText('EXIT',64,26);
+    ctx.fillStyle='#9df69a';ctx.beginPath();ctx.moveTo(61,34);ctx.lineTo(67,34);ctx.lineTo(67,43);ctx.lineTo(77,43);ctx.lineTo(64,55);ctx.lineTo(51,43);ctx.lineTo(61,43);ctx.closePath();ctx.fill();ctx.restore();return c;
+  });
 }
 
 export function getArcadeFloor(restaurant=false) {

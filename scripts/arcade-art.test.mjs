@@ -6,9 +6,9 @@ const manifest=JSON.parse(await fs.readFile('public/assets/manifest.json','utf8'
 const specs=JSON.parse(await fs.readFile('art/arcade/v2/specs.json','utf8'));
 const report=JSON.parse(await fs.readFile('art/arcade/v2/alignment-report.json','utf8'));
 const prompts=JSON.parse(await fs.readFile('art/arcade/v2/prompts.json','utf8'));
-assert.equal(specs.length,31); assert.equal(report.length,specs.length);
+assert.equal(specs.length,37); assert.equal(report.length,specs.length);
 assert.equal(prompts.assets.length,specs.length);
-assert.ok(!Object.keys(manifest.overrides).some(key=>key.startsWith('arcade_')&&!key.startsWith('arcade_v2_')));
+assert.ok(!Object.keys(manifest.overrides).some(key=>key.startsWith('arcade_')&&!key.startsWith('arcade_v2_')&&!key.startsWith('arcade_staff_')));
 for(const spec of specs){
  const item=manifest.overrides[spec.key];assert.ok(item,`Missing ${spec.key}`);
  const info=await sharp(`public/assets/${item.file}`).metadata();
@@ -22,4 +22,4 @@ for(const spec of specs){
  assert.equal(guide.width,1024);assert.equal(guide.height,1024);
  const prompt=prompts.assets.find(row=>row.key===spec.key);assert.ok(prompt?.prompt?.length>100);
 }
-console.log('PASS 31 individually vector-guided sprites: alpha, anchors, full-frame alignment and retained prompts.');
+console.log(`PASS ${specs.length} individually vector-guided sprites: alpha, anchors, full-frame alignment and retained prompts.`);

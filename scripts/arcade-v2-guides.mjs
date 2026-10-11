@@ -6,11 +6,11 @@ let records;
 try{
  const page=await browser.newPage();await page.goto(process.env.TOT_ARCADE_URL||'http://127.0.0.1:5190/');
  records=await page.evaluate(async()=>{
-  const {ARCADE_ART_KINDS,getArcadeFixture,getArcadeFloor}=await import('/src/game/art/arcade.ts');
+  const {ARCADE_ART_KINDS,getArcadeFixture,getArcadeFloor,getArcadeExitMat}=await import('/src/game/art/arcade.ts');
   const {CLUTTER_KINDS}=await import('/src/game/arcade-clutter.ts');
   const {getArcadeClutter}=await import('/src/game/art/arcade-clutter.ts');
   const {withArtScale}=await import('/src/game/art/draw.ts');const {allAssets}=await import('/src/game/assets.ts');
-  ARCADE_ART_KINDS.forEach(k=>getArcadeFixture(k));getArcadeFixture('wall',.15,7.5);getArcadeFloor();CLUTTER_KINDS.forEach(getArcadeClutter);
+  ARCADE_ART_KINDS.forEach(k=>getArcadeFixture(k));getArcadeFixture('wall',.15,7.5);getArcadeFloor();getArcadeExitMat();CLUTTER_KINDS.forEach(getArcadeClutter);
   return allAssets().filter(a=>a.spec.key.startsWith('arcade_v2_')).map(a=>({spec:a.spec,png:withArtScale(2,()=>a.gen()).toDataURL().split(',')[1]}));
  });
 }finally{await browser.close();}

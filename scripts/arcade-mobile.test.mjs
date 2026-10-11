@@ -12,9 +12,14 @@ try{
   await page.waitForFunction(()=>window.__tot.game.map.kind==='arcade');
   await page.getByRole('button',{name:'Map',exact:true}).tap();await page.waitForFunction(()=>window.__tot.game.bigMap);
   await page.getByRole('button',{name:'Map',exact:true}).tap();await page.waitForFunction(()=>!window.__tot.game.bigMap);
+  await page.evaluate(()=>{const g=window.__tot.game,s=g.availableArcadeStaff.find(s=>s.hero===3);g.p.coins=200;Object.assign(g.p,{x:s.x,y:s.y+.5});g.updateInteract();});
+  await interact.tap();const hire=page.getByRole('dialog',{name:'Recruit Maya'});await hire.waitFor();
+  await hire.getByRole('button',{name:'Not now · back to the arcade'}).tap();await page.waitForFunction(()=>window.__tot.game.state==='play');
+  await interact.tap();await page.getByRole('dialog',{name:'Recruit Maya'}).getByRole('button',{name:'Recruit Maya · 120 coins'}).tap();
+  await page.waitForFunction(()=>window.__tot.game.state==='play'&&window.__tot.game.friends.some(f=>f.hero===3&&f.status==='rescued'));
   await page.evaluate(()=>{const g=window.__tot.game;Object.assign(g.p,g.map.start);g.updateInteract();});await interact.tap();
   await page.waitForFunction(()=>window.__tot.game.map.kind!=='arcade');assert.deepEqual(errors,[]);
-  console.log(`${viewport.width}x${viewport.height}: mobile Interact enters/exits the arcade and the interior map opens/closes.`);
+  console.log(`${viewport.width}x${viewport.height}: touch entry/exit, map toggle and cancellable coin recruitment work.`);
   await context.close();
  }
 }finally{await browser.close();}

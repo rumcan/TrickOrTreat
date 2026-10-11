@@ -24,7 +24,7 @@ for(const spec of specs){
  report.push({key:spec.key,iou,overflow,width:spec.pixelWidth,height:spec.pixelHeight});
 }
 // Rejected v1 textures are not loaded by the corrected arcade.
-for(const key of Object.keys(manifest.overrides))if(key.startsWith('arcade_')&&!key.startsWith('arcade_v2_'))delete manifest.overrides[key];
+for(const key of Object.keys(manifest.overrides))if(key.startsWith('arcade_')&&!key.startsWith('arcade_v2_')&&!key.startsWith('arcade_staff_'))delete manifest.overrides[key];
 await fs.writeFile('public/assets/manifest.json',JSON.stringify(manifest,null,2)+'\n');
 await fs.writeFile('art/arcade/v2/alignment-report.json',JSON.stringify(report,null,2)+'\n');
 console.log(`Packed ${report.length}/${specs.length} individually guided sprites without opaque-bounds stretching.`);

@@ -7,8 +7,43 @@
     "height": 372
   },
   {
+    "key": "arcade_v2_cabinet_retro_0.55_0.75",
+    "iou": 0.95332962646523,
+    "overflow": 0,
+    "width": 232,
+    "height": 372
+  },
+  {
+    "key": "arcade_v2_cabinet_racer_0.55_0.75",
+    "iou": 0.9456988360533695,
+    "overflow": 0,
+    "width": 232,
+    "height": 372
+  },
+  {
+    "key": "arcade_v2_cabinet_back_0.55_0.75",
+    "iou": 0.9708791578120072,
+    "overflow": 0,
+    "width": 232,
+    "height": 372
+  },
+  {
+    "key": "arcade_v2_cabinet_back_alt_0.55_0.75",
+    "iou": 0.9842327953667145,
+    "overflow": 0,
+    "width": 232,
+    "height": 372
+  },
+  {
     "key": "arcade_v2_pinball_0.65_1.15",
     "iou": 0.823034428500573,
+    "overflow": 0,
+    "width": 296,
+    "height": 404
+  },
+  {
+    "key": "arcade_v2_pinball_back_0.65_1.15",
+    "iou": 0.5890532721849285,
     "overflow": 0,
     "width": 296,
     "height": 404
@@ -103,6 +138,13 @@
     "overflow": 0.007765427963697891,
     "width": 512,
     "height": 512
+  },
+  {
+    "key": "arcade_v2_exit_mat",
+    "iou": 0.9553585238924454,
+    "overflow": 0.005334265436695491,
+    "width": 384,
+    "height": 192
   },
   {
     "key": "arcade_v2_clutter_bigfoot",

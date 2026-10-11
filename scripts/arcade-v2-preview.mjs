@@ -7,9 +7,10 @@ try{
  await page.waitForFunction(()=>window.__tot?.game);
  await page.evaluate(()=>{const g=window.__tot.game;g.director=()=>{};g.enemies=[];g.state='play';Object.assign(g.p,g.map.houses.find(h=>h.prop.kind==='arcade').door);g.travelArcade('arcade');g.update=()=>{};g.time=0;g.p.skillCd=0;g.premiumPowerT=0;g.p.invuln=0;g.p.hurtT=0;g.p.hp=g.stats.maxHp;g.p.x=12;g.p.y=21;g.banner=null;g.toasts=[];});
  await fs.mkdir('art/arcade/v2',{recursive:true});
- for(const [name,x,y]of[['game-bays',12.7,21.5],['restaurant',39,31],['memorabilia',36,13],['stage',11,9]]){
+ await page.waitForTimeout(1600);
+ for(const [name,x,y]of[['game-bays',10.5,16.5],['restaurant',26,19],['memorabilia',23,9.5],['stage',11,8],['concessions',27.5,17.2],['exit',17.7,29.7]]){
   await page.evaluate(({x,y})=>{const g=window.__tot.game;g.p.x=x;g.p.y=y;g.input.keys.clear();g.banner=null;g.toasts=[];g.computeFlow(true);},{x,y});
   await page.waitForTimeout(600);await page.screenshot({path:`art/arcade/v2/preview-${name}.png`});
  }
- console.log('Saved four in-game scale/alignment views.');
+ console.log('Saved six in-game scale/alignment views.');
 }finally{await browser.close();}

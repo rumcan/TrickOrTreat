@@ -21,5 +21,5 @@ try{
   if(cabinet.fw>.75||cabinet.fh>1||table.fw>2.5||table.fh>1.5)throw Error('Furniture drifted back to giant scale');
   return points;
  });
- assert.equal(checked,65);console.log(`PASS ${checked} ground/raised vertices coincide with gameplay projection; kid-relative scale is bounded.`);
+ assert.equal(checked,90);console.log(`PASS ${checked} ground/raised vertices coincide with gameplay projection; kid-relative scale is bounded.`);
 }finally{await browser.close();}

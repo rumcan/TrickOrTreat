@@ -1829,6 +1829,68 @@
         128,
         64
       ]
+    },
+    "arcade_staff_maya": {
+      "file": "arcade/staff/maya.webp",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        96,
+        224
+      ]
+    },
+    "arcade_staff_leo": {
+      "file": "arcade/staff/leo.webp",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        96,
+        224
+      ]
+    },
+    "arcade_v2_cabinet_retro_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_retro_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_cabinet_racer_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_racer_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_cabinet_back_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_back_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_cabinet_back_alt_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_back_alt_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_pinball_back_0.65_1.15": {
+      "file": "arcade/v2/arcade_v2_pinball_back_0.65_1.15.webp",
+      "scale": 2,
+      "anchor": [
+        147.2,
+        297.6
+      ]
+    },
+    "arcade_v2_exit_mat": {
+      "file": "arcade/v2/arcade_v2_exit_mat.webp",
+      "scale": 2
     }
   }
 }

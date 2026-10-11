@@ -26,6 +26,110 @@
     "pixelHeight": 372
   },
   {
+    "key": "arcade_v2_cabinet_retro_0.55_0.75",
+    "file": "arcade/arcade_v2_cabinet_retro_0.55_0.75.webp",
+    "category": "prop",
+    "w": 116,
+    "h": 186,
+    "anchor": [
+      57.6,
+      140.8
+    ],
+    "footprint": [
+      0.55,
+      0.75
+    ],
+    "desc": "Starcade cabinet_retro",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade cabinet_retro; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.55x0.75.",
+    "guide": {
+      "left": 232,
+      "top": 64,
+      "width": 559,
+      "height": 896,
+      "scale": 2.4086021505376345
+    },
+    "pixelWidth": 232,
+    "pixelHeight": 372
+  },
+  {
+    "key": "arcade_v2_cabinet_racer_0.55_0.75",
+    "file": "arcade/arcade_v2_cabinet_racer_0.55_0.75.webp",
+    "category": "prop",
+    "w": 116,
+    "h": 186,
+    "anchor": [
+      57.6,
+      140.8
+    ],
+    "footprint": [
+      0.55,
+      0.75
+    ],
+    "desc": "Starcade cabinet_racer",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade cabinet_racer; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.55x0.75.",
+    "guide": {
+      "left": 232,
+      "top": 64,
+      "width": 559,
+      "height": 896,
+      "scale": 2.4086021505376345
+    },
+    "pixelWidth": 232,
+    "pixelHeight": 372
+  },
+  {
+    "key": "arcade_v2_cabinet_back_0.55_0.75",
+    "file": "arcade/arcade_v2_cabinet_back_0.55_0.75.webp",
+    "category": "prop",
+    "w": 116,
+    "h": 186,
+    "anchor": [
+      57.6,
+      140.8
+    ],
+    "footprint": [
+      0.55,
+      0.75
+    ],
+    "desc": "Starcade cabinet_back",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade cabinet_back; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.55x0.75.",
+    "guide": {
+      "left": 232,
+      "top": 64,
+      "width": 559,
+      "height": 896,
+      "scale": 2.4086021505376345
+    },
+    "pixelWidth": 232,
+    "pixelHeight": 372
+  },
+  {
+    "key": "arcade_v2_cabinet_back_alt_0.55_0.75",
+    "file": "arcade/arcade_v2_cabinet_back_alt_0.55_0.75.webp",
+    "category": "prop",
+    "w": 116,
+    "h": 186,
+    "anchor": [
+      57.6,
+      140.8
+    ],
+    "footprint": [
+      0.55,
+      0.75
+    ],
+    "desc": "Starcade cabinet_back_alt",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade cabinet_back_alt; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.55x0.75.",
+    "guide": {
+      "left": 232,
+      "top": 64,
+      "width": 559,
+      "height": 896,
+      "scale": 2.4086021505376345
+    },
+    "pixelWidth": 232,
+    "pixelHeight": 372
+  },
+  {
     "key": "arcade_v2_pinball_0.65_1.15",
     "file": "arcade/arcade_v2_pinball_0.65_1.15.webp",
     "category": "prop",
@@ -41,6 +145,32 @@
     ],
     "desc": "Starcade pinball",
     "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade pinball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.65x1.15.",
+    "guide": {
+      "left": 184,
+      "top": 64,
+      "width": 656,
+      "height": 896,
+      "scale": 2.217821782178218
+    },
+    "pixelWidth": 296,
+    "pixelHeight": 404
+  },
+  {
+    "key": "arcade_v2_pinball_back_0.65_1.15",
+    "file": "arcade/arcade_v2_pinball_back_0.65_1.15.webp",
+    "category": "prop",
+    "w": 148,
+    "h": 202,
+    "anchor": [
+      73.6,
+      148.8
+    ],
+    "footprint": [
+      0.65,
+      1.15
+    ],
+    "desc": "Starcade pinball_back",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade pinball_back; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.65x1.15.",
     "guide": {
       "left": 184,
       "top": 64,
@@ -380,6 +510,28 @@
     },
     "pixelWidth": 512,
     "pixelHeight": 512
+  },
+  {
+    "key": "arcade_v2_exit_mat",
+    "file": "arcade/v2/exit_mat.webp",
+    "category": "overlay",
+    "w": 192,
+    "h": 96,
+    "footprint": [
+      2,
+      1
+    ],
+    "desc": "Green EXIT welcome mat",
+    "prompt": "Exact 2:1 dimetric dark forest-green woven doorway mat, cream EXIT lettering and a bright green arrow toward the lower-left edge. Transparent exterior, no furniture or shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 2.3333333333333335
+    },
+    "pixelWidth": 384,
+    "pixelHeight": 192
   },
   {
     "key": "arcade_v2_clutter_bigfoot",
