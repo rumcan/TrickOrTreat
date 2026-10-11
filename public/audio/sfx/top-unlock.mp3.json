@@ -1,0 +1,7 @@
+{
+  "prompt": "A satisfying reward jingle: a quick bright ascending arpeggio on a toy glockenspiel ending in a sparkle, arcade prize sound. Short, no voice.",
+  "type": "sfx",
+  "durationSec": 1.2,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

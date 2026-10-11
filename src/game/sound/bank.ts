@@ -24,6 +24,8 @@ export interface PlayOpts {
   rate?: number;
   /** AudioContext time to start at (default now). */
   when?: number;
+  /** Play no more than this many seconds of the recording (it fades out there). */
+  max?: number;
 }
 
 /** A looping recording whose level and rate follow the game (rolling, wind, the engine, a crowd). */
@@ -69,14 +71,14 @@ export class SampleBank {
     const ctx = this.ctx(), dest = this.dest(id);
     const buf = this.buffers.get(`${dir}/${id}`);
     if (!ctx || !dest || !buf) { this.request(dir, id); return false; }
-    if (this.voices >= 8) return false;
+    if (this.voices >= 14) return false; // every effect is two recordings now: its deep original and its bright layer
     this.voices++;
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = opts.rate ?? 1;
     const g = ctx.createGain();
     const start = opts.when ?? ctx.currentTime;
-    const duration = buf.duration / src.playbackRate.value;
+    const duration = Math.min(buf.duration, opts.max ?? Infinity) / src.playbackRate.value;
     const attack = id === 'click' || id === 'tick' ? 0.012 : 0.03;
     const volume = opts.vol ?? 1;
     g.gain.setValueAtTime(0, start);
@@ -94,6 +96,7 @@ export class SampleBank {
     src.connect(g);
     src.onended = () => { this.voices = Math.max(0, this.voices - 1); src.disconnect(); g.disconnect(); if (node !== g) node.disconnect(); };
     src.start(opts.when ?? ctx.currentTime);
+    if (opts.max && opts.max < buf.duration) src.stop(start + duration + 0.02);
     return true;
   }
 

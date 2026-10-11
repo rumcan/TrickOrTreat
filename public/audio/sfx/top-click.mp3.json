@@ -1,0 +1,7 @@
+{
+  "prompt": "A single crisp menu button click: a small tactile plastic tick with a soft high blip. One click only, starts immediately, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 0.5,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

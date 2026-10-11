@@ -1,0 +1,7 @@
+{
+  "prompt": "A friendly two-tone doorbell ding-dong heard from the porch, then a wooden front door creaking open. Suburban house on Halloween night, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 1.6,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

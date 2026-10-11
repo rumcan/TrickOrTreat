@@ -884,7 +884,7 @@ export class Game {
     const lucky = mate.mateCrit > 0 && Math.random() < mate.mateCrit;
     const damage = st.dmg * 0.65 * mate.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02) * (lucky ? 2 : 1) * (friend.found ? FOUND_FRIEND.dmg : 1);
     if (lucky && !weapon.def.stream) this.text(friend.x, friend.y, 'CRIT!', '#ff4fd8', 11);
-    gameAudio.play('shot', 0.2);
+    gameAudio.shot(weapon.def.id, 0.2);
     const def = weapon.def;
     if (def.kind === 'beam') {
       // the special beams keep their trick in a friend's hands: the Cryo Ray chills, the Phase Lance leaves its wake
@@ -1487,7 +1487,7 @@ export class Game {
   }
 
   private fire(w: Weapon, st0: ReturnType<typeof weaponStats>) {
-    gameAudio.play('shot');
+    gameAudio.shot(w.def.id);
     const p = this.p, d = w.def;
     const mul = this.shotMul(w);
     this.fxOf(w).shots++;
@@ -1701,7 +1701,8 @@ export class Game {
     e.shieldT = e.def.boss ? 6 : 4;
     e.hp -= dmg - absorbed;
     if (absorbed === dmg) color = '#80e4ff';
-    if (!quiet) gameAudio.play('impact', 0.4);
+    // every bullet that lands: the deep thud, and a soft tick over it
+    if (!quiet) { gameAudio.play('impact', 0.4); gameAudio.play('hit', big ? 0.55 : 0.4); }
     e.hit = 0.1;
     if (!quiet) this.text(e.x + rand(-0.2, 0.2), e.y + rand(-0.2, 0.2), fmtDmg(dmg), color, big ? 17 : 13, 'dmg');
     if (e.hp <= 0) this.killEnemy(e);
@@ -1746,6 +1747,7 @@ export class Game {
   explode(x: number, y: number, r0: number, dmg0: number, elem: Elem | null, fromPlayer = true, crit = false, profile: DamageProfile = { element: elem }) {
     const bd = this.build;
     const r = fromPlayer ? r0 * bd.blastRadius() : r0, dmg = fromPlayer ? dmg0 * bd.blastMore() : dmg0;
+    gameAudio.play('boom', Math.min(0.9, 0.3 + r * 0.16)); // the bigger the blast, the louder
     // A busy night sets off dozens of blasts a second. Only a heavy one (a rocket, a shell, a wreck: 2 tiles or more
     // before any blast-radius bonus) plays the painted fireball, three at a time at most; the chain blasts of a build
     // stay light rings. The more that are going off, the fewer sparks each one throws.
@@ -2594,7 +2596,7 @@ export class Game {
       const cx = pr.x0 + pr.fw / 2, cy = pr.y0 + pr.fh / 2, house = pr.kind === 'house';
       pr.wreck = true; pr.boomT = 0; pr.burnT = house ? 40 : 16;
       this.hitStop = Math.max(this.hitStop, 0.05);
-      gameAudio.play('impact', 0.9);
+      gameAudio.play('boom', 0.95);
       this.explode(cx, cy, house ? 3.4 : 2.6, Math.max(20, dmg * 2), 'fire', true, false, { element: 'fire', noWreck: true }); // no chain of wrecks from one blast
       this.shake = Math.max(this.shake, house ? 16 : 11);
       for (let i = 0; i < (house ? 3 : 1); i++) this.zones.push({ kind: 'fire', x: cx + rand(-pr.fw, pr.fw) * 0.45, y: pr.y0 + pr.fh + 0.5 + rand(0, 0.6), r: 0.9, t: 0, life: 5, dmg: Math.max(3, dmg * 0.3), tick: 0 });

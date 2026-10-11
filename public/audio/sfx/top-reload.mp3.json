@@ -1,0 +1,7 @@
+{
+  "prompt": "A toy blaster being reloaded: a plastic magazine slides in and clicks, then a quick spring-loaded cocking ratchet. Crisp plastic clicks, close and dry, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 0.8,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

@@ -55,7 +55,7 @@ try {
     assert.equal(await page.getByRole('button', { name: new RegExp(`^Select ${name}`) }).getAttribute('aria-pressed'), 'true');
   }
   const routing = await page.evaluate(async () => {
-    const { gameAudio, SFX_LOW_PASS_HZ, SFX_PLAYBACK_RATE, DETAIL_LOW_PASS_HZ, DETAIL_PLAYBACK_RATE } = await import('/src/game/audio.ts');
+    const { gameAudio, SFX_LOW_PASS_HZ, SFX_PLAYBACK_RATE, DETAIL_LOW_PASS_HZ, DETAIL_PLAYBACK_RATE, TOP_HIGH_PASS_HZ } = await import('/src/game/audio.ts');
     gameAudio.unlock();
     return {
       baseHz: SFX_LOW_PASS_HZ, baseRate: SFX_PLAYBACK_RATE,
@@ -63,9 +63,12 @@ try {
       baseBus: gameAudio.bank.dest('reload') === gameAudio.master,
       detailBus: gameAudio.bank.dest('swoosh') === gameAudio.detailMaster,
       separateBuses: gameAudio.master !== gameAudio.detailMaster,
+      // the bright layer of an effect has a bus of its own, and playing an effect starts both recordings
+      topHz: TOP_HIGH_PASS_HZ, topBus: gameAudio.bank.dest('top-shot') === gameAudio.topMaster && gameAudio.topMaster !== gameAudio.master,
+      layered: (() => { const asked = [], play = gameAudio.bank.play.bind(gameAudio.bank); gameAudio.bank.play = (dir, id, opts) => { asked.push(id); return play(dir, id, opts); }; const hidden = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden'); Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); try { gameAudio.setMuted(false); gameAudio.play('reload'); } finally { delete document.hidden; gameAudio.bank.play = play; } return asked.join(); })(),
     };
   });
-  assert.deepEqual(routing, { baseHz: 700, baseRate: 1, detailHz: 1000, detailRate: 1.04, baseBus: true, detailBus: true, separateBuses: true });
+  assert.deepEqual(routing, { baseHz: 700, baseRate: 1, detailHz: 1000, detailRate: 1.04, baseBus: true, detailBus: true, separateBuses: true, topHz: 180, topBus: true, layered: 'reload,top-reload,click' });
   assert.deepEqual(errors, []);
   console.log('Supplied portraits, responsive header/character selection, premium gating, direct starts for all five kids, saved selection and separate deep/detail sound buses passed.');
 } finally { await browser.close(); }

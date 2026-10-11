@@ -1,0 +1,7 @@
+{
+  "prompt": "A short cartoon ouch impact with no voice: a dull body thump with a quick descending synth buzz, the player got hurt. One sound, starts immediately, no music.",
+  "type": "sfx",
+  "durationSec": 0.6,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}
