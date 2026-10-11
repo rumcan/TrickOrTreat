@@ -89,23 +89,23 @@
   "guns": [
     {
       "id": "pea",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A soft little puff of air from a plastic pea shooter, like blowing through a straw: a tiny 'pft'. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A plastic pea shooter firing: a crisp short puff of air through a tube ending in a little pop, 'pft'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "nerf",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A soft foam dart leaving a spring toy blaster: a muffled plastic 'thwip'. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A spring toy blaster firing a foam dart: a snappy plastic 'thwip' pop. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "shotgun",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
@@ -113,7 +113,7 @@
     },
     {
       "id": "roman",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
@@ -121,7 +121,7 @@
     },
     {
       "id": "soaker",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
@@ -129,15 +129,15 @@
     },
     {
       "id": "balloon",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A rubbery 'thoomp' of a balloon launched from a cardboard tube, with one tiny static crackle. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A rubbery 'thoomp' of a balloon launched from a cardboard tube, with one static crackle. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "rocket",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
@@ -145,7 +145,7 @@
     },
     {
       "id": "laser",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
@@ -153,23 +153,23 @@
     },
     {
       "id": "slingshot",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A rubber band slingshot release: a short soft 'twang' snap. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A rubber band slingshot release: a short springy 'twang' snap. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "gloom",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A muffled toy drum hit: one soft low 'doomp' on a small tom. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A toy drum hit: one round low 'doomp' on a small tom. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "marshmallow",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
@@ -177,7 +177,7 @@
     },
     {
       "id": "bubblegum",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
@@ -185,99 +185,99 @@
     },
     {
       "id": "acorn",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A small wooden peg gun: one light wooden 'tok' click-pop. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A wooden peg gun: one light wooden 'tok' click-pop. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "stream",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "One tiny gentle electric spark tick, a soft crackle like static on a wool jumper. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "One electric spark tick, a crackle like static on a wool jumper. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "disc",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A light disc being thrown: a short soft digital 'zwip' synth sweep. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A light disc being thrown: a short digital 'zwip' synth sweep. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "sabre",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A blade swishing through the air with a faint electric shimmer at the end: a soft 'swish'. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A blade swishing through the air with a electric shimmer at the end: a 'swish'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "glaive",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A spinning star blade thrown: a short soft whirring 'whip-swish'. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A spinning star blade thrown: a short whirring 'whip-swish'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "flamer",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A gas burner puff: one short soft breath of flame, 'fwuh'. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A gas burner puff: one short breath of flame, 'fwuh'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "swarm",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "Three tiny soft missile pops in very quick succession: 'pf-pf-pf'. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Three missile pops in quick succession: 'pf-pf-pf'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "singularity",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A small deep 'vwomp' bending downward in pitch, like a little black hole blinking open. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A deep 'vwomp' bending downward in pitch, like a black hole blinking open. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "annihilator",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A restrained heavy cannon shot: a soft muffled 'thump' with a very short low tail. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A heavy cannon shot: a 'thump' with a short low tail. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "incinerator",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A short warm roar of a gas flare: a soft 'hwoof' of fire. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A short warm roar of a gas flare: a 'hwoof' of fire. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "lance",
-      "gain": 0.5,
+      "gain": 0.35,
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A glassy crystalline 'zing' of an energy bolt: one short clear ping that fades at once. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A glassy crystalline 'zing' of an energy bolt: one short clear ping that fades at once. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "cryo",
-      "gain": 0.4,
+      "gain": 0.28,
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A soft icy frost hiss, 'tsss', with one faint glassy tinkle. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "A icy frost hiss, 'tsss', with one glassy tinkle. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     }
   ]
 }
