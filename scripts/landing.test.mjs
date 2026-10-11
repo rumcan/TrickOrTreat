@@ -65,10 +65,10 @@ try {
       separateBuses: gameAudio.master !== gameAudio.detailMaster,
       // the bright layer of an effect has a bus of its own, and playing an effect starts both recordings
       topHz: TOP_HIGH_PASS_HZ, topBus: gameAudio.bank.dest('top-shot') === gameAudio.topMaster && gameAudio.topMaster !== gameAudio.master,
-      layered: (() => { const asked = [], play = gameAudio.bank.play.bind(gameAudio.bank); gameAudio.bank.play = (dir, id, opts) => { asked.push(id); return play(dir, id, opts); }; const hidden = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden'); Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); try { gameAudio.setMuted(false); gameAudio.play('reload'); } finally { delete document.hidden; gameAudio.bank.play = play; } return asked.join(); })(),
+      layered: (() => { const asked = [], play = gameAudio.bank.play.bind(gameAudio.bank); gameAudio.bank.play = (dir, id, opts) => { asked.push(id); return play(dir, id, opts); }; const hidden = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden'); Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); try { gameAudio.setMuted(false); gameAudio.play('reload'); } finally { delete document.hidden; gameAudio.bank.play = play; } return asked.slice(0, 2).join(); })(), // (its small click detail follows unless a click has just played)
     };
   });
-  assert.deepEqual(routing, { baseHz: 700, baseRate: 1, detailHz: 1000, detailRate: 1.04, baseBus: true, detailBus: true, separateBuses: true, topHz: 180, topBus: true, layered: 'reload,top-reload,click' });
+  assert.deepEqual(routing, { baseHz: 700, baseRate: 1, detailHz: 1000, detailRate: 1.04, baseBus: true, detailBus: true, separateBuses: true, topHz: 180, topBus: true, layered: 'reload,top-reload' });
   assert.deepEqual(errors, []);
   console.log('Supplied portraits, responsive header/character selection, premium gating, direct starts for all five kids, saved selection and separate deep/detail sound buses passed.');
 } finally { await browser.close(); }

@@ -21,7 +21,8 @@ const TOP = new Map(topLayer.sounds.map((s) => [s.id, s]));
 const BASE: Record<string, string> = { boom: 'impact', hit: 'tick' };
 const topId = (id: string) => `top-${id}`;
 /** one quiet shot per gun (public/audio/sfx/gun-<id>.mp3), over the deep original 'shot' */
-const GUNS = new Map(topLayer.guns.map((s) => [s.id, s]));
+const GUN_SOUNDS: { id: string; gain: number; max: number; every: number; skip?: boolean }[] = topLayer.guns;
+const GUNS = new Map(GUN_SOUNDS.filter((s) => !s.skip).map((s) => [s.id, s]));
 const gunId = (id: string) => `gun-${id}`;
 const DETAILS: Record<string, { id: string; gain: number }> = {
   shot: { id: 'tick', gain: 0.16 }, pickup: { id: 'tick', gain: 0.45 },
@@ -58,7 +59,7 @@ class GameAudio {
         this.syncVolume();
         this.bank.prewarm('sfx', manifest.sfx.map((sound) => sound.id));
         this.bank.prewarm('sfx', topLayer.sounds.map((sound) => topId(sound.id)));
-        this.bank.prewarm('sfx', topLayer.guns.map((sound) => gunId(sound.id)));
+        this.bank.prewarm('sfx', [...GUNS.keys()].map(gunId));
       } catch { return; }
     }
     void this.context.resume().catch(() => undefined);

@@ -50,7 +50,7 @@ export class SampleBank {
     if (peak < 0.003) { this.shape.set(key, { offset: 0, gain: 0 }); return; } // an empty recording stays silent rather than hissing
     let first = 0;
     for (let i = 0; i < d.length; i++) if (Math.abs(d[i]) > peak * 0.12) { first = i; break; }
-    this.shape.set(key, { offset: Math.max(0, first / buf.sampleRate - 0.004), gain: Math.min(14, 0.7 / peak) });
+    this.shape.set(key, { offset: Math.max(0, first / buf.sampleRate - 0.004), gain: Math.min(16, 0.7 / peak) });
   }
   private loading = new Set<string>();
   private failed = new Set<string>();

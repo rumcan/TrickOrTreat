@@ -1,5 +1,5 @@
 {
-  "prompt": "A gas burner puff: one short breath of flame, 'fwuh'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+  "prompt": "Loud, punchy, close-microphone recording at full volume. A gas burner puff: one short breath of flame, 'fwuh'. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
   "type": "sfx",
   "durationSec": 0.5,
   "layer": "gun",

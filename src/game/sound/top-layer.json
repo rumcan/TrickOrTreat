@@ -21,12 +21,6 @@
       "prompt": "A friendly two-tone doorbell ding-dong heard from the porch, then a wooden front door creaking open. Suburban house on Halloween night, no voice, no music."
     },
     {
-      "id": "hurt",
-      "gain": 0.55,
-      "duration": 0.6,
-      "prompt": "A short cartoon ouch impact with no voice: a dull body thump with a quick descending synth buzz, the player got hurt. One sound, starts immediately, no music."
-    },
-    {
       "id": "swoosh",
       "gain": 0.45,
       "duration": 0.5,
@@ -85,7 +79,7 @@
       "prompt": "One tiny soft tick, like a fingernail tapping a hollow plastic toy. Very short, quiet and dry. One single short sound that starts immediately and then silence. Dry, close, no echo, no voice, no music."
     }
   ],
-  "gunNote": "One quiet shot sound per gun, played over the deep original 'shot' (public/audio/sfx/gun-<id>.mp3). `max` is how much of the recording is used (seconds), `every` the shortest time between two of them: fast guns tick gently instead of buzzing.",
+  "gunNote": "One quiet shot sound per gun, played over the deep original 'shot' (public/audio/sfx/gun-<id>.mp3). `max` is how much of the recording is used (seconds), `every` the shortest time between two of them: fast guns tick gently instead of buzzing. A gun marked `skip` has no usable recording yet (the generator keeps returning near-silence for it): it plays the original shot only.",
   "guns": [
     {
       "id": "pea",
@@ -93,7 +87,8 @@
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A plastic pea shooter firing: a crisp short puff of air through a tube ending in a little pop, 'pft'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A plastic pea shooter firing: a crisp short puff of air through a tube ending in a little pop, 'pft'. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+      "skip": true
     },
     {
       "id": "nerf",
@@ -101,7 +96,8 @@
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A spring toy blaster firing a foam dart: a snappy plastic 'thwip' pop. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A spring toy blaster firing a foam dart: a snappy plastic 'thwip' pop. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+      "skip": true
     },
     {
       "id": "shotgun",
@@ -133,7 +129,8 @@
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A rubbery 'thoomp' of a balloon launched from a cardboard tube, with one static crackle. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A rubbery 'thoomp' of a balloon launched from a cardboard tube, with one static crackle. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+      "skip": true
     },
     {
       "id": "rocket",
@@ -157,7 +154,8 @@
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A rubber band slingshot release: a short springy 'twang' snap. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A rubber band slingshot release: a short springy 'twang' snap. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+      "skip": true
     },
     {
       "id": "gloom",
@@ -165,7 +163,8 @@
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A toy drum hit: one round low 'doomp' on a small tom. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A toy drum hit: one round low 'doomp' on a small tom. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+      "skip": true
     },
     {
       "id": "marshmallow",
@@ -189,7 +188,7 @@
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A wooden peg gun: one light wooden 'tok' click-pop. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A wooden peg gun: one light wooden 'tok' click-pop. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "stream",
@@ -229,7 +228,7 @@
       "duration": 0.5,
       "max": 0.16,
       "every": 0.2,
-      "prompt": "A gas burner puff: one short breath of flame, 'fwuh'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A gas burner puff: one short breath of flame, 'fwuh'. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "swarm",
@@ -245,7 +244,7 @@
       "duration": 0.5,
       "max": 0.34,
       "every": 0.11,
-      "prompt": "A deep 'vwomp' bending downward in pitch, like a black hole blinking open. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
+      "prompt": "Loud, punchy, close-microphone recording at full volume. A deep 'vwomp' bending downward in pitch, like a black hole blinking open. One single short sound that starts immediately, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music."
     },
     {
       "id": "annihilator",
