@@ -188,11 +188,11 @@ try {
     withTreat('oneshot', () => { const w = makeWeapon('nerf', 0); w.traits = []; return { mag: weaponStats(w, g.stats).mag }; });
     withTreat('goldfever', () => { const at = (coins) => { g.p.coins = coins; return g.globalMore(); }; const none = at(0); return { coins500: +(at(500) / none).toFixed(2), cap: +(at(99999) / none).toFixed(2) }; });
     g.p.coins = 0;
-    // Long-Distance Dedication: the same hit on a monster 12 m away and on one 4 m away, against the hit without the treat
+    // Long-Distance Dedication: the same hit on a monster 12 m away, one at 4 m and one 2 m away, against the hit without the treat
     const struck = (metres) => { const e = g.spawnEnemy('zombie', g.p.x + metres, g.p.y, false, null); e.spawnT = 0; e.maxHp = e.hp = 1e6; g.applyHit(e, 100, false, 0, 0, 0, 0, 0, false, true); const lost = 1e6 - e.hp; e.dead = true; g.enemies = g.enemies.filter(q => q !== e); return lost; };
     g.scrolls = {}; g.scrollOrder = []; g.recalcStats();
-    const plain = { far: struck(12), near: struck(4) };
-    withTreat('longshot', () => ({ far: +(struck(12) / plain.far).toFixed(2), edge: +(struck(10) / plain.far).toFixed(2), near: +(struck(4) / plain.near).toFixed(2), free: !window.__longshot.premium, once: window.__longshot.max, desc: window.__longshot.desc }));
+    const plain = { far: struck(12), near: struck(2) };
+    withTreat('longshot', () => ({ far: +(struck(12) / plain.far).toFixed(2), edge: +(struck(4) / plain.far).toFixed(2), near: +(struck(2) / plain.near).toFixed(2), free: !window.__longshot.premium, once: window.__longshot.max, desc: window.__longshot.desc }));
     // monster labels can be switched off, and the bars over monsters are half the size they were
     {
       const { settings } = await import('/src/game/settings.ts');
@@ -218,7 +218,7 @@ try {
   assert.equal(extreme.berserk.shield, 0, "Barbarian's Blood Oath: no shield at all");
   assert.equal(extreme.oneshot.mag, 1, 'One in the Chamber: a one-round magazine');
   assert.deepEqual(extreme.goldfever, { coins500: 1.5, cap: 2.5 }, 'Temple Idol: +1% damage per 10 coins carried, up to +150%');
-  assert.deepEqual(extreme.longshot, { far: 3, edge: 3, near: 0.5, free: true, once: 1, desc: '300% damage to monsters 10 m or more away from you, but -50% damage to monsters closer than 10 m' }, 'Long-Distance Dedication: triple damage from 10 m, half damage closer');
+  assert.deepEqual(extreme.longshot, { far: 3, edge: 3, near: 0.5, free: true, once: 1, desc: '300% damage to monsters 4 m or more away from you, but -50% damage to monsters closer than 4 m' }, 'Long-Distance Dedication: triple damage from 4 m, half damage closer');
   assert.ok(extreme.labels.on.named && !extreme.labels.off.named, `Monster names can be switched off (${JSON.stringify(extreme.labels)})`);
   assert.deepEqual([extreme.labels.on.bars, extreme.labels.off.bars], [[[7.5, 2]], [[7.5, 2]]], 'A monster at half health shows a 15 by 2 bar, half full, with or without names');
 

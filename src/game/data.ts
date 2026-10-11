@@ -362,7 +362,7 @@ SCROLLS.push(
   { id: 'goldfever', premium: true, name: "Temple Idol", quote: "It belongs in a museum. It likes to be kept in gold.", icon: '🗿', rarity: 2, desc: '+1% damage for every 10 coins you are carrying, up to +150%. Spend them and it fades.', max: 1, apply: (s) => (s.goldDmg += 1) },
 );
 /** Long-Distance Dedication: damage to monsters `dist` metres or more from the kid, and to monsters closer than that */
-export const FAR_SHOT = { dist: 10, far: 3, near: 0.5 };
+export const FAR_SHOT = { dist: 4, far: 3, near: 0.5 };
 SCROLLS.push(
   { id: 'longshot', name: "Long-Distance Dedication", quote: "This one goes out to the monster way in the back.", icon: '💿', rarity: 3, desc: `${FAR_SHOT.far * 100}% damage to monsters ${FAR_SHOT.dist} m or more away from you, but -${(1 - FAR_SHOT.near) * 100}% damage to monsters closer than ${FAR_SHOT.dist} m`, max: 1, apply: (s) => (s.farShot = 1) },
 );
