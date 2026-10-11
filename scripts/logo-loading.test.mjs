@@ -20,7 +20,11 @@ try {
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       const logo = page.getByRole('img', { name: 'Trick or Treat — Maple Falls' });
       await logo.waitFor({ state: 'attached' });
-      const pending = await logo.evaluate(img => ({ opacity: getComputedStyle(img).opacity, height: img.getBoundingClientRect().height, width: img.getBoundingClientRect().width, priority: img.fetchPriority }));
+      // read from the logo that is in the document right now (a copy caught mid-swap is detached and has no style)
+      const pending = await page.waitForFunction(() => {
+        const img = [...document.querySelectorAll('img[alt="Trick or Treat — Maple Falls"]')].find(i => i.isConnected && getComputedStyle(i).opacity !== '' && i.getBoundingClientRect().height > 0);
+        return img ? { opacity: getComputedStyle(img).opacity, height: img.getBoundingClientRect().height, width: img.getBoundingClientRect().width, priority: img.fetchPriority } : null;
+      }).then(handle => handle.jsonValue());
       assert.equal(pending.opacity, '0', 'No partially downloaded logo should be painted');
       assert.ok(pending.height > 0 && pending.width > 0, 'Reserve logo space before decoding');
       assert.equal(pending.priority, 'high');

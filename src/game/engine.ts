@@ -215,6 +215,8 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 export const FRIEND_CARD_CHANCE = 0.2;
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
 export const FRIEND_DOWN_TIME = 30;
+/** a friend's max HP before the Buddy System talents · seconds between two pick-ups of the player by the same friend */
+export const FRIEND_HP = 80, FRIEND_REVIVE_CD = 60;
 /** special guns: ticks of ramp a stream can build · share of a shot's damage a lingering trail deals per tick · seconds frozen */
 const STREAM_RAMP_MAX = 20, TRAIL_TICK = 0.35, FREEZE_TIME = 2.4;
 /** structural damage a car and a house take before they go up (an Annihilator shell deals 60, a lick of flame 2.5) */
@@ -371,6 +373,11 @@ export class Game {
     this.familiar = { x: this.p.x, y: this.p.y };
     this.setBanner('Trick or Treat... or FIGHT!', 'Survive the night. Boss arrives at 5:00');
     this.computeFlow(true);
+    if (!this.campaign && s.mateStart) {
+      // Sleepover Plans: one of the three neighbourhood kids (never your own) comes along from the first minute
+      const others = [0, 1, 2].filter(h => h !== this.hero);
+      this.addFriend(others[Math.floor(Math.random() * others.length)]);
+    }
     if (this.campaign) {
       // Friends hide at the gazebo of each gated district (north, east, south, west: the gate order).
       // Aim for the camera-facing corner so the roof never covers the kid, then take the nearest reachable clearing.
@@ -382,7 +389,7 @@ export class Game {
       this.friends = HERO_INFO.map((_, i) => i).filter(i => i !== this.hero).map((id, i) => {
         const pos = this.rescueSpot(sites[i][0], sites[i][1]);
         return { hero: id, ...pos, r: 0.24, gate: i, status: 'locked', guardian: null, progress: 0,
-          hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
+          hp: this.friendMaxHp, maxHp: this.friendMaxHp, weapon: this.friendGun(), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
       });
       for (const cell of gateCells) this.map.coll[cell.index] = cell.value;
       this.computeFlow(true);
@@ -532,7 +539,13 @@ export class Game {
     for (const f of team) {
       if (f.hp > 0) { f.downT = 0; continue; }
       if (this.state === 'play') f.downT = (f.downT ?? 0) + dt;
-      if ((f.downT ?? 0) >= FRIEND_DOWN_TIME) {
+      if (this.stats.mateUp && (f.downT ?? 0) >= this.stats.mateUp) {
+        // Best Friends Forever: they shake it off on their own
+        f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0;
+        gameAudio.play('revive', 0.5); this.text(f.x, f.y, 'BACK UP!', '#ff4fd8', 13);
+        continue;
+      }
+      if ((f.downT ?? 0) >= this.friendDownTime) {
         this.friends = this.friends.filter(x => x !== f);
         if (this.activeFriend === f.hero) this.activeFriend = this.friends.find(x => x.status === 'rescued')?.hero ?? null;
         this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS OUT FOR THE NIGHT`, this.campaign ? 'Nobody reached them in time.' : 'Nobody reached them in time. They may turn up at another door.', 'danger');
@@ -551,7 +564,7 @@ export class Game {
         if (this.p.hurtT > 0) f.pauseT = 0.35; // a hit stalls the revive for a moment, it never wipes it
         if (!f.pauseT) f.progress += dt * this.stats.reviveSpeed;
       }
-      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil(FRIEND_DOWN_TIME - (f.downT ?? 0))}s left`;
+      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil((this.stats.mateUp || this.friendDownTime) - (f.downT ?? 0))}s ${this.stats.mateUp ? 'until they get up' : 'left'}`;
       this.rescueProgress = Math.min(1, f.progress / RESCUE_TIME);
       if (f.progress >= RESCUE_TIME) { f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0; gameAudio.play('revive'); }
     }
@@ -561,6 +574,7 @@ export class Game {
     if (this.state === 'downed' && !reviver) { this.endRun(false); return; }
     standing.forEach((friend, slot) => {
       friend.reviveCd = Math.max(0, friend.reviveCd - dt); friend.hurtCd = Math.max(0, friend.hurtCd - dt);
+      if (this.stats.mateRegen && this.state === 'play') friend.hp = Math.min(friend.maxHp, friend.hp + this.stats.mateRegen * dt);
       const distance = gap(friend);
       // Following comes first. Each friend keeps their own spot in the group so they do not stand in one pile.
       const keep = friend === reviver ? 0.7 : 1.5 + (slot % 4) * 0.45;
@@ -590,7 +604,7 @@ export class Game {
         bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
         if (friend === reviver) this.playerReviveProgress = 0;
       }
-      if (friend.hp <= 0) { friend.downT = 0; this.toast(`${HERO_INFO[friend.hero].name} is down! ${FRIEND_DOWN_TIME} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
+      if (friend.hp <= 0) { friend.downT = 0; this.toast(this.stats.mateUp ? `${HERO_INFO[friend.hero].name} is down! Back up in ${this.stats.mateUp} seconds, sooner with your help.` : `${HERO_INFO[friend.hero].name} is down! ${this.friendDownTime} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
       if (this.state === 'downed') return; // everyone's attention is on the player
       for (const pickup of this.pickups) if (pickup.friendOnly && !pickup.dead && Math.hypot(pickup.x - friend.x, pickup.y - friend.y) < 6) {
         pickup.dead = true; friend.candy++; friend.hp = Math.min(friend.maxHp, friend.hp + 5); gameAudio.play('pickup', 0.25);
@@ -603,14 +617,16 @@ export class Game {
       this.rescuePrompt = `${HERO_INFO[reviver.hero].name} is reviving you · ${Math.ceil(this.downedTime)}s left`;
       this.rescueProgress = Math.min(1, this.playerReviveProgress / 3);
       if (this.playerReviveProgress >= 3) {
-        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; reviver.reviveCd = 60; this.playerReviveProgress = 0;
-        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', `${HERO_INFO[reviver.hero].name} saved you. Their revive recharges in 60 seconds.`);
+        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; reviver.reviveCd = this.friendReviveCd; this.playerReviveProgress = 0;
+        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', `${HERO_INFO[reviver.hero].name} saved you. Their revive recharges in ${this.friendReviveCd} seconds.`);
       } else if (this.downedTime <= 0) this.endRun(false);
     }
   }
   /** one friend's gun: reload, pick the nearest monster in range and sight, fire */
   private friendShoot(friend: RescueFriend, dt: number) {
-    const weapon = friend.weapon, st = weaponStats(weapon, this.stats);
+    const mate = this.stats, weapon = friend.weapon, base = weaponStats(weapon, mate);
+    // Buddy System: their own rate of fire, reach and extra projectile
+    const st = { ...base, rate: base.rate * mate.mateRate, range: base.range * mate.mateRange, pellets: base.pellets + (weapon.def.kind === 'slash' ? 0 : mate.matePellets) };
     weapon.cd -= dt;
     if (weapon.reloadT > 0) { weapon.reloadT -= dt; if (weapon.reloadT <= 0) weapon.ammo = st.mag; return; }
     if (weapon.ammo <= 0) { weapon.reloadT = st.reload; return; }
@@ -623,18 +639,25 @@ export class Game {
     weapon.cd = 1 / st.rate; weapon.ammo--;
     const angle = Math.atan2(target.y - friend.y, target.x - friend.x);
     friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
-    const damage = st.dmg * 0.65 * this.stats.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02);
+    // Eagle-Eyed Pals: a friend's crit is double damage (their own roll; it does not feed the kid's crit talents)
+    const lucky = mate.mateCrit > 0 && Math.random() < mate.mateCrit;
+    const damage = st.dmg * 0.65 * mate.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02) * (lucky ? 2 : 1);
+    if (lucky && !weapon.def.stream) this.text(friend.x, friend.y, 'CRIT!', '#ff4fd8', 11);
     gameAudio.play('shot', 0.2);
     const def = weapon.def;
     if (def.kind === 'beam') {
       // the special beams keep their trick in a friend's hands: the Cryo Ray chills, the Phase Lance leaves its wake
-      if (def.chill || def.stream) this.hitSrc = weapon;
-      const len = this.hitscan(friend.x, friend.y, Math.cos(angle), Math.sin(angle), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5);
-      this.hitSrc = null;
-      if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(angle) * len, y1: friend.y + Math.sin(angle) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color });
+      const beams = def.stream ? 1 : st.pellets;
+      for (let i = 0; i < beams; i++) {
+        const a = angle + (beams > 1 ? (i - (beams - 1) / 2) * 0.12 : 0);
+        if (def.chill || def.stream) this.hitSrc = weapon;
+        const len = this.hitscan(friend.x, friend.y, Math.cos(a), Math.sin(a), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5);
+        this.hitSrc = null;
+        if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(a) * len, y1: friend.y + Math.sin(a) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color });
+      }
     } else if (def.kind === 'slash') this.swing(weapon, friend.x, friend.y, angle, { ...st, dmg: damage }, false);
     else for (let i = 0; i < st.pellets; i++) {
-      const a = angle + rand(-def.spread, def.spread), life = st.range / Math.max(def.speed, 1);
+      const a = angle + rand(-def.spread, def.spread) + (st.pellets > base.pellets ? (i - (st.pellets - 1) / 2) * 0.1 : 0), life = st.range / Math.max(def.speed, 1);
       this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * def.speed, vy: Math.sin(a) * def.speed, dmg: damage, r: 0.1,
         life, max: life, pierce: st.pierce, bounce: st.bounce, kind: def.kind, color: def.color,
         crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: def.explode, hit: [], vamp: false, dead: false, spin: 0, element: def.elem ?? null,
@@ -654,6 +677,11 @@ export class Game {
     this.build = new Build({ hero: this.hero, talents: this.save.talents, costume: this.p?.costume ?? null, scrolls: this.scrolls ?? {}, weapon: this.p ? this.weapon : null });
     const b = this.build;
     s.maxHp *= b.hpMore();
+    // friends grow with the Buddy System: more max HP is also that much more HP right now
+    for (const f of this.friends ?? []) {
+      const max = FRIEND_HP + s.mateHp;
+      if (f.maxHp !== max) { if (f.hp > 0) f.hp = Math.max(1, f.hp + max - f.maxHp); f.maxHp = max; }
+    }
     // extreme treats have the last word, whatever else is stacked
     if (s.frail) s.maxHp = 1;
     if (s.bare) s.maxShield = 0;
@@ -2767,16 +2795,26 @@ export class Game {
     this.input.pressed.clear();
     this.gunChoices = []; this.choices = []; this.friendChoice = null;
     this.choiceMode = 'level';
-    const spot = this.freeSpot(this.p.x + 0.7, this.p.y + 0.7, true);
-    this.friends.push({ hero, ...spot, r: 0.24, gate: 0, status: 'rescued', guardian: null, progress: 0,
-      hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 });
-    const helper = this.activeFriend === null;
-    if (helper) this.activeFriend = hero;
-    this.syncTeamWeapons();
-    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, 'They fight beside you and can pick you up once a minute.', 'loot');
+    this.addFriend(hero);
+    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, `They fight beside you and can pick you up every ${this.friendReviveCd} seconds.`, 'loot');
     this.state = 'play';
     this.p.invuln = 1;
   }
+  /** a friend joins the team next to the player (survival game), and becomes the helper if there is none */
+  private addFriend(hero: number) {
+    const spot = this.freeSpot(this.p.x + 0.7, this.p.y + 0.7, true);
+    this.friends.push({ hero, ...spot, r: 0.24, gate: 0, status: 'rescued', guardian: null, progress: 0,
+      hp: this.friendMaxHp, maxHp: this.friendMaxHp, weapon: this.friendGun(), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 });
+    if (this.activeFriend === null) this.activeFriend = hero;
+    this.syncTeamWeapons();
+  }
+  // ---- what the Buddy System talents change about a friend ----
+  get friendMaxHp() { return FRIEND_HP + (this.stats?.mateHp ?? 0); }
+  /** seconds a friend who is down can still be helped up */
+  get friendDownTime() { return FRIEND_DOWN_TIME + (this.stats?.mateDown ?? 0); }
+  /** seconds before the same friend can pick the player up again */
+  get friendReviveCd() { return Math.round(FRIEND_REVIVE_CD * (this.stats?.mateReviveCd ?? 1)); }
+  private friendGun() { return makeWeapon('nerf', Math.min(4, 1 + (this.stats?.mateGun ?? 0))); }
   /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
   /** game time of the last shop move (the screen-edge arrows for the candy machines show for a while after it) */
   shopsMovedAt = -999;

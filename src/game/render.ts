@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, FRIEND_DOWN_TIME } from './engine';
+import { Game, Enemy, Turret } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -339,7 +339,7 @@ export class Renderer {
           ctx.strokeText(label, 0, fallen ? -40 : -95); ctx.fillText(label, 0, fallen ? -40 : -95);
           if (fallen) {
             // a sign above a fallen friend: what to press and how long is left
-            const left = Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
+            const left = Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
             const text = `${touchViewport ? 'TAP INTERACT' : 'E'} · REVIVE · ${left}s`;
             ctx.font = '700 16px "Barlow Condensed", system-ui, sans-serif';
             const w = ctx.measureText(text).width + 20;
@@ -1016,7 +1016,7 @@ export class Renderer {
         ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
       }
     }
-    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`);
+    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`);
     // where to shop: the stand always, the candy machines for a minute after they move
     if (g.state === 'play' && !g.bigMap) for (const shop of m.shops) {
       const stand = shop.prop.kind !== 'vending';
@@ -1123,7 +1123,7 @@ export class Renderer {
         ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#1a070c'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
         if (big) {
-          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`;
+          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`;
           ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
           ctx.strokeStyle = '#1a070c'; ctx.lineWidth = 3; ctx.strokeText(label, a, b - 8 * k);
           ctx.fillStyle = '#ffd0da'; ctx.fillText(label, a, b - 8 * k);

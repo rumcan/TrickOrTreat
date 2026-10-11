@@ -13,6 +13,14 @@ export interface Stats {
   luck: number; revive: number; rerolls: number; coinGain: number; xpGain: number; startCoins: number; startRarity: number;
   totSpeed: number; totChoices: number; costumeLuck: number; costumePower: number; dodge: number;
   companionDmg: number; reviveSpeed: number; companionArmor: number;
+  /**
+   * the friends at your side (the Buddy System talents): extra max HP · fire-rate and range multipliers · crit chance
+   * (double damage) · HP healed per second · rarity added to the gun they bring · multiplier on the minute between two
+   * pick-ups of the player · extra seconds to help them up · seconds after which they get up on their own (0 = never) ·
+   * extra projectiles · a friend is there from the start of a survival run
+   */
+  mateHp: number; mateRate: number; mateRange: number; mateCrit: number; mateRegen: number; mateGun: number;
+  mateReviveCd: number; mateDown: number; mateUp: number; matePellets: number; mateStart: number;
   /** occult-scroll style treats (Gunfire Reborn): conditional, run-wide */
   sixth: number; fullBag: number; skate: number; statue: number; bluff: number; execute: number; owl: number;
   /** gun reach: flat metres added by treats, then a multiplier (premium kids) */
@@ -30,6 +38,7 @@ export function baseStats(): Stats {
     vamp: 0, healDrop: 0.01, skillCd: 1, skillPow: 1,
     orbit: 0, familiar: 0, dashCharges: 2, dashFire: 0,
     luck: 0, revive: 0, rerolls: 1, coinGain: 1, xpGain: 1, startCoins: 0, startRarity: 0,
+    mateHp: 0, mateRate: 1, mateRange: 1, mateCrit: 0, mateRegen: 0, mateGun: 0, mateReviveCd: 1, mateDown: 0, mateUp: 0, matePellets: 0, mateStart: 0,
     totSpeed: 1, totChoices: 0, costumeLuck: 1, costumePower: 1, dodge: 0,
     companionDmg: 1, reviveSpeed: 1, companionArmor: 0,
     sixth: 0, fullBag: 0, skate: 0, statue: 0, bluff: 0, execute: 0, owl: 0,
@@ -364,18 +373,18 @@ export function rollScrolls(n: number, owned: Record<string, number>, luck: numb
 // ================= TALENTS (meta progression) =================
 export interface Talent {
   premium?: boolean;
-  id: string; branch: 0 | 1 | 2; name: string; icon: string; max: number; cost: (lvl: number) => number; desc: string; apply: (s: Stats, lvl: number) => void;
-  /** position in the tree canvas (drawn in a viewBox of x -160..1040, y -250..965; the root is at 500, 450) */
+  id: string; branch: 0 | 1 | 2 | 3; name: string; icon: string; max: number; cost: (lvl: number) => number; desc: string; apply: (s: Stats, lvl: number) => void;
+  /** position in the tree canvas (drawn in a viewBox of x -160..1560, y -250..1000; the root is at 500, 450) */
   x: number; y: number;
   /** unlock requires at least 1 rank in ANY of these (empty = connected to the root) */
   req: string[];
   capstone?: boolean;
 }
 
-export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts'];
-export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility'];
+export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts', 'Buddy System'];
+export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility', 'Partner'];
 /** saturated neon, one per branch: they sit on a busy painted night sky */
-export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a'];
+export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a', '#ff4fd8'];
 export const TALENT_ROOT = { x: 500, y: 450 };
 export const TALENTS: Talent[] = [
   // ---- Mischief (upper-left) ----
@@ -431,6 +440,24 @@ TALENTS.push(
   { id: 'floppy', branch: 2, x: 790, y: 850, req: ['cube'], capstone: true, name: 'Save Game', icon: '💾', max: 1, cost: () => 700, desc: 'FINALE · Start every run with +200 coins and a starting weapon one rarity higher', apply: (s, l) => { s.startCoins += 200 * l; s.startRarity += l; } },
   { id: 'pager', premium: true, branch: 2, x: -45, y: 800, req: ['seeker'], name: 'Beeper Network', icon: '📟', max: 3, cost: (l) => 220 + l * 100, desc: '+20% coin gain per rank, and better loot rarity', apply: (s, l) => { s.coinGain *= 1 + 0.2 * l; s.luck += l; } },
   { id: 'brick', premium: true, branch: 2, x: -70, y: 650, req: ['pager'], capstone: true, name: 'Brick Phone', icon: '📱', max: 1, cost: () => 800, desc: 'FINALE · +2 dash charges and +15% move speed', apply: (s, l) => { s.dashCharges += 2 * l; s.move *= 1 + 0.15 * l; } },
+);
+// ---- Buddy System (right): a whole constellation for the friends at your side. Nothing here changes your own kid. ----
+TALENTS.push(
+  { id: 'buddy', branch: 3, x: 705, y: 515, req: [], name: 'Fist Bump', icon: '🤜', max: 5, cost: (l) => 15 + l * 15, desc: 'Friends deal +8% damage per rank', apply: (s, l) => (s.companionDmg *= 1 + 0.08 * l) },
+  { id: 'snacks', branch: 3, x: 840, y: 455, req: ['buddy'], name: 'Shared Snacks', icon: '🍫', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends have +25 max HP per rank', apply: (s, l) => (s.mateHp += 25 * l) },
+  { id: 'walkie', branch: 3, x: 840, y: 600, req: ['buddy'], name: 'Walkie Check', icon: '📻', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends fire 8% faster per rank', apply: (s, l) => (s.mateRate *= 1 + 0.08 * l) },
+  { id: 'backup', branch: 3, x: 975, y: 525, req: ['snacks', 'walkie'], name: 'Got Your Back', icon: '🛡️', max: 3, cost: (l) => 40 + l * 25, desc: 'Friends take 8% less damage per rank', apply: (s, l) => (s.companionArmor = 1 - (1 - s.companionArmor) * (1 - 0.08 * l)) },
+  { id: 'sleepover', branch: 3, x: 965, y: 685, req: ['walkie'], name: 'Sleepover Plans', icon: '🛏️', max: 1, cost: () => 150, desc: 'A friend is at your side from the start of every survival night', apply: (s, l) => (s.mateStart += l) },
+  { id: 'bff', branch: 3, x: 1115, y: 525, req: ['backup'], capstone: true, name: 'Best Friends Forever', icon: '💞', max: 1, cost: () => 260, desc: 'CAPSTONE · A friend who goes down gets back up on their own after 12 seconds', apply: (s, l) => { if (l) s.mateUp = 12; } },
+  { id: 'stickers', branch: 3, x: 1250, y: 455, req: ['bff'], name: 'Sticker Swap', icon: '🎒', max: 3, cost: (l) => 180 + l * 90, desc: 'Friends deal +12% damage and have +15 max HP per rank', apply: (s, l) => { s.companionDmg *= 1 + 0.12 * l; s.mateHp += 15 * l; } },
+  { id: 'double', branch: 3, x: 1390, y: 520, req: ['stickers'], capstone: true, name: 'Double Team', icon: '🔫', max: 1, cost: () => 700, desc: 'FINALE · Every friend fires +1 projectile', apply: (s, l) => (s.matePellets += l) },
+  { id: 'borrow', premium: true, branch: 3, x: 1100, y: 680, req: ['backup'], name: 'Hand-Me-Down Blaster', icon: '🎁', max: 2, cost: (l) => 80 + l * 80, desc: 'Friends bring a gun one rarity better per rank', apply: (s, l) => (s.mateGun += l) },
+  { id: 'sharpeye', premium: true, branch: 3, x: 1235, y: 620, req: ['borrow'], name: 'Eagle-Eyed Pals', icon: '🔭', max: 3, cost: (l) => 80 + l * 45, desc: 'Friends land critical hits for double damage: +10% chance per rank', apply: (s, l) => (s.mateCrit += 0.1 * l) },
+  { id: 'helpup', premium: true, branch: 3, x: 1235, y: 770, req: ['borrow'], name: 'Helping Hand', icon: '🤝', max: 3, cost: (l) => 60 + l * 40, desc: '+15% revive speed and 5 more seconds to reach a friend who is down, per rank', apply: (s, l) => { s.reviveSpeed *= 1 + 0.15 * l; s.mateDown += 5 * l; } },
+  { id: 'pinky', premium: true, branch: 3, x: 1100, y: 835, req: ['borrow'], name: 'Pinky Promise', icon: '🤞', max: 3, cost: (l) => 80 + l * 45, desc: 'Friends heal 1.5 HP per second per rank', apply: (s, l) => (s.mateRegen += 1.5 * l) },
+  { id: 'medic', premium: true, branch: 3, x: 1375, y: 690, req: ['sharpeye', 'helpup'], capstone: true, name: 'Candy Medics', icon: '🩹', max: 1, cost: () => 300, desc: 'CAPSTONE · A friend can pick you up every 30 seconds instead of once a minute', apply: (s, l) => { if (l) s.mateReviveCd *= 0.5; } },
+  { id: 'range', premium: true, branch: 3, x: 1490, y: 800, req: ['medic'], name: 'Tin-Can Telephone', icon: '🥫', max: 3, cost: (l) => 220 + l * 100, desc: 'Friends shoot 15% further per rank', apply: (s, l) => (s.mateRange *= 1 + 0.15 * l) },
+  { id: 'tagteam', premium: true, branch: 3, x: 1370, y: 880, req: ['range'], capstone: true, name: 'Tag Team Champions', icon: '🏆', max: 1, cost: () => 800, desc: 'FINALE · Friends deal +60% damage and have +80 max HP', apply: (s, l) => { s.companionDmg *= 1 + 0.6 * l; s.mateHp += 80 * l; } },
 );
 export const TALENT_BY_ID = Object.fromEntries(TALENTS.map((t) => [t.id, t])) as Record<string, Talent>;
 export function talentUnlocked(t: Talent, ranks: Record<string, number>) {

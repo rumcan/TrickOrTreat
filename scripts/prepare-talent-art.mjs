@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { cutIconSheet } from './lib/icon-sheet.mjs';
+import { cutIconSheet, cutIconGrid } from './lib/icon-sheet.mjs';
 
 // Talent tree artwork: one painted icon per talent, cut from the sheet art/new/tallets_icon1.png, and the night-sky
 // backdrop art/new/tallent_back.png. Masters stay untouched; the game ships small WebP files in public/images/talents.
@@ -24,13 +24,20 @@ export const TALENT_ICON_GRID_2 = [
   ['lava', null, null, 'slinky', 'pet'],
   [null, 'shades', 'rockstar', null, null],
 ];
+/** the Buddy System constellation: art/new/tallets_icon3.png, generated in the style of the first sheet */
+export const TALENT_ICON_GRID_3 = [
+  ['buddy', 'snacks', 'walkie', 'backup', 'helpup'],
+  ['sleepover', 'bff', 'double', 'borrow', 'sharpeye'],
+  ['medic', 'range', 'pinky', 'tagteam', 'stickers'],
+];
 const SIZE = 160, clear = { r: 0, g: 0, b: 0, alpha: 0 };
 
 export async function prepareTalentArt() {
   await fs.mkdir(output, { recursive: true });
   let made = 0;
-  for (const [sheet, grid] of [['tallets_icon1.png', TALENT_ICON_GRID], ['tallets_icon2.png', TALENT_ICON_GRID_2]]) {
-    const cuts = await cutIconSheet(path.join(root, 'art/new', sheet), grid.length, grid[0].length);
+  for (const [sheet, grid] of [['tallets_icon1.png', TALENT_ICON_GRID], ['tallets_icon2.png', TALENT_ICON_GRID_2], ['tallets_icon3.png', TALENT_ICON_GRID_3]]) {
+    // the two hand-laid sheets are cut by outline; the generated one sits on an even grid
+    const cuts = await (grid === TALENT_ICON_GRID_3 ? cutIconGrid : cutIconSheet)(path.join(root, 'art/new', sheet), grid.length, grid[0].length);
     for (let r = 0; r < grid.length; r++) for (let c = 0; c < grid[r].length; c++) {
       if (!grid[r][c]) continue;
       const icon = await sharp(cuts[r][c]).resize(SIZE - 8, SIZE - 8, { fit: 'contain', background: clear })

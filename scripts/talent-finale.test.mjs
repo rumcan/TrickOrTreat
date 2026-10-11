@@ -46,7 +46,7 @@ try {
     return out;
   }, { FREE, FULL });
   assert.deepEqual(tree.problems, []);
-  assert.deepEqual(tree.finales, ['brick:2:true:true', 'floppy:2:false:true', 'pet:1:true:true', 'rewind:0:false:true', 'rockstar:0:true:true', 'slinky:1:false:true'], 'One finale per arm, two steps past the old capstone');
+  assert.deepEqual(tree.finales, ['brick:2:true:true', 'double:3:false:true', 'floppy:2:false:true', 'pet:1:true:true', 'rewind:0:false:true', 'rockstar:0:true:true', 'slinky:1:false:true', 'tagteam:3:true:true'], 'One finale per arm, two steps past the old capstone');
   assert.deepEqual(tree.rewind, { pellets: 1, pierce: 1 });
   assert.deepEqual(tree.slinky, { revive: 1, armor: 0.15 });
   assert.deepEqual(tree.floppy, { coins: 200, rarity: 1 });
@@ -66,7 +66,7 @@ try {
     return { inside: nodes.every(r => r.left >= sky.left && r.right <= sky.right && r.top >= sky.top && r.bottom <= sky.bottom), images: [...document.querySelectorAll('.talent-svg image')].length };
   });
   assert.ok(fit.inside, 'Every star, label and rank pip is inside the sky');
-  assert.equal(fit.images, 42, 'The root and 41 talents each show an icon');
+  assert.equal(fit.images, 57, 'The root and 56 talents each show an icon');
   const star = (name) => page.locator('.talent-svg g', { has: page.locator(`text:text-is("${name}")`) }).last();
   await star('Be Kind, Rewind').dispatchEvent('click'); // (the stars pulse, so they never count as "stable" for a pointer click) not yet: Boombox Bass comes first
   assert.equal(await page.evaluate(async () => (await import('/src/game/data.ts')).loadSave().talents.rewind ?? 0), 0, 'The finale needs the star before it');

@@ -56,3 +56,21 @@ export async function cutIconSheet(sheet, rows, cols) {
   }
   return out;
 }
+
+/**
+ * The same result for a sheet laid out on an even grid, each icon inside its own cell (generated sheets): icons made of
+ * several loose pieces (two hands, a snapped chocolate bar) stay whole, which blob detection would split.
+ */
+export async function cutIconGrid(sheet, rows, cols) {
+  const { width, height } = await sharp(sheet).metadata(), out = [];
+  for (let r = 0; r < rows; r++) {
+    const cuts = [];
+    for (let c = 0; c < cols; c++) {
+      const left = Math.round(c * width / cols), top = Math.round(r * height / rows);
+      const cell = await sharp(sheet).extract({ left, top, width: Math.round((c + 1) * width / cols) - left, height: Math.round((r + 1) * height / rows) - top }).png().toBuffer();
+      cuts.push(await sharp(cell).trim({ threshold: 1 }).png().toBuffer());
+    }
+    out.push(cuts);
+  }
+  return out;
+}

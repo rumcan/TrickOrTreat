@@ -24,7 +24,7 @@
     "test:weapon-layout": "node scripts/weapon-layout.test.mjs",
     "test:free-friend": "node scripts/free-friend.test.mjs",
     "test:new-guns": "node scripts/new-guns.test.mjs",
-    "test:talents": "node scripts/talent-finale.test.mjs",
+    "test:talents": "node scripts/talent-finale.test.mjs && node scripts/partner-talents.test.mjs",
     "test:own-costume": "node scripts/own-costume.test.mjs",
     "art:hero3d:render": "node scripts/render-hero-3d.mjs",
     "test:hero3d-art": "node scripts/hero3d-art.test.mjs",
