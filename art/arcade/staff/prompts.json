@@ -1,0 +1,23 @@
+{
+  "mode": "built-in imagegen",
+  "animations": [
+    {
+      "name": "maya",
+      "prompt": "Use case: sketch-to-render animation sheet. Image1 is the AUTHORITATIVE 2x2 layout/pose guide, Image2 establishes the exact existing character identity/clothing, Image3 is ONLY the warm painted arcade palette and upper-left lighting reference. Create four consistent frames of Maya in a mustard hoodie with her dark braid and tool pouch, standing and repairing a small walkie-talkie held in both hands. Across frames her screwdriver hand makes a tiny turn and her head nods slightly. They are slightly older neighbourhood kids, around 13–15, not adults. Use the character proportions and foot positions in Image1; keep each figure at the identical scale and same position in its 512x512 grid cell. Same character, clothes, face, viewpoint, feet and body outline across all frames. Four frames in reading order, upper-left upper-right lower-left lower-right, a tiny seamless quiet working/reading idle cycle; no walking, guns, costumes or large movements. Match the game's 2:1 orthographic isometric top-down camera, with visible top surfaces on the held object and a slight three-quarter face angle. Hand-painted shaded 3D game-sprite finish, not flat vector fills, mustard/teal fabric, dark navy shadows, restrained warm amber light from upper-left. Isolated figures only with no counter, floor, shadow ellipse, scenery, grids, labels or text. True alpha transparent 1024x1024 sheet; preserve the generous transparent margins in each guide cell, no part overlaps another cell.",
+      "references": [
+        "arcade_staff_maya-guide.png",
+        "../../3d/maya/apose.png",
+        "../furniture-atlas.png"
+      ]
+    },
+    {
+      "name": "leo",
+      "prompt": "Use case: sketch-to-render animation sheet. Image1 is the AUTHORITATIVE 2x2 layout/pose guide, Image2 establishes the exact existing character identity/clothing, Image3 is ONLY the warm painted arcade palette and upper-left lighting reference. Create four consistent frames of Leo in a teal hoodie and brown backpack straps, standing reading a small open monster comic in both hands. Across frames his eyes blink, head tilts a tiny amount and one thumb shifts on the page. They are slightly older neighbourhood kids, around 13–15, not adults. Use the character proportions and foot positions in Image1; keep each figure at the identical scale and same position in its 512x512 grid cell. Same character, clothes, face, viewpoint, feet and body outline across all frames. Four frames in reading order, upper-left upper-right lower-left lower-right, a tiny seamless quiet working/reading idle cycle; no walking, guns, costumes or large movements. Match the game's 2:1 orthographic isometric top-down camera, with visible top surfaces on the held object and a slight three-quarter face angle. Hand-painted shaded 3D game-sprite finish, not flat vector fills, mustard/teal fabric, dark navy shadows, restrained warm amber light from upper-left. Isolated figures only with no counter, floor, shadow ellipse, scenery, grids, labels or text. True alpha transparent 1024x1024 sheet; preserve the generous transparent margins in each guide cell, no part overlaps another cell.",
+      "references": [
+        "arcade_staff_leo-guide.png",
+        "../../3d/leo/apose.png",
+        "../furniture-atlas.png"
+      ]
+    }
+  ]
+}

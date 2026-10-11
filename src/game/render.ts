@@ -11,6 +11,7 @@ import { Img } from './assets';
 import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 import { AFFIX_INFO } from './enemy-affixes';
+import {arcadeStaffSheet} from './art/arcade-staff';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -179,16 +180,22 @@ export class Renderer {
     const minX = clamp(Math.floor(Math.min(...corners.map((c) => c.x))), 0, MAP_W - 1), maxX = clamp(Math.ceil(Math.max(...corners.map((c) => c.x))), 0, MAP_W - 1);
     const minY = clamp(Math.floor(Math.min(...corners.map((c) => c.y))), 0, MAP_H - 1), maxY = clamp(Math.ceil(Math.max(...corners.map((c) => c.y))), 0, MAP_H - 1);
     const m = g.map;
+    const floorOverlays:{img:Img;x:number;y:number}[]=[];
     for (let y = minY; y <= maxY; y++)
       for (let x = minX; x <= maxX; x++) {
         const sx = isoX(x, y), sy = isoY(x, y);
-        if (sx + HW < vx0 || sx - HW > vx1 || sy + TW < vy0 || sy > vy1) continue;
         const i = y * MAP_W + x;
+        const ov = m.overlays[i];
+        let width=HW*2,height=TW;
+        for(const o of ov){width=Math.max(width,o.width);height=Math.max(height,o.height);}
+        if (sx - HW + width < vx0 || sx - HW > vx1 || sy + height < vy0 || sy > vy1) continue;
         if(m.kind==='arcade'&&m.ground[i]===G.DARKGRASS)continue;
         ctx.drawImage(m.tiles[i], sx - HW, sy);
-        const ov = m.overlays[i];
-        for (let k = 0; k < ov.length; k++) ctx.drawImage(ov[k], sx - HW, sy);
+        for (let k = 0; k < ov.length; k++) floorOverlays.push({img:ov[k],x:sx-HW,y:sy});
       }
+    // Floor art can span multiple tiles (the EXIT mat). Finish the carpet pass
+    // before painting decals so later neighbouring tiles cannot erase it.
+    for(const o of floorOverlays)ctx.drawImage(o.img,o.x,o.y);
 
     // decals
     for (const d of g.decals) {
@@ -307,6 +314,16 @@ export class Renderer {
       playerItem = { key: p.x + p.y, x: p.x, y: p.y, bx0: sx - 56, by0: sy - 96, bx1: sx + 56, by1: sy + 22, draw: () => this.drawPlayer(g, sx, sy) };
       // up on a jungle gym the kid is drawn with the cannon, on the deck
       if (g.mounted < 0) items.push(playerItem);
+    }
+    if(g.map.kind==='arcade')for(const staff of g.availableArcadeStaff){
+      const sx=isoX(staff.x,staff.y),sy=isoY(staff.x,staff.y);
+      if(!inView(sx-48,sy-128,sx+48,sy+18))continue;
+      const sheet=arcadeStaffSheet(staff.hero);
+      items.push({key:staff.x+staff.y,x:staff.x,y:staff.y,bx0:sx-48,by0:sy-128,bx1:sx+48,by1:sy+18,draw:()=>{
+        blitFrame(ctx,sheet,sheet.img,0,Math.floor(this.t*2),sx,sy);
+        ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#10121a';ctx.fillStyle='#ffe4a7';
+        const label=`${HERO_INFO[staff.hero].name} · ${staff.cost} coins`;ctx.strokeText(label,sx,sy-102);ctx.fillText(label,sx,sy-102);
+      }});
     }
     if (g.friends.length) for (const friend of g.friends) {
       if(g.map.kind==='arcade'&&friend.status!=='rescued')continue;
@@ -1103,7 +1120,17 @@ export class Renderer {
       const stand = shop.prop.kind !== 'vending';
       if (stand || g.time - g.shopsMovedAt < 60) ind(shop.x, shop.y, '#ff9a2a', stand ? 'Shop' : 'Candy machine');
     }
-    for(const portal of m.portals??[])ind(portal.x,portal.y,'#64f0ad','EXIT · Maple Falls');
+    for(const portal of m.portals??[]){
+      ind(portal.x,portal.y,'#64f0ad','EXIT · Maple Falls');
+      if(g.bigMap)continue;
+      const [sx,sy]=toS(isoX(portal.x,portal.y),isoY(portal.x,portal.y));
+      if(sx<80||sx>vw-80||sy<hudTop+75||sy>vh-100)continue;
+      ctx.save();ctx.textAlign='center';ctx.font='800 13px system-ui';ctx.lineWidth=4;ctx.strokeStyle='#082b21';ctx.fillStyle='#bdffd1';
+      ctx.strokeText('EXIT · MAPLE FALLS',sx,sy-85);ctx.fillText('EXIT · MAPLE FALLS',sx,sy-85);
+      ctx.font='600 10px system-ui';const hint=touchViewport?'TAP INTERACT TO LEAVE':'PRESS E TO LEAVE';
+      ctx.strokeText(hint,sx,sy-69);ctx.fillText(hint,sx,sy-69);ctx.restore();
+    }
+    if(m.kind!=='arcade'&&g.campaign&&g.availableArcadeStaff.length){const door=m.houses.find(h=>h.prop.kind==='arcade'&&!h.gone)?.door;if(door)ind(door.x,door.y,'#ffcf74',`${g.availableArcadeStaff.map(s=>HERO_INFO[s.hero].name).join(' / ')} · Starcade`);}
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
@@ -1194,6 +1221,7 @@ export class Renderer {
       }
       ctx.globalAlpha = 1;
       // Rescue locations stay visible even while their district gate is locked.
+      if(m.kind==='arcade')for(const staff of g.availableArcadeStaff){const [a,b]=MP(staff.x,staff.y);ctx.fillStyle='#ffcf74';ctx.beginPath();ctx.arc(a,b,4*k,0,Math.PI*2);ctx.fill();if(big){ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.fillText(HERO_INFO[staff.hero].name,a,b-7*k);}}
       if (g.campaign && m.kind !== 'arcade') for (const friend of g.friends) {
         if (friend.status === 'rescued') continue;
         const [a, b] = MP(friend.x, friend.y);

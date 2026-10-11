@@ -22,6 +22,7 @@ import { VendingMachine } from './ui/VendingMachine';
 import { requestMobileFullscreen } from './ui/fullscreen';
 import { useBack } from './ui/back';
 import { X } from 'lucide-react';
+import {ArcadeRecruit} from './ui/ArcadeRecruit';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
@@ -90,6 +91,7 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
     else if (gg.state === 'vending') gg.closeVending();
     else if (gg.state === 'inspect') gg.closeInspect();
     else if (gg.state === 'discard') gg.answerDiscard(false);
+    else if (gg.state === 'hire') gg.closeHire();
     refresh(); // a treat choice, the intro and the end screen have no "close": Back simply does nothing there
   });
 
@@ -102,6 +104,7 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
       {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 min-h-11 text-sm text-white cursor-auto" onClick={() => { g.introTime = 18; }}>{touchMode ? 'Skip intro' : 'Space / Enter · skip intro'}</button></div></div>}
       {g && snap?.state === 'levelup' && <div className="cursor-auto"><LevelUp game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'discard' && <div className="cursor-auto"><DiscardTreat game={g} onDone={refresh} /></div>}
+      {g && snap?.state === 'hire' && <ArcadeRecruit game={g} onDone={refresh} />}
       {/* phones: these two scroll, so their way out is pinned on top instead of sitting at the very bottom */}
       {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /><button type="button" className="modal-close modal-close--over" aria-label="Leave the gun" onClick={() => { g.closeInspect(); refresh(); }}><X size={20} strokeWidth={3} /></button></div>}
       {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /><button type="button" className="modal-close modal-close--over" aria-label="Leave the shop" onClick={closeShop}><X size={20} strokeWidth={3} /></button></div>}
