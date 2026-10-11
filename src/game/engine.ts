@@ -2604,7 +2604,7 @@ export class Game {
     if (!k || k.dead || !k.weapon || slot < 0 || slot > 1) { this.closeInspect(); return; }
     k.dead = true;
     const old = p.weapons[slot];
-    if (old) { old.reloadT = 0; this.dropWeapon(p.x, p.y, old); }
+    if (old) { old.reloadT = 0; this.dropWeapon(p.x, p.y, old); this.toast(`Your ${old.def.name} is on the ground next to you.`); }
     p.weapons[slot] = k.weapon;
     p.cur = slot;
     this.syncTeamWeapons();
@@ -2784,8 +2784,16 @@ export class Game {
     for (let i = 0; i < (costumed ? 10 : 5); i++) this.dropPickup(dx, dy, 'coin', 2);
     for (let i = 0; i < (costumed ? 8 : 4); i++) this.dropPickup(dx, dy, 'xp2', 2);
     if (Math.random() < 0.25) this.dropPickup(dx, dy, 'heal', 25);
-    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max), this.lootLevel()));
-    if (Math.random() < Math.min(0.06, 0.025 * this.stats.costumeLuck)) this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
+    // now and then the neighbour leaves something extra on the porch: say so, or it looks like a stray drop once the bowl closes
+    if (Math.random() < (costumed ? 0.15 : 0.07)) {
+      const extra = makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max), this.lootLevel());
+      this.dropWeapon(dx + 0.4, dy + 0.4, extra);
+      this.toast(`Bonus: ${h.owner} also left a ${extra.def.name} on the porch.`);
+    }
+    if (Math.random() < Math.min(0.06, 0.025 * this.stats.costumeLuck)) {
+      this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
+      this.toast(`Bonus: ${h.owner} also left a costume on the porch.`);
+    }
     for (let i = 0; i < 24; i++) this.particle(dx, dy, 0.6, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.9, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
     this.bubble(this.p.x, this.p.y, 115, costumed ? 'Thank you!!' : 'Aww… thanks.', 'kid', 1.4, true);
     this.choiceGiver = h.owner;
