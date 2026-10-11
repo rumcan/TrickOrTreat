@@ -95,7 +95,8 @@ try {
   assert.deepEqual(out.sleepover, { alone: 0, friends: 1, status: 'rescued', notSelf: true, helper: true, maxHp: 155, hp: 155, base: 80, gun: 'nerf' }, 'Sleepover Plans and Shared Snacks');
   assert.equal(out.campaignStart, 0, 'The rescue campaign still hides every friend');
   assert.deepEqual(out.shoot, { plain: 1, two: 2, rate: 1.24, crit: 2, far: 1.45, hard: 1.4 }, 'Walkie Check, Double Team, Eagle-Eyed Pals, Tin-Can Telephone, Fist Bump');
-  assert.deepEqual(out.found, { flag: true, maxHp: 160, gun: 2, doorOffersWithFullGame: 0, dmg: 2 }, 'A friend found in hide and seek is twice as strong; full-game players get no door-bell friends');
+  assert.ok(out.found.doorOffersWithFullGame > 10, `With hide and seek shelved, full-game players meet friends at doors like everyone else (${out.found.doorOffersWithFullGame} of 200)`);
+  assert.deepEqual({ ...out.found, doorOffersWithFullGame: 0 }, { flag: true, maxHp: 160, gun: 2, doorOffersWithFullGame: 0, dmg: 2 }, 'A friend found in hide and seek is twice as strong');
   assert.deepEqual(out.seek, { time: 20, free: 0, before: { there: true, up: false }, after: { there: true, up: true } }, 'In hide and seek a friend who goes down gets back up alone after 20 seconds; in the free game they do not');
   assert.deepEqual(out.reach, { without: 0, with: 1 }, 'The telephone lets friends hit what was out of reach');
   assert.deepEqual(out.gun, { plain: 1, better: 3 }, 'Hand-Me-Down Blaster');

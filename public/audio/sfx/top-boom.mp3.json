@@ -1,0 +1,7 @@
+{
+  "prompt": "A small cartoon explosion: a round muffled 'boom' with a soft puff of air and a little crackle of debris, like a big firework going off in a cardboard box. Punchy but not harsh. One single short sound that starts immediately and then silence. Dry, close, no echo, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 1,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

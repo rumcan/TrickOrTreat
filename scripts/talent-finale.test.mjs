@@ -53,7 +53,7 @@ try {
   assert.deepEqual(tree.rockstar, { critDmg: 1, mate: 1.5 });
   assert.deepEqual(tree.brick, { dash: 2, move: 1.15 });
   assert.deepEqual(tree.pet, { shield: 100 });
-  assert.ok(tree.cost >= 600, 'A finale costs several runs of Soul Candy');
+  assert.ok(tree.cost >= 600, 'A finale costs several runs of Essence');
 
   // on screen: the whole constellation fits its sky, and the new stars can be bought in order
   await page.reload();
@@ -72,8 +72,10 @@ try {
   assert.equal(await page.evaluate(async () => (await import('/src/game/data.ts')).loadSave().talents.rewind ?? 0), 0, 'The finale needs the star before it');
   await star('Boombox Bass').dispatchEvent('click');
   await star('Be Kind, Rewind').dispatchEvent('click');
-  const bought = await page.evaluate(async () => { const s = (await import('/src/game/data.ts')).loadSave(); return { boombox: s.talents.boombox, rewind: s.talents.rewind, soul: s.soul }; });
-  assert.deepEqual(bought, { boombox: 1, rewind: 1, soul: 5000 - 180 - 700 });
+  const bought = await page.evaluate(async () => { const s = (await import('/src/game/data.ts')).loadSave(); const d = await import('/src/game/data.ts'); return { boombox: s.talents.boombox, rewind: s.talents.rewind, soul: s.soul, paid: d.talentCost(d.TALENT_BY_ID.boombox, 0) + d.talentCost(d.TALENT_BY_ID.rewind, 0), near: d.talentCost(d.TALENT_BY_ID.sharp, 0), far: d.talentCost(d.TALENT_BY_ID.rewind, 0) }; });
+  // a star costs more the further it is from the centre: the first Sharp Teeth is still 15, Be Kind, Rewind (700 at the centre) about double
+  assert.deepEqual([bought.boombox, bought.rewind, bought.soul, bought.near], [1, 1, 5000 - bought.paid, 15]);
+  assert.ok(bought.far > 1300 && bought.far < 1500 && bought.paid === 315 + bought.far, `Outer stars cost more (${bought.far})`);
   await fs.mkdir('art/world/checks', { recursive: true });
   await page.screenshot({ path: 'art/world/checks/talent-finales.png' });
   assert.deepEqual(errors, [], 'No page errors');

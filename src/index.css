@@ -922,3 +922,43 @@ button.kit-tile:not(:disabled):hover {
 .boot-problem-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .boot-btn { min-height: 44px; padding: 8px 22px; border: 2px solid #fb8016; border-radius: 6px; background: #fb8016; color: #14100c; font: 700 16px/1 "Barlow Condensed", system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
 .boot-btn--quiet { background: transparent; color: #f2e6c9; border-color: #6a6f78; }
+
+/* a dud in the candy machine: the junk off the Starcade's floor, greyed a little */
+.vending-dud-art { display: block; width: 100%; height: 100%; object-fit: contain; filter: saturate(.7) brightness(.9); }
+.vending-dud-detail { border-color: #5d6068 !important; }
+
+/* ---- the tutorial's walkie-talkie: above every menu, clicks pass through except on its two buttons ---- */
+.walkie { position: absolute; z-index: 210; left: 72px; bottom: 84px; display: flex; align-items: flex-end; gap: 10px; max-width: min(400px, calc(100vw - 90px)); pointer-events: none; user-select: none; -webkit-user-select: none; }
+.walkie-radio { width: 78px; height: auto; flex: none; transform-origin: 50% 85%; filter: drop-shadow(0 5px 8px #000b); }
+.walkie.is-talking .walkie-radio { animation: walkie-shake .34s linear infinite; }
+@keyframes walkie-shake {
+  0%, 100% { transform: rotate(-5deg) translateY(0); } 25% { transform: rotate(4deg) translateY(-3px); }
+  50% { transform: rotate(-3deg) translateY(1px); } 75% { transform: rotate(6deg) translateY(-2px); }
+}
+.walkie-side { display: grid; gap: 6px; min-width: 0; }
+.walkie-bubble { position: relative; padding: 9px 12px 10px; border: 2px solid #0b0d10; border-radius: 12px 12px 12px 3px; background: #f4ecd6; color: #1b1712; box-shadow: 0 4px 0 #000a; animation: walkie-pop .16s ease-out; }
+.walkie-bubble::before { content: ''; position: absolute; left: -11px; bottom: 8px; border: 6px solid transparent; border-right-color: #0b0d10; }
+.walkie-bubble::after { content: ''; position: absolute; left: -7px; bottom: 9px; border: 5px solid transparent; border-right-color: #f4ecd6; }
+.walkie:not(.is-talking) .walkie-bubble { background: #dfe9dc; }
+.walkie:not(.is-talking) .walkie-bubble::after { border-right-color: #dfe9dc; }
+.walkie-name { font: 700 12px/1 "Barlow Condensed", system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #a8480c; }
+.walkie-bubble p { margin: 4px 0 0; font: 600 15px/1.25 system-ui, sans-serif; }
+@keyframes walkie-pop { from { transform: scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+.walkie-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.walkie-actions button { pointer-events: auto; cursor: pointer; min-height: 30px; padding: 4px 10px; border: 1px solid #6a6f78; border-radius: 6px; background: #12161cdd; color: #f2e6c9; font: 700 12px/1 "Barlow Condensed", system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; touch-action: manipulation; }
+.walkie-actions button:hover, .walkie-actions button:focus-visible { border-color: #fb8016; color: #fb8016; }
+/* over a menu only the voice shows: no buttons to get in the way of the menu's own */
+.walkie.is-over-menu .walkie-actions { display: none; }
+.touch-game .walkie { left: max(8px, env(safe-area-inset-left, 0px)); bottom: auto; top: calc(var(--hm-top) + 10px); align-items: flex-start; max-width: min(330px, 60vw); gap: 6px; }
+.touch-game .walkie-actions { flex-wrap: nowrap; }
+.touch-game .walkie-actions button { padding: 4px 8px; font-size: 11px; white-space: nowrap; }
+.touch-game .walkie-radio { width: 46px; }
+.touch-game .walkie-bubble { padding: 6px 9px 7px; border-radius: 3px 10px 10px 10px; }
+.touch-game .walkie-bubble::before, .touch-game .walkie-bubble::after { bottom: auto; top: 8px; }
+.touch-game .walkie-bubble p { font-size: 13px; }
+.touch-game .walkie-actions button { min-height: 36px; }
+@media (prefers-reduced-motion: reduce) { .walkie.is-talking .walkie-radio, .walkie-bubble { animation: none; } }
+
+/* the locked full-game prize can be earned with a rewarded ad: its button is the one live thing on the card */
+.hm-locked .hm-ad-btn { width: 100%; min-height: 40px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; }
+.hm-locked .hm-ad-btn:disabled { cursor: progress; opacity: .7; }

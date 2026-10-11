@@ -1,0 +1,7 @@
+{
+  "prompt": "A big monster arriving: a deep growling brass sting with a spooky theremin wobble on top, a dramatic boss entrance in a 1980s monster movie. No words, no voice.",
+  "type": "sfx",
+  "durationSec": 2,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

@@ -40,7 +40,7 @@ try {
   assert.equal(storefront.quantity, 0, 'Unpaid fresh session stays locked');
   await game.getByRole('button', { name: 'Restore purchase / retry' }).click();
   await game.getByRole('button', { name: /Support the creator|Discover the full game/ }).click();
-  const dialog = game.getByRole('dialog', { name: 'HIDE & SHRIEK' });
+  const dialog = game.getByRole('dialog', { name: 'THE FULL GAME' });
   const buy = dialog.getByRole('button', { name: `Unlock forever - ${expected.price.value} RUN Bits`, exact: true });
   await buy.waitFor({ timeout: 30000 });
   assert.equal(await buy.isDisabled(), false, 'Live purchase CTA is available');
@@ -64,7 +64,7 @@ try {
     await buy.click();
     await game.waitForFunction(label => window.__purchaseCheckCalls === 1 && Array.from(document.querySelectorAll('button')).some(button => button.textContent === label && !button.disabled), `Unlock forever - ${expected.price.value} RUN Bits`, { timeout: 15000 });
     assert.equal(await game.evaluate(() => window.__purchaseCheckCalls), 1, 'CTA invokes the SDK purchase boundary once');
-    assert.equal(await dialog.getByRole('button', { name: 'Play rescue campaign', exact: true }).count(), 0, 'Cancellation never unlocks premium');
+    assert.equal(await dialog.getByRole('button', { name: 'Play the full game', exact: true }).count(), 0, 'Cancellation never unlocks premium');
     assert.equal(await buy.isDisabled(), false, 'Player can retry after cancellation');
   } finally {
     await game.evaluate(() => {

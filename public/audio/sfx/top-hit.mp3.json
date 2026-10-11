@@ -1,0 +1,7 @@
+{
+  "prompt": "One tiny soft tick, like a fingernail tapping a hollow plastic toy. Very short, quiet and dry. One single short sound that starts immediately and then silence. Dry, close, no echo, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 0.5,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Play, Users, Lollipop, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
 import { Game } from '../game/engine';
-import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, upgradeCost, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
+import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
 import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
@@ -10,6 +10,8 @@ import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
 import { RunInventory } from './RunInventory';
 import { TalentTree } from './TalentTree';
 import { gameAudio } from '../game/audio';
+import { tutorialSeen, forgetTutorial, rememberTutorial } from '../game/tutorial';
+import { adsAvailable, watchRewardedAd } from '../game/ads';
 import { expansion, hasFullGame } from '../game/expansion';
 import { ExpansionUnlock } from './ExpansionUnlock';
 import { UnlockShowcase } from './UnlockShowcase';
@@ -211,9 +213,10 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           <SettingRow label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
           <SettingRow label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
           <SettingRow label="Monster names" desc="Labels above monsters with a special power"><Toggle label="Monster names" on={settings.names} onChange={(v) => set(() => (settings.names = v))} /></SettingRow>
+          <SettingRow label="Tutorial" desc="Professor Fizz's walkie-talkie lesson on your next run"><Toggle label="Tutorial on the next run" on={!tutorialSeen()} onChange={(v) => { if (v) forgetTutorial(); else rememberTutorial('never'); force((n) => n + 1); }} /></SettingRow>
           <SettingRow label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
           <SettingRow label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="rounded border border-[#4a4d55] bg-[#13151b] p-2 text-[#f2e6c9]"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
-          <SettingRow label="Sound effects" desc="Soft low-pass rumbling effects"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
+          <SettingRow label="Sound effects" desc="Blaster pops, pickups and monster hits"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
           <SettingRow label="Mute audio" desc="Silences effects and the radio"><Toggle label="Mute all audio" on={settings.muted} onChange={(v) => { gameAudio.setMuted(v); force((n) => n + 1); }} /></SettingRow>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
@@ -296,7 +299,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
       {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
-      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? (f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.rescueMap.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
+      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? ((f.abductT ?? 0) > 0 ? `· abducted ${Math.ceil(f.abductT!)}s` : f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.rescueMap.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
     </div>
   );
 }
@@ -304,12 +307,22 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
 /** a treat's retro card illustration */
 
 /** Free game: a full-game treat or gun on show behind glass. Read-only, never pickable; it teases the unlock. */
-function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: Weapon | null; game: Game }) {
+function LockedPick({ scroll, weapon, game, onTaken }: { scroll: Scroll | null; weapon: Weapon | null; game: Game; onTaken: () => void }) {
+  // RUN's apps can show a rewarded ad: watch one and the locked prize is this bowl's pick (for this run)
+  const [ad, setAd] = useState<'idle' | 'playing' | 'failed'>('idle');
+  const offer = adsAvailable();
+  const watch = async () => {
+    if (ad === 'playing') return;
+    setAd('playing');
+    const earned = await watchRewardedAd('locked-prize');
+    if (earned && game.takeLocked()) { onTaken(); return; }
+    setAd('failed');
+  };
   const rarity = weapon ? weapon.rarity : scroll?.rarity ?? 2;
   const rc = RARITY_KIT[rarity];
   const st = weapon ? weaponStats(weapon, game.stats) : null;
   return (
-    <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled="true" role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. Unlock the full game to find it.`}>
+    <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled={!offer} role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. ${offer ? 'Watch an ad to take it this run, or unlock the full game.' : 'Unlock the full game to find it.'}`}>
       <div className={`hm-pick-art ${weapon ? 'hm-pick-gun' : ''}`} style={{ ['--glow' as string]: rc }}>
         {weapon ? <GunArt id={weapon.def.id} /> : scroll && <TreatArt id={scroll.id} />}
         <span className="hm-lock" aria-hidden="true"><Lock size={26} strokeWidth={2.5} /></span>
@@ -323,7 +336,12 @@ function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: W
         <div className="hm-label mt-3">{weapon ? 'Firepower' : 'Effect'}</div>
         <div className="hm-pick-desc">{weapon && st ? <span className="font-num">{weaponDps(weapon, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</span> : scroll?.desc}</div>
         {weapon && <Inscriptions w={weapon} compact />}
-        <div className="hm-locked-foot mt-auto pt-3"><Lock size={12} strokeWidth={3} /> Unlock the full game to find this</div>
+        {offer
+          ? <div className="mt-auto pt-3">
+              <button type="button" className="hm-btn hm-ad-btn" disabled={ad === 'playing'} onClick={() => void watch()}><Play size={14} fill="currentColor" /> {ad === 'playing' ? 'Ad playing…' : `Watch an ad · take this ${weapon ? 'gun' : 'treat'}`}</button>
+              <div className="hm-locked-foot mt-2">{ad === 'failed' ? 'No reward: the ad was not watched to the end' : 'Yours for this run · or unlock the full game'}</div>
+            </div>
+          : <div className="hm-locked-foot mt-auto pt-3"><Lock size={12} strokeWidth={3} /> Unlock the full game to find this</div>}
       </div>
     </div>
   );
@@ -470,7 +488,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
               </div>
             </button>
           )}
-          {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} />}
+          {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} onTaken={() => { force((n) => n + 1); onDone(); }} />}
         </div>
         <div className="hm-foot">
           <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack up to their maximum</span>
@@ -516,7 +534,10 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
                 </div>
               </div>
               <div className="text-[13px] text-[#c9bda6]">+14% damage · +3% fire rate per level</div>
-              <button className="hm-btn" disabled={p.coins < upgradeCost(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Level {w.level + 1} · {upgradeCost(w)} coins</button>
+              <button className="hm-btn" disabled={p.coins < game.upgradePrice(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Level {w.level + 1} · {game.upgradePrice(w) ? `${game.upgradePrice(w)} coins` : 'FREE'}</button>
+              <div className="shop-lines" aria-label={`Inscriptions on ${w.def.name}`}>{w.traits.length ? <Inscriptions w={w} compact /> : <span className="text-[13px] text-[#8f8676]">No inscriptions</span>}</div>
+              <button className="hm-btn ghost" disabled={p.coins < game.rerollCost()} title="A gamble: anything from no lines at all to a legendary set" onClick={() => { game.shopReroll(i); f(); }}>Reroll inscriptions · {game.rerollCost()} coins</button>
+              <div className="text-[12px] text-[#8f8676]">A gamble: you may get amazing lines, or lose the ones you have. Costs more every time.</div>
             </div>
           ))}
           <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #e8433c' }}>
@@ -525,11 +546,13 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
             <div className="text-[13px] text-[#c9bda6]">Restore 50% HP ({Math.ceil(p.hp)}/{Math.round(game.stats.maxHp)})</div>
             <button className="hm-btn ghost" disabled={p.coins < game.healCost() || p.hp >= game.stats.maxHp} onClick={() => { game.shopHeal(); f(); }}>Buy · {game.healCost()} coins</button>
           </div>
-          <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #b98aff' }}>
-            <div className="label">Imagination</div>
-            <div className="font-cond text-xl uppercase leading-tight">Mystery treat</div>
-            <div className="text-[13px] text-[#c9bda6]">Pick 1 of {3 + game.stats.totChoices} treats, like a level-up</div>
-            <button className="hm-btn ghost" disabled={p.coins < game.treatCost()} onClick={() => { game.shopTreat(); onClose(); }}>Buy · {game.treatCost()} coins</button>
+          <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #66d2b7' }}>
+            <div className="label">Friends</div>
+            <div className="font-cond text-xl uppercase leading-tight">Bring a friend back</div>
+            {game.revivable.length
+              ? <><div className="text-[13px] text-[#c9bda6]">Back on their feet beside you, at full health.</div>
+                {game.revivable.map(friend => <button key={friend.hero} className="hm-btn ghost" disabled={p.coins < game.reviveCost()} onClick={() => { game.shopRevive(friend.hero); f(); }}>{HERO_INFO[friend.hero].name} · {game.reviveCost()} coins</button>)}</>
+              : <div className="text-[13px] text-[#8f8676]">Nobody is missing. If a friend goes down and is not reached in time, find them here.</div>}
           </div>
         </div>
         <div className="hm-foot">
@@ -582,7 +605,7 @@ export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; 
             <span>essence earned<small>Balance {game.save.soul} · spend it on permanent talents</small></span>
           </div>
           {game.fullGameEarned
-            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. Hide &amp; Shriek is yours: the rescue campaign, Maya and Leo, and every full-game gun, treat and talent.</p>
+            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. It is yours: Maya and Leo, the bigger town, and every full-game gun, treat and talent.</p>
             : !hasFullGame() && <p className="end-unlock end-unlock--progress">Full game unlocks free at {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence earned · {essenceEarned(game.save).toLocaleString('en-US')} so far</p>}
           {recordMessage && <p role="status" className="mt-3 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
           <div className="mt-4 flex flex-col gap-2">

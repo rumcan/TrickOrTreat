@@ -4,6 +4,7 @@ import { Trophy, X, RotateCw, Clock3, ChevronRight } from 'lucide-react';
 import { leaderboard, setGuestTag } from '../game/leaderboard';
 import type { BoardEntry, BoardMode, BoardRank } from '../game/leaderboard-service';
 import { fmtTime } from './common';
+import { campaignOffered } from '../game/engine';
 
 export function LeaderboardDrawer() {
   const [profile, setProfile] = useState(leaderboard.profile);
@@ -66,7 +67,7 @@ export function LeaderboardDrawer() {
       <aside id="time-records" className="records-drawer" role="dialog" aria-modal="true" aria-label="Time leaderboard">
         <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2><Trophy size={28} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
         <p className="records-intro">The longest nights. The bravest kids. Your best survival time, ranked against every RUN player.</p>
-        <div className="records-tabs" role="group" aria-label="Leaderboard mode">{(['survival', 'rescue'] as const).map(m => <button key={m} aria-pressed={m === mode} onClick={() => setMode(m)}>{m === 'survival' ? 'Neighbourhood' : 'Rescue campaign'}</button>)}</div>
+        <div className="records-tabs" role="group" aria-label="Leaderboard mode">{(campaignOffered() ? ['survival', 'rescue'] as const : ['survival'] as const).map(m => <button key={m} aria-pressed={m === mode} onClick={() => setMode(m)}>{m === 'survival' ? 'Neighbourhood' : 'Rescue campaign'}</button>)}</div>
         <div className="records-you"><span>Playing as <strong>{profile.username}</strong></span><span>{rank?.rank ? `#${rank.rank} · ${fmtTime(rank.score || 0)}` : 'Finish a run to set a record'}</span>
           {profile.guest && <form className="records-guest" onSubmit={event => { event.preventDefault(); saveLetters(); }}>
             <label htmlFor="guest-letters">Your 3 letters</label>

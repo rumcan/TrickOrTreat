@@ -12,15 +12,18 @@ try {
   const poolChecks = await page.evaluate(async () => {
     const { vendingCatalogue, createVendingSpin } = await import('/src/game/vending.ts');
     const free = vendingCatalogue({ glass: 1, sugar: 2, king: 99 }), paid = vendingCatalogue({});
-    const total = free.reduce((sum, p) => sum + p.weight, 0);
+    // the real prizes keep their published odds among themselves; the duds take a fifth of all spins on top
+    const total = free.filter(p => p.kind !== 'dud').reduce((sum, p) => sum + p.weight, 0);
     if (Math.abs(total - 100) > .001) throw new Error('Free prize weights must sum to 100');
+    const duds = free.filter(p => p.kind === 'dud').reduce((sum, p) => sum + p.weight, 0);
+    if (Math.abs(duds / (duds + total) - .2) > .001) throw new Error('Duds must be a fifth of the spins');
     if (!free.some(p => p.premium && p.weight > 0)) throw new Error('Premium prizes must be winnable for free players');
     if (free.some(p => p.kind === 'weapon' && p.premium && !p.weapon.def.premium)) throw new Error('Premium gun was replaced by a pea shooter');
     if (paid.filter(p => p.premium).some(p => p.weight <= 0)) throw new Error('Owned premium prizes are not in the pool');
     if (free.find(p => p.key === 'treat:glass').weight !== 0 || free.find(p => p.key === 'treat:sugar').weight <= 0) throw new Error('One-off/stackable ownership rules lost');
     if (free.find(p => p.key === 'treat:king').weight !== 0) throw new Error('A treat at its maximum stack must leave the prize pool');
     for (let rarity = 0; rarity <= 4; rarity++) {
-      const total = free.filter(p => p.rarity === rarity).reduce((sum, p) => sum + p.weight, 0);
+      const total = free.filter(p => p.rarity === rarity && p.kind !== 'dud').reduce((sum, p) => sum + p.weight, 0);
       if (Math.abs(total - [50, 30, 15, 4, 1][rarity]) > .001) throw new Error('Rarity odds do not match published numbers');
     }
     for (let i = 0; i < 500; i++) {
@@ -76,7 +79,8 @@ try {
   await page.mouse.move(0, 0); await peek.waitFor({ state: 'detached' });
   await page.screenshot({ path: 'art/world/checks/vending-desktop.png' });
   const kind = await page.evaluate(() => window.__tot.game.vendingSpin.winner.kind);
-  if (kind === 'treat') await machine.getByRole('button', { name: 'Collect treat', exact: true }).click();
+  if (kind === 'dud') await machine.getByRole('button', { name: 'Oh well', exact: true }).click();
+  else if (kind === 'treat') await machine.getByRole('button', { name: 'Collect treat', exact: true }).click();
   else await machine.getByRole('button', { name: /^Equip slot 2/ }).click();
   assert.equal(await page.evaluate(() => window.__tot.game.vendingSpin.status), 'claimed');
   assert.equal(await page.evaluate(() => window.__tot.game.claimVending(0)), false, 'Claim cannot grant twice');
@@ -133,7 +137,8 @@ try {
     }
     await page.screenshot({ path: `art/world/checks/vending-${viewport.width}x${viewport.height}.png` });
     const kind = await page.evaluate(() => window.__tot.game.vendingSpin.winner.kind);
-    if (kind === 'treat') await machine.getByRole('button', { name: 'Collect treat', exact: true }).click();
+    if (kind === 'dud') await machine.getByRole('button', { name: 'Oh well', exact: true }).click();
+  else if (kind === 'treat') await machine.getByRole('button', { name: 'Collect treat', exact: true }).click();
     else await machine.getByRole('button', { name: /^Equip slot 2/ }).click();
     await machine.getByRole('button', { name: 'Back to the streets' }).click();
     await machine.waitFor({ state: 'detached' });

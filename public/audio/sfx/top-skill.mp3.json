@@ -1,0 +1,7 @@
+{
+  "prompt": "A magical power-up burst: a sparkly rising shimmer that blooms into a bright whoosh, 1980s cartoon special ability. One sound, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 1.5,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

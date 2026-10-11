@@ -35,6 +35,7 @@ try {
     if (!spot) throw new Error('No open ground on the map');
     g.p.x = spot.x; g.p.y = spot.y;
     window.__home = { x: g.p.x, y: g.p.y };
+    g.demolish = () => {}; // the gun checks measure the guns: no parked car goes up from a stray shot (the demolition part puts it back)
     return {
       free: WEAPONS.filter(w => !w.premium).map(w => w.id), full: WEAPONS.filter(w => w.premium).map(w => w.id),
       painted: WEAPONS.filter(w => fromFile.has(`icon_${w.id}`)).map(w => w.id),
@@ -144,12 +145,19 @@ try {
   // ---- demolition ----
   const wreck = await page.evaluate(async () => {
     const g = window.__tot.game;
+    delete g.demolish; // cars and houses can be wrecked again
     g.enemies = []; g.bullets = []; g.zones = [];
-    const boom = (pr, demolish) => g.explode(pr.x0 + pr.fw / 2, pr.y0 + pr.fh + 0.2, 2.6, 30, 'fire', true, false, { element: 'fire', demolish });
+    const boom = (pr, demolish) => g.explode(pr.x0 + pr.fw / 2, pr.y0 + pr.fh + 0.2, 2.6, 30, 'fire', true, false, { element: 'fire', demolish: demolish === true, noWreck: demolish === false });
     const cars = g.map.props.filter(p => p.kind === 'car' && !p.removed), houses = g.map.houses.filter(h => h.prop.kind === 'house' && !h.visited && !h.trick);
     const car = cars[0], spared = cars.find(c => Math.hypot(c.x0 - car.x0, c.y0 - car.y0) > 8), house = houses[0];
-    boom(spared, false); // an ordinary blast (a bottle rocket) leaves the street alone
+    boom(spared, false); // a wreck's own blast is marked so: it does not pass the wrecking on down the street
     const ordinary = !!spared.wreck || spared.hp !== undefined;
+    // an ordinary blast (a bottle rocket, a pumpkin bomb) dents a car; a few of them wreck it
+    const third = cars.find(c => c !== car && c !== spared && Math.hypot(c.x0 - car.x0, c.y0 - car.y0) > 8 && Math.hypot(c.x0 - spared.x0, c.y0 - spared.y0) > 8);
+    boom(third, undefined);
+    const dented = { hp: third.hp, wreck: !!third.wreck, burning: third.burnT > 0 };
+    let rockets = 1; while (!third.wreck && rockets < 9) { boom(third, undefined); rockets++; }
+    g.pickups = [];
     boom(car, true);
     const coins = g.pickups.filter(q => q.kind === 'coin').length;
     let shells = 0;
@@ -159,12 +167,13 @@ try {
     const loot = g.pickups.filter(q => Math.hypot(q.x - house.door.x, q.y - house.door.y) < 5).length;
     g.pickups = []; // the kid is standing in it: no level-up in the middle of the test
     return {
-      ordinary, car: !!car.wreck, carBurning: car.burnT > 0, carBoom: car.boomT !== undefined, coins,
+      ordinary, dented, rockets, car: !!car.wreck, carBurning: car.burnT > 0, carBoom: car.boomT !== undefined, coins,
       shells, house: !!house.prop.wreck, gone: house.gone === true, shut: house.visited === true, dark: !house.light || house.light.i === 0,
       loot,
     };
   });
-  assert.equal(wreck.ordinary, false, 'Guns without demolition leave cars alone');
+  assert.equal(wreck.ordinary, false, "A wreck's own blast does not wreck its neighbours");
+  assert.deepEqual([wreck.dented, wreck.rockets], [{ hp: 30, wreck: false, burning: true }, 3], "Any blast of the kid's dents a car (50 → 30) and three wreck it: destruction is part of the normal game");
   assert.ok(wreck.car && wreck.carBurning && wreck.carBoom, 'A demolition blast blows a car up and leaves it burning');
   assert.ok(wreck.coins > 0, 'A wrecked car drops coins');
   assert.ok(wreck.house && wreck.shells >= 2, `A house takes several shells to bring down (took ${wreck.shells})`);

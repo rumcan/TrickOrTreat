@@ -203,7 +203,7 @@ export function rollRarity(luck: number, minR = 0, maxR = 4) {
 }
 
 /** Inscription lines per rarity: common 0-1 · uncommon 1 · rare 2 · epic 3 (25% one unique) · legendary 3 + a unique */
-export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
+export function rollInscriptions(def: WeaponDef, rarity: number, legendBoost = 1): string[] {
   const ok = (t: Trait) => t.minRarity <= rarity && (!['fire', 'shock', 'ecto'].includes(t.id) || !def.elem || def.elem === t.id || Math.random() < 0.3)
     && !(['speed', 'haunted', 'split'].includes(t.id) && (def.kind === 'beam' || def.kind === 'slash'))
     && !(['haunted', 'split', 'bounce'].includes(t.id) && (def.boomerang || def.vortex || def.homing))
@@ -224,8 +224,19 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   if (rarity >= 2 && Math.random() < 0.22) { out.pop(); take(deals, out); }
   if (unique) take(uniques, out);
   // once in a long while: an orange line on top of everything else
-  if (Math.random() < (LEGEND_ODDS[rarity] ?? 0)) take(TRAITS.filter((t) => t.tier === 'legend'), out);
+  if (Math.random() < (LEGEND_ODDS[rarity] ?? 0) * legendBoost) take(TRAITS.filter((t) => t.tier === 'legend'), out);
   return out;
+}
+/**
+ * The shop's gamble: a gun's lines are rolled again as if it were of a RANDOM rarity, whatever it really is.
+ * So a common gun can walk away with an epic set, and a legendary one with nothing at all. Legendary lines are
+ * two and a half times as likely as on found guns. Chances per rarity rolled: see REROLL_ODDS.
+ */
+export const REROLL_ODDS = [22, 26, 24, 18, 10];
+export function rerollInscriptions(w: Weapon): string[] {
+  let roll = Math.random() * REROLL_ODDS.reduce((a, b) => a + b, 0), as = 0;
+  for (; as < REROLL_ODDS.length - 1; as++) { roll -= REROLL_ODDS[as]; if (roll < 0) break; }
+  return (w.traits = rollInscriptions(w.def, as, 2.5));
 }
 
 /** a full-game gun built only to be shown (locked) to free players: the teaser card on level-ups and houses */
@@ -411,6 +422,14 @@ export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility', 'Partner'];
 /** saturated neon, one per branch: they sit on a busy painted night sky */
 export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a', '#ff4fd8'];
 export const TALENT_ROOT = { x: 500, y: 450 };
+/**
+ * What a rank of a talent costs: its own price, raised the further its star sits from the centre of the constellations
+ * (nothing extra within 150 of the root, then +100% per 500: the outermost stars cost about two and a half times).
+ */
+export function talentCost(t: Talent, level: number) {
+  const far = Math.max(0, Math.hypot(t.x - TALENT_ROOT.x, t.y - TALENT_ROOT.y) - 150) / 500;
+  return Math.round(t.cost(level) * (1 + far) / 5) * 5;
+}
 export const TALENTS: Talent[] = [
   // ---- Mischief (upper-left) ----
   { id: 'sharp', branch: 0, x: 385, y: 370, req: [], name: 'Sharp Teeth', icon: '🦷', max: 5, cost: (l) => 15 + l * 15, desc: '+5% damage per rank', apply: (s, l) => (s.dmg *= 1 + 0.05 * l) },
@@ -448,7 +467,7 @@ TALENTS.push(
   { id: 'seeker', premium: true, branch: 2, x: 85, y: 855, req: ['paperroute'], capstone: true, name: 'Master Seeker', icon: '🔦', max: 3, cost: (l) => 130 + l * 60, desc: '+15% pickup radius and 4% move speed per rank', apply: (s, l) => { s.magnet *= 1 + l * 0.15; s.move *= 1 + l * 0.04; } },
 );
 // ---- beyond the capstones: two more stars at the end of every arm (free arm and full-game arm of each branch). They
-// cost several runs of Soul Candy and are meant to be felt: whoever gets this far has earned it. ----
+// cost several runs of Essence and are meant to be felt: whoever gets this far has earned it. ----
 TALENTS.push(
   // Mischief
   { id: 'boombox', branch: 0, x: 335, y: -45, req: ['prankster'], name: 'Boombox Bass', icon: '📻', max: 3, cost: (l) => 180 + l * 90, desc: '+10% damage and +5% fire rate per rank', apply: (s, l) => { s.dmg *= 1 + 0.1 * l; s.rate *= 1 + 0.05 * l; } },
@@ -523,9 +542,11 @@ export const ESSENCE_UNLOCK = 15000;
 export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number }
 /** what a save has earned in total: its own count, or (older saves) what it holds plus what its talents cost */
 export function essenceEarned(s: Save) {
+  // a save that already keeps count is taken at its word: a talent refund at today's prices must not count as earning
+  if ((s.earned ?? 0) > 0) return s.earned!;
   let invested = 0;
-  for (const tal of TALENTS) for (let l = 0; l < Math.min(tal.max, s.talents?.[tal.id] || 0); l++) invested += tal.cost(l);
-  return Math.max(s.earned ?? 0, (s.soul || 0) + invested);
+  for (const tal of TALENTS) for (let l = 0; l < Math.min(tal.max, s.talents?.[tal.id] || 0); l++) invested += tal.cost(l); // at the old flat prices
+  return (s.soul || 0) + invested;
 }
 /** more than ESSENCE_UNLOCK earned: the full game is the player's, on this save */
 function syncEarnedUnlock(s: Save) {

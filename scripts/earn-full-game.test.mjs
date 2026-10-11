@@ -26,7 +26,7 @@ try {
     const save = { soul: 14990, talents: {}, best: 0, hero: 0, earned: 14990 };
     const g = new Game(0, save, input(), false, 1337);
     res.lockedKidBefore = new Game(3, save, input(), true, 1).hero === 0 && !new Game(3, save, input(), true, 1).campaign;
-    g.xpCollected = 600; // 100 Essence, plus what the run pays for its wave
+    g.xpCollected = 800; // 100 Essence (a wave pays only once it is behind you)
     g.bankRewards();
     res.gained = g.soulEarned;
     res.run = { earned: save.earned, soul: save.soul, unlocked: hasFullGame(), told: g.fullGameEarned, state: expansion.snapshot().earned, owned: expansion.snapshot().owned };

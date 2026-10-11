@@ -5,7 +5,7 @@ const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto('http://127.0.0.1:5173/?campaign'); // the rescue board is shelved with its mode; development still shows it
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   assert.equal(await page.getByRole('button', { name: 'Open time leaderboard' }).count(), 0, 'Offline guests must not see the leaderboard');
   await page.evaluate(async () => {

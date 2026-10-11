@@ -21,7 +21,7 @@ try {
   const talents = await page.evaluate(async () => (await import('/src/game/data.ts')).TALENTS.map(t => ({ name: t.name, premium: t.premium, req: t.req })));
   const premium = talents.find(t => t.premium);
   await page.locator('svg').getByText(premium.name, { exact: true }).click();
-  await page.getByText(/Full-game talent: unlock Hide & Shriek/).waitFor();
+  await page.getByText(/Full-game talent: unlock the full game/).waitFor();
   const linked = talents.find(t => !t.premium && t.req.length);
   await page.locator('svg').getByText(linked.name, { exact: true }).click();
   await page.getByText(/Unlock by buying rank 1 in any one of/).waitFor();
