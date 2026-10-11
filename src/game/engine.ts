@@ -3,6 +3,7 @@ import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseI
 import { G } from './art/tiles';
 import { buildArcadeMap } from './arcade-map';
 import {ARCADE_STAFF} from './arcade-layout';
+import {NEW_MONSTERS,FINAL_MONSTER,FINAL_BOSS,WAVE_BOSSES,ROSTER_NAMES,ROSTER_MINIONS,BOSS_ATTACKS,familyForWave} from './boss-roster';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
@@ -130,7 +131,7 @@ export function fmtDmg(n: number) {
   return Math.max(1, Math.round(n)).toString();
 }
 
-export interface EnemyDef { hp: number; speed: number; dmg: number; r: number; xp: number; coin: number; fly?: boolean; phase?: boolean; ranged?: boolean; bomber?: boolean; elite?: boolean; boss?: boolean; color: string; mass: number; anim: number }
+export interface EnemyDef { hp: number; speed: number; dmg: number; r: number; xp: number; coin: number; fly?: boolean; phase?: boolean; ranged?: boolean; bomber?: boolean; elite?: boolean; boss?: boolean; invulnerable?:boolean; color: string; mass: number; anim: number }
 export const EDEF: Record<string, EnemyDef> = {
   hex: { hp: 1500, speed: 0.8, dmg: 16, r: 0.8, xp: 90, coin: 1, boss: true, color: '#b580d5', mass: 35, anim: 6 },
   alpha: { hp: 2600, speed: 1.65, dmg: 22, r: 0.85, xp: 140, coin: 1, boss: true, color: '#9cacb8', mass: 40, anim: 8 },
@@ -143,6 +144,7 @@ export const EDEF: Record<string, EnemyDef> = {
   witch: { hp: 84, speed: 1.2, dmg: 8, r: 0.3, xp: 4, coin: 0.8, ranged: true, color: '#8ac46a', mass: 1, anim: 6 },
   werewolf: { hp: 500, speed: 2.0, dmg: 20, r: 0.45, xp: 25, coin: 1, elite: true, color: '#5a4030', mass: 4, anim: 8 },
   king: { hp: 6000, speed: 1.0, dmg: 25, r: 1.0, xp: 250, coin: 1, boss: true, color: '#ff8a1e', mass: 50, anim: 6 },
+  ...Object.fromEntries([...NEW_MONSTERS,FINAL_MONSTER].map(m=>[m.id,m])),
 };
 
 export interface Enemy {
@@ -154,6 +156,9 @@ export interface Enemy {
   vuln?: number;
   /** one of a boss's own crowd (see BOSS_MINIONS) */
   minion?: boolean;
+  strikes?:{x:number;y:number;r:number;t:number;dmg:number}[];
+  /** Hold a tractor saucer over its victim until the beam animation finishes. */
+  tractorT?: number;
   /** Cryo Ray: chill builds toward 1 (slowing), then the monster is frozen solid for a while */
   chill?: number; frozenT?: number;
   shootT: number; lungeT: number; lungeX: number; lungeY: number; p1: number; p2: number; p3: number; orbitT: number; dead: boolean; elite: boolean; spawnT: number;
@@ -179,7 +184,7 @@ export interface Particle { x: number; y: number; z: number; vx: number; vy: num
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
 export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number; /** a quiet beam (streams, the Phase Lance): thin, and faint at the gun end */ soft?: boolean }
 export interface Zone {
-  kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn' | 'trail' | 'vortex'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string;
+  kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn' | 'trail' | 'vortex' | 'tractor'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string;
   /** flash: half-angle of the cone · trail: the far end of the line · vortex: blast radius, crit flag and whether it wrecks scenery */
   arc?: number; x1?: number; y1?: number; blast?: number; crit?: boolean; demolish?: boolean; done?: boolean;
   /** boom: big enough to play the painted fireball */
@@ -209,6 +214,8 @@ export interface RescueFriend {
   found?: boolean;
   /** steady following: closing in on the kid · seconds the walk animation keeps playing · seconds the last shot holds the facing */
   chase?: boolean; moveT?: number; aimT?: number;
+  /** Gameplay seconds in a saucer: never erased by killing it, switching rooms or opening a menu. */
+  abductT?: number; abductImmuneT?: number; returnT?: number;
 }
 
 export interface Player {
@@ -259,15 +266,14 @@ const STREAM_RAMP_MAX = 20, TRAIL_TICK = 0.35, FREEZE_TIME = 2.4;
 const CAR_HP = 50, HOUSE_HP = 170;
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
-export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
-const CAMPAIGN_BOSSES = ['hex', 'alpha', 'warden', 'king'];
+export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King',...ROSTER_NAMES };
+const CAMPAIGN_BOSSES = WAVE_BOSSES;
 /**
  * A boss fight is its own wave: while a boss lives the ordinary waves, hordes and elites wait, and the boss fights with
  * its own crowd instead (an escort when it arrives, then a small squad every few seconds, up to a cap).
  */
-export const BOSS_MINIONS: Record<string, string[]> = { hex: ['witch', 'ghost'], alpha: ['bat', 'zombie'], warden: ['skeleton', 'zombie'], king: ['pumpkin', 'bat'] };
+export const BOSS_MINIONS: Record<string, string[]> = { hex: ['witch', 'ghost'], alpha: ['bat', 'zombie'], warden: ['skeleton', 'zombie'], king: ['pumpkin', 'bat'],...ROSTER_MINIONS };
 const MINION_WORDS: Record<string, string> = { witch: 'witches', ghost: 'ghosts', bat: 'bats', zombie: 'zombies', skeleton: 'skeletons', pumpkin: 'pumpkin heads' };
-const ENDLESS_BOSS_INTERVAL = 90;
 
 // ================= GAME =================
 export class Game {
@@ -333,8 +339,7 @@ export class Game {
   wavePause = 0;
   private minionT = 0;
   private minionBoss: Enemy | null = null;
-  nextBossAt = 90;
-  private endlessBosses = 0;
+  nextBossAt = 60;
   xpCollected = 0;
   essence = { combat: 0, kills: 0, survival: 0, bosses: 0, waves: 0 };
   endless = false;
@@ -399,7 +404,7 @@ export class Game {
   private procGen = 0;
   private blastKill = false;
   // ---- Endless Night ----
-  wave = 1; private waveT = 0; victorious = false;
+  wave = 1; victorious = false;
   premiumPowerT = 0;
   private boneBurstT = 0;
   nearbyWeapon: Weapon | null = null;
@@ -417,7 +422,6 @@ export class Game {
   private spawnAcc = 0;
   private nextChest = 30;
   private nextElite = 150;
-  private hordes = new Set<number>();
   private familiarT = 0;
   orbitAng = 0;
   familiar = { x: 0, y: 0 };
@@ -623,6 +627,19 @@ export class Game {
   private updateTeam(dt: number) {
     if (!this.friends.length || this.bossBreak) return; // the campaign's rescued kids, or a free-game friend from a doorstep
     this.rescuePrompt = ''; this.rescueProgress = -1;
+    for(const f of this.friends){
+      f.abductImmuneT=Math.max(0,(f.abductImmuneT??0)-dt);
+      f.returnT=Math.max(0,(f.returnT??0)-dt);
+      if((f.abductT??0)>0){
+        f.abductT=Math.max(0,f.abductT!-dt);
+        if(f.abductT===0){
+          Object.assign(f,this.freeSpot(this.p.x+1,this.p.y+1,true));
+          f.hurtCd=3;f.abductImmuneT=10;f.returnT=1.2;f.moving=false;
+          this.zones.push({kind:'tractor',x:f.x,y:f.y,r:.8,t:0,life:1.4,dmg:0,tick:0});
+          this.toast(`${HERO_INFO[f.hero].name} has been beamed back down!`);
+        }
+      }
+    }
     for (const f of this.friends) {
       if (f.status === 'rescued') continue;
       if (this.map.kind === 'arcade') continue; // Hidden kids remain in their town hideouts.
@@ -630,7 +647,7 @@ export class Game {
       // a guardian that left the arena without dying (despawned, culled) no longer holds the ward
       if (f.guardian && !f.guardian.dead && !this.enemies.includes(f.guardian)) f.guardian.dead = true;
       // the player standing right there proves the friend is reachable, gate or no gate
-      if (f.status === 'locked' && ((gate.opened && distance < 12 && this.reachable(f.x, f.y)) || distance < 5)) {
+      if (f.status === 'locked' && !this.endless && !this.boss && ((gate.opened && distance < 12 && this.reachable(f.x, f.y)) || distance < 5)) {
         const spot = this.freeSpot(f.x + 1, f.y + 1);
         f.guardian = this.spawnEnemy('werewolf', spot.x, spot.y);
         f.guardian.hp = f.guardian.maxHp = (220 + this.time * 0.3) * this.hpScale();
@@ -665,7 +682,7 @@ export class Game {
       } else { f.channel = false; f.progress = Math.max(0, f.progress - dt * 2); }
     }
     // ---- everyone already on the team fights beside the player, all at once ----
-    const team = this.friends.filter(f => f.status === 'rescued');
+    const team = this.friends.filter(f => f.status === 'rescued' && !(f.abductT!>0));
     if (!team.length) { if (this.state === 'downed') this.endRun(false); return; }
     const gap = (f: RescueFriend) => Math.hypot(f.x - this.p.x, f.y - this.p.y);
     // A friend who is down can be helped up for FRIEND_DOWN_TIME seconds (sign above them, beacon on the map).
@@ -702,7 +719,7 @@ export class Game {
       this.rescueProgress = Math.min(1, f.progress / RESCUE_TIME);
       if (f.progress >= RESCUE_TIME) { f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0; gameAudio.play('revive'); }
     }
-    const standing = this.friends.filter(f => f.status === 'rescued' && f.hp > 0);
+    const standing = this.friends.filter(f => f.status === 'rescued' && f.hp > 0 && !(f.abductT!>0));
     // if the player is down, the nearest friend who still has a revive in them comes to pick them up
     const reviver = this.state === 'downed' ? standing.filter(f => f.reviveCd <= 0).sort((x, y) => gap(x) - gap(y))[0] ?? null : null;
     if (this.state === 'downed' && !reviver) { this.endRun(false); return; }
@@ -973,7 +990,7 @@ export class Game {
       if (this.calmT <= 0) { this.calmT = 0; this.spawnAcc = 0; this.toast('The quiet is over. The monsters are back!'); gameAudio.play('guardian', 0.4); }
     }
     if (this.state === 'play') { this.updateTot(dt); if (this.state === 'play') this.updateInteract(); }
-    if (this.bossKilled && !this.endless) {
+    if (this.bossKilled && !this.endless && this.calmT <= 0) {
       this.winDelay += dt;
       if (this.winDelay >= 3.5 && this.state === 'play') this.startEndless();
     }
@@ -1215,7 +1232,7 @@ export class Game {
         this.explode(p.x, p.y, 3.5, 80, 'fire', true);
       } else {
         p.hp = 0;
-        const friend = this.friends.find(f => f.status === 'rescued' && f.hp > 0 && f.reviveCd <= 0);
+        const friend = this.friends.find(f => f.status === 'rescued' && f.hp > 0 && f.reviveCd <= 0 && !(f.abductT!>0));
         if (friend) {
           this.state = 'downed'; this.downedTime = 15; this.playerReviveProgress = 0;
           this.setBanner('HANG ON!', `${HERO_INFO[friend.hero].name} is coming to revive you`, 'danger');
@@ -1586,6 +1603,7 @@ export class Game {
   }
   damageEnemy(e: Enemy, dmg: number, color: string, big = false, quiet = false, profile: DamageProfile = {}) {
     if (e.dead || dmg <= 0) return;
+    if(e.def.invulnerable){this.defenseHint(e,'Unstoppable · survive');return;}
     const defense = damageDefense(e.affix, profile);
     if (defense.reason) this.defenseHint(e, defense.reason);
     if (defense.multiplier === 0) return;
@@ -1885,9 +1903,9 @@ export class Game {
     const affix = def.boss ? null : forcedAffix === undefined ? rollAffix(this.wave) : forcedAffix;
     const fodder = this.wave > 10 && !def.boss && !def.elite && !elite && !affix;
     const scale = 1 + this.time / 60 * 0.38 + (this.endless ? 1.5 : 0);
-    const hp = def.hp * (def.boss ? 1 : scale) * (elite ? 3 : 1) * enemyHealthScale(this.wave, fodder);
+    const hp = def.invulnerable?def.hp:def.hp * (def.boss ? 1 : scale) * (elite ? 3 : 1) * enemyHealthScale(this.wave, fodder);
     const lieutenant = !def.boss && (elite || !!def.elite);
-    const maxShield = hp * (def.boss ? 0.4 : lieutenant ? 0.6 : 0);
+    const maxShield = def.invulnerable?0:hp * (def.boss ? 0.4 : lieutenant ? 0.6 : 0);
     const e: Enemy = {
       affix, fodder, defenseHintT: 0,
       shield: maxShield, maxShield, shieldT: 0, lieutenant,
@@ -1900,7 +1918,7 @@ export class Game {
   }
 
   private killEnemy(e: Enemy) {
-    if (e.dead) return;
+    if (e.dead||e.def.invulnerable) return;
     e.dead = true;
     this.kills++;
     const s = this.stats;
@@ -1978,7 +1996,7 @@ export class Game {
       this.boss = null;
       this.bossWins++;
       this.bossRound++;
-      this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
+      this.bossKilled = this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
       this.relocateShops();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
@@ -1988,7 +2006,7 @@ export class Game {
       this.spawnAcc = 0; this.tot = null; this.interact = null;
       this.p.coins += 150 + this.bossRound * 50;
       this.p.hp = Math.min(this.stats.maxHp, this.p.hp + this.stats.maxHp * 0.25);
-      this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL + BUY_WINDOW : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45 + BUY_WINDOW);
+      this.nextBossAt = this.time + 45 + BUY_WINDOW;
       // No shop pops up: the stand has just moved, and the kid gets a quiet stretch to walk there (or ring a few doors).
       this.calmT = BUY_WINDOW;
       this.p.invuln = Math.max(this.p.invuln, 1);
@@ -2006,6 +2024,7 @@ export class Game {
     for (const e of this.enemies) {
       if (e.dead) continue;
       const d = e.def;
+      if(d.invulnerable){e.stunT=0;e.chill=0;e.frozenT=0;e.ectoT=0;e.kx=0;e.ky=0;}
       e.defenseHintT = Math.max(0, e.defenseHintT - dt);
       e.shieldT = Math.max(0, e.shieldT - dt);
       if (e.shieldT === 0 && e.maxShield > 0) e.shield = Math.min(e.maxShield, e.shield + e.maxShield * (d.boss ? 0.08 : 0.2) * dt);
@@ -2051,7 +2070,24 @@ export class Game {
         mx = nx; my = ny;
       }
       // behaviours
-      if (d.ranged && speed > 0) {
+      if(e.type==='saucer_matron_b'){
+        e.tractorT=Math.max(0,(e.tractorT??0)-dt);
+        e.p3-=dt;
+        if(e.p3<=0){
+          e.p3=3;
+          const friend=this.friends.filter(f=>f.status==='rescued'&&f.hp>0&&!(f.abductT!>0)&&!(f.abductImmuneT!>0))
+            .sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
+          if(friend&&!this.friends.some(f=>f.abductT!>0)&&Math.hypot(friend.x-e.x,friend.y-e.y)<6){
+            e.x=friend.x;e.y=friend.y;e.tractorT=2;
+            friend.abductT=30;friend.moving=false;friend.channel=false;friend.progress=0;
+            this.bullets=this.bullets.filter(b=>b.by!==friend);
+            this.zones.push({kind:'tractor',x:friend.x,y:friend.y,r:.9,t:0,life:2,dmg:0,tick:0});
+            this.toast(`${HERO_INFO[friend.hero].name} was abducted! Back in 30 seconds.`);
+            e.p3=15;
+          }
+        }
+      }
+      if (d.ranged && speed > 0 && !(e.tractorT!>0)) {
         e.shootT -= dt;
         if (dist < 5.5 && lineOfSight(this.map, e.x, e.y, p.x, p.y)) {
           mx = -dx / dist * 0.4 + (-dy / dist) * 0.6; my = -dy / dist * 0.4 + (dx / dist) * 0.6;
@@ -2071,16 +2107,18 @@ export class Game {
         this.killEnemy(e);
         continue;
       }
-      if (d.elite && !d.boss) {
+      if ((d.elite || e.type === 'cruiser_bully_b') && !d.boss) {
         e.lungeT -= dt;
-        if (e.lungeT < -3.5 && dist < 5 && dist > 1.2) {
-          e.lungeT = 0.4;
+        if (e.lungeT < -3.5 && dist < 7 && dist > 1.2) {
+          e.lungeT = e.type === 'cruiser_bully_b' ? 1.2 : 0.4;
           e.lungeX = dx / dist; e.lungeY = dy / dist;
           this.zones.push({ kind: 'warn', x: e.x + e.lungeX * 1.6, y: e.y + e.lungeY * 1.6, r: 0.8, t: 0, life: 0.35, dmg: 0, tick: 0 });
         }
-        if (e.lungeT > 0) { mx = e.lungeX; my = e.lungeY; speed = 8.5; }
+        // A driver's first 0.45s is a readable brake/headlight warning; then the car commits.
+        if (e.lungeT > 0) { mx = e.lungeX; my = e.lungeY; speed = e.type === 'cruiser_bully_b' && e.lungeT > 0.75 ? 0 : 8.5; }
       }
       if (d.boss) this.bossAI(e, dt, dx, dy, dist);
+      if(e.tractorT!>0){mx=0;my=0;speed=0;e.kx=0;e.ky=0;}
       // movement
       e.kx *= Math.pow(0.002, dt); e.ky *= Math.pow(0.002, dt);
       const vx = mx * speed + e.kx, vy = my * speed + e.ky;
@@ -2121,56 +2159,73 @@ export class Game {
   }
 
   private bossAI(e: Enemy, dt: number, dx: number, dy: number, dist: number) {
-    const rage = e.hp < e.maxHp * 0.5;
+    const rage = !e.def.invulnerable && e.hp < e.maxHp * 0.5;
     e.p1 -= dt; e.p2 -= dt; e.p3 -= dt;
-    if (e.type !== 'king') {
+    // Delayed ground strikes remain attached to their boss and disappear with it.
+    for (const strike of e.strikes ?? []) {
+      strike.t -= dt;
+      if (strike.t <= 0) {
+        this.zones.push({kind:'boom',x:strike.x,y:strike.y,r:strike.r,t:0,life:.3,dmg:0,tick:0,color:e.def.color});
+        if (Math.hypot(this.p.x-strike.x,this.p.y-strike.y) < strike.r+this.p.r) this.takeDamage(strike.dmg,strike.x,strike.y);
+      }
+    }
+    e.strikes = (e.strikes ?? []).filter(s=>s.t>0);
+    const aim = Math.atan2(dy,dx);
+    const shot = (angle:number,speed=4,dmg=12) => this.ebullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,r:.16,dmg,life:4,color:e.def.color,kind:'orb',dead:false});
+    const warn = (x:number,y:number,r:number,delay=.8,dmg=18) => {
+      this.zones.push({kind:'warn',x,y,r,t:0,life:delay,dmg:0,tick:0});
+      (e.strikes ??= []).push({x,y,r,t:delay,dmg});
+    };
+    if (e.type === FINAL_BOSS) {
+      // No escorts, no fake kill condition. Dodge the three tentacle impact circles.
       if (e.p1 <= 0) {
-        e.p1 = rage ? 2.2 : 3.8;
-        const base = Math.atan2(dy, dx), count = e.type === 'warden' ? 12 : 5;
-        for (let i = 0; i < count; i++) {
-          const angle = e.type === 'warden' ? i / count * Math.PI * 2 : base + (i - 2) * 0.18;
-          this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4, r: 0.16, dmg: 12, life: 4, color: e.def.color, kind: 'orb', dead: false });
-        }
+        e.p1=3.2;
+        for(let i=-1;i<=1;i++) warn(this.p.x+Math.cos(aim+Math.PI/2)*i*2,this.p.y+Math.sin(aim+Math.PI/2)*i*2,1.35,1.1,30);
       }
-      if (e.p2 <= 0) {
-        e.p2 = rage ? 6 : 9;
-        if (e.type === 'alpha') {
-          e.lungeT = 0.5; e.lungeX = dx / (dist || 1); e.lungeY = dy / (dist || 1);
-          this.zones.push({ kind: 'warn', x: this.p.x, y: this.p.y, r: 1.4, t: 0, life: 0.6, dmg: 0, tick: 0 });
-        } else for (let i = 0; i < (rage ? 4 : 2); i++) {
-          const spot = this.freeSpot(e.x + Math.cos(i * Math.PI) * 2, e.y + Math.sin(i * Math.PI) * 2, true);
-          this.spawnEnemy(e.type === 'hex' ? 'ghost' : 'skeleton', spot.x, spot.y);
-        }
-      }
-      if (e.type === 'alpha' && e.lungeT > 0) { e.lungeT -= dt; this.moveCircle(e, e.lungeX * dt * 7, e.lungeY * dt * 7, e.r); }
       return;
     }
-    if (e.p1 <= 0) {
-      e.p1 = rage ? 2.2 : 3.2;
-      const n = rage ? 22 : 16, off = rand(0, 1);
-      for (let i = 0; i < n; i++) {
-        const a = ((i + off) / n) * Math.PI * 2;
-        this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 3.6, vy: Math.sin(a) * 3.6, r: 0.2, dmg: 12, life: 5, color: '#ffcf3a', kind: 'seed', dead: false });
+    const pattern = BOSS_ATTACKS[e.type];
+    if (pattern) {
+      if(e.p1<=0){
+        e.p1=rage?2.6:4;
+        if(pattern==='fan') for(let i=-2;i<=2;i++) shot(aim+i*.22);
+        if(pattern==='ring') for(let i=0;i<12;i++) shot(i*Math.PI/6+this.time*.1,3.3);
+        if(pattern==='mortar') for(let i=-1;i<=1;i++) warn(this.p.x+i*1.6,this.p.y-i*.8,1.1,1,16);
+        if(pattern==='pulse') {
+          warn(e.x,e.y,3.2,1,20);
+          if(e.maxShield>0) e.shield=Math.min(e.maxShield,e.shield+e.maxShield*.12);
+        }
+        if(pattern==='charge'){
+          e.lungeX=dx/(dist||1);e.lungeY=dy/(dist||1);e.lungeT=1.2;
+          for(let i=1;i<=4;i++)this.zones.push({kind:'warn',x:e.x+e.lungeX*i,y:e.y+e.lungeY*i,r:.7,t:0,life:.5,dmg:0,tick:0});
+        }
+        if(pattern==='beam'){
+          e.lungeX=dx/(dist||1);e.lungeY=dy/(dist||1);e.lungeT=.9;
+          for(let i=1;i<=6;i++)this.zones.push({kind:'warn',x:e.x+e.lungeX*i,y:e.y+e.lungeY*i,r:.45,t:0,life:.9,dmg:0,tick:0});
+        }
       }
-      this.shake = 5;
-    }
-    if (e.p2 <= 0) {
-      e.p2 = rage ? 6 : 8;
-      for (let i = 0; i < (rage ? 6 : 4); i++) {
-        const a = rand(0, Math.PI * 2);
-        this.spawnEnemy('pumpkin', e.x + Math.cos(a) * 1.6, e.y + Math.sin(a) * 1.6);
+      if(e.lungeT>0){
+        const before=e.lungeT;e.lungeT=Math.max(0,e.lungeT-dt);
+        if(pattern==='charge'&&e.lungeT<.7) this.moveCircle(e,e.lungeX*dt*7,e.lungeY*dt*7,e.r);
+        if(pattern==='beam'&&before>0&&e.lungeT===0)for(let i=-1;i<=1;i++)shot(Math.atan2(e.lungeY,e.lungeX)+i*.035,9,18);
       }
+      return;
     }
-    if (e.p3 <= 0) {
-      e.p3 = rage ? 5 : 7;
-      // aimed seed spray
-      const base = Math.atan2(dy, dx);
-      for (let i = 0; i < 9; i++) {
-        const a = base + (i - 4) * 0.14;
-        this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 6, vy: Math.sin(a) * 6, r: 0.16, dmg: 10, life: 3, color: '#ff8a1e', kind: 'seed', dead: false });
-      }
+    // Original four bosses keep their attacks, but all reinforcements now use the capped family escort.
+    if(e.p1<=0){
+      e.p1=rage?2.2:3.8;
+      const ring=e.type==='warden'||e.type==='king',count=ring?(e.type==='king'?16:12):5;
+      for(let i=0;i<count;i++)shot(ring?i/count*Math.PI*2:aim+(i-2)*.18);
     }
-    void dist;
+    if(e.p2<=0){
+      e.p2=rage?6:9;
+      if(e.type==='alpha'){
+        e.lungeT=.5;e.lungeX=dx/(dist||1);e.lungeY=dy/(dist||1);
+        this.zones.push({kind:'warn',x:this.p.x,y:this.p.y,r:1.4,t:0,life:.6,dmg:0,tick:0});
+      }else this.minionT=Math.min(this.minionT,0);
+    }
+    if(e.type==='alpha'&&e.lungeT>0){e.lungeT-=dt;this.moveCircle(e,e.lungeX*dt*7,e.lungeY*dt*7,e.r);}
+    if(e.type==='king'&&e.p3<=0){e.p3=rage?5:7;for(let i=-4;i<=4;i++)shot(aim+i*.14,6,10);}
   }
 
   // ---------- bullets ----------
@@ -2884,15 +2939,22 @@ export class Game {
     }
   }
   private spawnAround(x: number, y: number, n: number, r0: number, r1: number, types: string[]) {
+    const boss=this.boss&&!this.boss.dead?this.boss:null;
+    if(boss){
+      types=BOSS_MINIONS[boss.type]??[];
+      n=Math.min(n,24-this.enemies.filter(e=>e.minion&&!e.dead).length);
+    }
+    if(!types.length||n<=0)return;
     let made = 0;
     for (let i = 0; i < n * 4 && made < n; i++) {
       const a = rand(0, Math.PI * 2), d = rand(r0, r1);
       const ex = x + Math.cos(a) * d, ey = y + Math.sin(a) * d;
       const type = types[Math.floor(Math.random() * types.length)];
-      const fly = type === 'bat' || type === 'ghost';
+      const fly = !!EDEF[type].fly || !!EDEF[type].phase;
       if (ex < 1 || ey < 1 || ex > MAP_W - 1 || ey > MAP_H - 1) continue;
       if ((!fly || this.map.kind==='arcade') && (cellAt(this.map, ex, ey) !== 0 || !this.reachable(ex, ey))) continue;
-      this.spawnEnemy(type, ex, ey);
+      const e=this.spawnEnemy(type, ex, ey);
+      if(boss)e.minion=true;
       made++;
     }
   }
@@ -3234,66 +3296,47 @@ export class Game {
     this.state = 'play';
     this.p.invuln = 0.8;
   }
+  skipBuyWindow() {
+    if(this.state!=='play'||this.calmT<=0)return;
+    this.nextBossAt-=this.calmT;
+    this.calmT=0;this.spawnAcc=0;this.bossBreak=false;
+    this.toast('Back to the streets. The next crew is coming.');
+  }
   continueEndless() {
     this.state = 'play';
     this.startEndless();
   }
-  /**
-   * ENDLESS NIGHT: after the last boss falls the night simply keeps going. Every 30s a new wave:
-   * Opening HP ×1.65; after wave 10, special enemies grow faster than fodder. Damage ×1.12 per wave,
-   * and the four bosses cycle forever on their own timer. Rescue progress never stops the next round.
-   */
+  /** After all 24 bosses, the final encounter is survival against an unstoppable, escort-free giant. */
   startEndless() {
-    if (this.endless) return;
-    this.bankRewards(); // the victory is banked right away; endless essence keeps adding on top
+    if (this.endless || this.bossRound < CAMPAIGN_BOSSES.length || this.calmT > 0) return;
     this.victorious = true;
+    this.bankRewards();
     this.endless = true;
-    this.advanceWave(); this.waveT = 0; this.winDelay = 0;
-    this.endlessBosses = 0;
-    this.nextBossAt = this.time + 60;
+    while(this.wave<25)this.advanceWave();
+    this.winDelay=0;
+    this.nextBossAt=this.time+10;
+    this.enemies=[];this.ebullets=[];this.spawnAcc=0;
     gameAudio.play('victory');
-    this.setBanner('THE BOSSES WILL RETURN!', 'Endless Night: stronger bosses return in 60s. Keep exploring and rescuing your friends.', 'win');
+    this.setBanner('24 BOSSES DEFEATED', 'Something enormous is coming. You cannot kill it — survive as long as you can.', 'win');
   }
-  /** Endless monster HP multiplier (compounds every wave) */
   hpScale() { return enemyHealthScale(this.wave); }
   private advanceWave() {
     const previous = this.wave;
     this.wave++;
-    for (const e of this.enemies) if (!e.dead) {
-      // Preserve the damage already dealt; scale living enemies as well as new spawns.
+    for (const e of this.enemies) if (!e.dead && !e.def.invulnerable) {
       const oldScale = enemyHealthScale(previous, e.fodder);
       e.fodder = this.wave > 10 && !e.def.boss && !e.elite && !e.affix;
       const growth = enemyHealthScale(this.wave, e.fodder) / oldScale;
       e.hp *= growth; e.maxHp *= growth; e.shield *= growth; e.maxShield *= growth;
     }
-    const pos = this.spawnPos(false);
-    if (pos) this.spawnEnemy(this.wave % 2 ? 'witch' : 'skeleton', pos.x, pos.y, true);
   }
-  private updateEndless(dt: number) {
-    if (this.bossBreak || this.calmT > 0) return;
-    if (!this.boss) this.waveT += dt; // the endless waves wait while a boss is alive, too
-    if (this.waveT >= 30) {
-      this.waveT -= 30;
-      this.advanceWave();
-      const mutation = this.wave === 11 ? 'Elemental immunities have appeared. Switch damage types.' : this.wave === 13 ? 'Ricochet wards and armor: aim directly or use piercing.' : this.wave === 15 ? 'Sealed shells need piercing 2+. Keep a piercing gun ready.' : null;
-      this.setBanner(`WAVE ${this.wave}`, mutation ?? (this.wave > 10 ? 'More special enemies. Ordinary mobs stay plentiful; read their counter labels.' : `Monsters ×${this.hpScale().toFixed(1)} HP · ×${this.threat().toFixed(1)} damage`), 'danger');
-      gameAudio.play('guardian', 0.5);
-      const n = Math.min(36, 10 + this.wave * 2);
-      const types = ['zombie', 'skeleton', 'bat', 'ghost', 'pumpkin', 'witch'];
-      for (let i = 0; i < n; i++) {
-        const pos = this.spawnPos(i % 3 === 2);
-        if (pos) this.spawnEnemy(types[(i + this.wave) % types.length], pos.x, pos.y, Math.random() < Math.min(0.12, 0.03 + this.wave * 0.004));
-      }
-    }
-    if (!this.boss && this.soon(-2000 - this.endlessBosses, this.nextBossAt, 10)) this.toast('A stronger boss returns in 10 seconds!');
-    if (!this.boss && this.time >= this.nextBossAt) {
-      const type = CAMPAIGN_BOSSES[this.endlessBosses % CAMPAIGN_BOSSES.length];
-      this.endlessBosses++;
-      const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
-      this.boss = this.spawnEnemy(type, pos.x, pos.y);
-      this.setBanner(`ROUND ${Math.ceil(this.endlessBosses / 4) + 1} · ${BOSS_NAMES[type].toUpperCase()}`, `Boss ×${this.hpScale().toFixed(1)} HP · ×${this.threat().toFixed(1)} damage`, 'danger');
-      this.shake = 15;
-    }
+  private updateEndless(_dt: number) {
+    if (this.bossBreak || this.calmT > 0 || this.boss) return;
+    if(this.time<this.nextBossAt)return;
+    const pos=this.spawnPos(true) ?? this.freeSpot(this.p.x+6,this.p.y,true);
+    this.boss=this.spawnEnemy(FINAL_BOSS,pos.x,pos.y);
+    this.bossMinions(0); // clears any stray enemies; this family has no minions
+    this.setBanner('THE HOLLOW BEYOND', 'UNSTOPPABLE — dodge its tentacles. Survival time is your final record.', 'danger');
   }
 
   /** An opened district takes its hedge blockade with it: every wall tile whose surrounding areas are all open goes. */
@@ -3335,7 +3378,7 @@ export class Game {
       this.minionBoss = boss; this.minionT = 0;
       // the street empties when a boss arrives: from here on it is the boss and its own kind, nobody else
       for (const e of this.enemies) {
-        if (e === boss || e.minion || e.def.boss) continue;
+        if (e === boss) continue;
         e.dead = true; // slipping away, not killed: no loot
         for (let i = 0; i < 4; i++) this.particle(e.x, e.y, rand(0.2, 0.9), rand(-1, 1), rand(-1, 1), rand(1, 2.5), 0.5, '#8d8aa8', 4, 'sq');
       }
@@ -3344,7 +3387,8 @@ export class Game {
     this.minionT -= dt;
     if (this.minionT > 0) return;
     this.minionT = 6;
-    const types = BOSS_MINIONS[boss.type] ?? ['zombie'];
+    const types = BOSS_MINIONS[boss.type] ?? [];
+    if (!types.length) return; // The final tentacle giant must never summon escorts.
     let alive = 0;
     for (const e of this.enemies) if (e.minion && !e.dead) alive++;
     const cap = Math.min(24, 12 + this.bossRound * 3 + (this.endless ? 4 : 0));
@@ -3353,67 +3397,32 @@ export class Game {
     const from = this.enemies.length;
     this.spawnAround(boss.x, boss.y, n, 1.5, 3.8, types);
     for (let i = from; i < this.enemies.length; i++) this.enemies[i].minion = true;
-    if (first) this.toast(`${BOSS_NAMES[boss.type]} did not come alone: ${types.map(k => MINION_WORDS[k] ?? k).join(' and ')}.`);
+    if (first) this.toast(`${BOSS_NAMES[boss.type]} did not come alone: ${types.map(k => ROSTER_NAMES[k] ?? MINION_WORDS[k] ?? k).join(' and ')}.`);
   }
 
   private director(dt: number) {
     if (this.calmT > 0) this.wavePause += dt;
     if (this.bossBreak || this.calmT > 0 || (this.bossKilled && !this.endless)) return;
-    const t = this.time;
-    // waves and bosses go together: a boss fight is the wave, and the next one waits for it to end
-    const fight = !!this.boss && !this.boss.dead;
-    if (fight) this.wavePause += dt;
-    if (!this.endless && !fight) {
-      const targetWave = 1 + Math.floor((t - this.wavePause) / 60);
-      if (targetWave > this.wave) {
-        while (this.wave < targetWave) this.advanceWave();
-        this.setBanner(`WAVE ${this.wave}`, this.wave > 10 ? 'Special defenses are spreading. Switch weapons to counter them; ordinary mobs stay plentiful.' : 'Monsters gain 65% health and 12% damage each wave. Shielded lieutenants have arrived.', 'danger');
-      }
+    const t=this.time, fight=!!this.boss&&!this.boss.dead;
+    if(fight)this.wavePause+=dt;
+    if(!this.endless&&!fight&&this.wave<this.bossRound+1){
+      while(this.wave<this.bossRound+1)this.advanceWave();
+      this.setBanner(`WAVE ${this.wave} · ${BOSS_NAMES[familyForWave(this.wave)]}`, this.wave>10?'Counter their special defenses; switch weapons when needed.':'A new crew is taking over the streets.', 'danger');
     }
-    const cap = this.endless ? Math.min(270, 170 + this.wave * 6) : 170;
-    const alive = this.enemies.length;
-    if (fight) { this.bossMinions(dt); this.spawnAcc = 0; }
-    else {
-      const rate = 0.9 + t / 22 + (this.endless ? 2 + this.wave * 0.8 : 0);
-      this.spawnAcc += dt * rate * SPAWN_SCALE;
-    }
-    while (this.spawnAcc >= 1) {
+    const family=familyForWave(this.wave),types=BOSS_MINIONS[family];
+    if(fight){this.bossMinions(dt);this.spawnAcc=0;}
+    else if(!this.endless)this.spawnAcc+=dt*(.9+Math.min(t/22,10))*SPAWN_SCALE;
+    while(this.spawnAcc>=1){
       this.spawnAcc--;
-      if (alive >= cap) break;
-      const w: [string, number][] = [['zombie', 10]];
-      if (t > 35) w.push(['bat', 6]);
-      if (t > 70) w.push(['skeleton', 7]);
-      if (t > 100) w.push(['ghost', 4]);
-      if (t > 130) w.push(['pumpkin', 4]);
-      if (t > 160) w.push(['witch', 3]);
-      let tot = w.reduce((a, b) => a + b[1], 0), r = Math.random() * tot, type = 'zombie';
-      for (const [k, v] of w) { r -= v; if (r <= 0) { type = k; break; } }
-      const pos = this.spawnPos(type === 'bat' || type === 'ghost');
-      if (pos) this.spawnEnemy(type, pos.x, pos.y, Math.random() < (this.endless ? Math.min(0.12, 0.03 + this.wave * 0.004) : Math.min(0.06, t / 3000)));
+      if(this.enemies.filter(e=>!e.dead).length>=170)break;
+      const type=types[Math.random()<.6?0:1],pos=this.spawnPos(!!EDEF[type].fly||!!EDEF[type].phase);
+      if(pos)this.spawnEnemy(type,pos.x,pos.y,Math.random()<Math.min(.12,.02+this.wave*.004));
     }
-    // hordes (they wait for a boss fight to end)
-    if (!fight) for (const ht of [60, 120, 180, 240, 360, 420]) {
-      if (this.soon(ht, ht, 5)) this.toast('A new wave is coming!');
-      if (t >= ht && !this.hordes.has(ht)) {
-        this.hordes.add(ht);
-        this.setBanner('HORDE INCOMING!', 'They are surrounding you', 'danger');
-        const type = ht === 60 ? 'zombie' : ht === 120 ? 'bat' : ht === 180 ? 'skeleton' : 'ghost';
-        const n = Math.round((22 + ht / 10) * SPAWN_SCALE);
-        for (let i = 0; i < n; i++) {
-          const a = (i / n) * Math.PI * 2, d = this.viewR - 1;
-          const x = this.p.x + Math.cos(a) * d, y = this.p.y + Math.sin(a) * d;
-          if (x > 1 && y > 1 && x < MAP_W - 1 && y < MAP_H - 1 && (cellAt(this.map, x, y) === 0 || (this.map.kind !== 'arcade' && (type === 'bat' || type === 'ghost')))) this.spawnEnemy(type, x, y);
-        }
-      }
-    }
-    // elites
-    if (!fight && t >= this.nextElite) {
-      this.nextElite += 70;
-      const pos = this.spawnPos(false);
-      if (pos) {
-        this.spawnEnemy('werewolf', pos.x, pos.y);
-        this.setBanner('A WEREWOLF HOWLS', 'Elite monster - drops a Treat Bag', 'danger');
-      }
+    // Wave lieutenants stay in this boss's family rather than introducing unrelated werewolves.
+    if(!fight&&!this.endless&&t>=this.nextElite){
+      this.nextElite=t+70;
+      const type=types[0],pos=this.spawnPos(!!EDEF[type].fly);
+      if(pos){this.spawnEnemy(type,pos.x,pos.y,true);this.toast(`${BOSS_NAMES[family]} has sent a shielded lieutenant.`);}
     }
     // chests
     if (t >= this.nextChest) {
@@ -3443,14 +3452,15 @@ export class Game {
       for (let i = 0; i < 30; i++) this.particle(gate.x, gate.y, 0.3, rand(-3, 3), rand(-3, 3), rand(2, 6), 1, ['#7CFF64', '#FFC453', '#F9781B'][i % 3], 5, i % 2 ? 'glow' : 'sq');
     }
     // boss
-    const at = this.campaign ? this.nextBossAt : 300;
+    const at = this.nextBossAt;
     if (!this.endless && !this.boss && this.soon(-100 - this.bossRound, at, 10)) this.toast('A boss is coming. Get your weapons ready!');
-    if (!this.endless && t >= at && !this.boss && (this.campaign ? this.bossRound < CAMPAIGN_BOSSES.length : !this.bossSpawned)) {
+    if (!this.endless && t >= at && !this.boss && this.bossRound < CAMPAIGN_BOSSES.length) {
       this.bossSpawned = true;
-      const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
-      const type = this.campaign ? CAMPAIGN_BOSSES[this.bossRound] : 'king';
+      const pos = this.spawnPos(true) ?? this.freeSpot(this.p.x + 6, this.p.y, true);
+      const type = CAMPAIGN_BOSSES[this.bossRound];
       this.boss = this.spawnEnemy(type, pos.x, pos.y);
-      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for ${BUY_WINDOW} quiet seconds to shop`, 'danger');
+      this.bossMinions(0);
+      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/24 - defeat it for ${BUY_WINDOW} quiet seconds to shop`, 'danger');
       if (this.turrets.length && this.mounted < 0) this.toast('Get up on a jungle gym at Hollow Creek Primary — the Candy Cannon shreds bosses!');
       this.shake = 15;
     }
@@ -3501,15 +3511,15 @@ export class Game {
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
       calm: this.calmT,
-      wave: this.wave, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 60 - (((this.time - this.wavePause) % 60) + 60) % 60, bossFight: !!this.boss && !this.boss.dead,
+      wave: this.wave, waveIn: Math.max(0,this.nextBossAt-this.time), bossFight: !!this.boss && !this.boss.dead,
       momentum: this.momentum, streak: this.streak, premiumPower: this.premiumPowerT,
       turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,
       rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,
       costumesFound: this.costumesFound, doorsRung: this.housesVisited,
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
       housesLeft:townHouses.filter(h=>!h.visited).length+(!ARCADE_OPEN?0:arcadeHouses?arcadeHouses.filter(h=>!h.visited).length:3), housesTotal:townHouses.length+(ARCADE_OPEN?3:0),
-      banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, shield: this.boss.shield, maxShield: this.boss.maxShield, shieldT: this.boss.shieldT, name: BOSS_NAMES[this.boss.type] } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
-      bossIn: this.boss || (this.bossKilled && !this.endless) ? null : Math.max(0, (this.endless || this.campaign ? this.nextBossAt : 300) - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
+      banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, shield: this.boss.shield, maxShield: this.boss.maxShield, shieldT: this.boss.shieldT, name: BOSS_NAMES[this.boss.type], invulnerable:!!this.boss.def.invulnerable } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
+      bossIn: this.boss || (this.bossKilled && !this.endless) ? null : Math.max(0, this.nextBossAt - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
     };
   }
 }

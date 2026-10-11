@@ -1899,6 +1899,555 @@
         480,
         272
       ]
+    },
+    "enemy_iron_revenant": {
+      "file": "monsters/nightmare/enemy_iron_revenant.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_iron_revenant_a": {
+      "file": "monsters/nightmare/enemy_iron_revenant_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_iron_revenant_b": {
+      "file": "monsters/nightmare/enemy_iron_revenant_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dough_colossus": {
+      "file": "monsters/nightmare/enemy_dough_colossus.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_dough_colossus_a": {
+      "file": "monsters/nightmare/enemy_dough_colossus_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dough_colossus_b": {
+      "file": "monsters/nightmare/enemy_dough_colossus_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cruiser_bully": {
+      "file": "monsters/nightmare/enemy_cruiser_bully.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_cruiser_bully_a": {
+      "file": "monsters/nightmare/enemy_cruiser_bully_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cruiser_bully_b": {
+      "file": "monsters/nightmare/enemy_cruiser_bully_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_night_brood": {
+      "file": "monsters/nightmare/enemy_night_brood.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_night_brood_a": {
+      "file": "monsters/nightmare/enemy_night_brood_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_night_brood_b": {
+      "file": "monsters/nightmare/enemy_night_brood_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cloud_leviathan": {
+      "file": "monsters/nightmare/enemy_cloud_leviathan.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        320,
+        424
+      ]
+    },
+    "enemy_cloud_leviathan_a": {
+      "file": "monsters/nightmare/enemy_cloud_leviathan_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cloud_leviathan_b": {
+      "file": "monsters/nightmare/enemy_cloud_leviathan_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hollow_beyond": {
+      "file": "monsters/nightmare/enemy_hollow_beyond.png",
+      "scale": 1,
+      "frames": 4,
+      "anchor": [
+        240,
+        388
+      ]
+    },
+    "enemy_saucer_matron": {
+      "file": "monsters/nightmare/enemy_saucer_matron.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_saucer_matron_a": {
+      "file": "monsters/nightmare/enemy_saucer_matron_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_saucer_matron_b": {
+      "file": "monsters/nightmare/enemy_saucer_matron_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_assimilation_archon": {
+      "file": "monsters/nightmare/enemy_assimilation_archon.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_assimilation_archon_a": {
+      "file": "monsters/nightmare/enemy_assimilation_archon_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_assimilation_archon_b": {
+      "file": "monsters/nightmare/enemy_assimilation_archon_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_bog_sovereign": {
+      "file": "monsters/nightmare/enemy_bog_sovereign.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_bog_sovereign_a": {
+      "file": "monsters/nightmare/enemy_bog_sovereign_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_bog_sovereign_b": {
+      "file": "monsters/nightmare/enemy_bog_sovereign_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hungry_hothouse": {
+      "file": "monsters/nightmare/enemy_hungry_hothouse.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_hungry_hothouse_a": {
+      "file": "monsters/nightmare/enemy_hungry_hothouse_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hungry_hothouse_b": {
+      "file": "monsters/nightmare/enemy_hungry_hothouse_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gremlin_chief": {
+      "file": "monsters/nightmare/enemy_gremlin_chief.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_gremlin_chief_a": {
+      "file": "monsters/nightmare/enemy_gremlin_chief_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gremlin_chief_b": {
+      "file": "monsters/nightmare/enemy_gremlin_chief_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_playroom_butcher": {
+      "file": "monsters/nightmare/enemy_playroom_butcher.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_playroom_butcher_a": {
+      "file": "monsters/nightmare/enemy_playroom_butcher_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_playroom_butcher_b": {
+      "file": "monsters/nightmare/enemy_playroom_butcher_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_camp_revenant": {
+      "file": "monsters/nightmare/enemy_camp_revenant.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_camp_revenant_a": {
+      "file": "monsters/nightmare/enemy_camp_revenant_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_camp_revenant_b": {
+      "file": "monsters/nightmare/enemy_camp_revenant_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_midnight_caller": {
+      "file": "monsters/nightmare/enemy_midnight_caller.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_midnight_caller_a": {
+      "file": "monsters/nightmare/enemy_midnight_caller_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_midnight_caller_b": {
+      "file": "monsters/nightmare/enemy_midnight_caller_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_lord_blackdome": {
+      "file": "monsters/nightmare/enemy_lord_blackdome.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_lord_blackdome_a": {
+      "file": "monsters/nightmare/enemy_lord_blackdome_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_lord_blackdome_b": {
+      "file": "monsters/nightmare/enemy_lord_blackdome_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hollow_neighbor": {
+      "file": "monsters/nightmare/enemy_hollow_neighbor.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_hollow_neighbor_a": {
+      "file": "monsters/nightmare/enemy_hollow_neighbor_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hollow_neighbor_b": {
+      "file": "monsters/nightmare/enemy_hollow_neighbor_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_needle_magistrate": {
+      "file": "monsters/nightmare/enemy_needle_magistrate.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_needle_magistrate_a": {
+      "file": "monsters/nightmare/enemy_needle_magistrate_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_needle_magistrate_b": {
+      "file": "monsters/nightmare/enemy_needle_magistrate_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_winter_caretaker": {
+      "file": "monsters/nightmare/enemy_winter_caretaker.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_winter_caretaker_a": {
+      "file": "monsters/nightmare/enemy_winter_caretaker_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_winter_caretaker_b": {
+      "file": "monsters/nightmare/enemy_winter_caretaker_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dream_stalker": {
+      "file": "monsters/nightmare/enemy_dream_stalker.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_dream_stalker_a": {
+      "file": "monsters/nightmare/enemy_dream_stalker_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dream_stalker_b": {
+      "file": "monsters/nightmare/enemy_dream_stalker_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_blade_marshal": {
+      "file": "monsters/nightmare/enemy_blade_marshal.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_blade_marshal_a": {
+      "file": "monsters/nightmare/enemy_blade_marshal_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_blade_marshal_b": {
+      "file": "monsters/nightmare/enemy_blade_marshal_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gourmet_warden": {
+      "file": "monsters/nightmare/enemy_gourmet_warden.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_gourmet_warden_a": {
+      "file": "monsters/nightmare/enemy_gourmet_warden_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gourmet_warden_b": {
+      "file": "monsters/nightmare/enemy_gourmet_warden_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
     }
   }
 }

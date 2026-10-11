@@ -1,6 +1,7 @@
 import { makeCanvas, ellipse } from './draw';
 import { sheetAsset, Img } from '../assets';
 import { HERO_COSTUME } from '../data';
+import {nightmareSheet,NIGHTMARE_MONSTERS} from './nightmare-monsters';
 
 export interface Sheet {
   img: Img;
@@ -904,8 +905,9 @@ const EN_DEFS: Record<string, { fw: number; fh: number; frames: number; ax: numb
 };
 
 export function enemySheet(type: string): Sheet {
+  if(!EN_DEFS[type])return nightmareSheet(type);
   const d = EN_DEFS[type];
   return buildSheet(`enemy_${type}`, 'monsters', d.desc, d.prompt, d.fw, d.fh, d.frames, ['walk/float facing camera (flip horizontally for left/right)'], [d.frames], d.ax, d.ay, (ctx, cx, fy, f) => d.draw(ctx, cx, fy, f));
 }
 
-export const ENEMY_TYPES = Object.keys(EN_DEFS);
+export const ENEMY_TYPES = [...Object.keys(EN_DEFS),...NIGHTMARE_MONSTERS.map(m=>m.id)];

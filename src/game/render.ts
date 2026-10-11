@@ -28,6 +28,8 @@ const HELD_GUN_GRIP_X = 8;
 const HELD_GUN_GRIP_Y = 10;
 const KID_WAIST_HEIGHT = 30;
 const AIM_GUN_SCALE = 1.25;
+// Saucer beams have a visible source above the kid, rather than a ship at waist height.
+function enemyHover(e:Enemy){return e.def.fly?(e.type==='saucer_matron_b'?140:26):0;}
 
 /** first opaque row of a sprite (fraction of its height), measured once: generated PNGs often carry empty headroom */
 const opaqueTop = new WeakMap<object, number>();
@@ -58,7 +60,7 @@ export class Renderer {
   hero: Sheet;
   heroSil: HTMLCanvasElement;
   heroFlash: HTMLCanvasElement;
-  en: Record<string, { s: Sheet; white: HTMLCanvasElement; green: HTMLCanvasElement; ice?: HTMLCanvasElement }> = {};
+  en: Record<string, { s: Sheet; white?: HTMLCanvasElement; green?: HTMLCanvasElement; ice?: HTMLCanvasElement }> = {};
   /** burnt-out versions of wrecked cars and houses, made the first time each sprite is wrecked */
   private charred = new WeakMap<object, HTMLCanvasElement>();
   minimap: HTMLCanvasElement | null = null;
@@ -88,7 +90,7 @@ export class Renderer {
     heroAim(HEROES[heroIdx].id); // start loading the aiming sheet
     for (const t of ENEMY_TYPES) {
       const s = enemySheet(t);
-      this.en[t] = { s, white: tinted(s.img, '#ffffff'), green: tinted(s.img, '#8dff5a') };
+      this.en[t] = { s }; // Allocate effect copies only for creatures actually encountered.
     }
     for (let i = 0; i < 26; i++) this.leaves.push({ x: Math.random(), y: Math.random(), vx: 0.02 + Math.random() * 0.03, vy: 0.03 + Math.random() * 0.04, r: Math.random() * 6, c: ['#c8561e', '#e08a2a', '#a8321c', '#d9b13b'][i % 4] });
   }
@@ -126,6 +128,12 @@ export class Renderer {
   }
 
   render(g: Game, dt: number) {
+    // Release large effect canvases when their family leaves the street. Base art
+    // remains loaded; a 24-wave run must not retain three extra copies of every sheet.
+    const liveTypes=new Set(g.enemies.filter(e=>!e.dead).map(e=>e.type));
+    for(const [type,entry]of Object.entries(this.en))if(!liveTypes.has(type)){
+      for(const effect of ['white','green','ice'] as const){const c=entry[effect];if(c){c.width=c.height=0;delete entry[effect];}}
+    }
     this.t += dt;
     const cv = this.canvas, ctx = this.ctx;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -259,8 +267,15 @@ export class Renderer {
         ctx.globalAlpha = Math.min(1, (z.life - z.t) * 2) * 0.55;
         ctx.drawImage(glow('#ff5a1a', 128), sx - z.r * HW * 1.5, sy - z.r * HH * 1.5, z.r * TW * 1.5, z.r * TW * 0.75);
         ctx.restore();
+      } else if (z.kind === 'tractor') {
+        ctx.save();ctx.globalAlpha=Math.min(1,(z.life-z.t)*2);
+        const gr=ctx.createLinearGradient(sx,sy-160,sx,sy);
+        gr.addColorStop(0,'rgba(117,255,184,0.65)');gr.addColorStop(1,'rgba(117,255,184,0.08)');
+        ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(sx-10,sy-160);ctx.lineTo(sx+10,sy-160);ctx.lineTo(sx+32,sy);ctx.lineTo(sx-32,sy);ctx.closePath();ctx.fill();
+        ctx.strokeStyle='#83ffbc';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(sx,sy,32,16,0,0,Math.PI*2);ctx.stroke();ctx.restore();
       } else if (z.kind === 'warn') {
-        ctx.strokeStyle = `rgba(255,60,60,${0.8 - z.t})`;
+        // Long wind-ups must stay visible right up to the impact, not vanish at 0.8s.
+        ctx.strokeStyle = `rgba(255,60,60,${Math.max(.25,.8*(1-z.t/z.life))})`;
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.ellipse(sx, sy, z.r * HW * 1.4, z.r * HH * 1.4, 0, 0, Math.PI * 2); ctx.stroke();
       } else if (z.kind === 'vortex') {
@@ -327,6 +342,7 @@ export class Renderer {
     }
     if (g.friends.length) for (const friend of g.friends) {
       if(g.map.kind==='arcade'&&friend.status!=='rescued')continue;
+      if((friend.abductT??0)>0&&(friend.abductT??0)<=28)continue;
       const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
       const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
       if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
@@ -338,6 +354,8 @@ export class Renderer {
           ctx.fillStyle = friend.status === 'rescued' ? 'rgba(65,210,180,0.25)' : 'rgba(155,75,190,0.25)';
           ctx.beginPath(); ctx.ellipse(0, 0, 22, 10, 0, 0, Math.PI * 2); ctx.fill();
           ctx.save();
+          if((friend.abductT??0)>28){const rise=(30-friend.abductT!)/2;ctx.translate(0,-rise*140);ctx.globalAlpha=1-rise;}
+          else if((friend.returnT??0)>0){ctx.translate(0,-friend.returnT!*100);ctx.globalAlpha=1-friend.returnT!/1.3;}
           if (down) { ctx.translate(-12, -10); ctx.rotate(-Math.PI / 2); ctx.globalAlpha = 0.8; }
           const aiming = !down && g.state !== 'intro' ? heroAim(HEROES[friend.hero].id) : null;
           if (aiming) {
@@ -380,8 +398,9 @@ export class Renderer {
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
       const es = this.en[e.type].s;
       const sc = e.elite && !e.def.elite ? 1.25 : 1;
-      if (!inView(sx - es.ax * sc, sy - es.ay * sc, sx + es.ax * sc, sy + 10)) continue;
-      items.push({ key: e.x + e.y, x: e.x, y: e.y, bx0: sx - es.ax * sc, by0: sy - es.ay * sc, bx1: sx + es.ax * sc, by1: sy, draw: () => this.drawEnemy(e, sx, sy, sc) });
+      const top=sy-es.ay*sc-enemyHover(e);
+      if (!inView(sx - es.ax * sc, top, sx + es.ax * sc, sy + 10)) continue;
+      items.push({ key: e.x + e.y, x: e.x, y: e.y, bx0: sx - es.ax * sc, by0: top, bx1: sx + es.ax * sc, by1: sy, draw: () => this.drawEnemy(e, sx, sy, sc) });
     }
     if (g.lootMagnet && g.lootMagnet.map === g.map) {
       // the magnet a boss left behind, hanging over the pile it gathered
@@ -873,7 +892,7 @@ export class Renderer {
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
       if (e.hp < e.maxHp || e.maxShield > 0 || e.affix) {
         const w = e.elite ? 30 : 15, h = e.elite ? 3 : 2;
-        const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - 6;
+        const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - enemyHover(e) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
         ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
@@ -1562,13 +1581,13 @@ export class Renderer {
       ctx.clip();
     }
     ctx.translate(sx, sy + rise);
-    if (e.def.fly) ctx.translate(0, -26 + Math.sin(e.anim) * 3);
+    if (e.def.fly) ctx.translate(0, -enemyHover(e) + Math.sin(e.anim) * 3);
     ctx.scale(e.flip ? -sc : sc, sc);
     if (e.type === 'ghost') ctx.globalAlpha = 0.82;
     blitFrame(ctx, s, s.img, 0, f, 0, 0);
     if (e.ectoT > 0) {
       ctx.globalAlpha = 0.35;
-      blitFrame(ctx, s, E.green, 0, f, 0, 0);
+      blitFrame(ctx, s, (E.green ??= tinted(s.img, '#8dff5a')), 0, f, 0, 0);
     }
     if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) {
       ctx.globalAlpha = e.frozenT ? 0.7 : (e.chill ?? 0) * 0.45;
@@ -1576,7 +1595,7 @@ export class Renderer {
     }
     if (e.hit > 0) {
       ctx.globalAlpha = Math.min(1, e.hit * 10);
-      blitFrame(ctx, s, E.white, 0, f, 0, 0);
+      blitFrame(ctx, s, (E.white ??= tinted(s.img, '#ffffff')), 0, f, 0, 0);
     }
     ctx.restore();
     if (e.stunT > 0 && !e.frozenT) {

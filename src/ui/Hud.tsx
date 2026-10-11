@@ -80,7 +80,7 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
       <div className="hm-clock">
         <div className="hm-time">{fmtTime(s.time)}</div>
         <div className="hm-time-sub">
-          {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop</span>
+          {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop <button type="button" className="pointer-events-auto ml-2 border border-[#ffa338] px-2 py-1 text-[#ffa338]" onClick={()=>game.skipBuyWindow()}>Skip break</button></span>
             : s.bossFight ? <span className="text-[#ff5a6e]">Wave {Math.max(1, s.wave)} · Boss fight</span>
             : s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
             : s.bossIn !== null ? <span>Boss in {fmtTime(s.bossIn)}</span>
@@ -144,7 +144,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
           {friends.map((f) => (
             <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (f.hp > 0 ? 'fighting beside you' : 'down: revive them') : game.rescueMap.gates[f.gate].name}`}>
               <span className="hm-av h-7 w-7 !border" style={{ background: HERO_COLORS[f.hero], borderColor: f.status === 'rescued' ? '#66d2b7' : '#5f6470', opacity: f.status === 'rescued' ? 1 : 0.55 }}><img src={FACES[f.hero]} alt="" className="h-full w-full object-cover" /></span>
-              <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil(game.friendCountdown - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.rescueMap.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
+              <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{(f.abductT??0)>0 ? `abducted ${Math.ceil(f.abductT!)}s` : f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil(game.friendCountdown - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.rescueMap.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
             </div>
           ))}
         </>
@@ -266,13 +266,13 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
           <div className="flex items-baseline justify-between gap-3">
             <span className="hm-kicker !mb-0">Boss</span>
             <span className="font-cond text-xl uppercase leading-none text-[#f2e8d4]">{s.boss.name}</span>
-            <span className="font-num text-[11px] text-[#8f8676]">{Math.max(0, Math.ceil((s.boss.hp / s.boss.max) * 100))}%</span>
+            <span className="font-num text-[11px] text-[#f2e8d4]">{s.boss.invulnerable ? 'UNSTOPPABLE' : `${Math.max(0, Math.ceil((s.boss.hp / s.boss.max) * 100))}%`}</span>
           </div>
           {s.boss.maxShield > 0 && <div className="mt-2 text-xs text-[#a7edff]">
             <div className="flex justify-between gap-3"><span>Shield {Math.ceil(s.boss.shield)} / {Math.ceil(s.boss.maxShield)}</span><span>{s.boss.shieldT > 0 ? `Recharges in ${Math.ceil(s.boss.shieldT)}s` : 'Recharging'}</span></div>
             <div data-testid="boss-shield" title="Shield absorbs damage before health" className="mt-1 h-1 bg-black/60"><div className="h-full bg-[#76ddff]" style={{ width: pct(s.boss.shield, s.boss.maxShield) }} /></div>
           </div>}
-          <div data-testid="boss-health" className="hm-progress mt-1.5 !h-2.5"><i style={{ width: pct(s.boss.hp, s.boss.max) }} /></div>
+          {s.boss.invulnerable ? <p className="mt-2 text-sm text-[#f2e8d4]">Dodge the tentacles. Survive as long as you can.</p> : <div data-testid="boss-health" className="hm-progress mt-1.5 !h-2.5"><i style={{ width: pct(s.boss.hp, s.boss.max) }} /></div>}
         </div>
       )}
 
