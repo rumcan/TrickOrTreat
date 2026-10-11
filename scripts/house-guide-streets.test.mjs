@@ -64,7 +64,7 @@ try {
     const enemy = g.spawnEnemy('zombie', g.p.x + 2, g.p.y); enemy.shield = enemy.maxShield = 100; enemy.hp = enemy.maxHp;
     renderer.render(g, .01);
     ctx.fillText = fillText; ctx.ellipse = ellipse; ctx.fillRect = fillRect;
-    return { guide: labels.includes('FIRST TREATS') || labels.includes('RING THE BELL · E'), shieldBubble: ellipses.includes('#76ddff'), shieldBar: bars.length > 0 };
+    return { guide: labels.includes('FIRST TREATS') || labels.includes('FOLLOW THE DOTS') || labels.includes('RING THE BELL · E'), shieldBubble: ellipses.includes('#76ddff'), shieldBar: bars.length > 0 };
   });
   assert.equal(renderChecks.guide, true); assert.equal(renderChecks.shieldBubble, false); assert.equal(renderChecks.shieldBar, true);
   for (const [width, height] of [[1440,900], [390,844], [844,390]]) {

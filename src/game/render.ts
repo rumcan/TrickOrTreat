@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret } from './engine';
+import { Game, Enemy, Turret, GUN_GROUND_TIME } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -375,6 +375,8 @@ export class Renderer {
           const bob = Math.sin(this.t * 4 + k.x * 3) * 3;
           const z = k.z * Z;
           if (k.kind === 'weapon' && k.weapon) {
+            // about to be gone (GUN_GROUND_TIME): it blinks for its last ten seconds
+            if (k.t > GUN_GROUND_TIME - 10 && Math.sin(this.t * (k.t > GUN_GROUND_TIME - 4 ? 22 : 11)) < 0) return;
             const r = RARITY[k.weapon.rarity];
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
@@ -1012,10 +1014,32 @@ export class Renderer {
     if (tutorial && !g.treatGuideComplete && !tutorial.visited && !g.tot && g.state === 'play' && !g.bigMap) {
       const [sx, sy] = toS(isoX(tutorial.door.x, tutorial.door.y), isoY(tutorial.door.x, tutorial.door.y));
       {
+        // the way to walk there: a line of green dots, round whatever is in the way. Drawn over the night and the
+        // scenery, so the route still reads in the dark and behind a house.
+        const way = g.treatRoute();
+        if (way.length > 6) {
+          ctx.save();
+          const march = Math.floor(this.t * 6) % 4;
+          for (let k = 4; k < way.length - 2; k += 2) {
+            const [dx, dy] = toS(isoX(way[k].x, way[k].y), isoY(way[k].x, way[k].y));
+            if (dx < -10 || dy < -10 || dx > vw + 10 || dy > vh + 10) continue;
+            const lead = ((k / 2 + 4 - march) % 4) === 0; // a pulse running toward the door
+            ctx.globalAlpha = lead ? 1 : 0.6;
+            ctx.fillStyle = '#0c211b'; ctx.beginPath(); ctx.ellipse(dx, dy, lead ? 8 : 6.5, lead ? 4.2 : 3.4, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = lead ? '#b9ffcd' : '#45da79';
+            ctx.beginPath(); ctx.ellipse(dx, dy, lead ? 6 : 4.6, lead ? 3.1 : 2.4, 0, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+      {
         const miniWidth = Math.min(230, vw * 0.22), miniBottom = hudTop + 3 + 16 + miniWidth / 2 + 6;
         const underMap = sx > vw - miniWidth - 110 && sy < miniBottom + 100;
         const onScreen = !underMap && sx >= 85 && sx <= vw - 85 && sy >= 170 && sy <= vh - 115;
-        const angle = Math.atan2(sy - vh / 2, sx - vw / 2);
+        // off screen the arrow points the way to WALK (a few tiles along the route), not straight at a door behind a wall
+        const route = g.treatRoute(), ahead = route[Math.min(route.length - 1, 22)];
+        const [wx, wy] = ahead ? toS(isoX(ahead.x, ahead.y), isoY(ahead.x, ahead.y)) : [sx, sy];
+        const angle = Math.atan2(wy - vh / 2, wx - vw / 2);
         let ax = onScreen ? sx : clamp(vw / 2 + Math.cos(angle) * vw, 90, vw - 90);
         let ay = onScreen ? sy - 18 : clamp(vh / 2 + Math.sin(angle) * vh, 190, vh - 150);
         if (ax > vw - miniWidth - 110 && ay < miniBottom + 100) {
@@ -1032,7 +1056,7 @@ export class Renderer {
         ctx.restore(); ctx.fillStyle = '#0c211bef'; ctx.strokeStyle = '#63d991'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.roundRect(-78, -84, 156, 26, 8); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#e4ffeb'; ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP INTERACT' : 'RING THE BELL · E') : 'FIRST TREATS', 0, -71);
+        ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP INTERACT' : 'RING THE BELL · E') : onScreen || route.length < 7 ? 'FIRST TREATS' : 'FOLLOW THE DOTS', 0, -71);
         ctx.restore();
       }
     }

@@ -150,6 +150,8 @@ export interface Enemy {
   hit: number; burnT: number; burnDps: number; burnAcc: number; ectoT: number; stunT: number; atkCd: number; kx: number; ky: number;
   /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (up to HAUNT_MAX) */
   vuln?: number;
+  /** one of a boss's own crowd (see BOSS_MINIONS) */
+  minion?: boolean;
   /** Cryo Ray: chill builds toward 1 (slowing), then the monster is frozen solid for a while */
   chill?: number; frozenT?: number;
   shootT: number; lungeT: number; lungeX: number; lungeY: number; p1: number; p2: number; p3: number; orbitT: number; dead: boolean; elite: boolean; spawnT: number;
@@ -222,6 +224,8 @@ export const FRIEND_CARD_CHANCE = 0.2;
  * ordinary building to trick-or-treat at, as it was before. Set to true to work on the interior.
  */
 export const ARCADE_OPEN = false;
+/** seconds a gun lies on the ground before it is gone (it blinks for the last ten) */
+export const GUN_GROUND_TIME = 120;
 export const FRIEND_DOWN_TIME = 30;
 /** seconds of calm after every boss (the clock only runs while the kid is free to move) */
 export const BUY_WINDOW = 20;
@@ -235,6 +239,12 @@ const CAR_HP = 50, HOUSE_HP = 170;
 const RESCUE_TIME = 1.8;
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
 const CAMPAIGN_BOSSES = ['hex', 'alpha', 'warden', 'king'];
+/**
+ * A boss fight is its own wave: while a boss lives the ordinary waves, hordes and elites wait, and the boss fights with
+ * its own crowd instead (an escort when it arrives, then a small squad every few seconds, up to a cap).
+ */
+export const BOSS_MINIONS: Record<string, string[]> = { hex: ['witch', 'ghost'], alpha: ['bat', 'zombie'], warden: ['skeleton', 'zombie'], king: ['pumpkin', 'bat'] };
+const MINION_WORDS: Record<string, string> = { witch: 'witches', ghost: 'ghosts', bat: 'bats', zombie: 'zombies', skeleton: 'skeletons', pumpkin: 'pumpkin heads' };
 const ENDLESS_BOSS_INTERVAL = 90;
 
 // ================= GAME =================
@@ -297,6 +307,10 @@ export class Game {
   bossBreak = false;
   /** seconds left of the calm after a boss: nothing spawns, the shops have moved, the kid has time to find one */
   calmT = 0;
+  /** seconds the waves have stood still (a boss alive, or the quiet after one): the wave clock is the run time less this */
+  wavePause = 0;
+  private minionT = 0;
+  private minionBoss: Enemy | null = null;
   nextBossAt = 90;
   private endlessBosses = 0;
   xpCollected = 0;
@@ -446,8 +460,43 @@ export class Game {
 
   private selectTutorialHouse() {
     if (this.treatGuideComplete) return;
+    // The first door has to be an easy one: the nearest by WALKING, not as the crow flies. A house whose door is round
+    // the back looks close and sends a new player straight into its wall.
+    const walk = (h: HouseInst) => this.flow[Math.floor(h.door.y * CR) * CW + Math.floor(h.door.x * CR)];
     this.tutorialHouse = this.map.houses.filter(h => h.prop.kind === 'house' && !h.trick && !h.visited && !blockedCircle(this.map, h.door.x, h.door.y, this.p.r) && this.reachable(h.door.x, h.door.y))
-      .sort((a, b) => Math.hypot(a.door.x - this.p.x, a.door.y - this.p.y) - Math.hypot(b.door.x - this.p.x, b.door.y - this.p.y))[0] ?? null;
+      .sort((a, b) => walk(a) - walk(b))[0] ?? null;
+    this.routeKey = -1;
+  }
+  private routeKey = -1;
+  private route: { x: number; y: number }[] = [];
+  /**
+   * The way to walk from the kid to the first house's door, a point per quarter tile (empty once the guide is done).
+   * It follows the same flow field the monsters use, so it goes round buildings and fences exactly as the kid must.
+   */
+  treatRoute(): { x: number; y: number }[] {
+    const h = this.tutorialHouse;
+    if (!h || this.treatGuideComplete || h.visited) return [];
+    const door = Math.floor(h.door.y * CR) * CW + Math.floor(h.door.x * CR);
+    const key = this.flowCell * 4 + door % 4 + door * 1e7; // the route only changes when the kid steps into another cell
+    if (key === this.routeKey) return this.route;
+    this.routeKey = key;
+    const f = this.flow, out: { x: number; y: number }[] = [];
+    let c = door;
+    for (let guard = 0; guard < 1200 && f[c] < (1 << 29); guard++) {
+      out.push({ x: (c % CW + 0.5) / CR, y: (((c / CW) | 0) + 0.5) / CR });
+      if (f[c] <= 0) break;
+      // one step closer to the kid; among equal steps keep going the way we were going, so the line is not a staircase
+      const prev = out.length > 1 ? c - (Math.floor(out[out.length - 2].y * CR) * CW + Math.floor(out[out.length - 2].x * CR)) : 0;
+      let next = -1;
+      for (const n of [c + prev, c - 1, c + 1, c - CW, c + CW]) {
+        if (n === c || n < 0 || n >= f.length || f[n] !== f[c] - 1) continue;
+        if (Math.abs((n % CW) - (c % CW)) > 1) continue; // no wrapping round the edge of the map
+        next = n; break;
+      }
+      if (next < 0) break;
+      c = next;
+    }
+    return (this.route = out.reverse());
   }
 
   private freeSpot(x: number, y: number, reachable = false) {
@@ -2429,6 +2478,12 @@ export class Game {
     for (const k of this.pickups) {
       k.t += dt;
       if (k.friendOnly) { if (k.t > 45) k.dead = true; continue; }
+      if (k.kind === 'weapon' && k.t > GUN_GROUND_TIME && k !== this.inspecting) {
+        // nobody wanted it: the street is not a gun rack
+        k.dead = true;
+        for (let i = 0; i < 8; i++) this.particle(k.x, k.y, 0.3, rand(-1, 1), rand(-1, 1), rand(1, 3), 0.5, '#c9bda6', 3, 'sq');
+        continue;
+      }
       if (k.z > 0 || k.vz > 0) {
         k.vz -= 12 * dt;
         k.z += k.vz * dt;
@@ -3082,7 +3137,7 @@ export class Game {
   }
   private updateEndless(dt: number) {
     if (this.bossBreak || this.calmT > 0) return;
-    this.waveT += dt;
+    if (!this.boss) this.waveT += dt; // the endless waves wait while a boss is alive, too
     if (this.waveT >= 30) {
       this.waveT -= 30;
       this.advanceWave();
@@ -3136,11 +3191,34 @@ export class Game {
     return null;
   }
 
+  /** the boss's own crowd: an escort the moment it arrives, then squads while it lives */
+  private bossMinions(dt: number) {
+    const boss = this.boss!, first = this.minionBoss !== boss;
+    if (first) { this.minionBoss = boss; this.minionT = 0; }
+    this.minionT -= dt;
+    if (this.minionT > 0) return;
+    this.minionT = 6;
+    const types = BOSS_MINIONS[boss.type] ?? ['zombie'];
+    let alive = 0;
+    for (const e of this.enemies) if (e.minion && !e.dead) alive++;
+    const cap = Math.min(18, 8 + this.bossRound * 2 + (this.endless ? 4 : 0));
+    const n = Math.min(cap - alive, first ? 5 + Math.min(4, this.bossRound) : 3 + Math.min(3, Math.floor(this.bossRound / 2)));
+    if (n <= 0) return;
+    const from = this.enemies.length;
+    this.spawnAround(boss.x, boss.y, n, 1.5, 3.8, types);
+    for (let i = from; i < this.enemies.length; i++) this.enemies[i].minion = true;
+    if (first) this.toast(`${BOSS_NAMES[boss.type]} did not come alone: ${types.map(k => MINION_WORDS[k] ?? k).join(' and ')}.`);
+  }
+
   private director(dt: number) {
+    if (this.calmT > 0) this.wavePause += dt;
     if (this.bossBreak || this.calmT > 0 || (this.bossKilled && !this.endless)) return;
     const t = this.time;
-    if (!this.endless) {
-      const targetWave = 1 + Math.floor(t / 60);
+    // waves and bosses go together: a boss fight is the wave, and the next one waits for it to end
+    const fight = !!this.boss && !this.boss.dead;
+    if (fight) this.wavePause += dt;
+    if (!this.endless && !fight) {
+      const targetWave = 1 + Math.floor((t - this.wavePause) / 60);
       if (targetWave > this.wave) {
         while (this.wave < targetWave) this.advanceWave();
         this.setBanner(`WAVE ${this.wave}`, this.wave > 10 ? 'Special defenses are spreading. Switch weapons to counter them; ordinary mobs stay plentiful.' : 'Monsters gain 65% health and 12% damage each wave. Shielded lieutenants have arrived.', 'danger');
@@ -3148,10 +3226,11 @@ export class Game {
     }
     const cap = this.endless ? Math.min(270, 170 + this.wave * 6) : 170;
     const alive = this.enemies.length;
-    if (!this.boss || this.endless) {
+    if (fight) { this.bossMinions(dt); this.spawnAcc = 0; }
+    else {
       const rate = 0.9 + t / 22 + (this.endless ? 2 + this.wave * 0.8 : 0);
       this.spawnAcc += dt * rate * SPAWN_SCALE;
-    } else this.spawnAcc += dt * 1.2 * SPAWN_SCALE;
+    }
     while (this.spawnAcc >= 1) {
       this.spawnAcc--;
       if (alive >= cap) break;
@@ -3166,8 +3245,8 @@ export class Game {
       const pos = this.spawnPos(type === 'bat' || type === 'ghost');
       if (pos) this.spawnEnemy(type, pos.x, pos.y, Math.random() < (this.endless ? Math.min(0.12, 0.03 + this.wave * 0.004) : Math.min(0.06, t / 3000)));
     }
-    // hordes
-    for (const ht of [60, 120, 180, 240, 360, 420]) {
+    // hordes (they wait for a boss fight to end)
+    if (!fight) for (const ht of [60, 120, 180, 240, 360, 420]) {
       if (this.soon(ht, ht, 5)) this.toast('A new wave is coming!');
       if (t >= ht && !this.hordes.has(ht)) {
         this.hordes.add(ht);
@@ -3182,7 +3261,7 @@ export class Game {
       }
     }
     // elites
-    if (t >= this.nextElite) {
+    if (!fight && t >= this.nextElite) {
       this.nextElite += 70;
       const pos = this.spawnPos(false);
       if (pos) {
@@ -3276,7 +3355,7 @@ export class Game {
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
       calm: this.calmT,
-      wave: this.wave, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 60 - this.time % 60,
+      wave: this.wave, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 60 - (((this.time - this.wavePause) % 60) + 60) % 60, bossFight: !!this.boss && !this.boss.dead,
       momentum: this.momentum, streak: this.streak, premiumPower: this.premiumPowerT,
       turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,
       rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,
