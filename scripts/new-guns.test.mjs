@@ -74,10 +74,10 @@ try {
     const w = makeWeapon(id, 2, 1, true);
     w.traits = []; // plain gun: only its own mechanic
     p.weapons[0] = w; p.cur = 0;
-    const d = Math.min(2.4, best.run - 0.6), pack = [];
+    const d = Math.min(1.9, best.run - 0.6), pack = [];
     for (let i = 0; i < 5; i++) {
       const e = g.spawnEnemy('zombie', p.x + Math.cos(best.a) * d + Math.cos(i * 1.26) * 0.45, p.y + Math.sin(best.a) * d + Math.sin(i * 1.26) * 0.45, false, null); // no random affix: plain monsters
-      e.spawnT = 0; e.maxHp = e.hp = 4000; e.def = { ...e.def, speed: 0, dmg: 0 };
+      e.spawnT = 0; e.maxHp = e.hp = 4000; e.def = { ...e.def, speed: 0, dmg: 0, mass: id === 'singularity' ? e.def.mass : 1e6 }; // rooted, so knock-back cannot push the pack out of a short gun's reach (the singularity has to be able to drag them)
       pack.push(e);
     }
     const seen = { bullets: new Set(), zones: new Set(), beams: 0, back: false, frozen: false, ramp: 0, hurt: 0, pull: 0, booms: 0, maxBullets: 0, flashArc: 0 };

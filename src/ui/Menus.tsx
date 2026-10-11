@@ -252,12 +252,12 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
   const treats = Object.entries(game.scrolls).filter(([id, n]) => n > 0 && SCROLL_BY_ID[id]);
   return (
     <div className="hm-backdrop">
-      <div className="hm-modal kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="min-w-0">
+      <div className="hm-modal hm-pause kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="hm-pause-main min-w-0">
           <div className="paper-kicker">Paused · {fmtTime(game.time)} · {HERO_INFO[game.hero].name}</div>
           <h2 className="hm-modal-title">Take a breather</h2>
           <span className="hm-rule" />
-          <ol className="mt-5">
+          <ol className="mt-5 shrink-0">
             {items.map((it, k) => (
               <li key={it.label}>
                 <button onMouseEnter={() => setHover(k)} onClick={it.on} className="hm-menu-row">
@@ -268,14 +268,11 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
               </li>
             ))}
           </ol>
-          {panel === 'controls' && <ControlsPanel className="kit-pop mt-4 w-full" />}
-        </div>
-        <aside className="flex min-w-0 flex-col gap-4">
-          {cur ? <WeaponCard w={cur} stats={game.stats} title="In hand" className="!w-full" /> : <div className="text-sm text-[#8f8676]">No weapon equipped</div>}
-          {treats.length > 0 && (
-            <div className="paper-section">
-              <h3>Treats this run</h3>
-              <div className="grid grid-cols-4 gap-1.5">
+          {treats.length > 0 && panel !== 'controls' && (
+            <div className="paper-section hm-pause-treats mt-5">
+              <h3>Treats this run · {treats.reduce((a, [, n]) => a + n, 0)}</h3>
+              {/* the only part of the pause menu that scrolls: a long run collects dozens of treats */}
+              <div className="hm-pause-grid grid grid-cols-5 gap-1.5 sm:grid-cols-8" tabIndex={0} aria-label="Treats collected this run">
                 {treats.map(([id, n]) => (
                   <div key={id} className="hm-thumb" title={`${SCROLL_BY_ID[id].name}: ${SCROLL_BY_ID[id].desc}`} style={{ borderColor: RARITY_KIT[SCROLL_BY_ID[id].rarity] }}>
                     <TreatArt id={id} />
@@ -285,6 +282,10 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
               </div>
             </div>
           )}
+          {panel === 'controls' && <ControlsPanel className="kit-pop mt-4 w-full" />}
+        </div>
+        <aside className="flex min-w-0 flex-col gap-4">
+          {cur ? <WeaponCard w={cur} stats={game.stats} title="In hand" compact className="!w-full shrink-0" /> : <div className="text-sm text-[#8f8676]">No weapon equipped</div>}
         </aside>
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}

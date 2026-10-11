@@ -684,6 +684,14 @@ button.kit-tile:not(:disabled):hover {
 .hm-pick-desc { margin-top: 6px; color: #fff; font: 600 15px/1.5 "Barlow", sans-serif; }
 .hm-pick > div:last-child { padding: 18px; gap: 3px; }
 .hm-pick .hm-label, .hm-pick [class*="text-[#8f8676]"], .hm-locked .hm-pick-name, .hm-locked .hm-pick-desc { color: #fff; }
+/* Pause: on a wide screen the menu is one fixed page. Only the list of collected treats scrolls. */
+@media (min-width: 768px) {
+  .hm-pause { max-height: calc(100dvh - 32px); grid-template-rows: minmax(0, 1fr); overflow: hidden; }
+  .hm-pause > aside, .hm-pause-main { min-height: 0; }
+  .hm-pause-main { display: flex; flex-direction: column; overflow-y: auto; scrollbar-width: none; } /* the controls sheet, when opened, never pushes the page */
+  .hm-pause-treats { display: flex; flex: 0 1 auto; flex-direction: column; min-height: 110px; } /* as tall as its treats while the window has room, then it scrolls */
+  .hm-pause-grid { min-height: 0; overflow-y: auto; padding-right: 4px; align-content: start; grid-auto-rows: max-content; scrollbar-width: thin; scrollbar-color: #ef7c17 #0d1418; }
+}
 .hm-modal .hm-foot { gap: 16px; }
 .hm-modal .hm-foot > span { color: #fff; line-height: 1.8; }
 .hm-modal .hm-foot .kit-key { margin-inline: 4px; }
@@ -813,7 +821,7 @@ button.kit-tile:not(:disabled):hover {
 .vending-header p { color:#d5e6e6; font-size:14px; }
 .vending-wallet { display:flex; gap:10px; align-items:center; color:#ffca76; flex-shrink:0; }
 .vending-wallet strong { font-family:'Roboto Mono',monospace; font-size:22px; }
-.vending-reel-frame { position:relative; overflow:hidden; margin-top:24px; padding:18px 0; border:1px solid #677680; border-radius:9px; background:#061016; box-shadow:inset 0 0 40px #000; }
+.vending-reel-frame { position:relative; overflow:hidden; margin-top:14px; padding:12px 0; border:1px solid #677680; border-radius:9px; background:#061016; box-shadow:inset 0 0 40px #000; }
 .vending-reel-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,#061016cf,transparent 9%,transparent 91%,#061016cf); }
 .vending-reel { display:flex; gap:10px; width:max-content; will-change:transform; }
 .vending-tile { position:relative; display:flex; flex-direction:column; flex-shrink:0; width:162px; min-height:176px; overflow:hidden; border:1px solid #4d6570; border-bottom:4px solid var(--prize-color); border-radius:5px; background:linear-gradient(#29404c,#12222a); text-align:left; transition:background .15s; }
@@ -826,11 +834,11 @@ button.kit-tile:not(:disabled):hover {
 .vending-tile.is-winner { background:linear-gradient(#53504a,#243b3b); border:2px solid var(--prize-color); border-bottom-width:4px; box-shadow:0 0 20px color-mix(in srgb,var(--prize-color) 35%,transparent); }
 .vending-marker { position:absolute; z-index:2; top:0; bottom:0; left:50%; width:2px; background:#ffe2a280; pointer-events:none; }
 .vending-marker svg { position:absolute; top:-6px; left:-16px; width:34px; height:34px; color:#ffcf70; fill:#ffcf70; filter:drop-shadow(0 2px 3px #000); }
-.vending-state { margin:16px 0; color:#ffdc98; font-size:17px; font-weight:700; text-align:center; }
-.vending-winner { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; padding:18px; margin:20px 0; border:1px solid #728278; border-radius:8px; background:#152d2c; animation:prize-reveal .3s ease-out; }
+.vending-state { margin:10px 0; color:#ffdc98; font-size:17px; font-weight:700; text-align:center; }
+.vending-winner { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; padding:14px; margin:10px 0 12px; border:1px solid #728278; border-radius:8px; background:#152d2c; animation:prize-reveal .3s ease-out; }
 @keyframes prize-reveal { from { opacity:0; transform:translateY(8px) scale(.98); } to { opacity:1; transform:none; } }
 .vending-treat-detail { padding:14px; border:1px solid; border-radius:6px; background:#101d25; }
-.vending-detail-art { height:130px; margin:-14px -14px 14px; overflow:hidden; border-radius:5px 5px 0 0; }
+.vending-detail-art { height:104px; margin:-14px -14px 14px; overflow:hidden; border-radius:5px 5px 0 0; }
 .vending-detail-art img { object-fit:contain; background:#070f16; }
 .vending-treat-detail h3 { font-family:Anton,sans-serif; font-size:23px; text-transform:uppercase; line-height:1.2; margin:8px 0; }
 .vending-quote { margin:8px 0; font-size:13px; font-style:italic; color:#dbe2d7; }
@@ -838,11 +846,12 @@ button.kit-tile:not(:disabled):hover {
 .vending-effect small { font-size:10px; letter-spacing:.14em; }
 .vending-effect strong { font-size:16px; }
 .vending-owned { margin-top:12px; font-size:12px; color:#d1e0db; }
-.vending-claim { display:flex; flex-direction:column; justify-content:center; align-items:stretch; gap:14px; }
+.vending-claim { display:flex; flex-direction:column; justify-content:flex-start; align-items:stretch; gap:12px; padding-top:22px; }
 .vending-claim h3, .vending-catalogue h3 { font-family:Anton,sans-serif; font-size:26px; text-transform:uppercase; color:#ffcc83; }
 .vending-claim p, .vending-catalogue p { font-size:14px; color:#e1e8e4; line-height:1.5; }
 .vending-collected { color:#b4fbb8 !important; font-weight:700; }
-.vending-controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+/* the buttons stay in reach: when the panel is taller than the window they sit on its bottom edge instead of below the fold */
+.vending-controls { position:sticky; bottom:-20px; z-index:3; display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 -24px; padding:12px 24px; background:linear-gradient(#0d1f26f2,#0b181ef2); border-top:1px solid #5b707780; }
 .vending-machine .hm-btn { min-height:46px; display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:normal; line-height:1.3; }
 .vending-note { font-size:13px; color:#ffdfaa; margin-top:14px; }
 .vending-premium { display:flex; align-items:center; gap:6px; font-size:12px; color:#ffdb94; margin:8px 0; }
