@@ -173,13 +173,15 @@ export interface EBullet { x: number; y: number; vx: number; vy: number; r: numb
 export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
 export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
-export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number }
+export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number; /** a quiet beam (streams, the Phase Lance): thin, and faint at the gun end */ soft?: boolean }
 export interface Zone {
   kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn' | 'trail' | 'vortex'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string;
   /** flash: half-angle of the cone · trail: the far end of the line · vortex: blast radius, crit flag and whether it wrecks scenery */
   arc?: number; x1?: number; y1?: number; blast?: number; crit?: boolean; demolish?: boolean; done?: boolean;
   /** boom: big enough to play the painted fireball */
   sprite?: boolean;
+  /** trail: the wake of a beam. It thins out from the gun end toward the far end over its life, like smoke, and only the part still hanging in the air cuts */
+  wake?: boolean;
 }
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
@@ -689,9 +691,9 @@ export class Game {
       for (let i = 0; i < beams; i++) {
         const a = angle + (beams > 1 ? (i - (beams - 1) / 2) * 0.12 : 0);
         if (def.chill || def.stream) this.hitSrc = weapon;
-        const len = this.hitscan(friend.x, friend.y, Math.cos(a), Math.sin(a), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5);
+        const len = this.hitscan(friend.x, friend.y, Math.cos(a), Math.sin(a), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5, !!(def.stream || def.trail));
         this.hitSrc = null;
-        if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(a) * len, y1: friend.y + Math.sin(a) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color });
+        if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(a) * len, y1: friend.y + Math.sin(a) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color, wake: true });
       }
     } else if (def.kind === 'slash') this.swing(weapon, friend.x, friend.y, angle, { ...st, dmg: damage }, false);
     else for (let i = 0; i < st.pellets; i++) {
@@ -1301,10 +1303,10 @@ export class Game {
       for (let i = 0; i < n; i++) {
         const a = base + (n > 1 ? (i - (n - 1) / 2) * 0.12 : 0);
         this.hitSrc = w;
-        const len = this.hitscan(mx, my, Math.cos(a), Math.sin(a), beam, d.color, d.elem ?? null, d.stream ? 7 + (this.fxOf(w).ramp ?? 0) * 0.25 : 5);
+        const len = this.hitscan(mx, my, Math.cos(a), Math.sin(a), beam, d.color, d.elem ?? null, d.stream ? 7 + (this.fxOf(w).ramp ?? 0) * 0.25 : 5, !!(d.stream || d.trail));
         this.hitSrc = null;
         // Phase Lance: the bolt's wake hangs in the air and keeps cutting
-        if (d.trail) this.zones.push({ kind: 'trail', x: mx, y: my, x1: mx + Math.cos(a) * len, y1: my + Math.sin(a) * len, r: 0.42, t: 0, life: d.trail, dmg: st.dmg * TRAIL_TICK, tick: 0, color: d.color });
+        if (d.trail) this.zones.push({ kind: 'trail', x: mx, y: my, x1: mx + Math.cos(a) * len, y1: my + Math.sin(a) * len, r: 0.42, t: 0, life: d.trail, dmg: st.dmg * TRAIL_TICK, tick: 0, color: d.color, wake: true });
       }
       return;
     }
@@ -1351,7 +1353,7 @@ export class Game {
     }
     this.hitSrc = null;
   }
-  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null, width = 5) {
+  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null, width = 5, soft = false) {
     let len = st.range;
     // walls
     for (let t = 0; t < st.range; t += 1 / CR) {
@@ -1377,7 +1379,7 @@ export class Game {
       this.applyHit(e, st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, stream ? dx * 0.15 : dx, stream ? dy * 0.15 : dy, st.vamp, stream && this.streamTick++ % 4 !== 0, { element, pierce: stream ? 99 : st.pierce });
       if (chill && !e.dead) this.chillEnemy(e, chill);
     }
-    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: width });
+    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: width, soft });
     return len;
   }
   private streamTick = 0;
@@ -2257,8 +2259,9 @@ export class Game {
         if (z.tick <= 0) {
           z.tick = 0.3;
           const x1 = z.x1 ?? z.x, y1 = z.y1 ?? z.y, lx = x1 - z.x, ly = y1 - z.y, l2 = lx * lx + ly * ly || 1e-6;
+          const from = z.wake ? Math.min(1, z.t / z.life) : 0; // a wake has already dissolved up to here
           this.query((z.x + x1) / 2, (z.y + y1) / 2, Math.sqrt(l2) / 2 + z.r + 0.6, (e) => {
-            const at = clamp(((e.x - z.x) * lx + (e.y - z.y) * ly) / l2, 0, 1);
+            const at = clamp(((e.x - z.x) * lx + (e.y - z.y) * ly) / l2, from, 1);
             if (Math.hypot(e.x - z.x - lx * at, e.y - z.y - ly * at) < z.r + e.r) this.applyHit(e, z.dmg, false, 0, 0, 0, 0, 0, false, true, { pierce: 99 });
           });
         }
@@ -2603,9 +2606,17 @@ export class Game {
     this.text(p.x, p.y, k.weapon.def.name, '#fff', 14);
     if (k.weapon.rarity >= 2) this.setBanner('NEW WEAPON!', `${k.weapon.def.name} · ${['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'][k.weapon.rarity]}`, 'loot');
     this.pickups = this.pickups.filter((x) => !x.dead);
+    if (this.prizeGun) {
+      // the doorstep prize is taken now: the bowl is done
+      this.prizeGun = false; this.treatGuideNotice = false;
+      this.gunChoices = []; this.choices = []; this.friendChoice = null;
+      this.choiceMode = 'level';
+      p.invuln = 1;
+    }
     this.closeInspect();
   }
   closeInspect() {
+    if (this.prizeGun) { this.backToPrizes(); return; } // leaving a prize unpicked never loses the bowl
     this.inspecting = null;
     if (this.state === 'inspect') this.state = 'play';
     this.input.pressed.clear();
@@ -2819,6 +2830,7 @@ export class Game {
     const { min, max } = this.choiceMode === 'house' ? this.choiceRewardRange : { min: 0, max: 4 };
     const scrolls = LOCKED_SCROLLS().filter(s => s.rarity >= min && s.rarity <= max);
     const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, Math.max(min, 2), max)) : null;
+    if (gun) gun.level = this.lootLevel(); // the teaser shows what the kid would really find
     if (gun) this.lockedChoice = { scroll: null, weapon: gun };
     else if (scrolls.length) this.lockedChoice = { scroll: scrolls[Math.floor(Math.random() * scrolls.length)], weapon: null };
   }
@@ -2831,15 +2843,15 @@ export class Game {
   chooseGun(i: number) {
     const w = this.gunChoices[i];
     if (this.state !== 'levelup' || !w || this.choiceMode !== 'house') return;
-    this.treatGuideNotice = false;
     gameAudio.play('unlock');
     this.input.pressed.clear();
-    this.gunChoices = []; this.friendChoice = null;
-    this.choiceMode = 'level';
-    this.p.invuln = 1;
     const p = this.p;
     const free = p.weapons.findIndex((x) => !x);
     if (free >= 0 && free < 2) {
+      this.treatGuideNotice = false;
+      this.gunChoices = []; this.choices = []; this.friendChoice = null;
+      this.choiceMode = 'level';
+      p.invuln = 1;
       p.weapons[free] = w;
       p.cur = free;
       this.syncTeamWeapons();
@@ -2847,11 +2859,20 @@ export class Game {
       this.state = 'play';
       return;
     }
-    this.dropWeapon(p.x, p.y, w);
-    const k = this.pickups[this.pickups.length - 1];
-    k.z = 0; k.vz = 0;
-    this.inspecting = k;
+    // Both hands are full: the prize is only looked at for now. The bowl stays as it is, so the kid can compare the gun
+    // with the two carried and still go back for another prize (see backToPrizes). It is taken when a slot is chosen.
+    this.inspecting = { x: p.x, y: p.y, z: 0, vz: 0, vx: 0, vy: 0, kind: 'weapon', value: 0, mag: false, t: 0, dead: false, weapon: w };
+    this.prizeGun = true;
     this.state = 'inspect';
+  }
+  /** the gun on the inspect screen is a doorstep prize that has not been taken yet */
+  prizeGun = false;
+  /** not this one after all: back to the bowl, every prize still there */
+  backToPrizes() {
+    if (this.state !== 'inspect' || !this.prizeGun) return;
+    this.inspecting = null; this.prizeGun = false;
+    this.input.pressed.clear();
+    this.state = 'levelup';
   }
   /** take the friend card: they join the team, and become your helper if you have none */
   chooseFriend() {

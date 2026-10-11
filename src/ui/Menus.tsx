@@ -309,7 +309,7 @@ function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: W
         <span className="hm-stamp">Full game</span>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
-        <div className="hm-label !text-[#8f8676]">{RARITY_NAMES[rarity]} {weapon ? 'gun' : 'treat'} · locked</div>
+        <div className="hm-label !text-[#8f8676]">{RARITY_NAMES[rarity]} {weapon ? `gun · Lv ${weapon.level}` : 'treat'} · locked</div>
         <div className="hm-pick-name mt-1">{weapon ? weapon.def.name : scroll?.name}</div>
         {scroll?.quote && <div className="hm-pick-quote">“{scroll.quote}”</div>}
         {weapon && <div className="hm-pick-quote">{weapon.def.desc}</div>}
@@ -428,17 +428,17 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
                 <div className="hm-pick-art hm-pick-gun" style={{ ['--glow' as string]: rc }}>
                   <GunArt id={w.def.id} />
                   <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
-                  <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun</span>
+                  <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun · Lv {w.level}</span>
                 </div>
                 <div className="flex flex-1 flex-col p-3.5">
                   <div className="hm-pick-name">{w.def.name}</div>
                   <div className="hm-pick-quote">{w.def.desc}</div>
                   <div className="hm-label mt-3">Firepower</div>
-                  <div className="hm-pick-desc font-num">{weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
+                  <div className="hm-pick-desc font-num">Level {w.level} · {weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
                   <Inscriptions w={w} compact />
                   <div className="mt-auto flex items-baseline justify-between pt-3">
-                    <span className="hm-label !text-[#8f8676]">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Swap'}</span>
-                    <span className="font-num text-[12px] text-[#c9bda6]">{game.p.weapons.some((x) => !x) ? 'goes straight in' : 'inspect, then pick a slot'}</span>
+                    <span className="hm-label !text-[#8f8676]">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Compare'}</span>
+                    <span className="font-num text-[12px] text-[#c9bda6]">{game.p.weapons.some((x) => !x) ? 'goes straight in' : 'compare first, you can come back'}</span>
                   </div>
                 </div>
               </button>

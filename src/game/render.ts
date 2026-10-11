@@ -658,6 +658,19 @@ export class Renderer {
           }
           ctx.lineTo(x1, y1); ctx.stroke();
         }
+      } else if (b.soft) {
+        // a quiet beam: thin, faint at the muzzle and full strength only toward where it lands (a stream, being held
+        // on its target, keeps a little more body than the single bolt of the lance)
+        const stream = b.w > 5.5;
+        const glowLine = ctx.createLinearGradient(x0, y0, x1, y1);
+        glowLine.addColorStop(0, `${b.color}${stream ? '4d' : '00'}`); glowLine.addColorStop(0.55, b.color); glowLine.addColorStop(1, b.color);
+        ctx.lineCap = 'butt';
+        ctx.globalAlpha = a * (stream ? 0.75 : 0.6); ctx.strokeStyle = glowLine; ctx.lineWidth = b.w * (stream ? 1.3 : 1.1);
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        const core = ctx.createLinearGradient(x0, y0, x1, y1);
+        core.addColorStop(0, stream ? '#ffffff33' : '#ffffff00'); core.addColorStop(0.6, '#ffffff'); core.addColorStop(1, '#ffffff');
+        ctx.globalAlpha = a * 0.6; ctx.strokeStyle = core; ctx.lineWidth = Math.max(1, b.w * 0.2);
+        ctx.stroke();
       } else {
         ctx.lineWidth = b.w * 3 * a;
         ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
@@ -712,6 +725,23 @@ export class Renderer {
             for (let k = Math.max(-8, sweep - 7); k <= sweep; k++) ctx.lineTo(...rim(k, z.r * 0.96));
             ctx.stroke();
           }
+        }
+      } else if (z.kind === 'trail' && z.wake) {
+        // the wake of a beam: thin and quiet, and it dissolves from the gun end toward the far end like smoke
+        const wx1 = z.x1 ?? z.x, wy1 = z.y1 ?? z.y, f = Math.min(1, z.t / z.life);
+        const ax = z.x + (wx1 - z.x) * f, ay = z.y + (wy1 - z.y) * f;
+        const x0 = isoX(ax, ay), y0 = isoY(ax, ay) - 12, x1 = isoX(wx1, wy1), y1 = isoY(wx1, wy1) - 12;
+        if (Math.hypot(x1 - x0, y1 - y0) > 2) {
+          const col = z.color ?? '#7cff64', flick = 0.8 + Math.sin(this.t * 14 + z.x * 7) * 0.2;
+          const soft = ctx.createLinearGradient(x0, y0, x1, y1);
+          soft.addColorStop(0, `${col}00`); soft.addColorStop(0.45, col); soft.addColorStop(1, col);
+          ctx.lineCap = 'butt';
+          ctx.globalAlpha = 0.3 * flick; ctx.strokeStyle = soft; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+          const core = ctx.createLinearGradient(x0, y0, x1, y1);
+          core.addColorStop(0, '#ffffff00'); core.addColorStop(0.5, '#ffffff');  core.addColorStop(1, '#ffffff');
+          ctx.globalAlpha = 0.4; ctx.strokeStyle = core; ctx.lineWidth = 1;
+          ctx.stroke();
         }
       } else if (z.kind === 'trail') {
         const x1 = isoX(z.x1 ?? z.x, z.y1 ?? z.y), y1 = isoY(z.x1 ?? z.x, z.y1 ?? z.y) - 12;
@@ -1225,6 +1255,7 @@ export class Renderer {
       else if (z.kind === 'flash') light(z.x, z.y, z.r, 1 - z.t / z.life);
       else if (z.kind === 'tornado') light(z.x, z.y, z.r * 1.4, 0.4);
       else if (z.kind === 'vortex') light(z.x, z.y, z.r * 0.9, 0.7);
+      else if (z.kind === 'trail' && z.wake) light(z.x1 ?? z.x, z.y1 ?? z.y, 0.7, (1 - z.t / z.life) * 0.25);
       else if (z.kind === 'trail') { const k = Math.min(1, (z.life - z.t) * 2) * 0.5; light(z.x, z.y, 0.9, k); light(z.x1 ?? z.x, z.y1 ?? z.y, 0.9, k); }
     }
     for (const b of g.ebullets) light(b.x, b.y, 0.9, 0.7);

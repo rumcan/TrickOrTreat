@@ -123,6 +123,39 @@ try {
   await page.waitForFunction(() => window.__tot.game.state === 'play');
   await page.setViewportSize({ width: 1280, height: 800 });
 
+  // ---- a doorstep gun is compared first, and the kid can go back for another prize ----
+  await page.evaluate(async () => {
+    const { makeWeapon } = await import('/src/game/data.ts');
+    const g = window.__tot.game;
+    g.pickups = []; g.p.level = 12;
+    g.p.weapons[0] = makeWeapon('stream', 2, 12, true); g.p.weapons[1] = makeWeapon('soaker', 3, 12, true); g.p.cur = 0;
+    g.openLevelUp('house', 3, 0);
+    g.choiceGiver = 'Mrs. Okafor'; g.friendChoice = null;
+    g.choices = g.choices.slice(0, 2); g.gunChoices = [makeWeapon('laser', 3, 11, true)];
+  });
+  const prize = page.getByRole('button', { name: 'Take Ghost-Buster Flashlight' });
+  await prize.waitFor();
+  assert.match(await prize.innerText(), /gun · Lv 11/i, 'The card shows the level of the gun');
+  assert.match(await prize.innerText(), /Level 11 · \d+ DPS/, 'and again next to its firepower');
+  const treats = await page.evaluate(() => window.__tot.game.choices.map(c => c.id).join());
+  await prize.click();
+  await dialog.waitFor();
+  assert.ok(await dialog.getByText('Doorstep prize · compare before you choose').isVisible());
+  assert.deepEqual(await page.evaluate(() => { const g = window.__tot.game; return [g.state, g.pickups.length, g.p.weapons.map(w => w.def.id).join()]; }), ['inspect', 0, 'stream,soaker'], 'Looking at the prize takes nothing yet');
+  await dialog.getByRole('button', { name: 'Back to the prizes' }).click();
+  await prize.waitFor();
+  assert.deepEqual(await page.evaluate(() => { const g = window.__tot.game; return [g.state, g.choices.map(c => c.id).join(), g.gunChoices.length]; }), ['levelup', treats, 1], 'Back at the bowl with every prize still there');
+  await prize.click();
+  await dialog.waitFor();
+  await page.keyboard.press('Escape'); // leaving by key or by the close button also goes back, never loses the bowl
+  await prize.waitFor();
+  assert.equal(await page.evaluate(() => window.__tot.game.state), 'levelup');
+  await prize.click();
+  await dialog.getByRole('button', { name: /Swap.*slot 2/ }).click();
+  await page.waitForFunction(() => window.__tot.game.state === 'play');
+  assert.deepEqual(await page.evaluate(() => { const g = window.__tot.game; return [g.p.weapons.map(w => w.def.id).join(), g.choices.length + g.gunChoices.length, g.pickups.filter(k => k.weapon).map(k => k.weapon.def.id).join(), g.prizeGun]; }), ['stream,laser', 0, 'soaker', false], 'Taken into slot 2: the bowl is done and the old gun lies on the ground');
+  await page.evaluate(() => { const g = window.__tot.game; g.pickups = []; g.pendingLevels = 0; });
+
   // ---- after a boss: no shop pops up, 20 quiet seconds on the clock ----
   await page.evaluate(() => {
     const g = window.__tot.game;
