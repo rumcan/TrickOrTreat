@@ -10,6 +10,10 @@ import type { Game } from './engine';
 
 export const TUTORIAL_KEY = 'tot_tutorial_v1';
 export const WALKIE_SPEAKER = script.speaker;
+/** the radio during the lesson (Hide & Shriek · Champion's Road), and the song the night opens with when Professor Fizz says "Here they come" (Midnight Mischief · Neon Forge) */
+export const TUTORIAL_TRACK = 'tale-03-champions-road', NIGHT_TRACK = 'grid-05-neon-forge';
+/** how far into the goodbye line "Here they come" is said */
+export const HERE_THEY_COME = 0.58;
 export type WalkieLine = keyof typeof script.lines;
 export const WALKIE_LINES: Record<WalkieLine, string> = script.lines;
 export type TutorialStep = 'treat' | 'machine' | 'shop' | 'done';

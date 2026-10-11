@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Game, GameState } from '../game/engine';
-import { WALKIE_LINES, WALKIE_SPEAKER, STEP_GOAL, LINE_STEP } from '../game/tutorial';
+import { WALKIE_LINES, WALKIE_SPEAKER, STEP_GOAL, LINE_STEP, TUTORIAL_TRACK, NIGHT_TRACK, HERE_THEY_COME } from '../game/tutorial';
+import { radio } from '../game/sound/radio';
 import type { WalkieLine } from '../game/tutorial';
 import { speak, stopSpeaking, preloadVoice } from '../game/sound/voice';
 import { ART } from './art';
@@ -24,6 +25,9 @@ export function Walkie({ game, state, onChange }: { game: Game; state: GameState
   useEffect(() => { const id = setInterval(() => look((n) => n + 1), 200); return () => clearInterval(id); }, []);
 
   useEffect(() => { preloadVoice(Object.keys(WALKIE_LINES).map((id) => `tutorial-${id}`)); }, []);
+  // the lesson has its own song; the night's first song comes in on "Here they come" (or at once, if the lesson is skipped)
+  useEffect(() => { radio.cue(TUTORIAL_TRACK); }, []);
+  const song = useRef<ReturnType<typeof setTimeout> | null>(null);
   // the next line starts when the last one is over; the opening waits for the hide-and-seek intro to finish
   const busy = useRef(false), call = useRef(0);
   const waiting = state === 'intro' || state === 'pause';
@@ -35,6 +39,7 @@ export function Walkie({ game, state, onChange }: { game: Game; state: GameState
     setTalking(line);
     void speak(`tutorial-${line}`).then((seconds) => {
       if (mine !== call.current) return; // the walkie was put away (or React re-ran this in development)
+      if (line === 'bye') song.current = setTimeout(() => radio.cue(NIGHT_TRACK), (seconds || readTime(WALKIE_LINES[line])) * HERE_THEY_COME * 1000);
       // a player who is ahead of the voice does not get old news: skip to the newest line that is waiting
       timer.current = setTimeout(() => { busy.current = false; setTalking(null); setAt((n) => Math.max(n + 1, tutorial.said.length - 1)); }, ((seconds || readTime(WALKIE_LINES[line])) + 0.5) * 1000);
     });
@@ -52,7 +57,7 @@ export function Walkie({ game, state, onChange }: { game: Game; state: GameState
   useEffect(() => { if (over) { game.skipTutorial(); onChange(); } }, [over, game, onChange]);
 
   if (!tutorial || over || state === 'intro' || state === 'dead' || state === 'victory') return null;
-  const end = (never: boolean) => { if (timer.current) clearTimeout(timer.current); stopSpeaking(); game.skipTutorial(never); onChange(); };
+  const end = (never: boolean) => { if (timer.current) clearTimeout(timer.current); if (song.current) clearTimeout(song.current); stopSpeaking(); radio.cue(NIGHT_TRACK); game.skipTutorial(never); onChange(); };
   const text = talking ? WALKIE_LINES[talking] : state === 'play' ? STEP_GOAL[tutorial.step] : '';
   return (
     <div className={`walkie ${talking ? 'is-talking' : ''} ${state === 'play' ? '' : 'is-over-menu'}`} data-testid="walkie" data-step={tutorial.step} data-line={talking ?? ''}>

@@ -27,6 +27,8 @@ try {
   assert.match(await walkie.innerText(), /Professor Fizz/);
   assert.match(await walkie.innerText(), /do you read me/);
   assert.ok(await walkie.locator('.walkie-radio').evaluate(img => img.complete && img.naturalWidth > 40 && getComputedStyle(img).animationName === 'walkie-shake'), 'The walkie-talkie picture shakes while he talks');
+  const song = () => page.evaluate(async () => (await import('/src/game/sound/radio.ts')).radio.snapshot().text);
+  assert.match(await song(), /Hide & Shriek · Champion's Road/, 'The lesson has its own song on the radio');
   await page.screenshot({ path: 'art/world/checks/tutorial-hello.png' });
   await page.waitForTimeout(2500);
   const waiting = await game(page, () => { const g = window.__tot.game; return { step: g.tutorial.step, holding: g.tutorial.holding, time: g.time, monsters: g.enemies.length, guide: g.guide?.kind, route: g.guideRoute().length, said: g.tutorial.said.join() }; });
@@ -85,6 +87,7 @@ try {
   await page.waitForFunction(() => window.__tot.game.time > 1.5, null, { timeout: 10000 });
   await page.waitForFunction(() => document.querySelector('[data-testid="walkie"]')?.dataset.line === 'bye', null, { timeout: 60000 });
   await page.waitForFunction(() => !document.querySelector('[data-testid="walkie"]') && window.__tot.game.tutorial === null, null, { timeout: 60000 });
+  assert.match(await song(), /Midnight Mischief · Neon Forge/, `On "Here they come" the night's first song comes in`);
   await page.close();
 
   // ---- skip for this run ----
@@ -94,6 +97,7 @@ try {
     await p2.getByRole('button', { name: 'Skip tutorial' }).click();
     await p2.waitForFunction(() => window.__tot.game.tutorial === null && !document.querySelector('[data-testid="walkie"]'));
     await p2.waitForFunction(() => window.__tot.game.time > 1);
+    assert.match(await p2.evaluate(async () => (await import('/src/game/sound/radio.ts')).radio.snapshot().text), /Midnight Mischief · Neon Forge/, `Skipping the lesson starts the night's song at once`);
     const after = await game(p2, async () => { const g = window.__tot.game, t = await import('/src/game/tutorial.ts'); return { seen: t.tutorialSeen(), price: g.vendingPrice(), firstDoorGuide: g.guide?.kind }; });
     assert.deepEqual(after, { seen: false, price: 60, firstDoorGuide: 'house' }, 'Skipping ends it for this run only: nothing is free, and the usual first-door dots stay');
     await p2.close();

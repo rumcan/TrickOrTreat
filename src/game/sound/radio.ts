@@ -297,6 +297,21 @@ class Radio {
   private playNext(fade: boolean): void {
     const next = this.nextTrack();
     if (!next) { this.track = null; this.emit(); return; }
+    this.start(next, fade);
+  }
+  /**
+   * The game asks for one particular track now (the tutorial's theme, the first song of the night). It crossfades in
+   * whatever the dial says; when it ends the radio carries on with that track's station. Nothing happens while the
+   * radio is off or has not been allowed to play yet.
+   */
+  cue(id: string): void {
+    this.load();
+    const track = STATIONS.flatMap((s) => s.tracks).find((t) => t.id === id);
+    if (!track || !this.unlocked || !this.settings.enabled || this.track?.id === id) return;
+    this.station = track.station;
+    this.start(track, true);
+  }
+  private start(next: Track, fade: boolean): void {
     const old = this.decks[this.live];
     this.live = this.live === 0 ? 1 : 0;
     const a = this.deck(this.live as 0 | 1);
