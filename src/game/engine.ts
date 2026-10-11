@@ -14,7 +14,7 @@ import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMB
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, BulletKind, storeSave,
   COSTUME_BY_ID, HERO_COSTUME, GIVE_LINES,
 } from './data';
 
@@ -1182,12 +1182,17 @@ export class Game {
     this.essence = { combat: Math.floor(this.xpCollected / 6), kills: Math.floor(this.kills / 8), survival: Math.floor(this.time / 6), bosses: this.bossWins * 120, waves: this.wave * 25 };
     this.soulEarned = Object.values(this.essence).reduce((sum, value) => sum + value, 0);
     const additional = Math.max(0, this.soulEarned - this.soulPaid);
+    const had = hasFullGame();
+    this.save.earned = essenceEarned(this.save) + additional; // counted before the new Essence lands in the balance
     this.save.soul += additional;
     this.soulPaid += additional;
     this.save.best = Math.max(this.save.best, Math.floor(this.time));
     this.save.bestWave = Math.max(this.save.bestWave ?? 0, this.wave);
     storeSave(this.save);
+    if (!had && hasFullGame()) this.fullGameEarned = true; // this run took the save past ESSENCE_UNLOCK
   }
+  /** this run's Essence unlocked the full game (the end screen says so) */
+  fullGameEarned = false;
 
   // ---------- weapons ----------
   private findTarget(range: number) {

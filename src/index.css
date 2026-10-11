@@ -576,7 +576,8 @@ button.kit-tile:not(:disabled):hover {
 @media (max-width: 639px) {
   .title-wrap { justify-content: flex-start; gap: 8px; padding: calc(54px + env(safe-area-inset-top, 0px)) 12px max(10px, env(safe-area-inset-bottom, 0px)); }
   .title-head { gap: 6px; }
-  .title-logo { width: min(300px, 74vw, 42dvh); }
+  .title-logo { width: min(300px, 74vw, 34dvh); }
+  .unlock-badge { width: min(240px, 60vw, 24dvh); } /* the badge shares the header with the logo: both give way on a short screen */
   .title-main { gap: 8px; min-height: 0; }
   .title-pick { padding: 0; }
   .title-h1 { margin-bottom: 6px; font-size: 17px; line-height: 1.1; }
@@ -597,7 +598,8 @@ button.kit-tile:not(:disabled):hover {
   .title-wrap { display: grid; grid-template-columns: minmax(170px, 32%) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "head pick" "nav pick"; gap: 8px 16px; padding: calc(10px + env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
   .title-main { display: contents; }
   .title-head { grid-area: head; justify-content: center; gap: 6px; padding-top: 38px; }
-  .title-logo { width: min(100%, 300px, 62dvh); }
+  .title-logo { width: min(100%, 300px, 50dvh); }
+  .unlock-badge { width: min(100%, 190px, 40dvh); }
   .title-pick { grid-area: pick; padding: 46px 0 0; align-items: center; min-height: 0; }
   .title-panel { padding: 10px; }
   .title-h1 { display: none; }
@@ -765,6 +767,17 @@ button.kit-tile:not(:disabled):hover {
 .unlock-card-art { height: 155px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; background: #0a111ac0; overflow: hidden; }
 .unlock-card-art img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .unlock-card-art.unlock-card-gun { background: #060b16; }
+/* the 15K Essence badge on the title screen: between the logo and the kids, under the Essence counter */
+.unlock-badge { display: block; width: min(330px, 70vw); margin: 0 auto; padding: 0; border: 0; background: none; cursor: pointer; transition: transform .12s ease-out, filter .12s ease-out; }
+.unlock-badge img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .55)); }
+.unlock-badge:hover, .unlock-badge:focus-visible { transform: scale(1.04); filter: brightness(1.12); outline: none; }
+/* the free way in: a line of text and a thin progress bar */
+.unlock-earn { margin-top: 6px; color: #c8f7d4; font-size: 13px; }
+.unlock-earn > span { display: block; height: 5px; margin-top: 5px; background: #0b1218; border: 1px solid #3d5a4a; }
+.unlock-earn > span > i { display: block; height: 100%; background: #45da79; }
+.end-unlock { margin-top: 12px; padding: 10px 12px; border-left: 4px solid #45da79; background: #0f2a1ccc; color: #dfffe8; font-size: 14px; line-height: 1.4; }
+.end-unlock b { display: block; font: 400 22px Anton, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #8dffab; }
+.end-unlock--progress { border-left-color: #5b7077; background: #0d1418cc; color: #c9d6d2; font-size: 13px; text-align: center; }
 /* eight-frame effect strips played with steps(): the explosion once every couple of seconds, the fire on a loop */
 .unlock-fx { width: 150px; height: 150px; background-size: 800% 100%; background-repeat: no-repeat; animation: unlock-fx 2.2s steps(8, jump-none) infinite; }
 .unlock-fx-loop { animation-duration: 0.7s; }

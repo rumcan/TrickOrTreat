@@ -13,5 +13,6 @@ export function ExpansionUnlock({ onPlay, compact = false }: { onPlay: () => voi
     {state.error && <p role="status" title={state.error} className={`unlock-error mt-1.5 text-[#ffc453] ${compact ? 'line-clamp-2 text-[11px] leading-tight' : 'text-xs'}`}>{state.error}</p>}
     <div className={`unlock-links mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 ${compact ? 'justify-end text-[11px] leading-tight' : 'text-xs'}`}><button onClick={() => void expansion.restore()} disabled={state.buying || state.loading}>Restore purchase / retry</button>{import.meta.env.DEV && !hasFullGame() && <button onClick={() => expansion.preview()}>Preview expansion locally · no charge</button>}</div>
     {hasFullGame() && <button className="unlock-links mt-2 text-xs underline" onClick={() => setOpen(true)}>See everything unlocked</button>}
-  </section>{open && <UnlockShowcase onClose={() => setOpen(false)} onPlay={onPlay} />}</>;
+  </section>
+    {open && <UnlockShowcase onClose={() => setOpen(false)} onPlay={onPlay} />}</>;
 }

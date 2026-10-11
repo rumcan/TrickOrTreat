@@ -2,7 +2,7 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { useBack } from './back';
 import { createPortal } from 'react-dom';
 import { expansion, hasFullGame } from '../game/expansion';
-import { COSTUMES, HERO_COSTUME, HERO_INFO, SCROLLS, TALENTS, WEAPONS } from '../game/data';
+import { COSTUMES, ESSENCE_UNLOCK, HERO_COSTUME, HERO_INFO, SCROLLS, TALENTS, WEAPONS, essenceEarned, loadSave } from '../game/data';
 import { ART, FX_ART, PORTRAITS } from './art';
 import { HeroPreview, TreatArt, GunArt } from './common';
 import { KitButton, KitTitle } from './kit';
@@ -15,6 +15,8 @@ export function UnlockShowcase({ onClose, onPlay }: { onClose: () => void; onPla
   useBack(onClose);
   const state = useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const dialog = useRef<HTMLDivElement>(null), owned = hasFullGame();
+  // the other way in: Essence earned over all your runs (spent or not)
+  const earned = essenceEarned(loadSave());
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null, oldOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden'; dialog.current?.focus();
@@ -58,7 +60,7 @@ export function UnlockShowcase({ onClose, onPlay }: { onClose: () => void; onPla
         </div></section>
         <section id="unlock-world" className="unlock-section"><KitTitle>A bigger night. A stronger crew.</KitTitle><p>Explore the drive-in, video rental store, church, barn and primary school playground. Mount the jungle-gym Candy Cannon and face four bosses that return stronger each round.</p><h3>Permanent talent branches</h3><div className="unlock-talents">{talents.map(t => <article key={t.id}><strong>{t.name}</strong><p>{t.desc}</p></article>)}</div><p className="mt-4">Unlocks join the loot pool, rather than all appearing in your starting inventory. Earn treats and weapons through trick-or-treating and combat. The original survival game stays free.</p></section>
       </div>
-      <footer className="unlock-footer"><div><strong>{owned ? 'Your full game is unlocked' : 'One permanent unlock'}</strong><p>No subscription. No repeat purchase to replay.</p>{!owned && !state.bits && !state.loading && <p>Browse now; checkout opens when the RUN shop is available.</p>}{state.error && <p role="status" className="text-[#ffd889]">{state.error}</p>}</div><div>
+      <footer className="unlock-footer"><div><strong>{owned ? state.earned && !state.owned ? 'Your full game is unlocked: you earned it' : 'Your full game is unlocked' : 'One permanent unlock'}</strong><p>No subscription. No repeat purchase to replay.</p>{!owned && <p className="unlock-earn" role="status">Or earn it by playing: the full game unlocks for free once you have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. So far: {earned.toLocaleString('en-US')}.<span aria-hidden="true"><i style={{ width: `${Math.min(100, (earned / ESSENCE_UNLOCK) * 100)}%` }} /></span></p>}{!owned && !state.bits && !state.loading && <p>Browse now; checkout opens when the RUN shop is available.</p>}{state.error && <p role="status" className="text-[#ffd889]">{state.error}</p>}</div><div>
         <KitButton disabled={!owned && (state.loading || state.buying || !state.bits)} onClick={() => { if (owned) { onClose(); onPlay(); } else void expansion.purchase(); }}>{owned ? 'Play rescue campaign' : state.buying ? 'Checking unlock...' : state.loading ? 'Checking ownership...' : state.bits ? `Unlock forever - ${state.bits} RUN Bits` : 'Purchase currently unavailable'}</KitButton>
         <button className="mt-2 block text-sm underline" onClick={() => void expansion.restore()} disabled={state.buying || state.loading}>Restore purchase / retry</button>
       </div></footer>

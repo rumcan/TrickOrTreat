@@ -14,7 +14,9 @@ try {
   const pickerMid = picker.y + picker.height / 2;
   assert.ok(picker.y > logo.y + logo.height, 'Picker below logo');
   assert.ok(picker.y + picker.height < nav.y, 'Picker above bottom navigation');
-  assert.ok(Math.abs(pickerMid - ((logo.y + logo.height + nav.y) / 2)) < 45, 'Picker centered in remaining menu space');
+  // the remaining space starts under the whole header (logo, Essence counter and the 15K badge), not under the logo
+  const header = await page.getByRole('banner', { name: 'Game header' }).boundingBox();
+  assert.ok(Math.abs(pickerMid - ((header.y + header.height + nav.y) / 2)) < 45, 'Picker centered in remaining menu space');
   await page.getByRole('button', { name: /^Talents/ }).click();
   const talents = await page.evaluate(async () => (await import('/src/game/data.ts')).TALENTS.map(t => ({ name: t.name, premium: t.premium, req: t.req })));
   const premium = talents.find(t => t.premium);
