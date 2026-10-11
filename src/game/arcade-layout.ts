@@ -16,16 +16,18 @@ export const ARCADE_FIXTURES: ArcadeFixture[] = [
  {kind:'airhockey',x:19,y:20.5,w:2.1,h:1.2,label:'Air hockey'},
  {kind:'foosball',x:22.7,y:18,w:1.5,h:1,label:'Foosball finals'},
 ];
-export const ARCADE_LEFT_ROWS=[11,13.5,20,22.5];
+// Cabinets stand back to back: a row seen from behind (it faces north) with a row seen from the front right against
+// it, so both sides of a block of machines can be played and the aisles between blocks stay wide.
+export const ARCADE_LEFT_ROWS=[11,11.75,20,20.75,22.5];
 export const ARCADE_LEFT_BANKS=[4,11];
 export const ARCADE_BOOTH_ROWS=[18,20.6,23.2,25.8,28.4];
 for(const y of ARCADE_LEFT_ROWS)for(const x of ARCADE_LEFT_BANKS)for(let i=0;i<8;i++){
- const pin=y===22.5,back=y===13.5;
+ const pin=y===22.5,back=y===11||y===20;
  const designs:ArcadeKind[]=back?['cabinet_back','cabinet_back_alt']:['cabinet','cabinet_retro','cabinet_racer'];
  ARCADE_FIXTURES.push({kind:pin?'pinball':designs[(i+(x===11?1:0))%designs.length],x:x+i*.75,y,w:pin?.65:.55,h:pin?1.15:.75,label:pin?'Pinball alley':'CRT classics'});
 }
-for(const y of [11,13.5,26,28.5])for(let i=0;i<(y===13.5?5:8);i++){
- const pin=y>=26,back=y===13.5||y===28.5;
+for(const y of [11,11.75,26,27.15])for(let i=0;i<8;i++){
+ const pin=y>=26,back=y===11||y===26;
  const designs:ArcadeKind[]=back?['cabinet_back_alt','cabinet_back']:['cabinet_racer','cabinet','cabinet_retro'];
  ARCADE_FIXTURES.push({kind:pin?(back?'pinball_back':'pinball'):designs[i%designs.length],x:20+i*.75,y,w:pin?.65:.55,h:pin?1.15:.75,label:'Retro game bay'});
 }
@@ -36,8 +38,8 @@ for(let i=0;i<4;i++){
 }
 export const ARCADE_ENTRY={x:17,y:31};
 export const ARCADE_STAFF=[
- {hero:3,x:26,y:16.6,cost:120,activity:'Repairing a walkie-talkie'},
- {hero:4,x:29,y:16.6,cost:150,activity:'Reading a monster comic'},
+ {hero:3,x:26,y:16.6,cost:1000,activity:'Repairing a walkie-talkie'},
+ {hero:4,x:29,y:16.6,cost:1000,activity:'Reading a monster comic'},
 ] as const;
 export const ARCADE_POIS=[
  {x:6.5,y:7.2,name:'Stage'},{x:16,y:8,name:'Skee-ball'},

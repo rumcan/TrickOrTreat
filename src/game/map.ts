@@ -171,6 +171,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
       case 'grave': markRect(x + 0.25, y + 0.3, x + 0.75, y + 0.7, 1); break;
       case 'vending': markRect(x + 0.2, y + 0.3, x + 0.8, y + 0.75, 2); break;
       case 'lamp': markRect(x + 0.4, y + 0.4, x + 0.6, y + 0.6, 2); break;
+      case 'pumpkin': break; // a pumpkin on the ground is scenery: the kid and the monsters walk straight over it
       default: markRect(x + 0.35, y + 0.35, x + 0.65, y + 0.65, 1);
     }
     addLights(sp, x, y);

@@ -27,6 +27,6 @@ for(const y of [8,16,24,30])for(const x of [3.3,31.8])ARCADE_DECOR.push({kind:'p
 for(const y of ARCADE_LEFT_ROWS)for(const x of ARCADE_LEFT_BANKS)ARCADE_DECOR.push({kind:'plant',x:x+6.15,y:y+.05});
 for(const y of ARCADE_BOOTH_ROWS)ARCADE_DECOR.push({kind:'plant',x:26,y:y+.4});
 for(const y of ARCADE_LEFT_ROWS)for(const x of ARCADE_LEFT_BANKS)ARCADE_DECOR.push({kind:'plant',x:x-.55,y:y+.05});
-for(const y of [11,13.5,26,28.5])for(const x of [19.4,26.15])ARCADE_DECOR.push({kind:'plant',x,y:y+.05});
+for(const y of [11,11.75,26,27.15])for(const x of [19.4,26.15])ARCADE_DECOR.push({kind:'plant',x,y:y+.05});
 for(const x of [15,19])ARCADE_DECOR.push({kind:'plant',x,y:30.7});
 for(const y of [12,23,29])ARCADE_DECOR.push({kind:'vhs',x:24,y},{kind:'poster',x:31,y});

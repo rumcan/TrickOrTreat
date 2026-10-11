@@ -43,7 +43,8 @@ try{
   const {ARCADE_PILES}=await import('/src/game/arcade-clutter.ts');
   for(const p of ARCADE_PILES)if(blockedCircle(m,p.x+.5,p.y+.5,g.p.r))throw Error(`Clutter pile is not walkable: ${JSON.stringify(p)}`);
   // Tightened banks retain a real walking corridor, not just an apparent gap.
-  for(const p of [{x:10.4,y:12},{x:8,y:12.5},{x:15,y:21.5},{x:28,y:20}])if(!reachable(p))throw Error(`Furniture aisle too tight: ${JSON.stringify(p)}`);
+  for(const p of [{x:10.4,y:12},{x:8,y:13.2},{x:15,y:22},{x:28,y:20}]) // (the cabinet rows stand back to back now: the aisles are below each pair)
+  if(!reachable(p))throw Error(`Furniture aisle too tight: ${JSON.stringify(p)}`);
   if(m.props.some(p=>p.kind==='arcade_decor_chair'))throw Error('Rejected chair sprite is still placed');
   return {svg,size:ARCADE_SIZE,fixtures:m.props.length,reachable:seen.size,litter};
  });

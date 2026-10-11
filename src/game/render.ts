@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, GUN_GROUND_TIME } from './engine';
+import { Game, Enemy, Turret, GUN_GROUND_TIME, ARCADE_OPEN } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -1092,6 +1092,26 @@ export class Renderer {
         ctx.fillText(Math.hypot(tutorial.door.x - p.x, tutorial.door.y - p.y) < 1.1 ? (touchViewport ? 'TAP TO RING THE BELL' : 'RING THE BELL · E') : onScreen || route.length < 7 ? 'FIRST TREATS' : 'FOLLOW THE DOTS', 0, -71);
         ctx.restore();
       }
+    }
+    // First-timers do not know the Starcade can be walked into: until they have been inside once, a pink arrow hangs
+    // over its door (and points to it from the edge of the screen). It waits for the first-treat guide to finish.
+    const starcade = ARCADE_OPEN && !g.arcadeSeen && m.kind !== 'arcade' && g.treatGuideComplete && g.state === 'play' && !g.bigMap && !g.tot
+      ? m.houses.find(h => h.prop.kind === 'arcade' && !h.gone) : undefined;
+    if (starcade) {
+      const [dx, dy] = toS(isoX(starcade.door.x, starcade.door.y), isoY(starcade.door.x, starcade.door.y));
+      if (dx > 85 && dx < vw - 85 && dy > 170 && dy < vh - 115) {
+        const near = Math.hypot(starcade.door.x - p.x, starcade.door.y - p.y) < 1.5;
+        ctx.save(); ctx.translate(dx, dy - 18 + Math.sin(this.t * 3) * 4);
+        ctx.shadowColor = '#ff4fd8'; ctx.shadowBlur = 14;
+        const pink = ctx.createLinearGradient(0, -52, 0, 0); pink.addColorStop(0, '#ffd3f4'); pink.addColorStop(1, '#ff4fd8');
+        ctx.fillStyle = pink; ctx.strokeStyle = '#3d0f33'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-7, -50); ctx.lineTo(7, -50); ctx.lineTo(7, -23); ctx.lineTo(18, -23); ctx.lineTo(0, 0); ctx.lineTo(-18, -23); ctx.lineTo(-7, -23); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0; ctx.fillStyle = '#240c20ef'; ctx.strokeStyle = '#ff7fe2'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(-92, -84, 184, 26, 8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ffe6fa'; ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(near ? (touchViewport ? 'TAP TO GO INSIDE' : 'GO INSIDE · E') : 'THE STARCADE IS OPEN', 0, -71);
+        ctx.restore();
+      } else ind(starcade.door.x, starcade.door.y, '#ff4fd8', 'Starcade: go inside');
     }
     if (g.campaign && g.state !== 'intro' && m.kind !== 'arcade') {
       // One readable objective arrow: prefer a kid whose district is already open.
