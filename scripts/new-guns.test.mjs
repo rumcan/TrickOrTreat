@@ -185,6 +185,8 @@ try {
     withTreat('forcefield', () => ({ hp: g.stats.maxHp, shield: g.stats.maxShield - base.shield }));
     withTreat('berserk', () => ({ shield: g.stats.maxShield, dmg: g.stats.dmg }));
     withTreat('oneshot', () => { const w = makeWeapon('nerf', 0); w.traits = []; return { mag: weaponStats(w, g.stats).mag }; });
+    withTreat('goldfever', () => { const at = (coins) => { g.p.coins = coins; return g.globalMore(); }; const none = at(0); return { coins500: +(at(500) / none).toFixed(2), cap: +(at(99999) / none).toFixed(2) }; });
+    g.p.coins = 0;
     withTreat('mixtape', () => ({ dmg: g.stats.dmg }));
     g.scrolls = { mixtape: 2, token: 1 }; g.scrollOrder = ['mixtape', 'mixtape', 'token']; g.recalcStats();
     return { ...out, base };
@@ -192,6 +194,7 @@ try {
   assert.deepEqual(extreme.forcefield, { hp: 1, shield: 500 }, 'Deflector Shield Belt: 1 HP, +500 shield');
   assert.equal(extreme.berserk.shield, 0, "Barbarian's Blood Oath: no shield at all");
   assert.equal(extreme.oneshot.mag, 1, 'One in the Chamber: a one-round magazine');
+  assert.deepEqual(extreme.goldfever, { coins500: 1.5, cap: 2.5 }, 'Temple Idol: +1% damage per 10 coins carried, up to +150%');
 
   // ---- discarding from the side rail ----
   const before = await page.evaluate(() => { const g = window.__tot.game; return { state: g.state, treats: g.scrollOrder.join() }; });

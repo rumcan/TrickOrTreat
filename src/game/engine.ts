@@ -16,7 +16,7 @@ import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMB
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, GOLD_DMG, BulletKind, storeSave,
   COSTUME_BY_ID, HERO_COSTUME, GIVE_LINES,
 } from './data';
 
@@ -207,6 +207,8 @@ export interface RescueFriend {
   downT?: number;
   /** found in hide and seek: fights at FOUND_FRIEND strength */
   found?: boolean;
+  /** steady following: closing in on the kid · seconds the walk animation keeps playing · seconds the last shot holds the facing */
+  chase?: boolean; moveT?: number; aimT?: number;
 }
 
 export interface Player {
@@ -702,16 +704,27 @@ export class Game {
       const distance = gap(friend);
       // Following comes first. Each friend keeps their own spot in the group so they do not stand in one pile.
       const keep = friend === reviver ? 0.7 : 1.5 + (slot % 4) * 0.45;
-      if (distance > keep) {
+      // Start walking a little later than they stop, or a friend standing right on their spot flips between walking
+      // and standing every frame (it showed on whoever had the nearest spot once four were following).
+      friend.chase = friend.chase ? distance > keep : distance > keep + 0.45;
+      friend.moveT = Math.max(0, (friend.moveT ?? 0) - dt); friend.aimT = Math.max(0, (friend.aimT ?? 0) - dt);
+      if (friend.chase) {
         const direction = this.flowDir(friend.x, friend.y);
         const dx = direction?.x ?? (this.p.x - friend.x) / (distance || 1), dy = direction?.y ?? (this.p.y - friend.y) / (distance || 1);
         // the player's own pace (same 3.4 tiles/s base and move bonuses), a little quicker so they close the gap, and a
         // sprint when they have fallen behind (a dash, a corner)
         const pace = 3.4 * this.stats.move * (distance > 4 ? 1.6 : 1.1);
         this.moveCircle(friend, dx * pace * dt, dy * pace * dt, friend.r);
-        friend.anim += dt * 8; friend.back = dy < 0; friend.flip = dx < 0;
-        friend.moving = true; friend.faceX = dx; friend.faceY = dy;
-      } else { friend.anim += dt * 3; friend.moving = false; }
+        friend.moveT = 0.2;
+        // While they are shooting they keep facing what they shoot at; otherwise they turn toward where they walk,
+        // smoothly, so a step round a corner or a shove from another kid does not snap the sprite about.
+        if (!friend.aimT) {
+          const k = Math.min(1, dt * 10), fx = (friend.faceX ?? dx) + (dx - (friend.faceX ?? dx)) * k, fy = (friend.faceY ?? dy) + (dy - (friend.faceY ?? dy)) * k;
+          friend.faceX = fx; friend.faceY = fy; friend.back = fy < 0; friend.flip = fx < 0;
+        }
+      }
+      friend.moving = friend.moveT > 0;
+      friend.anim += dt * (friend.moving ? 8 : 3);
       for (const other of standing) {
         if (other === friend) continue;
         const ox = friend.x - other.x, oy = friend.y - other.y, d = Math.hypot(ox, oy);
@@ -762,7 +775,8 @@ export class Game {
     if (!target || weapon.cd > 0) return;
     weapon.cd = 1 / st.rate; weapon.ammo--;
     const angle = Math.atan2(target.y - friend.y, target.x - friend.x);
-    friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
+    friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle); friend.back = friend.faceY < 0; friend.flip = friend.faceX < 0;
+    friend.aimT = 0.45; // hold this facing for a moment: walking must not turn them away between shots
     // Eagle-Eyed Pals: a friend's crit is double damage (their own roll; it does not feed the kid's crit talents)
     const lucky = mate.mateCrit > 0 && Math.random() < mate.mateCrit;
     const damage = st.dmg * 0.65 * mate.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02) * (lucky ? 2 : 1) * (friend.found ? FOUND_FRIEND.dmg : 1);
@@ -1256,6 +1270,7 @@ export class Game {
     if (b.ks('tank', 3)) m *= 1 + Math.min(1, s.maxShield / 500);
     if (b.ks('sugar', 2)) m *= clamp(s.move, 1, 2);
     if (this.premiumPowerT > 0) m *= this.hero === 4 ? 3 : 2;
+    if (s.goldDmg) m *= 1 + Math.min(GOLD_DMG.max, this.p.coins * GOLD_DMG.perCoin); // Temple Idol: rich kids hit harder
     return m;
   }
   /** crit roll with Lucky Streak stacks (capped); past 100% it becomes overcrit layers, which add rather than multiply */

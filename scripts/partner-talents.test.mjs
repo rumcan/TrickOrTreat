@@ -64,6 +64,27 @@ try {
     res.pickup = { plain: plain.g.friendReviveCd, medic: shoot({ medic: 1 }).g.friendReviveCd };
     const big = shoot({ snacks: 3, stickers: 3, tagteam: 1 });
     res.big = { maxHp: big.f.maxHp, dmg: +(big.dmg / plain.dmg).toFixed(2) };
+    // ---- four friends following: nobody flickers between walking and standing, or snaps about between shots ----
+    {
+      const { CW, CR, MAP_W, MAP_H } = await import('/src/game/config.ts');
+      const g = game({}), p = g.p;
+      const open = (tx, ty) => { for (let cy = (ty - 4) * CR; cy < (ty + 4) * CR; cy++) for (let cx = (tx - 4) * CR; cx < (tx + 4) * CR; cx++) if (g.map.coll[cy * CW + cx] !== 0) return false; return true; };
+      let spot = null;
+      for (let ty = 6; ty < MAP_H - 6; ty++) for (let tx = 6; tx < MAP_W - 6; tx++) { const d = Math.hypot(tx - p.x, ty - p.y); if ((!spot || d < spot.d) && open(tx, ty)) spot = { x: tx, y: ty, d }; }
+      p.x = spot.x; p.y = spot.y; g.computeFlow(true);
+      for (const hero of [1, 2, 3, 4]) g.addFriend(hero);
+      // a few tough monsters around, so the friends shoot while they walk
+      for (let i = 0; i < 6; i++) { const a = i * 1.05, e = g.spawnEnemy('zombie', spot.x + Math.cos(a) * 3.4, spot.y + Math.sin(a) * 3.4, false, null); e.spawnT = 0; e.maxHp = e.hp = 1e7; e.def = { ...e.def, speed: 0, dmg: 0, mass: 1e6 }; }
+      const seen = g.friends.map(f => ({ moving: f.moving, toggles: 0, idleFrames: 0 }));
+      const dt = 1 / 30;
+      for (let i = 0; i < 300; i++) { // ten seconds: the kid walks round and round a small circle at walking pace
+        const a = i * dt * 1.2;
+        p.x = spot.x + Math.cos(a) * 1.6; p.y = spot.y + Math.sin(a) * 1.6;
+        g.rebuildGrid?.(); g.computeFlow(false, dt); g.updateTeam(dt);
+        g.friends.forEach((f, k) => { if (i > 30 && !!f.moving !== !!seen[k].moving) seen[k].toggles++; seen[k].moving = f.moving; });
+      }
+      res.follow = { friends: g.friends.length, worst: Math.max(...seen.map(s => s.toggles)), near: g.friends.every(f => Math.hypot(f.x - p.x, f.y - p.y) < 5) };
+    }
     return res;
   });
   assert.deepEqual(out.tree, { count: 15, free: 8, full: 7, name: 'Buddy System', roots: ['buddy'], orphans: [] }, 'A whole constellation of its own');
@@ -80,6 +101,7 @@ try {
   assert.ok(!out.left.gone.there && out.left.kept.there && out.left.kept.window === 45, 'Helping Hand gives 15 more seconds to reach a friend');
   assert.deepEqual(out.pickup, { plain: 60, medic: 30 }, 'Candy Medics');
   assert.deepEqual(out.big, { maxHp: 80 + 75 + 45 + 80, dmg: +(1.36 * 1.6).toFixed(2) }, 'Sticker Swap and Tag Team Champions stack');
+  assert.ok(out.follow.friends === 4 && out.follow.near && out.follow.worst <= 14, `Four friends follow steadily: at most a handful of starts and stops in ten seconds (worst ${out.follow.worst})`);
   assert.deepEqual(errors, [], 'No page errors');
   console.log('partner talents: 15 Buddy System stars, each changing the friends and only the friends: ok');
 } finally { await browser.close(); }

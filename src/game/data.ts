@@ -27,10 +27,15 @@ export interface Stats {
   range: number; rangeMul: number;
   /** extreme treats: max HP is 1 · no shield · the magazine holds one shot that hits four times as hard */
   frail: number; bare: number; oneShot: number;
+  /** Temple Idol: damage grows with the coins in the kid's pocket (see GOLD_DMG) */
+  goldDmg: number;
 }
 
+/** Temple Idol: damage per coin carried, and the most it can add */
+export const GOLD_DMG = { perCoin: 0.001, max: 1.5 };
 export function baseStats(): Stats {
   return {
+    goldDmg: 0,
     dmg: 1, rate: 1, crit: 0.05, critDmg: 1.8, reload: 1, mag: 1, move: 1,
     maxHp: 100, maxShield: 50, shieldDelay: 3, armor: 0,
     magnet: 1, pierce: 0, bounce: 0, pellets: 0,
@@ -352,7 +357,7 @@ SCROLLS.push(
   { id: 'berserk', premium: true, name: "Barbarian's Blood Oath", quote: "No armour. No fear. No plan.", icon: '🪓', rarity: 4, desc: '+100% damage, but you have no shield at all', max: 1, apply: (s) => { s.dmg *= 2; s.bare = 1; } },
   { id: 'oneshot', premium: true, name: "One in the Chamber", quote: "Make it count.", icon: '🎯', rarity: 3, desc: 'Every shot deals +300% damage, but your magazine holds a single shot', max: 1, apply: (s) => (s.oneShot = 1) },
   { id: 'kaiju', premium: true, name: "Kaiju Growth Ray", quote: "The city is not insured for this.", icon: '🦖', rarity: 3, desc: '+200 max HP and +40% damage, but -35% move speed and one less dash', max: 1, apply: (s) => { s.maxHp += 200; s.dmg *= 1.4; s.move *= 0.65; s.dashCharges = Math.max(0, s.dashCharges - 1); } },
-  { id: 'goldfever', premium: true, name: "Temple Idol", quote: "It belongs in a museum. It is also cursed.", icon: '🗿', rarity: 2, desc: '+150% coins and +50% XP, but you take +40% damage', max: 1, apply: (s) => { s.coinGain *= 2.5; s.xpGain *= 1.5; s.armor = 1 - (1 - s.armor) * 1.4; } },
+  { id: 'goldfever', premium: true, name: "Temple Idol", quote: "It belongs in a museum. It likes to be kept in gold.", icon: '🗿', rarity: 2, desc: '+1% damage for every 10 coins you are carrying, up to +150%. Spend them and it fades.', max: 1, apply: (s) => (s.goldDmg += 1) },
 );
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 
