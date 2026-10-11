@@ -17,6 +17,8 @@ export const ART = {
   badge15k: img('ui/badge_15k.webp'),
   infoPumpkin: img('ui/info_pumpkin.webp'),
   skillPumpkin: img('ui/skill_pumpkin.webp'),
+  /** the tutorial's walkie-talkie (scripts/prepare-walkie-art.mjs) */
+  walkie: img('ui/walkie.webp'),
 };
 
 /** painted card art per gun id (scripts/prepare-gun-art.mjs); the small in-world sprites are separate (icon_<id>) */
