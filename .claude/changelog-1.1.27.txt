@@ -1,0 +1,10 @@
+New: a starting tutorial. Professor Fizz talks you through your first night on a walkie-talkie: your first trick or treat, a free spin of the candy machine and a free gun upgrade. You can skip it or turn it off.
+New: 24 waves, each with its own boss and its own two kinds of helpers. Twenty new bosses join the first four. After wave 24 something enormous arrives that cannot be beaten: last as long as you can.
+The shop now brings back a friend who is out for the night, and can reroll the lines on a gun. It no longer sells treats.
+The candy machine now has some duds: about one spin in five wins nothing.
+Cars can now be blown up by everyone, with any gun.
+The Starcade closes for the night after wave 5.
+Hide and Shriek is taken out for now. Every night starts the same way.
+Essence: you earn a little less, and nothing for starting and leaving. Talents further from the centre cost more.
+In the RUN apps you can watch an ad to take the locked prize in a candy bowl for that run.
+Fixed: a level-up no longer pops up in the middle of ringing a doorbell.

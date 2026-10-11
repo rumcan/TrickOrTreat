@@ -1,0 +1,3 @@
+New sounds: most guns now have their own sound, explosions can be heard, and every bullet that lands makes a soft tick. The original deep sounds still play underneath.
+The radio follows the tutorial: one song for the lesson, and the night's first song when Professor Fizz says "Here they come".
+The talent screen now calls its currency Essence everywhere.

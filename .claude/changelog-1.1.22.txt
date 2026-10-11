@@ -1,0 +1,1 @@
+When a house leaves a bonus gun or costume on the porch, the game now tells you. It also tells you where the gun you swapped out went.
