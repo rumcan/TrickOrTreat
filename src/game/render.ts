@@ -667,7 +667,7 @@ export class Renderer {
       const t = z.t / z.life;
       if (z.kind === 'boom' && z.sprite) {
         // smoke has to cover, not add: this one frame is drawn normally
-        const boom = explosionSheet(), f = Math.min(FX_FRAMES - 1, Math.floor(t * FX_FRAMES)), size = z.r * TW * 1.2;
+        const boom = explosionSheet(), f = Math.min(FX_FRAMES - 1, Math.floor(t * FX_FRAMES)), size = Math.min(z.r, 3) * TW;
         ctx.globalCompositeOperation = 'source-over';
         ctx.globalAlpha = 1;
         ctx.drawImage(boom.img, f * boom.cell, 0, boom.cell, boom.cell, sx - size / 2, sy - 18 - size / 2, size, size);

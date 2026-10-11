@@ -491,13 +491,13 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
       <div className="hm-modal kit-pop !max-w-[860px]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="paper-kicker">{game.bossBreak ? 'Boss down · time is paused' : "The Candy Lady's stand"}</div>
-            <h2 className="hm-modal-title">{game.bossBreak ? 'Upgrade break' : 'Treats & trades'}</h2>
+            <div className="paper-kicker">{game.calmT > 0 ? `The Candy Lady's stand · ${Math.ceil(game.calmT)} quiet seconds left when you leave` : "The Candy Lady's stand"}</div>
+            <h2 className="hm-modal-title">Treats &amp; trades</h2>
             <span className="hm-rule" />
           </div>
           <div className="paper-card flex items-center gap-2 !px-4 !py-2"><CoinIcon size={22} /><span className="font-cond text-3xl leading-none text-[#f29b39]">{p.coins}</span></div>
         </div>
-        <p className="mt-3 text-[14px] italic text-[#c9bda6]">{game.bossBreak ? 'Every monster is cleared. Heal, upgrade and pick treats before the next one rises.' : '“Spend those coins wisely, dearie… the night is long.”'}</p>
+        <p className="mt-3 text-[14px] italic text-[#c9bda6]">“Spend those coins wisely, dearie… the night is long.”</p>
         <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
           {p.weapons.map((w, i) => w && (
             <div key={i} className="paper-card flex flex-col gap-2" style={{ borderLeft: `5px solid ${w.rarity ? RARITY_KIT[w.rarity] : '#58585b'}` }}>
@@ -527,7 +527,7 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
         </div>
         <div className="hm-foot">
           <span className="text-[13px] text-[#8f8676]"><Keycap className="!h-5 !rounded-none !text-[11px]">E</Keycap> / <Keycap className="!h-5 !rounded-none !text-[11px]">Esc</Keycap> to leave</span>
-          <button className="hm-btn" onClick={onClose}>{game.bossBreak ? game.bossKilled ? 'Finish / rescue remaining friends' : 'Continue to next boss' : 'Leave'}</button>
+          <button className="hm-btn" onClick={onClose}>Leave</button>
         </div>
       </div>
     </div>

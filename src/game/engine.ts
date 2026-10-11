@@ -215,6 +215,8 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 export const FRIEND_CARD_CHANCE = 0.2;
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
 export const FRIEND_DOWN_TIME = 30;
+/** seconds of calm after every boss (the clock only runs while the kid is free to move) */
+export const BUY_WINDOW = 20;
 /** a friend's max HP before the Buddy System talents · seconds between two pick-ups of the player by the same friend */
 export const FRIEND_HP = 80, FRIEND_REVIVE_CD = 60;
 /** special guns: ticks of ramp a stream can build · share of a shot's damage a lingering trail deals per tick · seconds frozen */
@@ -283,7 +285,10 @@ export class Game {
   bossKilled = false;
   bossWins = 0;
   bossRound = 0;
+  /** true for the rest of the frame a boss died in: the fight's lists were just emptied, so the loops stop */
   bossBreak = false;
+  /** seconds left of the calm after a boss: nothing spawns, the shops have moved, the kid has time to find one */
+  calmT = 0;
   nextBossAt = 90;
   private endlessBosses = 0;
   xpCollected = 0;
@@ -817,8 +822,12 @@ export class Game {
     this.runProcs();
     if (!this.combatActive()) { inp.endFrame(); return; }
     if (this.endless) this.updateEndless(dt);
-    // A boss death can switch to the safe shop inside a bullet/zone update.
-    if (this.bossBreak) { this.state = 'shop'; inp.endFrame(); return; }
+    // A boss death empties the fight inside a bullet/zone update: the frame ends here and the calm begins.
+    if (this.bossBreak) { this.bossBreak = false; inp.endFrame(); return; }
+    if (this.calmT > 0 && this.state === 'play') {
+      this.calmT -= dt;
+      if (this.calmT <= 0) { this.calmT = 0; this.spawnAcc = 0; this.toast('The quiet is over. The monsters are back!'); gameAudio.play('guardian', 0.4); }
+    }
     if (this.state === 'play') { this.updateTot(dt); if (this.state === 'play') this.updateInteract(); }
     if (this.bossKilled && !this.endless) {
       this.winDelay += dt;
@@ -1023,7 +1032,7 @@ export class Game {
 
   takeDamage(dmg: number, fromX: number, fromY: number) {
     const p = this.p;
-    if (p.invuln > 0 || this.state !== 'play') return;
+    if (p.invuln > 0 || this.state !== 'play' || this.bossBreak) return; // nothing lands in the frame the boss fell
     dmg *= this.threat();
     if (this.mounted >= 0) dmg *= 1 - TURRET.armor; // high ground
     if (this.ins(this.weapon, 'glasspump')) dmg *= 1.15;
@@ -1035,7 +1044,7 @@ export class Game {
     if (p.costume === 'pumpkin' && p.novaCd <= 0) {
       p.novaCd = 2;
       this.explode(p.x, p.y, 3.8, 64 * this.stats.dmg * this.stats.skillPow * this.globalMore(), 'fire', true);
-      if (this.state !== 'play') return; // A boss clear already made this a safe shop.
+      if (this.state !== 'play' || this.bossBreak) return; // the nova felled the boss: the hit that set it off is void
     }
     dmg *= 1 - this.stats.armor;
     p.shieldT = 0;
@@ -1481,10 +1490,16 @@ export class Game {
   explode(x: number, y: number, r0: number, dmg0: number, elem: Elem | null, fromPlayer = true, crit = false, profile: DamageProfile = { element: elem }) {
     const bd = this.build;
     const r = fromPlayer ? r0 * bd.blastRadius() : r0, dmg = fromPlayer ? dmg0 * bd.blastMore() : dmg0;
-    const big = fromPlayer && (!elem || elem === 'fire') && r >= 2;
+    // A busy night sets off dozens of blasts a second. Only a heavy one (a rocket, a shell, a wreck: 2 tiles or more
+    // before any blast-radius bonus) plays the painted fireball, three at a time at most; the chain blasts of a build
+    // stay light rings. The more that are going off, the fewer sparks each one throws.
+    let booms = 0, painted = 0;
+    for (const z of this.zones) if (z.kind === 'boom') { booms++; if (z.sprite) painted++; }
+    const big = fromPlayer && !settings.lowFx && (!elem || elem === 'fire') && r0 >= 2 && painted < 3;
     this.zones.push({ kind: 'boom', x, y, r, t: 0, life: big ? 0.8 : 0.45, dmg: 0, tick: 0, color: elem ? ELEM[elem].color : '#ffb347', sprite: big });
-    this.shake = Math.max(this.shake, 4 + r * 2);
-    for (let i = 0; i < 22; i++) {
+    // the screen shakes for a heavy blast near the kid; a string of small ones must not rattle it without end
+    if (Math.hypot(x - this.p.x, y - this.p.y) < this.viewR + 2) this.shake = Math.max(this.shake, r0 >= 2 ? Math.min(9, 4 + r * 2) : booms > 3 ? 0 : 2.5);
+    for (let i = 0, n = booms > 8 ? 4 : booms > 3 ? 10 : 22; i < n; i++) {
       const a = rand(0, Math.PI * 2), sp = rand(1, 4) * r;
       this.particle(x, y, 0.2, Math.cos(a) * sp, Math.sin(a) * sp, rand(1, 4), rand(0.3, 0.7), i % 3 ? '#ffb347' : '#ff5a1a', rand(3, 6), i % 2 ? 'glow' : 'sq');
     }
@@ -1503,7 +1518,8 @@ export class Game {
         }
       });
     }
-    this.decals.push({ x, y, r: r * 0.6, color: 'rgba(20,10,5,0.5)', life: 20, rot: rand(0, 6) });
+    if (booms <= 8) this.decals.push({ x, y, r: r * 0.6, color: 'rgba(20,10,5,0.5)', life: 20, rot: rand(0, 6) });
+    if (this.decals.length > 160) this.decals.splice(0, this.decals.length - 160);
     if (fromPlayer && profile.demolish) this.demolish(x, y, r, 60, dmg);
   }
 
@@ -1819,12 +1835,14 @@ export class Game {
       this.spawnAcc = 0; this.tot = null; this.interact = null;
       this.p.coins += 150 + this.bossRound * 50;
       this.p.hp = Math.min(this.stats.maxHp, this.p.hp + this.stats.maxHp * 0.25);
-      this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45);
-      this.state = 'shop';
+      this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL + BUY_WINDOW : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45 + BUY_WINDOW);
+      // No shop pops up: the stand has just moved, and the kid gets a quiet stretch to walk there (or ring a few doors).
+      this.calmT = BUY_WINDOW;
+      this.p.invuln = Math.max(this.p.invuln, 1);
       this.hitStop = 0.25;
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, 'The streets are clear. Spend coins and upgrade before continuing.', 'win');
+      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `${BUY_WINDOW} quiet seconds: follow the arrow to the shop`, 'win');
       gameAudio.play('victory', 0.45);
     }
   }
@@ -2280,7 +2298,7 @@ export class Game {
           // what was inside lands on the lawn
           for (let i = 0; i < 10; i++) this.dropPickup(h.door.x, h.door.y, 'coin', 3);
           for (let i = 0; i < 6; i++) this.dropPickup(h.door.x, h.door.y, 'xp3', 4);
-          if (Math.random() < 0.35) this.dropWeapon(h.door.x + 0.4, h.door.y + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
+          if (Math.random() < 0.35) this.dropWeapon(h.door.x + 0.4, h.door.y + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 1, 1), this.lootLevel()));
         }
         this.text(cx, cy, 'HOUSE DOWN!', '#ff8a1e', 18);
       } else {
@@ -2319,7 +2337,7 @@ export class Game {
     if (kind === 'costume' && !this.randomCostume()) kind = 'hoard'; // already in costume: candy instead
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'coin', 2);
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'xp2', 2);
-    if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
+    if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1), this.lootLevel()));
     else if (kind === 'treat') {
       const sc = rollScrolls(1, this.scrolls, this.stats.luck + 1, 2)[0];
       if (sc) {
@@ -2584,6 +2602,7 @@ export class Game {
     } else {
       const old = this.p.weapons[slot];
       if (old) { old.reloadT = 0; this.dropWeapon(this.p.x, this.p.y, old); }
+      prize.weapon.level = Math.max(prize.weapon.level, this.lootLevel()); // the machine's guns keep up too
       this.p.weapons[slot] = prize.weapon;
       this.p.cur = slot; this.syncTeamWeapons();
     }
@@ -2700,7 +2719,7 @@ export class Game {
     for (let i = 0; i < (costumed ? 10 : 5); i++) this.dropPickup(dx, dy, 'coin', 2);
     for (let i = 0; i < (costumed ? 8 : 4); i++) this.dropPickup(dx, dy, 'xp2', 2);
     if (Math.random() < 0.25) this.dropPickup(dx, dy, 'heal', 25);
-    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max)));
+    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max), this.lootLevel()));
     if (Math.random() < Math.min(0.06, 0.025 * this.stats.costumeLuck)) this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
     for (let i = 0; i < 24; i++) this.particle(dx, dy, 0.6, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.9, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
     this.bubble(this.p.x, this.p.y, 115, costumed ? 'Thank you!!' : 'Aww… thanks.', 'kid', 1.4, true);
@@ -2744,7 +2763,7 @@ export class Game {
     guns = Math.min(guns, loot - 1); // always at least one treat on offer
     const { min, max } = this.choiceRewardRange;
     this.choices = rollScrolls(loot - guns, this.scrolls, luck, min, max);
-    this.gunChoices = Array.from({ length: loot - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max)));
+    this.gunChoices = Array.from({ length: loot - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max), this.lootLevel()));
   }
   private rollLocked() {
     this.lockedChoice = null;
@@ -2814,6 +2833,14 @@ export class Game {
   get friendDownTime() { return FRIEND_DOWN_TIME + (this.stats?.mateDown ?? 0); }
   /** seconds before the same friend can pick the player up again */
   get friendReviveCd() { return Math.round(FRIEND_REVIVE_CD * (this.stats?.mateReviveCd ?? 1)); }
+  /**
+   * The level of a gun the night hands out (doorsteps, bags, the candy machine): about the kid's own level, and never
+   * far behind the best gun they carry, so a find is a real choice and not a level-1 toy next to an upgraded gun.
+   */
+  lootLevel() {
+    const best = Math.max(1, ...this.p.weapons.map(w => w?.level ?? 1));
+    return Math.max(1, Math.max(this.p.level, best - 1) - (Math.random() < 0.4 ? 1 : 0));
+  }
   private friendGun() { return makeWeapon('nerf', Math.min(4, 1 + (this.stats?.mateGun ?? 0))); }
   /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
   /** game time of the last shop move (the screen-edge arrows for the candy machines show for a while after it) */
@@ -2978,7 +3005,7 @@ export class Game {
     if (pos) this.spawnEnemy(this.wave % 2 ? 'witch' : 'skeleton', pos.x, pos.y, true);
   }
   private updateEndless(dt: number) {
-    if (this.bossBreak) return;
+    if (this.bossBreak || this.calmT > 0) return;
     this.waveT += dt;
     if (this.waveT >= 30) {
       this.waveT -= 30;
@@ -3034,7 +3061,7 @@ export class Game {
   }
 
   private director(dt: number) {
-    if (this.bossBreak || (this.bossKilled && !this.endless)) return;
+    if (this.bossBreak || this.calmT > 0 || (this.bossKilled && !this.endless)) return;
     const t = this.time;
     if (!this.endless) {
       const targetWave = 1 + Math.floor(t / 60);
@@ -3122,7 +3149,7 @@ export class Game {
       const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
       const type = this.campaign ? CAMPAIGN_BOSSES[this.bossRound] : 'king';
       this.boss = this.spawnEnemy(type, pos.x, pos.y);
-      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for an upgrade break`, 'danger');
+      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for ${BUY_WINDOW} quiet seconds to shop`, 'danger');
       if (this.turrets.length && this.mounted < 0) this.toast('Get up on a jungle gym at Hollow Creek Primary — the Candy Cannon shreds bosses!');
       this.shake = 15;
     }
@@ -3170,6 +3197,7 @@ export class Game {
       weapons: p.weapons.map((w) => (w ? { w, st: weaponStats(w, s) } : null)), cur: p.cur, skillCd: Math.max(0, p.skillCd), skillMax: HERO_INFO[this.hero].cd * s.skillCd,
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
+      calm: this.calmT,
       wave: this.wave, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 60 - this.time % 60,
       momentum: this.momentum, streak: this.streak, premiumPower: this.premiumPowerT,
       turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,

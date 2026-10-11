@@ -18,7 +18,7 @@ try {
       g.time = g.nextBossAt; g.director(.001);
       if (g.boss?.type !== type) throw new Error('Initial boss order changed');
       lastHp[type] = g.boss.maxHp; lastThreat[type] = g.threat();
-      g.killEnemy(g.boss); g.closeShop();
+      g.killEnemy(g.boss); g.bossBreak = false; g.calmT = 0; // straight on to the next one: the quiet is checked below
     }
     if (!g.friends.some(f => f.status !== 'rescued')) throw new Error('Test must retain missing friends');
     g.pickups = []; g.pendingLevels = 0;
@@ -36,21 +36,26 @@ try {
       lastHp[type] = boss.maxHp; lastThreat[type] = g.threat();
       bosses.push({ type, hp: Math.round(boss.maxHp), damageScale: Number(g.threat().toFixed(2)) });
       g.killEnemy(boss);
-      if (g.state !== 'shop' || !g.bossBreak || g.enemies.length || g.ebullets.length) throw new Error('Boss kill lost its safe upgrade break');
-      const time = g.time, wave = g.wave, next = g.nextBossAt;
-      g.update(30);
-      if (g.time !== time || g.wave !== wave || g.nextBossAt !== next || g.boss) throw new Error('Next boss advanced during the shop');
-      g.closeShop();
-      if (g.nextBossAt !== g.time + 90) throw new Error('Wrong recurring boss interval');
+      // no shop pops up: the kid keeps playing, in 20 quiet seconds with nothing on the street
+      if (g.state !== 'play' || g.calmT !== 20 || g.enemies.length || g.ebullets.length) throw new Error('Boss kill lost its quiet buy window');
+      if (g.nextBossAt !== g.time + 90 + 20) throw new Error('Wrong recurring boss interval');
+      const wave = g.wave, next = g.nextBossAt;
+      for (let k = 0; k < 150; k++) g.update(.05); // about five of the twenty seconds (a frame is 1/30 s at most)
+      if (g.state !== 'play' || g.enemies.length || g.boss || g.wave !== wave || g.nextBossAt !== next) throw new Error('Monsters came back during the quiet');
+      if (!(g.calmT > 14.5 && g.calmT < 16) || !(g.snapshot().calm > 0)) throw new Error(`The quiet is not counting down (${g.calmT})`);
+      g.state = 'shop'; const left = g.calmT; g.update(5);
+      if (g.calmT !== left) throw new Error('The quiet ran out while shopping');
+      g.closeShop(); g.calmT = 0; g.pickups = []; g.pendingLevels = 0;
     }
     const { Game } = await import('/src/game/engine.ts');
     const free = new Game(0, { hero: 0, soul: 0, best: 0, talents: {} }, g.input, false, 1337);
     free.p.invuln = 999; free.time = 300; free.director(.001);
     if (free.boss?.type !== 'king') throw new Error('Free survival opening boss changed');
-    free.killEnemy(free.boss); free.closeShop(); free.pickups = []; free.pendingLevels = 0;
+    free.killEnemy(free.boss); free.pickups = []; free.pendingLevels = 0;
+    if (free.state !== 'play' || free.calmT !== 20) throw new Error('Free survival opens a shop after its boss');
     for (let i = 0; i < 120 && !free.endless; i++) free.update(.05);
     if (!free.endless) throw new Error('Free survival did not enter the recurring cycle');
-    free.time = free.nextBossAt; free.updateEndless(.001);
+    free.calmT = 0; free.time = free.nextBossAt; free.updateEndless(.001);
     if (free.boss?.type !== 'hex' || free.boss.maxHp <= free.boss.def.hp) throw new Error('Free survival did not get a stronger returning boss');
     return { missingFriends: g.friends.filter(f => f.status !== 'rescued').length, bosses, freeCycle: true };
   });
@@ -59,5 +64,5 @@ try {
   assert.equal(result.freeCycle, true);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify(result));
-  console.log('Three recurring boss rounds grew stronger, missing friends did not block them, and every kill preserved its paused upgrade break.');
+  console.log('Three recurring boss rounds grew stronger, missing friends did not block them, and every kill gave 20 quiet seconds with no shop popping up.');
 } finally { await browser.close(); }

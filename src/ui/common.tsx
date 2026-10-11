@@ -12,7 +12,8 @@ import { Keycap, KitTitle } from './kit';
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
 export const fmtTime = (t: number) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
-export const RARITY_KIT = ['#9aa0a6', '#7cff64', '#4fb3ff', '#a46bff', '#ffc453'];
+/** rarity colours in the UI: grey, then the familiar yellow-green · deep blue · purple · orange */
+export const RARITY_KIT = ['#9aa0a6', '#1eff00', '#0070dd', '#a335ee', '#ff8000'];
 
 // ============ GLYPHS (filled icons as drawn in the kit) ============
 type G = { size?: number; className?: string };
@@ -155,7 +156,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   );
 }
 
-/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, colour-coded by tier */
+/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, in the loot colour of their tier (green, blue, purple, orange) */
 export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean; big?: boolean }) {
   if (!w.traits.length) return compact ? null : <div className="mt-2 font-cond2 text-[11px] font-bold uppercase tracking-wider text-[#5f6470]">No inscriptions</div>;
   return (

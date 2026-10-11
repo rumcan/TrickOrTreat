@@ -121,9 +121,11 @@ export const WEAPON_BY_ID = Object.fromEntries(WEAPONS.map((w) => [w.id, w])) as
  *  ◆ trigger    conditional: first shot, kills, combos, standing still…
  *  ★ unique     changes how the gun behaves (epic+; a legendary always has one)
  *  ✦ deal       a "Spooky Deal": a big bonus with a catch (rare+, purple)
+ *  ✹ legend     a legendary line, far stronger than the rest: a 1% chance on a rare gun, 3% on an epic, 10% on a legendary
+ * Lines are shown in loot colours: stat green (uncommon), trigger blue (rare), unique and deal purple (epic), legend orange.
  * Static numbers live in weaponStats(); the triggers are handled by the engine (see Game.insc*).
  */
-export type InscTier = 'stat' | 'trigger' | 'unique' | 'deal';
+export type InscTier = 'stat' | 'trigger' | 'unique' | 'deal' | 'legend';
 export interface Trait { id: string; name: string; desc: string; minRarity: number; tier: InscTier }
 export const TRAITS: Trait[] = [
   // ● stat lines
@@ -160,14 +162,22 @@ export const TRAITS: Trait[] = [
   { id: 'tummy', tier: 'deal', name: 'Tummy Ache', desc: '+40% damage, but -15% move speed while held', minRarity: 2 },
   { id: 'glasspump', tier: 'deal', name: 'Glass Pumpkin', desc: '+60% crit damage, but take +15% damage while held', minRarity: 2 },
   { id: 'crash', tier: 'deal', name: 'Sugar Crash', desc: '+50% fire rate, but +50% reload time', minRarity: 2 },
+  // ✹ legendary lines (very rare, see LEGEND_ODDS)
+  { id: 'fullsize', tier: 'legend', name: 'Full-Size Candy Bar', desc: '+60% damage and +25% fire rate', minRarity: 2 },
+  { id: 'bottomless', tier: 'legend', name: 'Bottomless Bag', desc: '+150% magazine and -40% reload time', minRarity: 2 },
+  { id: 'trio', tier: 'legend', name: 'Three of a Kind', desc: '+2 projectiles', minRarity: 2 },
+  { id: 'midnight', tier: 'legend', name: 'Stroke of Midnight', desc: '+25% crit chance and +100% crit damage', minRarity: 2 },
 ];
+/** chance of a legendary line on a gun, by the gun's rarity */
+export const LEGEND_ODDS = [0, 0, 0.01, 0.03, 0.1];
 export const TRAIT_BY_ID = Object.fromEntries(TRAITS.map((t) => [t.id, t])) as Record<string, Trait>;
 export const INSCRIPTIONS = TRAITS;
 export const INSC_STYLE: Record<InscTier, { glyph: string; color: string; label: string }> = {
-  stat: { glyph: '●', color: '#8fdc7a', label: 'Inscription' },
-  trigger: { glyph: '◆', color: '#3fd0e0', label: 'Trigger' },
-  unique: { glyph: '★', color: '#ffb43c', label: 'Unique' },
-  deal: { glyph: '✦', color: '#c08cff', label: 'Spooky deal' },
+  stat: { glyph: '●', color: '#1eff00', label: 'Inscription' },
+  trigger: { glyph: '◆', color: '#2a8cff', label: 'Trigger' }, // the rare blue, a step lighter so small text reads on the dark cards
+  unique: { glyph: '★', color: '#b65cf5', label: 'Unique' },
+  deal: { glyph: '✦', color: '#b65cf5', label: 'Spooky deal' },
+  legend: { glyph: '✹', color: '#ff8000', label: 'Legendary' },
 };
 
 /** per-gun runtime state used by trigger inscriptions */
@@ -190,7 +200,8 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   const ok = (t: Trait) => t.minRarity <= rarity && (!['fire', 'shock', 'ecto'].includes(t.id) || !def.elem || def.elem === t.id || Math.random() < 0.3)
     && !(['speed', 'haunted', 'split'].includes(t.id) && (def.kind === 'beam' || def.kind === 'slash'))
     && !(['haunted', 'split', 'bounce'].includes(t.id) && (def.boomerang || def.vortex || def.homing))
-    && !(['pierce', 'bounce'].includes(t.id) && def.kind === 'slash');
+    && !(['pierce', 'bounce', 'trio', 'twin'].includes(t.id) && def.kind === 'slash')
+    && !(t.id === 'trio' && def.stream);
   const take = (pool: Trait[], out: string[]) => {
     const p = pool.filter((t) => ok(t) && !out.includes(t.id));
     if (p.length) out.push(p[Math.floor(Math.random() * p.length)].id);
@@ -205,6 +216,8 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   for (let i = 0; i < n; i++) take(i < trig ? triggers : stats, out);
   if (rarity >= 2 && Math.random() < 0.22) { out.pop(); take(deals, out); }
   if (unique) take(uniques, out);
+  // once in a long while: an orange line on top of everything else
+  if (Math.random() < (LEGEND_ODDS[rarity] ?? 0)) take(TRAITS.filter((t) => t.tier === 'legend'), out);
   return out;
 }
 
@@ -236,20 +249,20 @@ export function weaponStats(w: Weapon, s: Stats): WStats {
   const lvlMul = 1 + (w.level - 1) * 0.14;
   const ch = (e: Elem) => (d.elem === e ? d.elemChance : 0) + has(e) * 0.15 + (s as unknown as Record<string, number>)[e === 'fire' ? 'burn' : e];
   return {
-    dmg: d.dmg * rarMul * lvlMul * (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4) * s.dmg * (s.oneShot ? 4 : 1),
-    rate: d.rate * (1 + has('rate') * 0.15) * (1 + has('crash') * 0.5) * s.rate * (1 + (w.level - 1) * 0.03),
-    mag: s.oneShot ? 1 : Math.max(1, Math.round(d.mag * (1 + has('mag') * 0.4) * s.mag)),
-    reload: d.reload * (1 - has('reload') * 0.25) * (1 + has('crash') * 0.5) * s.reload,
+    dmg: d.dmg * rarMul * lvlMul * (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4) * (1 + has('fullsize') * 0.6) * s.dmg * (s.oneShot ? 4 : 1),
+    rate: d.rate * (1 + has('rate') * 0.15) * (1 + has('crash') * 0.5) * (1 + has('fullsize') * 0.25) * s.rate * (1 + (w.level - 1) * 0.03),
+    mag: s.oneShot ? 1 : Math.max(1, Math.round(d.mag * (1 + has('mag') * 0.4 + has('bottomless') * 1.5) * s.mag)),
+    reload: d.reload * (1 - has('reload') * 0.25) * (1 - has('bottomless') * 0.4) * (1 + has('crash') * 0.5) * s.reload,
     pierce: d.pierce + has('pierce') + s.pierce,
     bounce: d.bounce + has('bounce') + s.bounce,
-    pellets: d.pellets + has('twin') + s.pellets,
-    crit: s.crit + d.critBonus + has('crit') * 0.08,
+    pellets: d.pellets + has('twin') + has('trio') * 2 + s.pellets,
+    crit: s.crit + d.critBonus + has('crit') * 0.08 + has('midnight') * 0.25,
     fire: ch('fire'),
     shock: ch('shock'),
     ecto: ch('ecto'),
     vamp: has('vamp') > 0,
     range: Math.min(GUN_RANGE_MAX, (d.range * GUN_RANGE_SCALE * (1 + has('speed') * 0.2) + s.range) * s.rangeMul),
-    critMul: s.critDmg + has('critdmg') * 0.5 + has('glasspump') * 0.6,
+    critMul: s.critDmg + has('critdmg') * 0.5 + has('glasspump') * 0.6 + has('midnight'),
     speed: d.speed * (1 + has('speed') * 0.6),
   };
 }

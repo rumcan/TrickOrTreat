@@ -52,10 +52,11 @@ export function makeRng(seed: number) {
 
 export const RARITY = [
   { name: 'Common', color: '#d8d8d8', glow: '#ffffff' },
-  { name: 'Uncommon', color: '#5fe37a', glow: '#5fe37a' },
-  { name: 'Rare', color: '#4fb3ff', glow: '#4fb3ff' },
-  { name: 'Epic', color: '#c46bff', glow: '#c46bff' },
-  { name: 'Legendary', color: '#ffa53a', glow: '#ffb347' },
+  // the loot colours every player already knows: yellow-green, deep blue, purple, orange
+  { name: 'Uncommon', color: '#1eff00', glow: '#1eff00' },
+  { name: 'Rare', color: '#0070dd', glow: '#2a8cff' },
+  { name: 'Epic', color: '#a335ee', glow: '#a335ee' },
+  { name: 'Legendary', color: '#ff8000', glow: '#ff8000' },
 ];
 
 export const ELEM = {
