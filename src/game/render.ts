@@ -1,7 +1,7 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
 import { Game, Enemy, Turret } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
-import { PropInst } from './map';
+import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
 import { AIM, HeroAim, heroAim, aimDir } from './art/hero-aim';
 import { weaponIcon, pickupIcon, glow, lightSprite, explosionSheet, flameSheet, FX_FRAMES } from './art/fx';
@@ -61,6 +61,8 @@ export class Renderer {
   /** burnt-out versions of wrecked cars and houses, made the first time each sprite is wrecked */
   private charred = new WeakMap<object, HTMLCanvasElement>();
   minimap: HTMLCanvasElement | null = null;
+  private renderedMap: GameMap | null = null;
+  private minimapGrid = MAP_H;
   vignette: HTMLCanvasElement | null = null;
   leaves: { x: number; y: number; vx: number; vy: number; r: number; c: string }[] = [];
   dpr = 1;
@@ -92,11 +94,13 @@ export class Renderer {
 
   private buildMinimap(g: Game) {
     const s = 3;
-    const { c, ctx } = makeCanvas((MAP_W + MAP_H) * s, ((MAP_W + MAP_H) * s) / 2);
+    const grid=this.minimapGrid=g.map.bounds?Math.ceil(Math.max(g.map.bounds.x1,g.map.bounds.y1)+3):MAP_H;
+    const { c, ctx } = makeCanvas(grid*2*s,grid*s);
     const col: Record<number, string> = { [G.GRASS]: '#2c4626', [G.ROAD]: '#2a2a31', [G.SIDEWALK]: '#77787b', [G.DIRT]: '#3d2c22', [G.GRAVEL]: '#4a4744', [G.DARKGRASS]: '#1f3324', [G.DRIVEWAY]: '#6a6b6e', [G.FLAGSTONE]: '#3a5a32', [G.FIELD]: '#2f5a2a' };
-    const P = (x: number, y: number): [number, number] => [(x - y) * s + MAP_H * s, ((x + y) * s) / 2];
-    for (let y = 0; y < MAP_H; y++)
-      for (let x = 0; x < MAP_W; x++) {
+    if(g.map.kind==='arcade'){col[G.FLAGSTONE]='#29233c';col[G.DARKGRASS]='#0b0d17';}
+    const P = (x: number, y: number): [number, number] => [(x - y) * s + grid * s, ((x + y) * s) / 2];
+    for (let y = 0; y < grid; y++)
+      for (let x = 0; x < grid; x++) {
         ctx.fillStyle = col[g.map.ground[y * MAP_W + x]] || '#000';
         const [a, b] = P(x, y);
         ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a + s, b + s / 2); ctx.lineTo(a, b + s); ctx.lineTo(a - s, b + s / 2); ctx.fill();
@@ -135,7 +139,7 @@ export class Renderer {
       this.light.height = Math.ceil(cv.height / 2);
       this.buildVignette(cv.width, cv.height);
     }
-    if (!this.minimap) this.buildMinimap(g);
+    if (!this.minimap || this.renderedMap !== g.map) { this.buildMinimap(g); this.renderedMap=g.map; }
     if (g.p.costume !== this.costume) {
       this.costume = g.p.costume;
       this.hero = heroSheet(this.heroIdx, this.costume);
@@ -180,6 +184,7 @@ export class Renderer {
         const sx = isoX(x, y), sy = isoY(x, y);
         if (sx + HW < vx0 || sx - HW > vx1 || sy + TW < vy0 || sy > vy1) continue;
         const i = y * MAP_W + x;
+        if(m.kind==='arcade'&&m.ground[i]===G.DARKGRASS)continue;
         ctx.drawImage(m.tiles[i], sx - HW, sy);
         const ov = m.overlays[i];
         for (let k = 0; k < ov.length; k++) ctx.drawImage(ov[k], sx - HW, sy);
@@ -304,6 +309,7 @@ export class Renderer {
       if (g.mounted < 0) items.push(playerItem);
     }
     if (g.friends.length) for (const friend of g.friends) {
+      if(g.map.kind==='arcade'&&friend.status!=='rescued')continue;
       const pos = g.state === 'intro' ? g.introPosition(friend.hero) : friend;
       const sx = isoX(pos.x, pos.y), sy = isoY(pos.x, pos.y);
       if (!inView(sx - 32, sy - 110, sx + 32, sy + 20)) continue;
@@ -652,6 +658,19 @@ export class Renderer {
           }
           ctx.lineTo(x1, y1); ctx.stroke();
         }
+      } else if (b.soft) {
+        // a quiet beam: thin, faint at the muzzle and full strength only toward where it lands (a stream, being held
+        // on its target, keeps a little more body than the single bolt of the lance)
+        const stream = b.w > 5.5;
+        const glowLine = ctx.createLinearGradient(x0, y0, x1, y1);
+        glowLine.addColorStop(0, `${b.color}${stream ? '4d' : '00'}`); glowLine.addColorStop(0.55, b.color); glowLine.addColorStop(1, b.color);
+        ctx.lineCap = 'butt';
+        ctx.globalAlpha = a * (stream ? 0.75 : 0.6); ctx.strokeStyle = glowLine; ctx.lineWidth = b.w * (stream ? 1.3 : 1.1);
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        const core = ctx.createLinearGradient(x0, y0, x1, y1);
+        core.addColorStop(0, stream ? '#ffffff33' : '#ffffff00'); core.addColorStop(0.6, '#ffffff'); core.addColorStop(1, '#ffffff');
+        ctx.globalAlpha = a * 0.6; ctx.strokeStyle = core; ctx.lineWidth = Math.max(1, b.w * 0.2);
+        ctx.stroke();
       } else {
         ctx.lineWidth = b.w * 3 * a;
         ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
@@ -706,6 +725,23 @@ export class Renderer {
             for (let k = Math.max(-8, sweep - 7); k <= sweep; k++) ctx.lineTo(...rim(k, z.r * 0.96));
             ctx.stroke();
           }
+        }
+      } else if (z.kind === 'trail' && z.wake) {
+        // the wake of a beam: thin and quiet, and it dissolves from the gun end toward the far end like smoke
+        const wx1 = z.x1 ?? z.x, wy1 = z.y1 ?? z.y, f = Math.min(1, z.t / z.life);
+        const ax = z.x + (wx1 - z.x) * f, ay = z.y + (wy1 - z.y) * f;
+        const x0 = isoX(ax, ay), y0 = isoY(ax, ay) - 12, x1 = isoX(wx1, wy1), y1 = isoY(wx1, wy1) - 12;
+        if (Math.hypot(x1 - x0, y1 - y0) > 2) {
+          const col = z.color ?? '#7cff64', flick = 0.8 + Math.sin(this.t * 14 + z.x * 7) * 0.2;
+          const soft = ctx.createLinearGradient(x0, y0, x1, y1);
+          soft.addColorStop(0, `${col}00`); soft.addColorStop(0.45, col); soft.addColorStop(1, col);
+          ctx.lineCap = 'butt';
+          ctx.globalAlpha = 0.3 * flick; ctx.strokeStyle = soft; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+          const core = ctx.createLinearGradient(x0, y0, x1, y1);
+          core.addColorStop(0, '#ffffff00'); core.addColorStop(0.5, '#ffffff');  core.addColorStop(1, '#ffffff');
+          ctx.globalAlpha = 0.4; ctx.strokeStyle = core; ctx.lineWidth = 1;
+          ctx.stroke();
         }
       } else if (z.kind === 'trail') {
         const x1 = isoX(z.x1 ?? z.x, z.y1 ?? z.y), y1 = isoY(z.x1 ?? z.x, z.y1 ?? z.y) - 12;
@@ -995,7 +1031,7 @@ export class Renderer {
         ctx.restore();
       }
     }
-    if (g.campaign && g.state !== 'intro') {
+    if (g.campaign && g.state !== 'intro' && m.kind !== 'arcade') {
       // One readable objective arrow: prefer a kid whose district is already open.
       const missing = g.friends.filter(f => f.status !== 'rescued');
       missing.sort((a, b) => Number(a.status === 'locked') - Number(b.status === 'locked') || Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
@@ -1022,10 +1058,11 @@ export class Renderer {
       const stand = shop.prop.kind !== 'vending';
       if (stand || g.time - g.shopsMovedAt < 60) ind(shop.x, shop.y, '#ff9a2a', stand ? 'Shop' : 'Candy machine');
     }
+    for(const portal of m.portals??[])ind(portal.x,portal.y,'#64f0ad','EXIT · Maple Falls');
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
-    for (const l of this.leaves) {
+    if(m.kind!=='arcade') for (const l of this.leaves) {
       l.x += l.vx * dt * 0.5 + Math.sin(this.t + l.r) * 0.0005;
       l.y += l.vy * dt * 0.5;
       if (l.y > 1.05) { l.y = -0.05; l.x = Math.random(); }
@@ -1074,7 +1111,7 @@ export class Renderer {
       ctx.strokeRect(mx - 6.5, my - 6.5, mw + 13, mh + 13);
       ctx.drawImage(this.minimap, mx, my, mw, mh);
       const s = 3 * sc;
-      const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + MAP_H * s), my + ((x + y) * s) / 2];
+      const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + this.minimapGrid * s), my + ((x + y) * s) / 2];
       ctx.fillStyle = '#ff4a4a';
       for (const e of g.enemies) { const [a, b] = MP(e.x, e.y); const z = (e.elite ? 4 : 2) * k; ctx.fillRect(a - z / 2, b - z / 2, z, z); }
       // Loot on the ground is not marked: the map shows where to go, not every bag and gun.
@@ -1093,6 +1130,11 @@ export class Renderer {
         }
       }
       ctx.fillStyle = '#fff1b8';
+      for(const poi of [...(m.pois??[]),...(m.portals??[]).map(q=>({...q,name:'EXIT'}))]) {
+        const [a,b]=MP(poi.x,poi.y);ctx.fillStyle=poi.name==='EXIT'?'#6affbd':'#e79fff';ctx.fillRect(a-2*k,b-2*k,4*k,4*k);
+        if(big){ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.fillText(poi.name,a,b-5*k);}
+      }
+      ctx.fillStyle = '#fff1b8';
       ctx.globalAlpha = 0.6 + Math.sin(this.t * 4) * 0.4;
       for (const h of m.houses) {
         if (h.visited) continue;
@@ -1101,7 +1143,7 @@ export class Renderer {
       }
       ctx.globalAlpha = 1;
       // Rescue locations stay visible even while their district gate is locked.
-      if (g.campaign) for (const friend of g.friends) {
+      if (g.campaign && m.kind !== 'arcade') for (const friend of g.friends) {
         if (friend.status === 'rescued') continue;
         const [a, b] = MP(friend.x, friend.y);
         ctx.fillStyle = '#6ef4ff'; ctx.strokeStyle = '#07141a'; ctx.lineWidth = 2;
@@ -1141,7 +1183,7 @@ export class Renderer {
         ctx.fillText('M A P L E   F A L L S', mx - 6, my - 34);
         ctx.font = '32px Anton, Impact, sans-serif';
         ctx.fillStyle = '#fff0da';
-        ctx.fillText('TONIGHT\'S STREETS', mx - 6, my - 14);
+        ctx.fillText(m.kind==='arcade'?'THE STARCADE':'TONIGHT\'S STREETS', mx - 6, my - 14);
         ctx.fillStyle = '#ed7414';
         ctx.fillRect(mx + 268, my - 24, 61, 4);
         ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';
@@ -1213,6 +1255,7 @@ export class Renderer {
       else if (z.kind === 'flash') light(z.x, z.y, z.r, 1 - z.t / z.life);
       else if (z.kind === 'tornado') light(z.x, z.y, z.r * 1.4, 0.4);
       else if (z.kind === 'vortex') light(z.x, z.y, z.r * 0.9, 0.7);
+      else if (z.kind === 'trail' && z.wake) light(z.x1 ?? z.x, z.y1 ?? z.y, 0.7, (1 - z.t / z.life) * 0.25);
       else if (z.kind === 'trail') { const k = Math.min(1, (z.life - z.t) * 2) * 0.5; light(z.x, z.y, 0.9, k); light(z.x1 ?? z.x, z.y1 ?? z.y, 0.9, k); }
     }
     for (const b of g.ebullets) light(b.x, b.y, 0.9, 0.7);

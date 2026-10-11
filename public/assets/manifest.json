@@ -1585,6 +1585,121 @@
         64,
         80
       ]
+    },
+    "arcade_cabinet_1.5_2": {
+      "file": "arcade/arcade_cabinet_1.5_2.webp",
+      "scale": 2,
+      "anchor": [
+        256,
+        296
+      ]
+    },
+    "arcade_pinball_1.5_2": {
+      "file": "arcade/arcade_pinball_1.5_2.webp",
+      "scale": 2,
+      "anchor": [
+        256,
+        296
+      ]
+    },
+    "arcade_skeeball_5_6": {
+      "file": "arcade/arcade_skeeball_5_6.webp",
+      "scale": 2,
+      "anchor": [
+        736,
+        536
+      ]
+    },
+    "arcade_airhockey_5_3": {
+      "file": "arcade/arcade_airhockey_5_3.webp",
+      "scale": 2,
+      "anchor": [
+        544,
+        440
+      ]
+    },
+    "arcade_foosball_3_3": {
+      "file": "arcade/arcade_foosball_3_3.webp",
+      "scale": 2,
+      "anchor": [
+        416,
+        376
+      ]
+    },
+    "arcade_prizes_10_3": {
+      "file": "arcade/arcade_prizes_10_3.webp",
+      "scale": 2,
+      "anchor": [
+        864,
+        676
+      ]
+    },
+    "arcade_pizza_7_3": {
+      "file": "arcade/arcade_pizza_7_3.webp",
+      "scale": 2,
+      "anchor": [
+        672,
+        580
+      ]
+    },
+    "arcade_booth_6_3": {
+      "file": "arcade/arcade_booth_6_3.webp",
+      "scale": 2,
+      "anchor": [
+        608,
+        472
+      ]
+    },
+    "arcade_stage_9_4": {
+      "file": "arcade/arcade_stage_9_4.webp",
+      "scale": 2,
+      "anchor": [
+        864,
+        696
+      ]
+    },
+    "arcade_photo_2_3": {
+      "file": "arcade/arcade_photo_2_3.webp",
+      "scale": 2,
+      "anchor": [
+        352,
+        344
+      ]
+    },
+    "arcade_tokens_2_2": {
+      "file": "arcade/arcade_tokens_2_2.webp",
+      "scale": 2,
+      "anchor": [
+        288,
+        312
+      ]
+    },
+    "arcade_party_8_4": {
+      "file": "arcade/arcade_party_8_4.webp",
+      "scale": 2,
+      "anchor": [
+        800,
+        568
+      ]
+    },
+    "arcade_carpet": {
+      "file": "arcade/carpet.webp"
+    },
+    "arcade_wall_8_0.75": {
+      "file": "arcade/arcade_wall_8_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        592,
+        500
+      ]
+    },
+    "arcade_wall_0.75_7.5": {
+      "file": "arcade/arcade_wall_0.75_7.5.webp",
+      "scale": 2,
+      "anchor": [
+        560,
+        484
+      ]
     }
   }
 }

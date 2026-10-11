@@ -1,6 +1,7 @@
 import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
 import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
 import { G } from './art/tiles';
+import { buildArcadeMap } from './arcade-map';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
@@ -172,13 +173,15 @@ export interface EBullet { x: number; y: number; vx: number; vy: number; r: numb
 export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
 export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
-export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number }
+export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number; /** a quiet beam (streams, the Phase Lance): thin, and faint at the gun end */ soft?: boolean }
 export interface Zone {
   kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn' | 'trail' | 'vortex'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string;
   /** flash: half-angle of the cone · trail: the far end of the line · vortex: blast radius, crit flag and whether it wrecks scenery */
   arc?: number; x1?: number; y1?: number; blast?: number; crit?: boolean; demolish?: boolean; done?: boolean;
   /** boom: big enough to play the painted fireball */
   sprite?: boolean;
+  /** trail: the wake of a beam. It thins out from the gun end toward the far end over its life, like smoke, and only the part still hanging in the air cuts */
+  wake?: boolean;
 }
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
@@ -302,7 +305,38 @@ export class Game {
   private warned = new Set<number>();
   /** M / Tab: big map overlay */
   bigMap = false;
-  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'vending' | 'costume' | 'house' | 'turret'; ref: Pickup | PropInst | HouseInst } | null = null;
+  interact: { label: string; kind: 'weapon' | 'chest' | 'shop' | 'vending' | 'costume' | 'house' | 'turret' | 'portal'; ref: Pickup | PropInst | HouseInst | NonNullable<GameMap['portals']>[number] } | null = null;
+  private townScene: {map:GameMap;enemies:Enemy[];pickups:Pickup[];decals:Decal[];turrets:Turret[]} | null = null;
+  private arcadeScene: {map:GameMap;enemies:Enemy[];pickups:Pickup[];decals:Decal[];turrets:Turret[]} | null = null;
+  private arcadeReturn: {x:number;y:number} | null = null;
+  private townShopMovePending = false;
+  get rescueMap() { return this.townScene?.map ?? this.map; }
+
+  /** Keep run progress and per-scene loot; never reset or duplicate rewards on entry. */
+  travelArcade(target:'town'|'arcade') {
+    if(this.state!=='play'||this.mounted>=0||this.tot) return;
+    const inside=this.map.kind==='arcade';
+    if((target==='arcade')===inside) return;
+    const arcade=this.map.houses.find(h=>h.prop.kind==='arcade'&&!h.gone);
+    const portal=inside?this.map.portals?.[0]:arcade?.door;
+    if(!portal||Math.hypot(this.p.x-portal.x,this.p.y-portal.y)>2) return;
+    if(this.boss&&!this.boss.dead){this.toast('Finish the boss fight before changing rooms.');return;}
+    const snapshot={map:this.map,enemies:this.enemies,pickups:this.pickups,decals:this.decals,turrets:this.turrets};
+    if(inside)this.arcadeScene=snapshot;
+    else {this.townScene=snapshot;this.arcadeReturn={...arcade!.door};}
+    const next=inside?this.townScene!:this.arcadeScene??{map:buildArcadeMap(),enemies:[],pickups:[],decals:[],turrets:[]};
+    this.map=next.map;this.enemies=next.enemies;this.pickups=next.pickups;this.decals=next.decals;this.turrets=next.turrets;
+    Object.assign(this.p,inside?this.arcadeReturn!:this.map.start);
+    this.bullets=[];this.ebullets=[];this.zones=[];this.lobs=[];this.beams=[];this.particles=[];this.texts=[];this.bubbles=[];this.procQueue=[];
+    this.interact=null;this.inspecting=null;this.nearbyWeapon=null;this.nearbyCostume=null;this.rescuePrompt='';this.rescueProgress=-1;this.tutorialHouse=null;
+    this.spawnAcc=0;this.shake=0;this.vw=1;this.bigMap=false;this.computeFlow(true);
+    if(inside&&this.townShopMovePending){this.relightHouses();this.relocateShops();this.townShopMovePending=false;}
+    for(const f of this.friends)if(f.status==='rescued')Object.assign(f,this.freeSpot(this.p.x+.8,this.p.y+.8,true),{moving:false});
+    if(inside)this.selectTutorialHouse();
+    this.input.keys.clear();this.input.pressed.clear();this.input.mdown=false;
+    this.setBanner(inside?'BACK TO MAPLE FALLS':'WELCOME TO THE STARCADE',inside?'Your run continues.':'Four blocks of games, pizza and monsters. E at the exit returns outside.');
+    gameAudio.play('door',.4);
+  }
   /** Candy Cannons on the playground jungle gyms; `mounted` is the index of the one the kid is manning (-1: on foot) */
   turrets: Turret[] = [];
   mounted = -1;
@@ -497,6 +531,7 @@ export class Game {
     this.rescuePrompt = ''; this.rescueProgress = -1;
     for (const f of this.friends) {
       if (f.status === 'rescued') continue;
+      if (this.map.kind === 'arcade') continue; // Hidden kids remain in their town hideouts.
       const gate = this.map.gates[f.gate], distance = Math.hypot(f.x - this.p.x, f.y - this.p.y);
       // a guardian that left the arena without dying (despawned, culled) no longer holds the ward
       if (f.guardian && !f.guardian.dead && !this.enemies.includes(f.guardian)) f.guardian.dead = true;
@@ -656,9 +691,9 @@ export class Game {
       for (let i = 0; i < beams; i++) {
         const a = angle + (beams > 1 ? (i - (beams - 1) / 2) * 0.12 : 0);
         if (def.chill || def.stream) this.hitSrc = weapon;
-        const len = this.hitscan(friend.x, friend.y, Math.cos(a), Math.sin(a), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5);
+        const len = this.hitscan(friend.x, friend.y, Math.cos(a), Math.sin(a), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5, !!(def.stream || def.trail));
         this.hitSrc = null;
-        if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(a) * len, y1: friend.y + Math.sin(a) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color });
+        if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(a) * len, y1: friend.y + Math.sin(a) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color, wake: true });
       }
     } else if (def.kind === 'slash') this.swing(weapon, friend.x, friend.y, angle, { ...st, dmg: damage }, false);
     else for (let i = 0; i < st.pellets; i++) {
@@ -1268,10 +1303,10 @@ export class Game {
       for (let i = 0; i < n; i++) {
         const a = base + (n > 1 ? (i - (n - 1) / 2) * 0.12 : 0);
         this.hitSrc = w;
-        const len = this.hitscan(mx, my, Math.cos(a), Math.sin(a), beam, d.color, d.elem ?? null, d.stream ? 7 + (this.fxOf(w).ramp ?? 0) * 0.25 : 5);
+        const len = this.hitscan(mx, my, Math.cos(a), Math.sin(a), beam, d.color, d.elem ?? null, d.stream ? 7 + (this.fxOf(w).ramp ?? 0) * 0.25 : 5, !!(d.stream || d.trail));
         this.hitSrc = null;
         // Phase Lance: the bolt's wake hangs in the air and keeps cutting
-        if (d.trail) this.zones.push({ kind: 'trail', x: mx, y: my, x1: mx + Math.cos(a) * len, y1: my + Math.sin(a) * len, r: 0.42, t: 0, life: d.trail, dmg: st.dmg * TRAIL_TICK, tick: 0, color: d.color });
+        if (d.trail) this.zones.push({ kind: 'trail', x: mx, y: my, x1: mx + Math.cos(a) * len, y1: my + Math.sin(a) * len, r: 0.42, t: 0, life: d.trail, dmg: st.dmg * TRAIL_TICK, tick: 0, color: d.color, wake: true });
       }
       return;
     }
@@ -1318,7 +1353,7 @@ export class Game {
     }
     this.hitSrc = null;
   }
-  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null, width = 5) {
+  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null, width = 5, soft = false) {
     let len = st.range;
     // walls
     for (let t = 0; t < st.range; t += 1 / CR) {
@@ -1344,7 +1379,7 @@ export class Game {
       this.applyHit(e, st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, stream ? dx * 0.15 : dx, stream ? dy * 0.15 : dy, st.vamp, stream && this.streamTick++ % 4 !== 0, { element, pierce: stream ? 99 : st.pierce });
       if (chill && !e.dead) this.chillEnemy(e, chill);
     }
-    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: width });
+    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: width, soft });
     return len;
   }
   private streamTick = 0;
@@ -1821,6 +1856,9 @@ export class Game {
     }
     if (e.def.bomber) this.explode(e.x, e.y, 1.5, 16 * s.dmg, 'fire', true);
     if (e.def.boss) {
+      if(this.map.kind==='arcade')this.townShopMovePending=true;
+      if(this.townScene)this.townScene.enemies=[];
+      if(this.arcadeScene)this.arcadeScene.enemies=[];
       this.boss = null;
       this.bossWins++;
       this.bossRound++;
@@ -1934,6 +1972,7 @@ export class Game {
         e.x = clamp(e.x + vx * dt, 0.7, MAP_W - 0.7);
         e.y = clamp(e.y + vy * dt, 0.7, MAP_H - 0.7);
       } else this.moveCircle(e, vx * dt, vy * dt, e.r * 0.85);
+      if(this.map.bounds){const b=this.map.bounds;e.x=clamp(e.x,b.x0+e.r,b.x1-e.r);e.y=clamp(e.y,b.y0+e.r,b.y1-e.r);}
       if (Math.abs(isoX(vx, vy)) > 0.05) e.flip = isoX(vx, vy) < 0;
       // contact
       if (dist < e.r + p.r + 0.05 + (this.mounted >= 0 && !d.fly ? TURRET.reach : 0) && e.atkCd <= 0 && e.spawnT <= 0 && e.stunT <= 0) {
@@ -2220,8 +2259,9 @@ export class Game {
         if (z.tick <= 0) {
           z.tick = 0.3;
           const x1 = z.x1 ?? z.x, y1 = z.y1 ?? z.y, lx = x1 - z.x, ly = y1 - z.y, l2 = lx * lx + ly * ly || 1e-6;
+          const from = z.wake ? Math.min(1, z.t / z.life) : 0; // a wake has already dissolved up to here
           this.query((z.x + x1) / 2, (z.y + y1) / 2, Math.sqrt(l2) / 2 + z.r + 0.6, (e) => {
-            const at = clamp(((e.x - z.x) * lx + (e.y - z.y) * ly) / l2, 0, 1);
+            const at = clamp(((e.x - z.x) * lx + (e.y - z.y) * ly) / l2, from, 1);
             if (Math.hypot(e.x - z.x - lx * at, e.y - z.y - ly * at) < z.r + e.r) this.applyHit(e, z.dmg, false, 0, 0, 0, 0, 0, false, true, { pierce: 99 });
           });
         }
@@ -2471,6 +2511,11 @@ export class Game {
         : { kind: 'shop', label: "Shop: Candy Lady's Treats", ref: sh.prop }; }
     }
     for (const h of this.map.houses) {
+      if(h.prop.kind==='arcade'&&!h.gone){
+        const d=(h.door.x-p.x)**2+(h.door.y-p.y)**2;
+        if(d<Math.min(bd,1.5**2)){bd=d;best={kind:'portal',label:'Enter the Starcade',ref:{...h.door,label:'Enter the Starcade',target:'arcade'}};}
+        continue;
+      }
       if (h.visited) continue;
       const d = (h.door.x - p.x) ** 2 + (h.door.y - p.y) ** 2;
       if (d < Math.min(bd, 1.1 * 1.1)) {
@@ -2478,11 +2523,17 @@ export class Game {
         best = { kind: 'house', label: `Trick or Treat at ${h.owner}'s (you'll be stuck for ${(3.4 * this.stats.totSpeed).toFixed(1)}s!)`, ref: h };
       }
     }
+    for(const portal of this.map.portals??[]){
+      const d=(portal.x-p.x)**2+(portal.y-p.y)**2;
+      if(d<Math.min(bd,1.8**2)){bd=d;best={kind:'portal',label:portal.label,ref:portal};}
+    }
     this.interact = best;
     if (best && best.kind === 'weapon') this.nearbyWeapon = (best.ref as Pickup).weapon!;
     if (best && best.kind === 'costume') this.nearbyCostume = (best.ref as Pickup).costume!;
     if (best && this.input.pressed.has('e')) {
-      if (best.kind === 'turret') {
+      if (best.kind === 'portal') {
+        this.travelArcade((best.ref as NonNullable<GameMap['portals']>[number]).target);
+      } else if (best.kind === 'turret') {
         this.mountTurret(this.turrets.findIndex((t) => t.gym === best!.ref));
       } else if (best.kind === 'house') {
         this.startTot(best.ref as HouseInst);
@@ -2555,9 +2606,17 @@ export class Game {
     this.text(p.x, p.y, k.weapon.def.name, '#fff', 14);
     if (k.weapon.rarity >= 2) this.setBanner('NEW WEAPON!', `${k.weapon.def.name} · ${['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'][k.weapon.rarity]}`, 'loot');
     this.pickups = this.pickups.filter((x) => !x.dead);
+    if (this.prizeGun) {
+      // the doorstep prize is taken now: the bowl is done
+      this.prizeGun = false; this.treatGuideNotice = false;
+      this.gunChoices = []; this.choices = []; this.friendChoice = null;
+      this.choiceMode = 'level';
+      p.invuln = 1;
+    }
     this.closeInspect();
   }
   closeInspect() {
+    if (this.prizeGun) { this.backToPrizes(); return; } // leaving a prize unpicked never loses the bowl
     this.inspecting = null;
     if (this.state === 'inspect') this.state = 'play';
     this.input.pressed.clear();
@@ -2671,7 +2730,7 @@ export class Game {
       const type = types[Math.floor(Math.random() * types.length)];
       const fly = type === 'bat' || type === 'ghost';
       if (ex < 1 || ey < 1 || ex > MAP_W - 1 || ey > MAP_H - 1) continue;
-      if (!fly && (cellAt(this.map, ex, ey) !== 0 || !this.reachable(ex, ey))) continue;
+      if ((!fly || this.map.kind==='arcade') && (cellAt(this.map, ex, ey) !== 0 || !this.reachable(ex, ey))) continue;
       this.spawnEnemy(type, ex, ey);
       made++;
     }
@@ -2771,6 +2830,7 @@ export class Game {
     const { min, max } = this.choiceMode === 'house' ? this.choiceRewardRange : { min: 0, max: 4 };
     const scrolls = LOCKED_SCROLLS().filter(s => s.rarity >= min && s.rarity <= max);
     const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, Math.max(min, 2), max)) : null;
+    if (gun) gun.level = this.lootLevel(); // the teaser shows what the kid would really find
     if (gun) this.lockedChoice = { scroll: null, weapon: gun };
     else if (scrolls.length) this.lockedChoice = { scroll: scrolls[Math.floor(Math.random() * scrolls.length)], weapon: null };
   }
@@ -2783,15 +2843,15 @@ export class Game {
   chooseGun(i: number) {
     const w = this.gunChoices[i];
     if (this.state !== 'levelup' || !w || this.choiceMode !== 'house') return;
-    this.treatGuideNotice = false;
     gameAudio.play('unlock');
     this.input.pressed.clear();
-    this.gunChoices = []; this.friendChoice = null;
-    this.choiceMode = 'level';
-    this.p.invuln = 1;
     const p = this.p;
     const free = p.weapons.findIndex((x) => !x);
     if (free >= 0 && free < 2) {
+      this.treatGuideNotice = false;
+      this.gunChoices = []; this.choices = []; this.friendChoice = null;
+      this.choiceMode = 'level';
+      p.invuln = 1;
       p.weapons[free] = w;
       p.cur = free;
       this.syncTeamWeapons();
@@ -2799,11 +2859,20 @@ export class Game {
       this.state = 'play';
       return;
     }
-    this.dropWeapon(p.x, p.y, w);
-    const k = this.pickups[this.pickups.length - 1];
-    k.z = 0; k.vz = 0;
-    this.inspecting = k;
+    // Both hands are full: the prize is only looked at for now. The bowl stays as it is, so the kid can compare the gun
+    // with the two carried and still go back for another prize (see backToPrizes). It is taken when a slot is chosen.
+    this.inspecting = { x: p.x, y: p.y, z: 0, vz: 0, vx: 0, vy: 0, kind: 'weapon', value: 0, mag: false, t: 0, dead: false, weapon: w };
+    this.prizeGun = true;
     this.state = 'inspect';
+  }
+  /** the gun on the inspect screen is a doorstep prize that has not been taken yet */
+  prizeGun = false;
+  /** not this one after all: back to the bowl, every prize still there */
+  backToPrizes() {
+    if (this.state !== 'inspect' || !this.prizeGun) return;
+    this.inspecting = null; this.prizeGun = false;
+    this.input.pressed.clear();
+    this.state = 'levelup';
   }
   /** take the friend card: they join the team, and become your helper if you have none */
   chooseFriend() {
@@ -2850,6 +2919,7 @@ export class Game {
    * the night keeps the player moving. Their arrow at the screen edge and their minimap markers follow them.
    */
   relocateShops() {
+    if(this.map.kind==='arcade'){this.shopsMovedAt=this.time;this.toast('Pizza counter and token machine are open for the shopping break.');return;}
     const m = this.map, taken: { x: number; y: number }[] = [];
     this.computeFlow(true);
     for (const shop of m.shops) {
@@ -3101,7 +3171,7 @@ export class Game {
         for (let i = 0; i < n; i++) {
           const a = (i / n) * Math.PI * 2, d = this.viewR - 1;
           const x = this.p.x + Math.cos(a) * d, y = this.p.y + Math.sin(a) * d;
-          if (x > 1 && y > 1 && x < MAP_W - 1 && y < MAP_H - 1 && (cellAt(this.map, x, y) === 0 || type === 'bat' || type === 'ghost')) this.spawnEnemy(type, x, y);
+          if (x > 1 && y > 1 && x < MAP_W - 1 && y < MAP_H - 1 && (cellAt(this.map, x, y) === 0 || (this.map.kind !== 'arcade' && (type === 'bat' || type === 'ghost')))) this.spawnEnemy(type, x, y);
         }
       }
     }
@@ -3192,6 +3262,8 @@ export class Game {
   // ---------- HUD snapshot ----------
   snapshot() {
     const p = this.p, s = this.stats;
+    const townHouses=this.rescueMap.houses.filter(h=>h.prop.kind!=='arcade');
+    const arcadeHouses=this.map.kind==='arcade'?this.map.houses:this.arcadeScene?.map.houses;
     return {
       hp: p.hp, maxHp: s.maxHp, shield: p.shield, maxShield: s.maxShield, level: p.level, xp: p.xp, xpNext: p.xpNext, coins: p.coins, kills: this.kills, time: this.time,
       weapons: p.weapons.map((w) => (w ? { w, st: weaponStats(w, s) } : null)), cur: p.cur, skillCd: Math.max(0, p.skillCd), skillMax: HERO_INFO[this.hero].cd * s.skillCd,
@@ -3204,7 +3276,7 @@ export class Game {
       rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,
       costumesFound: this.costumesFound, doorsRung: this.housesVisited,
       tot: this.tot ? { t: this.tot.t, dur: this.tot.dur, owner: this.tot.house.owner } : null,
-      housesLeft: this.map.houses.filter((h) => !h.visited).length, housesTotal: this.map.houses.length,
+      housesLeft:townHouses.filter(h=>!h.visited).length+(arcadeHouses?arcadeHouses.filter(h=>!h.visited).length:3), housesTotal:townHouses.length+3,
       banner: this.banner ? { ...this.banner } : null, boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp, shield: this.boss.shield, maxShield: this.boss.maxShield, shieldT: this.boss.shieldT, name: BOSS_NAMES[this.boss.type] } : null, scrolls: { ...this.scrolls }, state: this.state, enemies: this.enemies.length,
       bossIn: this.boss || (this.bossKilled && !this.endless) ? null : Math.max(0, (this.endless || this.campaign ? this.nextBossAt : 300) - this.time), toasts: this.toasts.map((q) => ({ id: q.id, text: q.text })), bigMap: this.bigMap,
     };

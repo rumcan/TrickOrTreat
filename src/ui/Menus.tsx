@@ -289,7 +289,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
       {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
-      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? (f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.map.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
+      {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? (f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.rescueMap.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
     </div>
   );
 }
@@ -309,7 +309,7 @@ function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: W
         <span className="hm-stamp">Full game</span>
       </div>
       <div className="flex flex-1 flex-col p-3.5">
-        <div className="hm-label !text-[#8f8676]">{RARITY_NAMES[rarity]} {weapon ? 'gun' : 'treat'} · locked</div>
+        <div className="hm-label !text-[#8f8676]">{RARITY_NAMES[rarity]} {weapon ? `gun · Lv ${weapon.level}` : 'treat'} · locked</div>
         <div className="hm-pick-name mt-1">{weapon ? weapon.def.name : scroll?.name}</div>
         {scroll?.quote && <div className="hm-pick-quote">“{scroll.quote}”</div>}
         {weapon && <div className="hm-pick-quote">{weapon.def.desc}</div>}
@@ -428,17 +428,17 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
                 <div className="hm-pick-art hm-pick-gun" style={{ ['--glow' as string]: rc }}>
                   <GunArt id={w.def.id} />
                   <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
-                  <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun</span>
+                  <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun · Lv {w.level}</span>
                 </div>
                 <div className="flex flex-1 flex-col p-3.5">
                   <div className="hm-pick-name">{w.def.name}</div>
                   <div className="hm-pick-quote">{w.def.desc}</div>
                   <div className="hm-label mt-3">Firepower</div>
-                  <div className="hm-pick-desc font-num">{weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
+                  <div className="hm-pick-desc font-num">Level {w.level} · {weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
                   <Inscriptions w={w} compact />
                   <div className="mt-auto flex items-baseline justify-between pt-3">
-                    <span className="hm-label !text-[#8f8676]">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Swap'}</span>
-                    <span className="font-num text-[12px] text-[#c9bda6]">{game.p.weapons.some((x) => !x) ? 'goes straight in' : 'inspect, then pick a slot'}</span>
+                    <span className="hm-label !text-[#8f8676]">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Compare'}</span>
+                    <span className="font-num text-[12px] text-[#c9bda6]">{game.p.weapons.some((x) => !x) ? 'goes straight in' : 'compare first, you can come back'}</span>
                   </div>
                 </div>
               </button>

@@ -1,0 +1,240 @@
+[
+  {
+    "key": "arcade_cabinet_1.5_2",
+    "file": "arcade/arcade_cabinet_1.5_2.webp",
+    "category": "prop",
+    "w": 256,
+    "h": 228,
+    "anchor": [
+      128,
+      148
+    ],
+    "footprint": [
+      1.5,
+      2
+    ],
+    "desc": "Starcade cabinet",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade cabinet; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 1.5x2."
+  },
+  {
+    "key": "arcade_pinball_1.5_2",
+    "file": "arcade/arcade_pinball_1.5_2.webp",
+    "category": "prop",
+    "w": 256,
+    "h": 228,
+    "anchor": [
+      128,
+      148
+    ],
+    "footprint": [
+      1.5,
+      2
+    ],
+    "desc": "Starcade pinball",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade pinball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 1.5x2."
+  },
+  {
+    "key": "arcade_skeeball_5_6",
+    "file": "arcade/arcade_skeeball_5_6.webp",
+    "category": "prop",
+    "w": 736,
+    "h": 468,
+    "anchor": [
+      368,
+      268
+    ],
+    "footprint": [
+      5,
+      6
+    ],
+    "desc": "Starcade skeeball",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade skeeball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 5x6."
+  },
+  {
+    "key": "arcade_airhockey_5_3",
+    "file": "arcade/arcade_airhockey_5_3.webp",
+    "category": "prop",
+    "w": 544,
+    "h": 372,
+    "anchor": [
+      272,
+      220
+    ],
+    "footprint": [
+      5,
+      3
+    ],
+    "desc": "Starcade airhockey",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade airhockey; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 5x3."
+  },
+  {
+    "key": "arcade_foosball_3_3",
+    "file": "arcade/arcade_foosball_3_3.webp",
+    "category": "prop",
+    "w": 416,
+    "h": 308,
+    "anchor": [
+      208,
+      188
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "desc": "Starcade foosball",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade foosball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 3x3."
+  },
+  {
+    "key": "arcade_prizes_10_3",
+    "file": "arcade/arcade_prizes_10_3.webp",
+    "category": "prop",
+    "w": 864,
+    "h": 570,
+    "anchor": [
+      432,
+      338
+    ],
+    "footprint": [
+      10,
+      3
+    ],
+    "desc": "Starcade prizes",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade prizes; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 10x3."
+  },
+  {
+    "key": "arcade_pizza_7_3",
+    "file": "arcade/arcade_pizza_7_3.webp",
+    "category": "prop",
+    "w": 672,
+    "h": 474,
+    "anchor": [
+      336,
+      290
+    ],
+    "footprint": [
+      7,
+      3
+    ],
+    "desc": "Starcade pizza",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade pizza; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 7x3."
+  },
+  {
+    "key": "arcade_booth_6_3",
+    "file": "arcade/arcade_booth_6_3.webp",
+    "category": "prop",
+    "w": 608,
+    "h": 404,
+    "anchor": [
+      304,
+      236
+    ],
+    "footprint": [
+      6,
+      3
+    ],
+    "desc": "Starcade booth",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade booth; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 6x3."
+  },
+  {
+    "key": "arcade_stage_9_4",
+    "file": "arcade/arcade_stage_9_4.webp",
+    "category": "prop",
+    "w": 864,
+    "h": 580,
+    "anchor": [
+      432,
+      348
+    ],
+    "footprint": [
+      9,
+      4
+    ],
+    "desc": "Starcade stage",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade stage; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 9x4."
+  },
+  {
+    "key": "arcade_photo_2_3",
+    "file": "arcade/arcade_photo_2_3.webp",
+    "category": "prop",
+    "w": 352,
+    "h": 276,
+    "anchor": [
+      176,
+      172
+    ],
+    "footprint": [
+      2,
+      3
+    ],
+    "desc": "Starcade photo",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade photo; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 2x3."
+  },
+  {
+    "key": "arcade_tokens_2_2",
+    "file": "arcade/arcade_tokens_2_2.webp",
+    "category": "prop",
+    "w": 288,
+    "h": 244,
+    "anchor": [
+      144,
+      156
+    ],
+    "footprint": [
+      2,
+      2
+    ],
+    "desc": "Starcade tokens",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade tokens; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 2x2."
+  },
+  {
+    "key": "arcade_party_8_4",
+    "file": "arcade/arcade_party_8_4.webp",
+    "category": "prop",
+    "w": 800,
+    "h": 500,
+    "anchor": [
+      400,
+      284
+    ],
+    "footprint": [
+      8,
+      4
+    ],
+    "desc": "Starcade party",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade party; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 8x4."
+  },
+  {
+    "key": "arcade_wall_8_0.75",
+    "file": "arcade/arcade_wall_8_0.75.webp",
+    "category": "prop",
+    "w": 592,
+    "h": 414,
+    "anchor": [
+      296,
+      250
+    ],
+    "footprint": [
+      8,
+      0.75
+    ],
+    "desc": "Starcade wall",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade wall; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 8x0.75."
+  },
+  {
+    "key": "arcade_wall_0.75_7.5",
+    "file": "arcade/arcade_wall_0.75_7.5.webp",
+    "category": "prop",
+    "w": 560,
+    "h": 398,
+    "anchor": [
+      280,
+      242
+    ],
+    "footprint": [
+      0.75,
+      7.5
+    ],
+    "desc": "Starcade wall",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade wall; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.75x7.5."
+  }
+]
