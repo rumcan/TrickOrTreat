@@ -1,5 +1,6 @@
 import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
 import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
+import { G } from './art/tiles';
 import { settings } from './settings';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
@@ -148,6 +149,8 @@ export interface Enemy {
   hit: number; burnT: number; burnDps: number; burnAcc: number; ectoT: number; stunT: number; atkCd: number; kx: number; ky: number;
   /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (up to HAUNT_MAX) */
   vuln?: number;
+  /** Cryo Ray: chill builds toward 1 (slowing), then the monster is frozen solid for a while */
+  chill?: number; frozenT?: number;
   shootT: number; lungeT: number; lungeX: number; lungeY: number; p1: number; p2: number; p3: number; orbitT: number; dead: boolean; elite: boolean; spawnT: number;
 }
 export interface Bullet {
@@ -158,17 +161,29 @@ export interface Bullet {
   z?: number;
   /** the gun that fired it (inscription triggers) · gentler homing strength · split-off child shot */
   src?: Weapon; homeK?: number; child?: boolean;
+  /** special guns: where the last piece of trail was laid · a boomerang on its way back · already detonated */
+  lx?: number; ly?: number; back?: boolean; spent?: boolean;
+  /** the life it was fired with (flames grow as they age) */
+  max?: number;
+  /** fired by a friend: the gun's inscriptions are the kid's business, and a boomerang flies back to `by` */
+  mate?: boolean; by?: { x: number; y: number };
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
 export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
 export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
 export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number }
-export interface Zone { kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string }
+export interface Zone {
+  kind: 'fire' | 'tornado' | 'boom' | 'flash' | 'warn' | 'trail' | 'vortex'; x: number; y: number; r: number; t: number; life: number; dmg: number; tick: number; ang?: number; color?: string;
+  /** flash: half-angle of the cone · trail: the far end of the line · vortex: blast radius, crit flag and whether it wrecks scenery */
+  arc?: number; x1?: number; y1?: number; blast?: number; crit?: boolean; demolish?: boolean; done?: boolean;
+  /** boom: big enough to play the painted fireball */
+  sprite?: boolean;
+}
 export interface Lob { x0: number; y0: number; x1: number; y1: number; t: number; dur: number }
 export interface Decal { x: number; y: number; r: number; color: string; life: number; rot: number; gore?: boolean }
 
-export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect';
+export type GameState = 'play' | 'intro' | 'downed' | 'levelup' | 'shop' | 'vending' | 'dead' | 'victory' | 'pause' | 'inventory' | 'inspect' | 'discard';
 
 export interface RescueFriend {
   hero: number; x: number; y: number; r: number; gate: number;
@@ -200,6 +215,14 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 export const FRIEND_CARD_CHANCE = 0.2;
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
 export const FRIEND_DOWN_TIME = 30;
+/** seconds of calm after every boss (the clock only runs while the kid is free to move) */
+export const BUY_WINDOW = 20;
+/** a friend's max HP before the Buddy System talents · seconds between two pick-ups of the player by the same friend */
+export const FRIEND_HP = 80, FRIEND_REVIVE_CD = 60;
+/** special guns: ticks of ramp a stream can build · share of a shot's damage a lingering trail deals per tick · seconds frozen */
+const STREAM_RAMP_MAX = 20, TRAIL_TICK = 0.35, FREEZE_TIME = 2.4;
+/** structural damage a car and a house take before they go up (an Annihilator shell deals 60, a lick of flame 2.5) */
+const CAR_HP = 50, HOUSE_HP = 170;
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King' };
@@ -262,7 +285,10 @@ export class Game {
   bossKilled = false;
   bossWins = 0;
   bossRound = 0;
+  /** true for the rest of the frame a boss died in: the fight's lists were just emptied, so the loops stop */
   bossBreak = false;
+  /** seconds left of the calm after a boss: nothing spawns, the shops have moved, the kid has time to find one */
+  calmT = 0;
   nextBossAt = 90;
   private endlessBosses = 0;
   xpCollected = 0;
@@ -352,6 +378,11 @@ export class Game {
     this.familiar = { x: this.p.x, y: this.p.y };
     this.setBanner('Trick or Treat... or FIGHT!', 'Survive the night. Boss arrives at 5:00');
     this.computeFlow(true);
+    if (!this.campaign && s.mateStart) {
+      // Sleepover Plans: one of the three neighbourhood kids (never your own) comes along from the first minute
+      const others = [0, 1, 2].filter(h => h !== this.hero);
+      this.addFriend(others[Math.floor(Math.random() * others.length)]);
+    }
     if (this.campaign) {
       // Friends hide at the gazebo of each gated district (north, east, south, west: the gate order).
       // Aim for the camera-facing corner so the roof never covers the kid, then take the nearest reachable clearing.
@@ -363,7 +394,7 @@ export class Game {
       this.friends = HERO_INFO.map((_, i) => i).filter(i => i !== this.hero).map((id, i) => {
         const pos = this.rescueSpot(sites[i][0], sites[i][1]);
         return { hero: id, ...pos, r: 0.24, gate: i, status: 'locked', guardian: null, progress: 0,
-          hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
+          hp: this.friendMaxHp, maxHp: this.friendMaxHp, weapon: this.friendGun(), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 };
       });
       for (const cell of gateCells) this.map.coll[cell.index] = cell.value;
       this.computeFlow(true);
@@ -513,7 +544,13 @@ export class Game {
     for (const f of team) {
       if (f.hp > 0) { f.downT = 0; continue; }
       if (this.state === 'play') f.downT = (f.downT ?? 0) + dt;
-      if ((f.downT ?? 0) >= FRIEND_DOWN_TIME) {
+      if (this.stats.mateUp && (f.downT ?? 0) >= this.stats.mateUp) {
+        // Best Friends Forever: they shake it off on their own
+        f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0;
+        gameAudio.play('revive', 0.5); this.text(f.x, f.y, 'BACK UP!', '#ff4fd8', 13);
+        continue;
+      }
+      if ((f.downT ?? 0) >= this.friendDownTime) {
         this.friends = this.friends.filter(x => x !== f);
         if (this.activeFriend === f.hero) this.activeFriend = this.friends.find(x => x.status === 'rescued')?.hero ?? null;
         this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS OUT FOR THE NIGHT`, this.campaign ? 'Nobody reached them in time.' : 'Nobody reached them in time. They may turn up at another door.', 'danger');
@@ -532,7 +569,7 @@ export class Game {
         if (this.p.hurtT > 0) f.pauseT = 0.35; // a hit stalls the revive for a moment, it never wipes it
         if (!f.pauseT) f.progress += dt * this.stats.reviveSpeed;
       }
-      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil(FRIEND_DOWN_TIME - (f.downT ?? 0))}s left`;
+      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil((this.stats.mateUp || this.friendDownTime) - (f.downT ?? 0))}s ${this.stats.mateUp ? 'until they get up' : 'left'}`;
       this.rescueProgress = Math.min(1, f.progress / RESCUE_TIME);
       if (f.progress >= RESCUE_TIME) { f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0; gameAudio.play('revive'); }
     }
@@ -542,6 +579,7 @@ export class Game {
     if (this.state === 'downed' && !reviver) { this.endRun(false); return; }
     standing.forEach((friend, slot) => {
       friend.reviveCd = Math.max(0, friend.reviveCd - dt); friend.hurtCd = Math.max(0, friend.hurtCd - dt);
+      if (this.stats.mateRegen && this.state === 'play') friend.hp = Math.min(friend.maxHp, friend.hp + this.stats.mateRegen * dt);
       const distance = gap(friend);
       // Following comes first. Each friend keeps their own spot in the group so they do not stand in one pile.
       const keep = friend === reviver ? 0.7 : 1.5 + (slot % 4) * 0.45;
@@ -571,7 +609,7 @@ export class Game {
         bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
         if (friend === reviver) this.playerReviveProgress = 0;
       }
-      if (friend.hp <= 0) { friend.downT = 0; this.toast(`${HERO_INFO[friend.hero].name} is down! ${FRIEND_DOWN_TIME} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
+      if (friend.hp <= 0) { friend.downT = 0; this.toast(this.stats.mateUp ? `${HERO_INFO[friend.hero].name} is down! Back up in ${this.stats.mateUp} seconds, sooner with your help.` : `${HERO_INFO[friend.hero].name} is down! ${this.friendDownTime} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
       if (this.state === 'downed') return; // everyone's attention is on the player
       for (const pickup of this.pickups) if (pickup.friendOnly && !pickup.dead && Math.hypot(pickup.x - friend.x, pickup.y - friend.y) < 6) {
         pickup.dead = true; friend.candy++; friend.hp = Math.min(friend.maxHp, friend.hp + 5); gameAudio.play('pickup', 0.25);
@@ -584,14 +622,16 @@ export class Game {
       this.rescuePrompt = `${HERO_INFO[reviver.hero].name} is reviving you · ${Math.ceil(this.downedTime)}s left`;
       this.rescueProgress = Math.min(1, this.playerReviveProgress / 3);
       if (this.playerReviveProgress >= 3) {
-        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; reviver.reviveCd = 60; this.playerReviveProgress = 0;
-        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', `${HERO_INFO[reviver.hero].name} saved you. Their revive recharges in 60 seconds.`);
+        this.p.hp = this.stats.maxHp * 0.4; this.p.shield = 0; this.p.invuln = 3; this.state = 'play'; reviver.reviveCd = this.friendReviveCd; this.playerReviveProgress = 0;
+        gameAudio.play('revive'); this.setBanner('BACK TOGETHER!', `${HERO_INFO[reviver.hero].name} saved you. Their revive recharges in ${this.friendReviveCd} seconds.`);
       } else if (this.downedTime <= 0) this.endRun(false);
     }
   }
   /** one friend's gun: reload, pick the nearest monster in range and sight, fire */
   private friendShoot(friend: RescueFriend, dt: number) {
-    const weapon = friend.weapon, st = weaponStats(weapon, this.stats);
+    const mate = this.stats, weapon = friend.weapon, base = weaponStats(weapon, mate);
+    // Buddy System: their own rate of fire, reach and extra projectile
+    const st = { ...base, rate: base.rate * mate.mateRate, range: base.range * mate.mateRange, pellets: base.pellets + (weapon.def.kind === 'slash' ? 0 : mate.matePellets) };
     weapon.cd -= dt;
     if (weapon.reloadT > 0) { weapon.reloadT -= dt; if (weapon.reloadT <= 0) weapon.ammo = st.mag; return; }
     if (weapon.ammo <= 0) { weapon.reloadT = st.reload; return; }
@@ -604,14 +644,30 @@ export class Game {
     weapon.cd = 1 / st.rate; weapon.ammo--;
     const angle = Math.atan2(target.y - friend.y, target.x - friend.x);
     friend.faceX = Math.cos(angle); friend.faceY = Math.sin(angle);
-    const damage = st.dmg * 0.65 * this.stats.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02);
+    // Eagle-Eyed Pals: a friend's crit is double damage (their own roll; it does not feed the kid's crit talents)
+    const lucky = mate.mateCrit > 0 && Math.random() < mate.mateCrit;
+    const damage = st.dmg * 0.65 * mate.companionDmg * (1 + Math.min(friend.candy, 20) * 0.02) * (lucky ? 2 : 1);
+    if (lucky && !weapon.def.stream) this.text(friend.x, friend.y, 'CRIT!', '#ff4fd8', 11);
     gameAudio.play('shot', 0.2);
-    if (weapon.def.kind === 'beam') this.hitscan(friend.x, friend.y, Math.cos(angle), Math.sin(angle), { ...st, dmg: damage }, weapon.def.color, weapon.def.elem ?? null);
+    const def = weapon.def;
+    if (def.kind === 'beam') {
+      // the special beams keep their trick in a friend's hands: the Cryo Ray chills, the Phase Lance leaves its wake
+      const beams = def.stream ? 1 : st.pellets;
+      for (let i = 0; i < beams; i++) {
+        const a = angle + (beams > 1 ? (i - (beams - 1) / 2) * 0.12 : 0);
+        if (def.chill || def.stream) this.hitSrc = weapon;
+        const len = this.hitscan(friend.x, friend.y, Math.cos(a), Math.sin(a), { ...st, dmg: damage }, def.color, def.elem ?? null, def.stream ? 7 : 5);
+        this.hitSrc = null;
+        if (def.trail) this.zones.push({ kind: 'trail', x: friend.x, y: friend.y, x1: friend.x + Math.cos(a) * len, y1: friend.y + Math.sin(a) * len, r: 0.42, t: 0, life: def.trail, dmg: damage * TRAIL_TICK, tick: 0, color: def.color });
+      }
+    } else if (def.kind === 'slash') this.swing(weapon, friend.x, friend.y, angle, { ...st, dmg: damage }, false);
     else for (let i = 0; i < st.pellets; i++) {
-      const a = angle + rand(-weapon.def.spread, weapon.def.spread);
-      this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * weapon.def.speed, vy: Math.sin(a) * weapon.def.speed, dmg: damage, r: 0.1,
-        life: st.range / Math.max(weapon.def.speed, 1), pierce: st.pierce, bounce: st.bounce, kind: weapon.def.kind, color: weapon.def.color,
-        crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: weapon.def.explode, hit: [], vamp: false, dead: false, spin: 0, element: weapon.def.elem ?? null });
+      const a = angle + rand(-def.spread, def.spread) + (st.pellets > base.pellets ? (i - (st.pellets - 1) / 2) * 0.1 : 0), life = st.range / Math.max(def.speed, 1);
+      this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * def.speed, vy: Math.sin(a) * def.speed, dmg: damage, r: 0.1,
+        life, max: life, pierce: st.pierce, bounce: st.bounce, kind: def.kind, color: def.color,
+        crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: def.explode, hit: [], vamp: false, dead: false, spin: 0, element: def.elem ?? null,
+        // only the special guns carry their gun along (trail, boomerang, seeker, singularity, demolition); it flies back to the friend
+        ...(def.trail || def.boomerang || def.homing || def.vortex || def.demolish || def.scorch ? { src: weapon, mate: true, by: friend, lx: friend.x, ly: friend.y, home: !!def.homing || undefined, homeK: def.homing } : {}) });
     }
   }
 
@@ -626,6 +682,14 @@ export class Game {
     this.build = new Build({ hero: this.hero, talents: this.save.talents, costume: this.p?.costume ?? null, scrolls: this.scrolls ?? {}, weapon: this.p ? this.weapon : null });
     const b = this.build;
     s.maxHp *= b.hpMore();
+    // friends grow with the Buddy System: more max HP is also that much more HP right now
+    for (const f of this.friends ?? []) {
+      const max = FRIEND_HP + s.mateHp;
+      if (f.maxHp !== max) { if (f.hp > 0) f.hp = Math.max(1, f.hp + max - f.maxHp); f.maxHp = max; }
+    }
+    // extreme treats have the last word, whatever else is stacked
+    if (s.frail) s.maxHp = 1;
+    if (s.bare) s.maxShield = 0;
     s.rate *= b.rateMore();
     s.critDmg *= b.critMore();
     if (b.ks('summon', 3)) { s.orbit += 2; s.familiar *= 2; }
@@ -751,14 +815,19 @@ export class Game {
     if (!this.combatActive()) { inp.endFrame(); return; }
     if (this.state === 'play') this.updatePickups(dt);
     this.updateFx(dt);
+    this.updateWrecks(dt);
     this.director(dt);
     this.updateTeam(dt);
     if (!this.combatActive()) { inp.endFrame(); return; }
     this.runProcs();
     if (!this.combatActive()) { inp.endFrame(); return; }
     if (this.endless) this.updateEndless(dt);
-    // A boss death can switch to the safe shop inside a bullet/zone update.
-    if (this.bossBreak) { this.state = 'shop'; inp.endFrame(); return; }
+    // A boss death empties the fight inside a bullet/zone update: the frame ends here and the calm begins.
+    if (this.bossBreak) { this.bossBreak = false; inp.endFrame(); return; }
+    if (this.calmT > 0 && this.state === 'play') {
+      this.calmT -= dt;
+      if (this.calmT <= 0) { this.calmT = 0; this.spawnAcc = 0; this.toast('The quiet is over. The monsters are back!'); gameAudio.play('guardian', 0.4); }
+    }
     if (this.state === 'play') { this.updateTot(dt); if (this.state === 'play') this.updateInteract(); }
     if (this.bossKilled && !this.endless) {
       this.winDelay += dt;
@@ -963,7 +1032,7 @@ export class Game {
 
   takeDamage(dmg: number, fromX: number, fromY: number) {
     const p = this.p;
-    if (p.invuln > 0 || this.state !== 'play') return;
+    if (p.invuln > 0 || this.state !== 'play' || this.bossBreak) return; // nothing lands in the frame the boss fell
     dmg *= this.threat();
     if (this.mounted >= 0) dmg *= 1 - TURRET.armor; // high ground
     if (this.ins(this.weapon, 'glasspump')) dmg *= 1.15;
@@ -975,7 +1044,7 @@ export class Game {
     if (p.costume === 'pumpkin' && p.novaCd <= 0) {
       p.novaCd = 2;
       this.explode(p.x, p.y, 3.8, 64 * this.stats.dmg * this.stats.skillPow * this.globalMore(), 'fire', true);
-      if (this.state !== 'play') return; // A boss clear already made this a safe shop.
+      if (this.state !== 'play' || this.bossBreak) return; // the nova felled the boss: the hit that set it off is void
     }
     dmg *= 1 - this.stats.armor;
     p.shieldT = 0;
@@ -1084,7 +1153,7 @@ export class Game {
 
   // ---------- inscriptions ----------
   private ins(w: Weapon | null | undefined, id: string) { return !!w && w.traits.includes(id); }
-  private fxOf(w: Weapon) { return (w.fx ??= { shots: 0, combo: 0, comboT: 0, fresh: 0, hasty: 0 }); }
+  private fxOf(w: Weapon) { return (w.fx ??= { shots: 0, combo: 0, comboT: 0, fresh: 0, hasty: 0, ramp: 0, rampT: 0 }); }
   /** trigger-inscription damage multiplier for the shot about to leave the barrel */
   private shotMul(w: Weapon) {
     const fx = this.fxOf(w);
@@ -1116,6 +1185,7 @@ export class Game {
       const fx = ww.fx;
       fx.fresh -= dt; fx.hasty -= dt; fx.comboT -= dt;
       if (fx.comboT <= 0) fx.combo = 0;
+      if ((fx.rampT = (fx.rampT ?? 0) - dt) <= 0) fx.ramp = 0; // a stream cools off the moment it is let go
     }
     if (!w) return;
     const st = weaponStats(w, s);
@@ -1188,12 +1258,26 @@ export class Game {
     // muzzle flash
     this.particle(mx, my, 0.45, 0, 0, 0, 0.08, d.color, 22, 'glow');
     if (d.kind === 'beam') {
+      let beam = st;
+      if (d.stream) {
+        // held on target the stream ramps: +6% a tick, up to +120%
+        const fx = this.fxOf(w);
+        fx.ramp = Math.min(STREAM_RAMP_MAX, (fx.ramp ?? 0) + 1); fx.rampT = 0.4;
+        beam = { ...st, dmg: st.dmg * (1 + fx.ramp * 0.06) };
+      }
       for (let i = 0; i < n; i++) {
         const a = base + (n > 1 ? (i - (n - 1) / 2) * 0.12 : 0);
         this.hitSrc = w;
-        this.hitscan(mx, my, Math.cos(a), Math.sin(a), st, d.color);
+        const len = this.hitscan(mx, my, Math.cos(a), Math.sin(a), beam, d.color, d.elem ?? null, d.stream ? 7 + (this.fxOf(w).ramp ?? 0) * 0.25 : 5);
         this.hitSrc = null;
+        // Phase Lance: the bolt's wake hangs in the air and keeps cutting
+        if (d.trail) this.zones.push({ kind: 'trail', x: mx, y: my, x1: mx + Math.cos(a) * len, y1: my + Math.sin(a) * len, r: 0.42, t: 0, life: d.trail, dmg: st.dmg * TRAIL_TICK, tick: 0, color: d.color });
       }
+      return;
+    }
+    if (d.kind === 'slash') {
+      // Thunder Sabre: one swing hits everything in the arc, whatever stands in front of whatever
+      this.swing(w, p.x, p.y, base, st, true);
       return;
     }
     for (let i = 0; i < n; i++) {
@@ -1207,14 +1291,34 @@ export class Game {
       const cr = this.crit(st.crit, st.critMul);
       const haunted = this.ins(w, 'haunted');
       this.bullets.push({
-        x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, dmg: st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), r: d.kind === 'rocket' || d.kind === 'balloon' ? 0.2 : 0.12,
+        x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, dmg: st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), r: d.kind === 'rocket' || d.kind === 'balloon' || d.kind === 'shell' || d.kind === 'void' || d.kind === 'flame' || d.kind === 'glaive' ? 0.22 : 0.12,
         life: st.range / sp + 0.05, pierce: st.pierce, bounce: st.bounce, kind: d.kind, color: d.color, crit: cr.layers, fire: st.fire, shock: st.shock, ecto: st.ecto,
-        explode: d.explode * this.stats.skillPow ** 0.3, hit: [], vamp: st.vamp, dead: false, spin: rand(0, 6), src: w, home: haunted || undefined, homeK: haunted ? 2.4 : undefined,
+        explode: d.explode * this.stats.skillPow ** 0.3, hit: [], vamp: st.vamp, dead: false, spin: rand(0, 6), src: w, home: haunted || !!d.homing || undefined, homeK: haunted ? 2.4 : d.homing,
+        lx: mx, ly: my, max: st.range / sp + 0.05,
       });
     }
   }
 
-  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null) {
+  /** a blade swung from (x, y) toward `base`: everything in the arc is cut (the kid's swings can crit, a friend's do not) */
+  private swing(w: Weapon, x: number, y: number, base: number, st: ReturnType<typeof weaponStats>, crits: boolean) {
+    const d = w.def, R = st.range, half = d.arc ?? 0.9;
+    this.zones.push({ kind: 'flash', x, y, r: R, t: 0, life: 0.2, dmg: 0, tick: 0, ang: base, arc: half, color: d.color });
+    this.hitSrc = w;
+    for (const e of this.enemies) {
+      if (e.dead || e.spawnT > 0) continue;
+      const ex = e.x - x, ey = e.y - y, dist = Math.hypot(ex, ey);
+      if (dist > R + e.r) continue;
+      let da = Math.atan2(ey, ex) - base;
+      da = Math.atan2(Math.sin(da), Math.cos(da));
+      if (Math.abs(da) > half && dist > 0.9) continue;
+      if (!e.def.fly && !lineOfSight(this.map, x, y, e.x, e.y)) continue;
+      const cr = crits ? this.crit(st.crit, st.critMul) : { layers: 0, mul: 1 };
+      this.applyHit(e, st.dmg * (cr.layers ? cr.mul : crits && this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, ex / (dist || 1), ey / (dist || 1), crits && st.vamp, false, { element: d.elem ?? null, pierce: 99 });
+      if (this.bossBreak) break;
+    }
+    this.hitSrc = null;
+  }
+  private hitscan(x: number, y: number, dx: number, dy: number, st: ReturnType<typeof weaponStats>, color: string, element: Elem | null = this.hitSrc?.def.elem ?? null, width = 5) {
     let len = st.range;
     // walls
     for (let t = 0; t < st.range; t += 1 / CR) {
@@ -1234,9 +1338,25 @@ export class Game {
     for (const [, e] of hits) {
       if (pierce-- <= 0) break;
       const cr = this.crit(st.crit, st.critMul);
-      this.applyHit(e, st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, dx, dy, st.vamp, false, { element, pierce: st.pierce });
+      const chill = this.hitSrc?.def.chill, stream = !!this.hitSrc?.def.stream;
+      // a stream stops at the first monster it touches, so the beam is drawn that far
+      if (stream && st.pierce === 0) len = Math.max(0.3, (e.x - x) * dx + (e.y - y) * dy);
+      this.applyHit(e, st.dmg * (cr.layers ? cr.mul : this.stats.owl ? 0.75 : 1), cr.layers, st.fire, st.shock, st.ecto, stream ? dx * 0.15 : dx, stream ? dy * 0.15 : dy, st.vamp, stream && this.streamTick++ % 4 !== 0, { element, pierce: stream ? 99 : st.pierce });
+      if (chill && !e.dead) this.chillEnemy(e, chill);
     }
-    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: 5 });
+    this.beams.push({ x0: x, y0: y, x1: x + dx * len, y1: y + dy * len, color, life: 0.12, max: 0.12, zig: false, w: width });
+    return len;
+  }
+  private streamTick = 0;
+  /** Cryo Ray: chill slows; at full chill the monster locks solid (bosses only slow) */
+  private chillEnemy(e: Enemy, amount: number) {
+    if ((e.frozenT ?? 0) > 0) return;
+    e.chill = Math.min(1, (e.chill ?? 0) + amount);
+    if (e.chill >= 1 && !e.def.boss) {
+      e.chill = 0; e.frozenT = FREEZE_TIME; e.stunT = Math.max(e.stunT, FREEZE_TIME);
+      this.text(e.x, e.y, 'FROZEN', '#9fe8ff', 12);
+      for (let i = 0; i < 8; i++) this.particle(e.x, e.y, rand(0.2, 1.2), rand(-1, 1), rand(-1, 1), rand(0.5, 2), 0.5, '#d8f6ff', 4, 'sq');
+    }
   }
 
   /** core hit routine for all player damage sources */
@@ -1275,6 +1395,7 @@ export class Game {
       if (bd.ks('ecto', 1)) e.vuln = Math.min(HAUNT_MAX, (e.vuln ?? 0) + 0.04); // Haunting
     }
     if (e.vuln) dmg *= 1 + e.vuln;
+    if ((e.frozenT ?? 0) > 0) dmg *= 1.6; // brittle
     // crit keystones
     if (crit) {
       if (bd.ks('crit', 1)) { this.streak = Math.min(STREAK_MAX, this.streak + 1); this.streakT = 3; }
@@ -1369,9 +1490,16 @@ export class Game {
   explode(x: number, y: number, r0: number, dmg0: number, elem: Elem | null, fromPlayer = true, crit = false, profile: DamageProfile = { element: elem }) {
     const bd = this.build;
     const r = fromPlayer ? r0 * bd.blastRadius() : r0, dmg = fromPlayer ? dmg0 * bd.blastMore() : dmg0;
-    this.zones.push({ kind: 'boom', x, y, r, t: 0, life: 0.45, dmg: 0, tick: 0, color: elem ? ELEM[elem].color : '#ffb347' });
-    this.shake = Math.max(this.shake, 4 + r * 2);
-    for (let i = 0; i < 22; i++) {
+    // A busy night sets off dozens of blasts a second. Only a heavy one (a rocket, a shell, a wreck: 2 tiles or more
+    // before any blast-radius bonus) plays the painted fireball, three at a time at most; the chain blasts of a build
+    // stay light rings. The more that are going off, the fewer sparks each one throws.
+    let booms = 0, painted = 0;
+    for (const z of this.zones) if (z.kind === 'boom') { booms++; if (z.sprite) painted++; }
+    const big = fromPlayer && !settings.lowFx && (!elem || elem === 'fire') && r0 >= 2 && painted < 3;
+    this.zones.push({ kind: 'boom', x, y, r, t: 0, life: big ? 0.8 : 0.45, dmg: 0, tick: 0, color: elem ? ELEM[elem].color : '#ffb347', sprite: big });
+    // the screen shakes for a heavy blast near the kid; a string of small ones must not rattle it without end
+    if (Math.hypot(x - this.p.x, y - this.p.y) < this.viewR + 2) this.shake = Math.max(this.shake, r0 >= 2 ? Math.min(9, 4 + r * 2) : booms > 3 ? 0 : 2.5);
+    for (let i = 0, n = booms > 8 ? 4 : booms > 3 ? 10 : 22; i < n; i++) {
       const a = rand(0, Math.PI * 2), sp = rand(1, 4) * r;
       this.particle(x, y, 0.2, Math.cos(a) * sp, Math.sin(a) * sp, rand(1, 4), rand(0.3, 0.7), i % 3 ? '#ffb347' : '#ff5a1a', rand(3, 6), i % 2 ? 'glow' : 'sq');
     }
@@ -1390,7 +1518,9 @@ export class Game {
         }
       });
     }
-    this.decals.push({ x, y, r: r * 0.6, color: 'rgba(20,10,5,0.5)', life: 20, rot: rand(0, 6) });
+    if (booms <= 8) this.decals.push({ x, y, r: r * 0.6, color: 'rgba(20,10,5,0.5)', life: 20, rot: rand(0, 6) });
+    if (this.decals.length > 160) this.decals.splice(0, this.decals.length - 160);
+    if (fromPlayer && profile.demolish) this.demolish(x, y, r, 60, dmg);
   }
 
   // ---------- skills ----------
@@ -1640,6 +1770,11 @@ export class Game {
         if (spreadEcto) o.ectoT = Math.max(o.ectoT, 4);
       });
     }
+    if ((e.frozenT ?? 0) > 0) {
+      // frozen solid: it shatters, and the shards hurt what stands close
+      this.queueBlast(e.x, e.y, 1.4, Math.max(6, e.maxHp * 0.25));
+      for (let i = 0; i < 14; i++) { const a = rand(0, Math.PI * 2); this.particle(e.x, e.y, 0.5, Math.cos(a) * 4, Math.sin(a) * 4, rand(1, 4), 0.6, i % 2 ? '#d8f6ff' : '#9fe8ff', 5, 'sq'); }
+    }
     if (this.blastKill && bd.ks('blast', 3)) this.queueBlast(e.x, e.y, 1.1, Math.max(8, e.maxHp * 0.15) * Math.min(3, this.stats.dmg) * 0.5);
     const src = this.hitSrc;
     if (src) {
@@ -1692,6 +1827,7 @@ export class Game {
       this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
       this.relightHouses();
+      this.relocateShops();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
       for (const creature of this.enemies) creature.dead = true;
       this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
@@ -1699,12 +1835,14 @@ export class Game {
       this.spawnAcc = 0; this.tot = null; this.interact = null;
       this.p.coins += 150 + this.bossRound * 50;
       this.p.hp = Math.min(this.stats.maxHp, this.p.hp + this.stats.maxHp * 0.25);
-      this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45);
-      this.state = 'shop';
+      this.nextBossAt = this.endless ? this.time + ENDLESS_BOSS_INTERVAL + BUY_WINDOW : Math.max([90, 170, 245, 320][this.bossRound] ?? this.time + 60, this.time + 45 + BUY_WINDOW);
+      // No shop pops up: the stand has just moved, and the kid gets a quiet stretch to walk there (or ring a few doors).
+      this.calmT = BUY_WINDOW;
+      this.p.invuln = Math.max(this.p.invuln, 1);
       this.hitStop = 0.25;
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, 'The streets are clear. Spend coins and upgrade before continuing.', 'win');
+      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `${BUY_WINDOW} quiet seconds: follow the arrow to the shop`, 'win');
       gameAudio.play('victory', 0.45);
     }
   }
@@ -1736,7 +1874,9 @@ export class Game {
       } else e.burnDps = 0;
       const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 0.001;
       let mx = 0, my = 0;
-      let speed = d.speed * (e.ectoT > 0 ? 0.6 : 1) * (e.elite && !d.elite ? 1.1 : 1);
+      if (e.chill) e.chill = Math.max(0, e.chill - dt * 0.2);
+      if (e.frozenT) e.frozenT = Math.max(0, e.frozenT - dt);
+      let speed = d.speed * (e.ectoT > 0 ? 0.6 : 1) * (e.elite && !d.elite ? 1.1 : 1) * (1 - 0.55 * (e.chill ?? 0));
       if (e.stunT > 0) {
         e.stunT -= dt;
         speed = 0;
@@ -1883,15 +2023,32 @@ export class Game {
     for (const b of this.bullets) {
       if (b.dead) continue;
       b.initialPierce ??= b.pierce;
+      const def = b.src?.def;
+      if (def?.boomerang && !b.child) {
+        if (!b.back && b.life <= dt) this.turnBack(b); // far point reached
+        if (b.back) {
+          const to = b.by ?? this.p, hx = to.x - b.x, hy = to.y - b.y, hl = Math.hypot(hx, hy), sp = Math.hypot(b.vx, b.vy) || 1;
+          if (hl < 0.55) { b.dead = true; continue; } // caught
+          b.vx = (hx / hl) * sp; b.vy = (hy / hl) * sp;
+        }
+      }
       const px = b.x, py = b.y;
       const travelDt = Math.min(dt, Math.max(0, b.life));
       const moveX = b.vx * travelDt, moveY = b.vy * travelDt;
       // Sample the whole swept path: fast shots must not skip thin wall cells.
       const steps = Math.max(1, Math.ceil(Math.hypot(moveX, moveY) * CR * 2));
       let wall = false;
-      for (let i = 1; i <= steps; i++) {
+      if (b.back) { b.x = px + moveX; b.y = py + moveY; } // a returning glaive comes home over the rooftops
+      else for (let i = 1; i <= steps; i++) {
         b.x = px + moveX * i / steps; b.y = py + moveY * i / steps;
         if (cellAt(this.map, b.x, b.y) === 2) { wall = true; break; }
+      }
+      if (wall && def?.boomerang && !b.child) { wall = false; b.x = px; b.y = py; this.turnBack(b); } // it turns at a wall instead of stopping
+      if (wall && def?.demolish && def.kind === 'flame') this.demolish(b.x, b.y, 0.5, 2.5, b.dmg);
+      // Grid Disc: lay the neon line behind it, a piece at a time
+      if (def?.trail && !b.child && b.lx !== undefined && (Math.hypot(b.x - b.lx, b.y - b.ly!) > 0.9 || wall || b.life - dt <= 0)) {
+        this.zones.push({ kind: 'trail', x: b.lx, y: b.ly!, x1: b.x, y1: b.y, r: 0.38, t: 0, life: def.trail, dmg: b.dmg * TRAIL_TICK, tick: 0, color: b.color });
+        b.lx = b.x; b.ly = b.y;
       }
       b.life -= dt;
       if (b.z) b.z = Math.max(0, b.z - dt * 130);
@@ -1916,7 +2073,10 @@ export class Game {
         if (!b.homeK && Math.random() < 0.5) this.particle(b.x, b.y, 0.5, 0, 0, 0.3, 0.3, '#c46bff', 5, 'glow');
       }
       if (b.kind === 'water' || b.kind === 'fire') if (Math.random() < 0.3) this.particle(b.x, b.y, 0.4, 0, 0, -0.5, 0.25, b.color, 4, 'glow');
-      if (b.kind === 'rocket') this.particle(px, py, 0.45, rand(-0.3, 0.3), rand(-0.3, 0.3), 0.5, 0.4, '#bbb', 5, 'sq');
+      if (b.kind === 'rocket' || b.kind === 'shell') this.particle(px, py, 0.45, rand(-0.3, 0.3), rand(-0.3, 0.3), 0.5, 0.4, '#bbb', 5, 'sq');
+      else if (b.kind === 'missile') { if (Math.random() < 0.6) this.particle(px, py, 0.45, rand(-0.2, 0.2), rand(-0.2, 0.2), 0.4, 0.3, '#cfc8c0', 3, 'sq'); }
+      else if (b.kind === 'glaive' || b.kind === 'disc') { if (Math.random() < 0.5) this.particle(px, py, 0.45, 0, 0, 0, 0.25, b.color, 5, 'glow'); }
+      else if (b.kind === 'flame') { if (Math.random() < 0.35) this.particle(b.x, b.y, 0.5, rand(-0.6, 0.6), rand(-0.6, 0.6), rand(0.5, 1.6), 0.3, Math.random() < 0.5 ? '#ffb347' : '#ff5a1a', rand(4, 8), 'glow'); }
       const pathX = b.x - px, pathY = b.y - py, pathSq = pathX * pathX + pathY * pathY;
       const hits: [number, Enemy][] = [];
       this.query((px + b.x) / 2, (py + b.y) / 2, Math.sqrt(pathSq) / 2 + 1.5, (e) => {
@@ -1932,20 +2092,19 @@ export class Game {
         if (e.dead) continue;
         b.hit.push(e.id);
         const l = Math.hypot(b.vx, b.vy) || 1;
-        this.hitSrc = b.src ?? null;
+        this.hitSrc = b.mate ? null : b.src ?? null;
         if (b.explode > 0) {
-          const profile = this.projectileProfile(b);
-          this.explode(px + pathX * at, py + pathY * at, b.explode, b.dmg, profile.element ?? null, true, !!b.crit, profile);
+          b.x = px + pathX * at; b.y = py + pathY * at;
+          this.detonate(b);
           if (b.shock > 0 && Math.random() < b.shock) this.chain(e, b.dmg * 0.5);
           this.hitSrc = null;
-          b.dead = true;
           if (this.bossBreak) return;
           break;
         }
         this.applyHit(e, b.dmg, b.crit, b.fire, b.shock, b.ecto, b.vx / l, b.vy / l, b.vamp, false, this.projectileProfile(b));
         this.hitSrc = null;
         if (this.bossBreak) return;
-        if (b.src && !b.child && b.hit.length === 1 && this.ins(b.src, 'split')) {
+        if (b.src && !b.mate && !b.child && b.hit.length === 1 && this.ins(b.src, 'split')) {
           // Two-for-One: the shot splits into two smaller ones on its first hit
           const a0 = Math.atan2(b.vy, b.vx);
           for (const da of [-0.55, 0.55]) this.bullets.push({ ...b, x: px + pathX * at, y: py + pathY * at, vx: Math.cos(a0 + da) * l, vy: Math.sin(a0 + da) * l, dmg: b.dmg * 0.45, hit: [...b.hit], child: true, pierce: 0, initialPierce: 0, life: Math.max(0.3, b.life * 0.7) });
@@ -1969,7 +2128,8 @@ export class Game {
             b.life = Math.max(b.life, 0.6);
           } else b.dead = true;
           break; // A ricochet changes the trajectory; don't hit old-path targets.
-        } else b.dead = true;
+        } else if (def?.scorch) this.bulletDie(b); // a flame that ends on a monster can still set the ground alight
+        else b.dead = true;
       }
       // Creature impacts before a wall resolve first; surviving shots then hit it.
       if (!b.dead && wall) {
@@ -1987,13 +2147,33 @@ export class Game {
     this.bullets = this.bullets.filter((b) => !b.dead);
   }
 
+  /** Star Glaive: turn for home, a little faster, free to hit everything a second time */
+  private turnBack(b: Bullet) {
+    b.back = true; b.life = 4; b.hit = [];
+    b.vx *= -1.2; b.vy *= -1.2;
+  }
   private projectileProfile(b: Bullet): DamageProfile {
-    return { element: b.element !== undefined ? b.element : b.src?.def.elem ?? (b.kind === 'fire' || b.kind === 'rocket' ? 'fire' : b.kind === 'hex' ? 'ecto' : null), pierce: b.initialPierce ?? b.pierce, ricochet: !!b.ricocheted };
+    return { element: b.element !== undefined ? b.element : b.src?.def.elem ?? (b.kind === 'fire' || b.kind === 'rocket' ? 'fire' : b.kind === 'hex' ? 'ecto' : null), pierce: b.initialPierce ?? b.pierce, ricochet: !!b.ricocheted, demolish: !!b.src?.def.demolish && !b.child };
   }
   private bulletDie(b: Bullet) {
+    if (b.explode > 0) { this.detonate(b); return; }
     b.dead = true;
-    if (b.explode > 0) { const profile = this.projectileProfile(b); this.explode(b.x, b.y, b.explode, b.dmg, profile.element ?? null, true, !!b.crit, profile); }
-    else for (let i = 0; i < 3; i++) this.particle(b.x, b.y, 0.4, rand(-1, 1), rand(-1, 1), rand(0.5, 1.5), 0.2, b.color, 2, 'sq');
+    const def = b.src?.def;
+    // Dragon's Breath: some of the fire sticks to the ground
+    if (def?.scorch && !b.child && Math.random() < 0.3 && this.zones.length < 90 && cellAt(this.map, b.x, b.y) === 0) this.zones.push({ kind: 'fire', x: b.x, y: b.y, r: 0.75, t: 0, life: 2.6, dmg: b.dmg * 1.2, tick: 0 });
+    for (let i = 0; i < 3; i++) this.particle(b.x, b.y, 0.4, rand(-1, 1), rand(-1, 1), rand(0.5, 1.5), 0.2, b.color, 2, 'sq');
+  }
+  /** an explosive shot going off where it is: a blast, or for the Event Horizon a singularity that blasts later */
+  private detonate(b: Bullet) {
+    if (b.spent) return;
+    b.spent = true; b.dead = true;
+    const profile = this.projectileProfile(b), def = b.src?.def;
+    if (def?.vortex && !b.child) {
+      this.zones.push({ kind: 'vortex', x: b.x, y: b.y, r: 3.4, t: 0, life: def.vortex, dmg: b.dmg, tick: 0, color: b.color, blast: b.explode, crit: !!b.crit, demolish: profile.demolish });
+      gameAudio.play('skill', 0.35);
+      return;
+    }
+    this.explode(b.x, b.y, b.explode, b.dmg, profile.element ?? null, true, !!b.crit, profile);
   }
 
   private updateEBullets(dt: number) {
@@ -2034,6 +2214,32 @@ export class Game {
             if (Math.hypot(e.x - z.x, e.y - z.y) < z.r + e.r) this.applyHit(e, z.dmg, false, 0.35, 0, 0, 0, 0, false, true, { element: 'fire' });
           });
         }
+      } else if (z.kind === 'trail') {
+        // a lingering line: whatever stands on it is cut every tick
+        z.tick -= dt;
+        if (z.tick <= 0) {
+          z.tick = 0.3;
+          const x1 = z.x1 ?? z.x, y1 = z.y1 ?? z.y, lx = x1 - z.x, ly = y1 - z.y, l2 = lx * lx + ly * ly || 1e-6;
+          this.query((z.x + x1) / 2, (z.y + y1) / 2, Math.sqrt(l2) / 2 + z.r + 0.6, (e) => {
+            const at = clamp(((e.x - z.x) * lx + (e.y - z.y) * ly) / l2, 0, 1);
+            if (Math.hypot(e.x - z.x - lx * at, e.y - z.y - ly * at) < z.r + e.r) this.applyHit(e, z.dmg, false, 0, 0, 0, 0, 0, false, true, { pierce: 99 });
+          });
+        }
+      } else if (z.kind === 'vortex') {
+        // Event Horizon: everything nearby is dragged to the middle, then it goes off
+        this.query(z.x, z.y, z.r + 0.5, (e) => {
+          const dx = z.x - e.x, dy = z.y - e.y, d = Math.hypot(dx, dy) || 1;
+          if (d > z.r) return;
+          const f = (e.def.boss ? 1.2 : 7) / Math.max(1, e.def.mass * 0.5) * Math.min(1, d);
+          const nx = e.x + (dx / d) * f * dt, ny = e.y + (dy / d) * f * dt;
+          if (e.def.fly || e.def.phase || e.def.boss || cellAt(this.map, nx, ny) === 0) { e.x = nx; e.y = ny; }
+        });
+        if (Math.random() < 0.7) { const a = rand(0, Math.PI * 2); this.particle(z.x + Math.cos(a) * z.r, z.y + Math.sin(a) * z.r, 0.6, -Math.cos(a) * 5, -Math.sin(a) * 5, 0, 0.45, '#d59bff', 5, 'glow'); }
+        if (!z.done && z.t >= z.life) {
+          z.done = true;
+          this.explode(z.x, z.y, z.blast ?? 2.2, z.dmg, 'ecto', true, !!z.crit, { element: 'ecto', demolish: z.demolish });
+          if (this.bossBreak) return;
+        }
       } else if (z.kind === 'tornado') {
         z.tick -= dt;
         const pullR = z.r * 1.8;
@@ -2061,6 +2267,58 @@ export class Game {
     this.zones = this.zones.filter((z) => z.t < z.life);
   }
 
+  // ---------- demolition (cars and houses) ----------
+  /**
+   * Heavy weapons wreck the street: a car caught in the blast at (x, y), or a house hit directly, takes `points` of structural damage. A car
+   * goes up like a bomb; a house burns down and never answers its door again, but it spills what was inside.
+   */
+  private demolish(x: number, y: number, r: number, points: number, dmg: number) {
+    for (const pr of this.map.props) {
+      if (pr.removed || pr.wreck || (pr.kind !== 'car' && pr.kind !== 'house')) continue;
+      const nx = clamp(x, pr.x0, pr.x0 + pr.fw), ny = clamp(y, pr.y0, pr.y0 + pr.fh);
+      // a house only suffers from a hit on the house itself: a fight on its lawn does not burn it down by accident
+      if (Math.hypot(nx - x, ny - y) > (pr.kind === 'house' ? Math.min(r, 0.7) : r * 0.6)) continue;
+      pr.hp = (pr.hp ?? (pr.kind === 'car' ? CAR_HP : HOUSE_HP)) - points;
+      pr.burnT = Math.max(pr.burnT ?? 0, 2.5); // it catches for a moment even when it survives
+      if (pr.hp > 0) continue;
+      const cx = pr.x0 + pr.fw / 2, cy = pr.y0 + pr.fh / 2, house = pr.kind === 'house';
+      pr.wreck = true; pr.boomT = 0; pr.burnT = house ? 40 : 16;
+      this.hitStop = Math.max(this.hitStop, 0.05);
+      gameAudio.play('impact', 0.9);
+      this.explode(cx, cy, house ? 3.4 : 2.6, Math.max(20, dmg * 2), 'fire', true, false, { element: 'fire' }); // no chain of wrecks from one blast
+      this.shake = Math.max(this.shake, house ? 16 : 11);
+      for (let i = 0; i < (house ? 3 : 1); i++) this.zones.push({ kind: 'fire', x: cx + rand(-pr.fw, pr.fw) * 0.45, y: pr.y0 + pr.fh + 0.5 + rand(0, 0.6), r: 0.9, t: 0, life: 5, dmg: Math.max(3, dmg * 0.3), tick: 0 });
+      if (house) {
+        const h = this.map.houses.find(q => q.prop === pr);
+        if (h) {
+          h.gone = true; h.visited = true; h.trick = false;
+          if (h.light) h.light.i = 0;
+          if (this.tutorialHouse === h) this.selectTutorialHouse();
+          if (this.tot?.house === h) this.cancelTot(false);
+          // what was inside lands on the lawn
+          for (let i = 0; i < 10; i++) this.dropPickup(h.door.x, h.door.y, 'coin', 3);
+          for (let i = 0; i < 6; i++) this.dropPickup(h.door.x, h.door.y, 'xp3', 4);
+          if (Math.random() < 0.35) this.dropWeapon(h.door.x + 0.4, h.door.y + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 1, 1), this.lootLevel()));
+        }
+        this.text(cx, cy, 'HOUSE DOWN!', '#ff8a1e', 18);
+      } else {
+        for (let i = 0; i < 4; i++) this.dropPickup(cx, cy, 'coin', 2);
+        this.text(cx, cy, 'KABOOM!', '#ffcf3a', 16);
+      }
+    }
+  }
+  /** burning wrecks: their timers, their smoke, and the heat that hurts monsters standing against them */
+  private updateWrecks(dt: number) {
+    for (const pr of this.map.props) {
+      if (!pr.burnT && pr.boomT === undefined) continue;
+      if (pr.boomT !== undefined && (pr.boomT += dt) > 1.2) pr.boomT = undefined;
+      if (pr.burnT) {
+        pr.burnT = Math.max(0, pr.burnT - dt);
+        if (Math.random() < 0.25) this.particle(pr.x0 + rand(0, pr.fw), pr.y0 + rand(0, pr.fh), rand(1, 2.5), rand(-0.3, 0.3), rand(-0.3, 0.3), rand(1, 2), rand(0.6, 1.2), '#3a3230', rand(5, 9), 'sq');
+      }
+    }
+  }
+
   // ---------- pickups ----------
   dropPickup(x: number, y: number, kind: Pickup['kind'], value: number) {
     const a = rand(0, Math.PI * 2), sp = rand(0.5, 2);
@@ -2079,7 +2337,7 @@ export class Game {
     if (kind === 'costume' && !this.randomCostume()) kind = 'hoard'; // already in costume: candy instead
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'coin', 2);
     for (let i = 0; i < 3; i++) this.dropPickup(x, y, 'xp2', 2);
-    if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1)));
+    if (kind === 'gun') this.dropWeapon(x, y, makeWeapon(null, rollRarity(this.stats.luck + 1, 1), this.lootLevel()));
     else if (kind === 'treat') {
       const sc = rollScrolls(1, this.scrolls, this.stats.luck + 1, 2)[0];
       if (sc) {
@@ -2255,6 +2513,34 @@ export class Game {
     }
   }
 
+  // ---------- discarding a treat ----------
+  /** the treat the player is being asked about (the world is paused while the question is up) */
+  discarding: string | null = null;
+  private discardReturn: GameState = 'play';
+  /** ask "discard this treat?": from the left rail while playing, or from the run build screen */
+  askDiscard(id: string) {
+    if (!['play', 'inventory', 'pause'].includes(this.state) || !(this.scrolls[id] > 0) || !SCROLL_BY_ID[id]) return;
+    this.discardReturn = this.state; this.discarding = id; this.state = 'discard';
+    this.input.pressed.clear();
+  }
+  /** yes: one copy of the treat is gone for good and the build is recalculated. Either way, back to where we were. */
+  answerDiscard(yes: boolean) {
+    if (this.state !== 'discard') return;
+    const id = this.discarding;
+    if (yes && id && this.scrolls[id] > 0) {
+      if (--this.scrolls[id] <= 0) delete this.scrolls[id];
+      const at = this.scrollOrder.lastIndexOf(id);
+      if (at >= 0) this.scrollOrder.splice(at, 1);
+      this.recalcStats();
+      this.p.dashCharges = Math.min(this.p.dashCharges, this.stats.dashCharges);
+      for (const w of this.p.weapons) if (w) w.ammo = Math.min(w.ammo, weaponStats(w, this.stats).mag);
+      gameAudio.play('click', 0.4);
+    }
+    this.discarding = null;
+    this.state = this.discardReturn;
+    this.input.pressed.clear();
+  }
+
   // ---------- weapon inspect ----------
   takeInspected(slot: number) {
     const k = this.inspecting, p = this.p;
@@ -2316,6 +2602,7 @@ export class Game {
     } else {
       const old = this.p.weapons[slot];
       if (old) { old.reloadT = 0; this.dropWeapon(this.p.x, this.p.y, old); }
+      prize.weapon.level = Math.max(prize.weapon.level, this.lootLevel()); // the machine's guns keep up too
       this.p.weapons[slot] = prize.weapon;
       this.p.cur = slot; this.syncTeamWeapons();
     }
@@ -2432,7 +2719,7 @@ export class Game {
     for (let i = 0; i < (costumed ? 10 : 5); i++) this.dropPickup(dx, dy, 'coin', 2);
     for (let i = 0; i < (costumed ? 8 : 4); i++) this.dropPickup(dx, dy, 'xp2', 2);
     if (Math.random() < 0.25) this.dropPickup(dx, dy, 'heal', 25);
-    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max)));
+    if (Math.random() < (costumed ? 0.15 : 0.07)) this.dropWeapon(dx + 0.4, dy + 0.4, makeWeapon(null, rollRarity(this.stats.luck + 2, rewards.min, rewards.max), this.lootLevel()));
     if (Math.random() < Math.min(0.06, 0.025 * this.stats.costumeLuck)) this.dropCostume(dx - 0.4, dy + 0.5, this.randomCostume());
     for (let i = 0; i < 24; i++) this.particle(dx, dy, 0.6, rand(-2, 2), rand(-2, 2), rand(2, 5), 0.9, ['#ff4d6d', '#ffd23a', '#7dff5a', '#b44dff'][i % 4], 4, 'sq');
     this.bubble(this.p.x, this.p.y, 115, costumed ? 'Thank you!!' : 'Aww… thanks.', 'kid', 1.4, true);
@@ -2476,7 +2763,7 @@ export class Game {
     guns = Math.min(guns, loot - 1); // always at least one treat on offer
     const { min, max } = this.choiceRewardRange;
     this.choices = rollScrolls(loot - guns, this.scrolls, luck, min, max);
-    this.gunChoices = Array.from({ length: loot - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max)));
+    this.gunChoices = Array.from({ length: loot - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max), this.lootLevel()));
   }
   private rollLocked() {
     this.lockedChoice = null;
@@ -2527,20 +2814,95 @@ export class Game {
     this.input.pressed.clear();
     this.gunChoices = []; this.choices = []; this.friendChoice = null;
     this.choiceMode = 'level';
-    const spot = this.freeSpot(this.p.x + 0.7, this.p.y + 0.7, true);
-    this.friends.push({ hero, ...spot, r: 0.24, gate: 0, status: 'rescued', guardian: null, progress: 0,
-      hp: 80, maxHp: 80, weapon: makeWeapon('nerf', 1), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 });
-    const helper = this.activeFriend === null;
-    if (helper) this.activeFriend = hero;
-    this.syncTeamWeapons();
-    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, 'They fight beside you and can pick you up once a minute.', 'loot');
+    this.addFriend(hero);
+    this.setBanner(`${HERO_INFO[hero].name.toUpperCase()} JOINS YOU!`, `They fight beside you and can pick you up every ${this.friendReviveCd} seconds.`, 'loot');
     this.state = 'play';
     this.p.invuln = 1;
   }
+  /** a friend joins the team next to the player (survival game), and becomes the helper if there is none */
+  private addFriend(hero: number) {
+    const spot = this.freeSpot(this.p.x + 0.7, this.p.y + 0.7, true);
+    this.friends.push({ hero, ...spot, r: 0.24, gate: 0, status: 'rescued', guardian: null, progress: 0,
+      hp: this.friendMaxHp, maxHp: this.friendMaxHp, weapon: this.friendGun(), anim: 0, flip: false, back: false, hurtCd: 0, reviveCd: 0, candy: 0 });
+    if (this.activeFriend === null) this.activeFriend = hero;
+    this.syncTeamWeapons();
+  }
+  // ---- what the Buddy System talents change about a friend ----
+  get friendMaxHp() { return FRIEND_HP + (this.stats?.mateHp ?? 0); }
+  /** seconds a friend who is down can still be helped up */
+  get friendDownTime() { return FRIEND_DOWN_TIME + (this.stats?.mateDown ?? 0); }
+  /** seconds before the same friend can pick the player up again */
+  get friendReviveCd() { return Math.round(FRIEND_REVIVE_CD * (this.stats?.mateReviveCd ?? 1)); }
+  /**
+   * The level of a gun the night hands out (doorsteps, bags, the candy machine): about the kid's own level, and never
+   * far behind the best gun they carry, so a find is a real choice and not a level-1 toy next to an upgraded gun.
+   */
+  lootLevel() {
+    const best = Math.max(1, ...this.p.weapons.map(w => w?.level ?? 1));
+    return Math.max(1, Math.max(this.p.level, best - 1) - (Math.random() < 0.4 ? 1 : 0));
+  }
+  private friendGun() { return makeWeapon('nerf', Math.min(4, 1 + (this.stats?.mateGun ?? 0))); }
   /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
+  /** game time of the last shop move (the screen-edge arrows for the candy machines show for a while after it) */
+  shopsMovedAt = -999;
+  /**
+   * After every boss the Candy Lady's stand and the candy machines set up somewhere else in the open part of town, so
+   * the night keeps the player moving. Their arrow at the screen edge and their minimap markers follow them.
+   */
+  relocateShops() {
+    const m = this.map, taken: { x: number; y: number }[] = [];
+    this.computeFlow(true);
+    for (const shop of m.shops) {
+      const pr = shop.prop, spot = this.shopSpot(pr.fw, pr.fh, shop, taken);
+      if (!spot) { taken.push({ x: shop.x, y: shop.y }); continue; }
+      const cells = (x0: number, y0: number, x1: number, y1: number, v: number) => {
+        for (let cy = Math.max(0, Math.floor(y0 * CR)); cy < Math.min(CH, Math.ceil(y1 * CR)); cy++)
+          for (let cx = Math.max(0, Math.floor(x0 * CR)); cx < Math.min(CW, Math.ceil(x1 * CR)); cx++) m.coll[cy * CW + cx] = v;
+      };
+      cells(pr.x0, pr.y0, pr.x0 + pr.fw, pr.y0 + pr.fh, 0); // the old pitch is open ground again
+      for (const l of pr.sp.lights) {
+        const lamp = m.lights.find(q => Math.abs(q.x - (pr.x0 + l.x)) < 1e-6 && Math.abs(q.y - (pr.y0 + l.y)) < 1e-6);
+        if (lamp) { lamp.x = spot.x + l.x; lamp.y = spot.y + l.y; }
+      }
+      pr.x0 = spot.x; pr.y0 = spot.y;
+      if (pr.big) { cells(pr.x0 + 0.02, pr.y0 + 0.02, pr.x0 + pr.fw - 0.02, pr.y0 + pr.fh - 0.02, 2); shop.x = pr.x0 + pr.fw / 2; shop.y = pr.y0 + pr.fh + 0.4; }
+      else { cells(pr.x0 + 0.2, pr.y0 + 0.3, pr.x0 + 0.8, pr.y0 + 0.75, 2); shop.x = pr.x0 + 0.5; shop.y = pr.y0 + 1.2; }
+      taken.push({ x: shop.x, y: shop.y });
+    }
+    this.shopsMovedAt = this.time;
+    this.computeFlow(true);
+    this.toast('The Candy Lady packed up and moved. Follow the orange arrow to her new spot.');
+  }
+  /** a clear, reachable pitch for a shop: away from where it was, from the player, from doors and from the other shops */
+  private shopSpot(fw: number, fh: number, old: { x: number; y: number }, taken: { x: number; y: number }[]) {
+    const m = this.map, p = this.p;
+    const clear = (x: number, y: number) => {
+      // the footprint plus a tile all round, and two tiles in front where the customer stands
+      for (let ty = y - 1; ty <= y + fh + 1; ty++) for (let tx = x - 1; tx <= x + fw; tx++) {
+        if (tx < 2 || ty < 2 || tx >= MAP_W - 2 || ty >= MAP_H - 2 || m.ground[ty * MAP_W + tx] === G.ROAD) return false;
+        for (let cy = ty * CR; cy < (ty + 1) * CR; cy++) for (let cx = tx * CR; cx < (tx + 1) * CR; cx++) if (m.coll[cy * CW + cx]) return false;
+      }
+      return true;
+    };
+    for (const [far, apart] of [[20, 14], [14, 10], [9, 7], [5, 4]]) {
+      for (let i = 0; i < 300; i++) {
+        const x = 2 + Math.floor(Math.random() * (MAP_W - 4 - fw)), y = 2 + Math.floor(Math.random() * (MAP_H - 5 - fh));
+        const cx = x + fw / 2, cy = y + fh + 0.4;
+        if (Math.hypot(cx - old.x, cy - old.y) < far || Math.hypot(cx - p.x, cy - p.y) < 8) continue;
+        if (taken.some(t => Math.hypot(cx - t.x, cy - t.y) < apart)) continue;
+        if (!this.reachable(cx, cy) || !clear(x, y)) continue;
+        if (m.houses.some(h => Math.hypot(h.door.x - cx, h.door.y - cy) < 3.5) || m.gates.some(g => Math.hypot(g.x - cx, g.y - cy) < 4)) continue;
+        if (m.hideouts.some(h => Math.hypot(h.x - cx, h.y - cy) < 4) || m.turrets.some(t => Math.hypot(t.x - cx, t.y - cy) < 4)) continue;
+        if (m.props.some(pr => !pr.removed && pr.x0 < x + fw + 1 && pr.x0 + pr.fw > x - 1 && pr.y0 < y + fh + 2 && pr.y0 + pr.fh > y - 1)) continue;
+        return { x, y };
+      }
+    }
+    return null;
+  }
   private relightHouses() {
     const hs = this.map.houses;
     for (const h of hs) {
+      if (h.gone) continue; // burnt down
       h.visited = false;
       h.trick = false;
       if (h.light) h.light.i = h.lightI;
@@ -2643,7 +3005,7 @@ export class Game {
     if (pos) this.spawnEnemy(this.wave % 2 ? 'witch' : 'skeleton', pos.x, pos.y, true);
   }
   private updateEndless(dt: number) {
-    if (this.bossBreak) return;
+    if (this.bossBreak || this.calmT > 0) return;
     this.waveT += dt;
     if (this.waveT >= 30) {
       this.waveT -= 30;
@@ -2699,7 +3061,7 @@ export class Game {
   }
 
   private director(dt: number) {
-    if (this.bossBreak || (this.bossKilled && !this.endless)) return;
+    if (this.bossBreak || this.calmT > 0 || (this.bossKilled && !this.endless)) return;
     const t = this.time;
     if (!this.endless) {
       const targetWave = 1 + Math.floor(t / 60);
@@ -2787,7 +3149,7 @@ export class Game {
       const pos = this.spawnPos(true) || { x: this.p.x + 6, y: this.p.y };
       const type = this.campaign ? CAMPAIGN_BOSSES[this.bossRound] : 'king';
       this.boss = this.spawnEnemy(type, pos.x, pos.y);
-      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for an upgrade break`, 'danger');
+      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/${this.campaign ? 4 : 1} - defeat it for ${BUY_WINDOW} quiet seconds to shop`, 'danger');
       if (this.turrets.length && this.mounted < 0) this.toast('Get up on a jungle gym at Hollow Creek Primary — the Candy Cannon shreds bosses!');
       this.shake = 15;
     }
@@ -2835,6 +3197,7 @@ export class Game {
       weapons: p.weapons.map((w) => (w ? { w, st: weaponStats(w, s) } : null)), cur: p.cur, skillCd: Math.max(0, p.skillCd), skillMax: HERO_INFO[this.hero].cd * s.skillCd,
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
+      calm: this.calmT,
       wave: this.wave, waveIn: this.endless ? Math.max(0, 30 - this.waveT) : 60 - this.time % 60,
       momentum: this.momentum, streak: this.streak, premiumPower: this.premiumPowerT,
       turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,

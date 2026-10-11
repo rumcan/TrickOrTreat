@@ -2,6 +2,9 @@
 const base = (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_URL || './';
 const img = (p: string) => `${base}images/${p}`;
 
+/** eight-frame effect strips (scripts/prepare-fx-art.mjs), shown as CSS animations in the full-game showcase */
+export const FX_ART = { explosion: `${base}assets/fx/fx_explosion.webp`, fire: `${base}assets/fx/fx_fire.webp` };
+
 export const ART = {
   keyart: img('splash.webp?v=3'),
   keyartPortrait: img('splash_portrait.webp?v=3'),
@@ -15,7 +18,8 @@ export const ART = {
 };
 
 /** painted card art per gun id (scripts/prepare-gun-art.mjs); the small in-world sprites are separate (icon_<id>) */
-export const GUN_ART_IDS = ['pea', 'nerf', 'shotgun', 'roman', 'soaker', 'balloon', 'rocket', 'laser', 'slingshot', 'gloom', 'marshmallow', 'bubblegum', 'acorn'];
+export const GUN_ART_IDS = ['pea', 'nerf', 'shotgun', 'roman', 'soaker', 'balloon', 'rocket', 'laser', 'slingshot', 'gloom', 'marshmallow', 'bubblegum', 'acorn',
+  'flamer', 'stream', 'disc', 'sabre', 'glaive', 'swarm', 'singularity', 'annihilator', 'incinerator', 'lance', 'cryo'];
 export const gunArtUrl = (id: string) => img(`guns/${GUN_ART_IDS.includes(id) ? id : 'pea'}.webp`);
 
 /** per hero (HERO_INFO order): tall card portrait and round HUD face */

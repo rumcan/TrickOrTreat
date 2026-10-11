@@ -14,15 +14,17 @@ try {
     const { settings, saveSettings, loadSettings } = await import('/src/game/settings.ts');
     const { cellAt } = await import('/src/game/map.ts');
     const rounds = [];
+    g.state = 'play'; // past the opening scene: a boss falls in play, and play goes on
     for (const type of ['hex', 'alpha', 'warden', 'king']) {
       g.time = g.nextBossAt; g.director(0.001);
       if (g.boss?.type !== type) throw new Error(`Wrong boss: ${g.boss?.type}, expected ${type}`);
       g.spawnEnemy('zombie', g.p.x + 2, g.p.y); g.ebullets.push({ x: g.p.x, y: g.p.y, dead: false });
       const kills = g.kills; g.killEnemy(g.boss);
-      if (g.enemies.length || g.ebullets.length || g.bullets.length || g.state !== 'shop' || !g.bossBreak || g.kills !== kills + 1) throw new Error('Boss did not safely clear the encounter');
-      const time = g.time; g.update(0.03); if (g.time !== time) throw new Error('Upgrade break must freeze the run');
+      if (g.enemies.length || g.ebullets.length || g.bullets.length || g.state !== 'play' || !g.bossBreak || g.calmT !== 20 || g.kills !== kills + 1) throw new Error(`Boss did not safely clear the encounter (${JSON.stringify({ enemies: g.enemies.length, eb: g.ebullets.length, b: g.bullets.length, state: g.state, brk: g.bossBreak, calm: g.calmT, kills: g.kills - kills })})`);
+      for (let k = 0; k < 20; k++) g.update(0.03); // past the hit-stop of the kill
+      if (g.enemies.length || g.bossBreak || !(g.calmT > 19 && g.calmT < 20)) throw new Error('The quiet after a boss must run with an empty street');
       const level = g.p.weapons[0].level; g.shopUpgrade(0); if (g.p.weapons[0].level !== level + 1) throw new Error('Cannot upgrade after boss');
-      rounds.push({ type, cleared: true, coins: g.p.coins }); g.closeShop();
+      rounds.push({ type, cleared: true, coins: g.p.coins }); g.calmT = 0; g.pickups = []; g.pendingLevels = 0;
     }
     if (!g.bossKilled || g.bossWins !== 4) throw new Error('Campaign finale not recorded');
     settings.gore = 'green';

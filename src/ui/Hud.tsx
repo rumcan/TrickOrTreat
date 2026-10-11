@@ -6,7 +6,7 @@
 //    that opens above it for whatever needs you right now (revive, cannon, doorstep, pickups);
 //  · NOTICES as paper slips with a 4px orange left edge.
 import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon, X } from 'lucide-react';
-import { HudSnap, Game, FRIEND_DOWN_TIME } from '../game/engine';
+import { HudSnap, Game } from '../game/engine';
 import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/data';
 import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
 import { requestGameFullscreen, canFullscreen } from './fullscreen';
@@ -80,7 +80,8 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
       <div className="hm-clock">
         <div className="hm-time">{fmtTime(s.time)}</div>
         <div className="hm-time-sub">
-          {s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
+          {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop</span>
+            : s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
             : s.bossIn !== null ? <span>Boss in {fmtTime(s.bossIn)}</span>
               : <span>Night falls</span>}
         </div>
@@ -122,10 +123,10 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {treats.slice(0, max).map(([id, n]) => {
         const sc = SCROLL_BY_ID[id];
         return (
-          <div key={id} className="hm-rail-row" title={`${sc.name} ×${n}: ${sc.desc}`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }}>
+          <button type="button" key={id} className="hm-rail-row hm-rail-treat" aria-label={`${sc.name}${n > 1 ? ` ×${n}` : ''}. Click to discard.`} title={`${sc.name} ×${n}: ${sc.desc} · click to discard`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }} onClick={() => game.askDiscard(id)}>
             <span className="hm-rail-art" style={{ borderColor: RARITY_KIT[sc.rarity] }}><TreatArt id={id} /></span>
             {n > 1 && <span className="hm-rail-n">×{n}</span>}
-          </div>
+          </button>
         );
       })}
       {treats.length > max && <button className="hm-rail-row hm-rail-more" onClick={() => game.state === 'play' && (game.state = 'inventory')}>+{treats.length - max}<small>more</small></button>}
@@ -142,7 +143,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
           {friends.map((f) => (
             <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (f.hp > 0 ? 'fighting beside you' : 'down: revive them') : game.map.gates[f.gate].name}`}>
               <span className="hm-av h-7 w-7 !border" style={{ background: HERO_COLORS[f.hero], borderColor: f.status === 'rescued' ? '#66d2b7' : '#5f6470', opacity: f.status === 'rescued' ? 1 : 0.55 }}><img src={FACES[f.hero]} alt="" className="h-full w-full object-cover" /></span>
-              <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.map.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
+              <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil((game.stats.mateUp || game.friendDownTime) - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.map.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
             </div>
           ))}
         </>

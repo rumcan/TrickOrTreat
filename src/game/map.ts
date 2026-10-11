@@ -19,6 +19,8 @@ export interface PropInst {
   interact?: 'shop';
   fade?: number; // runtime alpha
   removed?: boolean;
+  /** demolition (cars and houses): damage it can still take, seconds left burning, seconds since it blew up, and the burnt-out shell that remains */
+  hp?: number; burnT?: number; boomT?: number; wreck?: boolean;
   /** scattered yard decoration (bushes, fences, pumpkins…): may be cleared to keep a front door reachable */
   decor?: boolean;
 }
@@ -52,6 +54,8 @@ export interface HouseInst {
   owner: string;
   /** porch-light brightness before the visit (restored when houses re-open after a boss) */
   lightI: number;
+  /** burnt down: nobody answers this door again */
+  gone?: boolean;
 }
 
 export interface GameMap {

@@ -12,7 +12,8 @@ import { Keycap, KitTitle } from './kit';
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
 export const fmtTime = (t: number) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
-export const RARITY_KIT = ['#9aa0a6', '#7cff64', '#4fb3ff', '#a46bff', '#ffc453'];
+/** rarity colours in the UI: grey, then the familiar yellow-green · deep blue · purple · orange */
+export const RARITY_KIT = ['#9aa0a6', '#1eff00', '#0070dd', '#a335ee', '#ff8000'];
 
 // ============ GLYPHS (filled icons as drawn in the kit) ============
 type G = { size?: number; className?: string };
@@ -72,7 +73,8 @@ export function HeroPreview({ hero, size = 2, walking = true, costume = null, st
         for (let y = 0; y < s.fh; y++) for (let x = 0; x < s.fw; x++) if ((x === 0 || y === 0 || x === s.fw - 1 || y === s.fh - 1) && pixels[(y * s.fw + x) * 4 + 3] > 32) clipped++;
         if (clipped < best) { best = clipped; selected = f; }
       }
-      ctx.clearRect(0, 0, c.width, c.height); ctx.scale(size, size);
+      // setTransform, not scale: the effect can run more than once and a second scale() would zoom the kid out of the frame
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, c.width, c.height); ctx.setTransform(size, 0, 0, size, 0, 0);
       blitFrame(ctx, s, s.img, 0, selected, s.ax, s.ay);
       return;
     }
@@ -154,7 +156,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   );
 }
 
-/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, colour-coded by tier */
+/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, in the loot colour of their tier (green, blue, purple, orange) */
 export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean; big?: boolean }) {
   if (!w.traits.length) return compact ? null : <div className="mt-2 font-cond2 text-[11px] font-bold uppercase tracking-wider text-[#5f6470]">No inscriptions</div>;
   return (

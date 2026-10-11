@@ -1,10 +1,10 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, FRIEND_DOWN_TIME } from './engine';
+import { Game, Enemy, Turret } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
 import { AIM, HeroAim, heroAim, aimDir } from './art/hero-aim';
-import { weaponIcon, pickupIcon, glow, lightSprite } from './art/fx';
+import { weaponIcon, pickupIcon, glow, lightSprite, explosionSheet, flameSheet, FX_FRAMES } from './art/fx';
 import { tinted, makeCanvas, rawCanvas } from './art/draw';
 import { G } from './art/tiles';
 import { Img } from './assets';
@@ -57,7 +57,9 @@ export class Renderer {
   hero: Sheet;
   heroSil: HTMLCanvasElement;
   heroFlash: HTMLCanvasElement;
-  en: Record<string, { s: Sheet; white: HTMLCanvasElement; green: HTMLCanvasElement }> = {};
+  en: Record<string, { s: Sheet; white: HTMLCanvasElement; green: HTMLCanvasElement; ice?: HTMLCanvasElement }> = {};
+  /** burnt-out versions of wrecked cars and houses, made the first time each sprite is wrecked */
+  private charred = new WeakMap<object, HTMLCanvasElement>();
   minimap: HTMLCanvasElement | null = null;
   vignette: HTMLCanvasElement | null = null;
   leaves: { x: number; y: number; vx: number; vy: number; r: number; c: string }[] = [];
@@ -100,7 +102,7 @@ export class Renderer {
         ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a + s, b + s / 2); ctx.lineTo(a, b + s); ctx.lineTo(a - s, b + s / 2); ctx.fill();
       }
     for (const p of g.map.props) {
-      if (!p.big && p.kind !== 'tree') continue;
+      if ((!p.big && p.kind !== 'tree') || p.kind === 'shop') continue;
       ctx.fillStyle = p.kind === 'house' ? '#8a6fae' : p.kind === 'shop' ? '#ff9a2a' : p.kind === 'tree' ? '#14251a' : '#888';
       const pts = [P(p.x0, p.y0), P(p.x0 + p.fw, p.y0), P(p.x0 + p.fw, p.y0 + p.fh), P(p.x0, p.y0 + p.fh)];
       ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts) ctx.lineTo(q[0], q[1]); ctx.fill();
@@ -249,6 +251,14 @@ export class Renderer {
         ctx.strokeStyle = `rgba(255,60,60,${0.8 - z.t})`;
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.ellipse(sx, sy, z.r * HW * 1.4, z.r * HH * 1.4, 0, 0, Math.PI * 2); ctx.stroke();
+      } else if (z.kind === 'vortex') {
+        const k = Math.min(1, z.t * 4) * (z.done ? 0 : 1);
+        const gr = ctx.createRadialGradient(sx, sy, 0, sx, sy, z.r * HW * 1.4);
+        gr.addColorStop(0, `rgba(4,0,10,${0.95 * k})`); gr.addColorStop(0.3, `rgba(20,4,40,${0.7 * k})`); gr.addColorStop(1, 'rgba(20,4,40,0)');
+        ctx.save(); ctx.translate(sx, sy); ctx.scale(1, 0.5); ctx.translate(-sx, -sy);
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(sx, sy, z.r * HW * 1.4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = 'rgba(4,4,18,0.38)';
       } else if (z.kind === 'tornado') {
         ctx.fillStyle = 'rgba(240,240,230,0.12)';
         ctx.beginPath(); ctx.ellipse(sx, sy, z.r * HW * 1.4, z.r * HH * 1.4, 0, 0, Math.PI * 2); ctx.fill();
@@ -277,8 +287,10 @@ export class Renderer {
         draw: () => {
           const a = pr.fade ?? 1;
           if (a < 0.999) ctx.globalAlpha = a;
-          ctx.drawImage(sp.img, ax - sp.ax, ay - sp.ay, sp.w, sp.h);
+          if (pr.wreck) this.drawWreck(pr, ax, ay);
+          else ctx.drawImage(sp.img, ax - sp.ax, ay - sp.ay, sp.w, sp.h);
           if (a < 0.999) ctx.globalAlpha = 1;
+          if (pr.burnT || pr.boomT !== undefined) this.drawBurning(pr, ax, ay);
           if (tur) this.drawTurret(g, tur);
         },
       };
@@ -327,7 +339,7 @@ export class Renderer {
           ctx.strokeText(label, 0, fallen ? -40 : -95); ctx.fillText(label, 0, fallen ? -40 : -95);
           if (fallen) {
             // a sign above a fallen friend: what to press and how long is left
-            const left = Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
+            const left = Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
             const text = `${touchViewport ? 'TAP INTERACT' : 'E'} · REVIVE · ${left}s`;
             ctx.font = '700 16px "Barlow Condensed", system-ui, sans-serif';
             const w = ctx.measureText(text).width + 20;
@@ -580,7 +592,7 @@ export class Renderer {
     ctx.globalAlpha = 1;
     for (const b of g.bullets) {
       const sx = isoX(b.x, b.y), sy = isoY(b.x, b.y) - 24;
-      const s = b.kind === 'rocket' || b.kind === 'fire' || b.kind === 'balloon' ? 46 : 26;
+      const s = b.kind === 'void' ? 70 : b.kind === 'rocket' || b.kind === 'fire' || b.kind === 'balloon' || b.kind === 'shell' || b.kind === 'flame' || b.kind === 'disc' || b.kind === 'glaive' ? 46 : 26;
       ctx.globalAlpha = 0.7;
       ctx.drawImage(glow(b.color, 64), sx - s / 2, sy - s / 2, s, s);
     }
@@ -590,6 +602,11 @@ export class Renderer {
         const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y) - 30;
         ctx.globalAlpha = 0.5 + Math.sin(this.t * 20 + e.id) * 0.2;
         ctx.drawImage(glow('#ff6a1a', 64), sx - 30, sy - 40, 60, 70);
+      }
+      if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) {
+        const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y) - 30;
+        ctx.globalAlpha = e.frozenT ? 0.7 : (e.chill ?? 0) * 0.5;
+        ctx.drawImage(glow('#9fe8ff', 64), sx - 34, sy - 44, 68, 78);
       }
       if (e.elite) {
         const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
@@ -648,7 +665,20 @@ export class Renderer {
     for (const z of g.zones) {
       const sx = isoX(z.x, z.y), sy = isoY(z.x, z.y);
       const t = z.t / z.life;
-      if (z.kind === 'boom') {
+      if (z.kind === 'boom' && z.sprite) {
+        // smoke has to cover, not add: this one frame is drawn normally
+        const boom = explosionSheet(), f = Math.min(FX_FRAMES - 1, Math.floor(t * FX_FRAMES)), size = Math.min(z.r, 3) * TW;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1;
+        ctx.drawImage(boom.img, f * boom.cell, 0, boom.cell, boom.cell, sx - size / 2, sy - 18 - size / 2, size, size);
+        ctx.globalCompositeOperation = 'lighter';
+        if (t < 0.35) { ctx.globalAlpha = (0.35 - t) * 2.4; ctx.drawImage(glow('#ffb347', 128), sx - size * 0.6, sy - 18 - size * 0.6, size * 1.2, size * 1.2); }
+      } else if (z.kind === 'fire') {
+        // burning ground: a flame standing on it
+        const fire = flameSheet(), f = Math.floor(this.t * 12 + z.x * 5 + z.y * 3) % FX_FRAMES, size = z.r * 96;
+        ctx.globalAlpha = Math.min(1, (z.life - z.t) * 2, z.t * 5 + 0.2) * 0.85;
+        ctx.drawImage(fire.img, f * fire.cell, 0, fire.cell, fire.cell, sx - size / 2, sy - size * 0.84, size, size);
+      } else if (z.kind === 'boom') {
         ctx.globalAlpha = 1 - t;
         const R = z.r * (0.4 + t * 0.8);
         ctx.drawImage(glow(z.color || '#ffb347', 128), sx - R * HW * 1.8, sy - R * HH * 1.8 - 20, R * TW * 1.8, R * TW * 1.1);
@@ -657,20 +687,59 @@ export class Renderer {
         ctx.beginPath(); ctx.ellipse(sx, sy, R * HW * 1.45, R * HH * 1.45, 0, 0, Math.PI * 2); ctx.stroke();
       } else if (z.kind === 'flash' && z.ang !== undefined) {
         ctx.globalAlpha = (1 - t) * 0.8;
-        const a = z.ang;
-        ctx.fillStyle = '#ffffff';
+        const a = z.ang, half = z.arc ?? 0.65;
+        const rim = (k: number, r: number): [number, number] => { const aa = a + (k / 8) * half; return [isoX(z.x + Math.cos(aa) * r, z.y + Math.sin(aa) * r), isoY(z.x + Math.cos(aa) * r, z.y + Math.sin(aa) * r) - 30]; };
+        ctx.fillStyle = z.color ?? '#ffffff';
         ctx.beginPath();
         ctx.moveTo(sx, sy - 30);
-        for (let k = -6; k <= 6; k++) {
-          const aa = a + (k / 6) * 0.65;
-          ctx.lineTo(isoX(z.x + Math.cos(aa) * z.r, z.y + Math.sin(aa) * z.r), isoY(z.x + Math.cos(aa) * z.r, z.y + Math.sin(aa) * z.r) - 30);
-        }
+        for (let k = -8; k <= 8; k++) ctx.lineTo(...rim(k, z.r));
         ctx.closePath();
+        if (z.color) ctx.globalAlpha = (1 - t) * 0.35;
         ctx.fill();
+        if (z.color) {
+          // a swung blade: the bright edge sweeps across the arc
+          const sweep = Math.round(-8 + Math.min(1, t * 1.6) * 16);
+          ctx.globalAlpha = 1 - t; ctx.lineCap = 'round';
+          for (const [w, col] of [[9, z.color], [3, '#ffffff']] as const) {
+            ctx.strokeStyle = col; ctx.lineWidth = w;
+            ctx.beginPath();
+            for (let k = Math.max(-8, sweep - 7); k <= sweep; k++) ctx.lineTo(...rim(k, z.r * 0.96));
+            ctx.stroke();
+          }
+        }
+      } else if (z.kind === 'trail') {
+        const x1 = isoX(z.x1 ?? z.x, z.y1 ?? z.y), y1 = isoY(z.x1 ?? z.x, z.y1 ?? z.y) - 12;
+        const fade = Math.min(1, (z.life - z.t) * 2), flick = 0.75 + Math.sin(this.t * 22 + z.x * 7) * 0.25;
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = fade * 0.55 * flick; ctx.strokeStyle = z.color ?? '#21d0ff'; ctx.lineWidth = 10;
+        ctx.beginPath(); ctx.moveTo(sx, sy - 12); ctx.lineTo(x1, y1); ctx.stroke();
+        ctx.globalAlpha = fade * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+        ctx.stroke();
+      } else if (z.kind === 'vortex' && !z.done) {
+        const col = z.color ?? '#b44dff', pull = 1 - t * 0.35;
+        ctx.lineCap = 'round';
+        for (let arm = 0; arm < 5; arm++) {
+          ctx.globalAlpha = 0.75; ctx.strokeStyle = arm % 2 ? '#ffffff' : col; ctx.lineWidth = arm % 2 ? 1.5 : 4;
+          ctx.beginPath();
+          for (let k = 0; k <= 14; k++) {
+            const u = k / 14, rr = z.r * pull * (1 - u * 0.92), aa = arm * 1.2566 + this.t * 5 + u * 4.2;
+            const X = isoX(z.x + Math.cos(aa) * rr, z.y + Math.sin(aa) * rr), Y = isoY(z.x + Math.cos(aa) * rr, z.y + Math.sin(aa) * rr) - 22 * u;
+            if (k) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 0.5 + t * 0.5;
+        const R = (26 + t * 26) * (1 + Math.sin(this.t * 30) * 0.08 * t);
+        ctx.drawImage(glow(col, 128), sx - R * 1.6, sy - 22 - R * 1.6, R * 3.2, R * 3.2);
       }
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
+    for (const z of g.zones) if (z.kind === 'vortex' && !z.done) {
+      const t = z.t / z.life, R = 10 + t * 12;
+      ctx.fillStyle = '#05010a'; ctx.beginPath(); ctx.arc(isoX(z.x, z.y), isoY(z.x, z.y) - 22, R, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = z.color ?? '#b44dff'; ctx.lineWidth = 2.5; ctx.stroke();
+    }
     // enemy bullet cores
     for (const b of g.ebullets) {
       const sx = isoX(b.x, b.y), sy = isoY(b.x, b.y) - 22;
@@ -727,7 +796,8 @@ export class Renderer {
         const statusY = top + h + 3; // Leave the shield line above HP unobstructed.
         if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
         if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if (e.stunT > 0) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 5, 4); }
+        if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) { ctx.fillStyle = '#9fe8ff'; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
+        if (e.stunT > 0 && !e.frozenT) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 5, 4); }
       }
     }
 
@@ -946,7 +1016,12 @@ export class Renderer {
         ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
       }
     }
-    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`);
+    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`);
+    // where to shop: the stand always, the candy machines for a minute after they move
+    if (g.state === 'play' && !g.bigMap) for (const shop of m.shops) {
+      const stand = shop.prop.kind !== 'vending';
+      if (stand || g.time - g.shopsMovedAt < 60) ind(shop.x, shop.y, '#ff9a2a', stand ? 'Shop' : 'Candy machine');
+    }
     if (g.boss) ind(g.boss.x, g.boss.y, '#ff4a1a', '👑');
 
     // falling leaves
@@ -1002,8 +1077,21 @@ export class Renderer {
       const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + MAP_H * s), my + ((x + y) * s) / 2];
       ctx.fillStyle = '#ff4a4a';
       for (const e of g.enemies) { const [a, b] = MP(e.x, e.y); const z = (e.elite ? 4 : 2) * k; ctx.fillRect(a - z / 2, b - z / 2, z, z); }
-      for (const q of g.pickups) if (q.kind === 'chest' || q.kind === 'weapon') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = q.kind === 'chest' ? '#ffcf3a' : RARITY[q.weapon!.rarity].color; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
-      for (const shp of m.shops) { const [a, b] = MP(shp.x, shp.y); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(a, b, 3 * k, 0, Math.PI * 2); ctx.fill(); }
+      // Loot on the ground is not marked: the map shows where to go, not every bag and gun.
+      for (const shp of m.shops) {
+        // the Candy Lady's stand: an orange awning; candy machines: a small orange block
+        const [a, b] = MP(shp.x, shp.y), stand = shp.prop.kind !== 'vending', r = (stand ? 5 : 3) * k;
+        ctx.fillStyle = '#ff9a2a'; ctx.strokeStyle = '#1a0d02'; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (stand) { ctx.moveTo(a - r, b); ctx.lineTo(a, b - r); ctx.lineTo(a + r, b); ctx.lineTo(a + r * 0.7, b + r * 0.8); ctx.lineTo(a - r * 0.7, b + r * 0.8); ctx.closePath(); }
+        else ctx.rect(a - r, b - r, r * 2, r * 2);
+        ctx.fill(); ctx.stroke();
+        if (big) {
+          ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+          ctx.lineWidth = 3; ctx.strokeText(stand ? 'Shop' : 'Candy machine', a, b - r - 2);
+          ctx.fillStyle = '#ffd9a8'; ctx.fillText(stand ? 'Shop' : 'Candy machine', a, b - r - 2);
+        }
+      }
       ctx.fillStyle = '#fff1b8';
       ctx.globalAlpha = 0.6 + Math.sin(this.t * 4) * 0.4;
       for (const h of m.houses) {
@@ -1012,7 +1100,6 @@ export class Renderer {
         ctx.beginPath(); ctx.moveTo(a, b - 4 * k); ctx.lineTo(a + 3 * k, b); ctx.lineTo(a, b + 4 * k); ctx.lineTo(a - 3 * k, b); ctx.fill();
       }
       ctx.globalAlpha = 1;
-      for (const q of g.pickups) if (q.kind === 'costume') { const [a, b] = MP(q.x, q.y); ctx.fillStyle = '#c46bff'; ctx.fillRect(a - 2 * k, b - 2 * k, 4 * k, 4 * k); }
       // Rescue locations stay visible even while their district gate is locked.
       if (g.campaign) for (const friend of g.friends) {
         if (friend.status === 'rescued') continue;
@@ -1036,7 +1123,7 @@ export class Renderer {
         ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#1a070c'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
         if (big) {
-          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(FRIEND_DOWN_TIME - (friend.downT ?? 0)))}s`;
+          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`;
           ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
           ctx.strokeStyle = '#1a070c'; ctx.lineWidth = 3; ctx.strokeText(label, a, b - 8 * k);
           ctx.fillStyle = '#ffd0da'; ctx.fillText(label, a, b - 8 * k);
@@ -1118,12 +1205,15 @@ export class Renderer {
       L.closePath();
       L.fill();
     }
-    for (const b of g.bullets) if (b.kind === 'fire' || b.kind === 'rocket' || b.kind === 'balloon' || b.kind === 'water') light(b.x, b.y, 1.2, 0.6);
+    for (const b of g.bullets) if (b.kind === 'fire' || b.kind === 'rocket' || b.kind === 'balloon' || b.kind === 'water' || b.kind === 'disc' || b.kind === 'void' || b.kind === 'shell' || b.kind === 'flame' || b.kind === 'missile' || b.kind === 'glaive') light(b.x, b.y, b.kind === 'void' ? 2 : 1.2, 0.6);
+    for (const pr of g.map.props) if (pr.burnT || pr.boomT !== undefined) light(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2, Math.max(pr.fw, pr.fh) * (pr.boomT !== undefined ? 2.2 : 1.3) + 1, pr.boomT !== undefined ? 1 : 0.5 + Math.min(0.4, pr.burnT ?? 0));
     for (const z of g.zones) {
       if (z.kind === 'boom') light(z.x, z.y, z.r * 2.2, 1 - z.t / z.life);
       else if (z.kind === 'fire') light(z.x, z.y, z.r * 1.6, 0.7);
       else if (z.kind === 'flash') light(z.x, z.y, z.r, 1 - z.t / z.life);
       else if (z.kind === 'tornado') light(z.x, z.y, z.r * 1.4, 0.4);
+      else if (z.kind === 'vortex') light(z.x, z.y, z.r * 0.9, 0.7);
+      else if (z.kind === 'trail') { const k = Math.min(1, (z.life - z.t) * 2) * 0.5; light(z.x, z.y, 0.9, k); light(z.x1 ?? z.x, z.y1 ?? z.y, 0.9, k); }
     }
     for (const b of g.ebullets) light(b.x, b.y, 0.9, 0.7);
     for (const e of g.enemies) {
@@ -1297,18 +1387,65 @@ export class Renderer {
       ctx.globalAlpha = 0.35;
       blitFrame(ctx, s, E.green, 0, f, 0, 0);
     }
+    if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) {
+      ctx.globalAlpha = e.frozenT ? 0.7 : (e.chill ?? 0) * 0.45;
+      blitFrame(ctx, s, (E.ice ??= tinted(s.img, '#8fdcff')), 0, f, 0, 0);
+    }
     if (e.hit > 0) {
       ctx.globalAlpha = Math.min(1, e.hit * 10);
       blitFrame(ctx, s, E.white, 0, f, 0, 0);
     }
     ctx.restore();
-    if (e.stunT > 0) {
+    if (e.stunT > 0 && !e.frozenT) {
       for (let k = 0; k < 3; k++) {
         const a = this.t * 5 + (k * Math.PI * 2) / 3;
         ctx.fillStyle = '#ffe14a';
         ctx.fillRect(sx + Math.cos(a) * 12 - 2, sy - s.ay * sc - 4 + Math.sin(a) * 4, 4, 4);
       }
     }
+  }
+
+  /** a burnt-out car, or what is left standing of a house: charred, and for a house the roof and upper walls are gone */
+  private drawWreck(pr: PropInst, ax: number, ay: number) {
+    const ctx = this.ctx, sp = pr.sp;
+    let img = this.charred.get(sp.img);
+    if (!img) {
+      img = rawCanvas(sp.img.width, sp.img.height);
+      const c = img.getContext('2d')!;
+      c.drawImage(sp.img, 0, 0);
+      c.globalCompositeOperation = 'source-atop';
+      c.fillStyle = 'rgba(14,9,8,0.76)'; c.fillRect(0, 0, img.width, img.height);
+      this.charred.set(sp.img, img);
+    }
+    const x = ax - sp.ax, y = ay - sp.ay;
+    if (pr.kind !== 'house') { ctx.drawImage(img, x, y, sp.w, sp.h); return; }
+    // keep the lower walls, with a broken edge that is the same every frame for this house
+    const keep = y + sp.h * 0.46, n = 12;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, y + sp.h); ctx.lineTo(x, keep);
+    for (let k = 1; k <= n; k++) {
+      const jag = Math.sin(k * 12.9898 + pr.x0 * 3.7 + pr.y0 * 1.3) * 43758.5453;
+      ctx.lineTo(x + (k / n) * sp.w, keep + ((jag - Math.floor(jag)) - 0.5) * sp.h * 0.22);
+    }
+    ctx.lineTo(x + sp.w, y + sp.h); ctx.closePath(); ctx.clip();
+    ctx.drawImage(img, x, y, sp.w, sp.h);
+    ctx.restore();
+  }
+  /** flames on a burning car or house, and the fireball in the second it goes up */
+  private drawBurning(pr: PropInst, ax: number, ay: number) {
+    const ctx = this.ctx, sp = pr.sp, house = pr.kind === 'house';
+    ctx.save();
+    if (pr.burnT) {
+      const fire = flameSheet(), n = house ? 5 : 2, size = house ? 120 : 84;
+      ctx.globalAlpha = Math.min(1, pr.burnT * 0.6);
+      for (let k = 0; k < n; k++) {
+        const u = n > 1 ? k / (n - 1) : 0.5, f = Math.floor(this.t * 12 + k * 3 + pr.x0) % FX_FRAMES;
+        const fx = ax - sp.ax + sp.w * (0.2 + u * 0.6), fy = ay - sp.ay + sp.h * (house ? (pr.wreck ? 0.72 : 0.5) + (k % 2) * 0.1 : 0.62);
+        ctx.drawImage(fire.img, f * fire.cell, 0, fire.cell, fire.cell, fx - size / 2, fy - size * 0.86, size, size);
+      }
+    }
+    ctx.restore();
   }
 
   private candyCorn(ctx: CanvasRenderingContext2D, s: number) {
@@ -1414,6 +1551,69 @@ export class Renderer {
         ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.fillRect(-3, -3, 4, 2);
         ctx.restore();
         break;
+      case 'disc':
+        // a flat ring of light, seen from above at the game's angle
+        ctx.save(); ctx.translate(sx, y); ctx.scale(1, 0.55);
+        ctx.fillStyle = '#062230'; ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = b.color; ctx.lineWidth = 3.5; ctx.stroke();
+        ctx.strokeStyle = '#eaffff'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(0, 0, 10, b.spin, b.spin + 2.2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+        break;
+      case 'glaive':
+        ctx.save(); ctx.translate(sx, y); ctx.scale(1.7, 1.05); ctx.rotate(b.spin * 1.6);
+        ctx.beginPath();
+        for (let k = 0; k < 5; k++) {
+          const a2 = (k / 5) * Math.PI * 2;
+          ctx.lineTo(Math.cos(a2) * 15, Math.sin(a2) * 15);
+          ctx.quadraticCurveTo(Math.cos(a2 + 0.5) * 9, Math.sin(a2 + 0.5) * 9, Math.cos(a2 + 0.63) * 4.5, Math.sin(a2 + 0.63) * 4.5);
+        }
+        ctx.closePath();
+        ctx.fillStyle = b.color; ctx.fill();
+        ctx.strokeStyle = '#3a2408'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#e8352a'; ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        break;
+      case 'missile':
+        ctx.save(); ctx.translate(sx, y); ctx.rotate(a); ctx.scale(1.6, 1.6);
+        ctx.fillStyle = '#ffcf3a'; ctx.beginPath(); ctx.moveTo(-6, -2); ctx.lineTo(-11 - Math.random() * 5, 0); ctx.lineTo(-6, 2); ctx.fill();
+        ctx.fillStyle = '#e9ecef'; ctx.fillRect(-6, -2.2, 9, 4.4);
+        ctx.strokeStyle = '#140c12'; ctx.lineWidth = 0.8; ctx.strokeRect(-6, -2.2, 9, 4.4);
+        ctx.fillStyle = '#e8352a'; ctx.beginPath(); ctx.moveTo(3, -2.2); ctx.lineTo(7, 0); ctx.lineTo(3, 2.2); ctx.fill();
+        ctx.restore();
+        break;
+      case 'shell':
+        ctx.save(); ctx.translate(sx, y); ctx.rotate(a);
+        ctx.fillStyle = '#ffcf3a'; ctx.beginPath(); ctx.moveTo(-12, -4.5); ctx.lineTo(-22 - Math.random() * 10, 0); ctx.lineTo(-12, 4.5); ctx.fill();
+        ctx.fillStyle = '#fff6d0'; ctx.beginPath(); ctx.moveTo(-12, -2); ctx.lineTo(-17 - Math.random() * 4, 0); ctx.lineTo(-12, 2); ctx.fill();
+        ctx.fillStyle = '#4a4e56'; ctx.fillRect(-12, -5, 18, 10);
+        ctx.strokeStyle = '#140c12'; ctx.lineWidth = 1.5; ctx.strokeRect(-12, -5, 18, 10);
+        ctx.fillStyle = '#ffcf3a'; ctx.fillRect(-6, -5, 3, 10);
+        ctx.fillStyle = '#ff5a14'; ctx.beginPath(); ctx.moveTo(6, -5); ctx.quadraticCurveTo(16, 0, 6, 5); ctx.fill(); ctx.stroke();
+        ctx.restore();
+        break;
+      case 'void': {
+        // a collapsing star: a black ball with a hot purple rim and two orbiting sparks
+        ctx.fillStyle = '#05010a'; ctx.beginPath(); ctx.arc(sx, y, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = b.color; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.fillStyle = '#f0d8ff';
+        for (let k = 0; k < 2; k++) { const a2 = b.spin * 2 + k * Math.PI; ctx.fillRect(sx + Math.cos(a2) * 12 - 1.5, y + Math.sin(a2) * 6 - 1.5, 3, 3); }
+        break;
+      }
+      case 'flame': {
+        // a gout of fire: it starts tight and white-hot and billows as it flies
+        const age = clamp(1 - b.life / (b.max ?? 0.3), 0, 1), R = 10 + age * 20, fire = flameSheet();
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.95 - age * 0.3;
+        ctx.drawImage(glow(age > 0.7 ? '#e8421a' : '#ff8a1e', 64), sx - R * 1.6, y - R * 1.6, R * 3.2, R * 3.2);
+        // a lick of painted flame in each gout, leaning the way it flies
+        ctx.translate(sx, y); ctx.rotate(a + Math.PI / 2);
+        ctx.drawImage(fire.img, (Math.floor(b.spin * 0.8) % FX_FRAMES) * fire.cell, 0, fire.cell, fire.cell, -R * 1.5, -R * 2.2, R * 3, R * 3);
+        ctx.globalAlpha = 0.9 * (1 - age);
+        ctx.drawImage(glow('#fff0b0', 32), -R * 0.6, -R * 0.6, R * 1.2, R * 1.2);
+        ctx.restore();
+        break;
+      }
       case 'bone':
         ctx.save(); ctx.translate(sx, y); ctx.rotate(b.spin);
         ctx.strokeStyle = '#eee8d8'; ctx.lineWidth = 3; ctx.lineCap = 'round';

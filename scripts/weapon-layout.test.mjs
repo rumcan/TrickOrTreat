@@ -157,7 +157,7 @@ try {
     return { playerSamples: samples.length, aimedSamples: aimed, companionSamples: 4, missing };
   }, allowIncomplete);
   console.log(JSON.stringify(result));
-  assert.equal(result.playerSamples, 5 * 6 * 13 * 8);
+  assert.equal(result.playerSamples, 5 * 6 * 24 * 8); // kids x costumes x guns x directions
   assert.equal(result.aimedSamples, (5 * 2 - result.missing.length) * 8);
   if (result.missing.length) console.log(`INCOMPLETE ART: ${result.missing.join(', ')}; painted fallback retained. This is not a full release-art pass.`);
   await page.evaluate(() => {

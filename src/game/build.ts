@@ -50,12 +50,15 @@ export const SCROLL_TAGS: Record<string, Tag[]> = {
   glass: ['crit', 'kill'], clover: ['crit'], firesneak: ['fire', 'blast'], helmet: ['tank'], piggy: [], homework: [], bang: ['blast', 'blast'], jackpot: ['sugar', 'sugar'],
   lucky6: ['crit'], fullbag: ['sugar'], skate: ['sugar', 'kill'], statue: ['tank'], bluff: ['tank'], bedtime: ['kill', 'kill'], owl: ['crit', 'crit'], cursed: ['kill', 'crit'],
   walkie: ['summon'], firstaid: ['tank'], friendship: ['summon', 'tank'],
+  mixtape: [], masher: ['sugar'], token: ['crit'], batteries: ['sugar'], griptape: ['sugar'], skates: ['sugar'], denim: ['tank'], slurp: ['tank'], yoyo: [], lunchmoney: [], cartoons: [],
+  forcefield: ['tank', 'tank'], berserk: ['kill', 'crit'], oneshot: ['crit', 'crit'], kaiju: ['tank', 'tank'], goldfever: ['kill'],
 };
 export const INSC_TAGS: Record<string, Tag[]> = {
   dmg: [], rate: ['sugar'], mag: ['sugar'], reload: ['sugar'], crit: ['crit'], critdmg: ['crit'], speed: [], fire: ['fire'], shock: ['shock'], ecto: ['ecto'],
   pierce: ['kill'], bounce: ['kill'], opener: ['crit'], fresh: ['sugar'], seconds: ['kill'], combo: ['sugar'], scaredy: ['tank'], freeze: ['tank'], trot: ['sugar'],
   bigkid: ['crit'], sixth: ['crit'], twin: ['sugar', 'sugar'], vamp: ['crit', 'tank'], pinata: ['blast', 'kill'], haunted: ['summon'], split: ['kill', 'kill'],
   socks: ['shock', 'shock'], tummy: ['tank'], glasspump: ['crit', 'crit'], crash: ['sugar', 'sugar'],
+  fullsize: ['sugar', 'kill'], bottomless: ['sugar', 'sugar'], trio: ['sugar', 'sugar'], midnight: ['crit', 'crit'],
 };
 export const COSTUME_TAGS: Record<string, Tag[]> = {
   ghost: ['ecto'], vampire: ['crit', 'kill'], witch: ['summon', 'ecto'], hero: ['kill'], skeleton: ['crit'], pumpkin: ['fire', 'blast'], astronaut: ['tank'], dino: ['tank', 'blast'],

@@ -447,6 +447,9 @@ button.kit-tile:not(:disabled):hover {
 .hm-rail-title { padding: 12px 0 8px; border-bottom: 1px solid #75827834; color: #f4a33b; font: 700 11px "Barlow Condensed", sans-serif; letter-spacing: .19em; text-align: center; text-transform: uppercase; }
 .hm-rail-row { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; border: 0; border-bottom: 1px solid #75827834; background: transparent; color: #e8ddc7; }
 .hm-rail-row:hover { background: #344246; }
+.hm-rail-treat { width: 100%; padding: 0; cursor: pointer; font: inherit; }
+.hm-rail-treat:hover .hm-rail-art, .hm-rail-treat:focus-visible .hm-rail-art { outline: 2px solid #ff6a5a; outline-offset: 1px; }
+.hm-rail-treat:focus-visible { outline: none; }
 .hm-rail-art { display: block; width: 46px; height: 34px; overflow: hidden; border: 2px solid #67747770; background: #0c161b; }
 .hm-rail-tag { font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
 .hm-rail-n { color: #f08a2c; font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; min-height: 11px; }
@@ -754,6 +757,11 @@ button.kit-tile:not(:disabled):hover {
 .unlock-card-art { height: 155px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; background: #0a111ac0; overflow: hidden; }
 .unlock-card-art img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .unlock-card-art.unlock-card-gun { background: #060b16; }
+/* eight-frame effect strips played with steps(): the explosion once every couple of seconds, the fire on a loop */
+.unlock-fx { width: 150px; height: 150px; background-size: 800% 100%; background-repeat: no-repeat; animation: unlock-fx 2.2s steps(8, jump-none) infinite; }
+.unlock-fx-loop { animation-duration: 0.7s; }
+@keyframes unlock-fx { from { background-position: 0 0; } to { background-position: 100% 0; } }
+@media (prefers-reduced-motion: reduce) { .unlock-fx { animation: none; background-position: 42.857% 0; } }
 .unlock-stat { display: block; margin-top: auto; padding-top: 16px; color: #9eedcf; font-size: 13px; line-height: 1.5; }
 .unlock-talents { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .unlock-talents article { padding: 14px; border-left: 3px solid #d8ac61; background: #233044; }

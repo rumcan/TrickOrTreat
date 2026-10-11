@@ -76,11 +76,11 @@ try {
         g.ebullets = [{ x: g.p.x, y: g.p.y, vx: 0, vy: 0, dmg: 999, r: .1, life: 1, color: '#fff', kind: 'orb', dead: false }];
         g.update(.01); require(g.state === 'dead' && g.housesVisited === 0, 'Dead state gets overwritten by a door reward');
       }),
-      check('boss-killing nova preserves safe shop', () => {
+      check('boss-killing nova starts the quiet, not a death', () => {
         const g = game(); g.wearCostume('pumpkin', false); g.p.hp = 1; g.p.shield = 0;
         g.boss = g.spawnEnemy('king', g.p.x + 1, g.p.y); g.boss.hp = 1; g.boss.shield = 0; g.rebuildGrid();
         g.takeDamage(999, g.boss.x, g.boss.y);
-        require(g.state === 'shop' && g.p.hp > 0, 'A stale hit kills the player after the boss is cleared');
+        require(g.state === 'play' && g.calmT > 0 && g.p.hp > 0, 'A stale hit kills the player after the boss is cleared');
       }),
       check('boss clear removes queued chain reactions', () => {
         const g = game(); g.procQueue = [{ x: g.p.x, y: g.p.y, r: 1, dmg: 100, gen: 1 }];

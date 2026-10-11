@@ -13,10 +13,20 @@ export interface Stats {
   luck: number; revive: number; rerolls: number; coinGain: number; xpGain: number; startCoins: number; startRarity: number;
   totSpeed: number; totChoices: number; costumeLuck: number; costumePower: number; dodge: number;
   companionDmg: number; reviveSpeed: number; companionArmor: number;
+  /**
+   * the friends at your side (the Buddy System talents): extra max HP · fire-rate and range multipliers · crit chance
+   * (double damage) · HP healed per second · rarity added to the gun they bring · multiplier on the minute between two
+   * pick-ups of the player · extra seconds to help them up · seconds after which they get up on their own (0 = never) ·
+   * extra projectiles · a friend is there from the start of a survival run
+   */
+  mateHp: number; mateRate: number; mateRange: number; mateCrit: number; mateRegen: number; mateGun: number;
+  mateReviveCd: number; mateDown: number; mateUp: number; matePellets: number; mateStart: number;
   /** occult-scroll style treats (Gunfire Reborn): conditional, run-wide */
   sixth: number; fullBag: number; skate: number; statue: number; bluff: number; execute: number; owl: number;
   /** gun reach: flat metres added by treats, then a multiplier (premium kids) */
   range: number; rangeMul: number;
+  /** extreme treats: max HP is 1 · no shield · the magazine holds one shot that hits four times as hard */
+  frail: number; bare: number; oneShot: number;
 }
 
 export function baseStats(): Stats {
@@ -28,21 +38,43 @@ export function baseStats(): Stats {
     vamp: 0, healDrop: 0.01, skillCd: 1, skillPow: 1,
     orbit: 0, familiar: 0, dashCharges: 2, dashFire: 0,
     luck: 0, revive: 0, rerolls: 1, coinGain: 1, xpGain: 1, startCoins: 0, startRarity: 0,
+    mateHp: 0, mateRate: 1, mateRange: 1, mateCrit: 0, mateRegen: 0, mateGun: 0, mateReviveCd: 1, mateDown: 0, mateUp: 0, matePellets: 0, mateStart: 0,
     totSpeed: 1, totChoices: 0, costumeLuck: 1, costumePower: 1, dodge: 0,
     companionDmg: 1, reviveSpeed: 1, companionArmor: 0,
     sixth: 0, fullBag: 0, skate: 0, statue: 0, bluff: 0, execute: 0, owl: 0,
     range: 0, rangeMul: 1,
+    frail: 0, bare: 0, oneShot: 0,
   };
 }
 
 // ================= WEAPONS =================
-export type BulletKind = 'pea' | 'dart' | 'corn' | 'fire' | 'water' | 'balloon' | 'rocket' | 'beam' | 'stone' | 'hex' | 'bone' | 'candy';
+export type BulletKind = 'pea' | 'dart' | 'corn' | 'fire' | 'water' | 'balloon' | 'rocket' | 'beam' | 'stone' | 'hex' | 'bone' | 'candy'
+  | 'disc' | 'glaive' | 'missile' | 'void' | 'shell' | 'flame' | 'slash';
 
 export interface WeaponDef {
   premium?: boolean;
   id: string; name: string; desc: string;
   dmg: number; rate: number; mag: number; reload: number; speed: number; spread: number; pellets: number; range: number;
   pierce: number; bounce: number; elem?: Elem; elemChance: number; explode: number; kind: BulletKind; color: string; critBonus: number; shake: number;
+  // ---- special behaviours (the guns added after the toy set) ----
+  /** a continuous beam: many small ticks a second, and the damage ramps up while the trigger stays down */
+  stream?: boolean;
+  /** seconds the shot's path hangs in the air as a line that hurts whatever crosses it */
+  trail?: number;
+  /** flies out, turns, and comes back to the kid through everything in the way */
+  boomerang?: boolean;
+  /** homing strength: each projectile steers to its own nearest monster */
+  homing?: number;
+  /** seconds a singularity drags monsters in before it detonates (the blast uses `explode`) */
+  vortex?: number;
+  /** half-angle in radians of an instant swing that hits everything in the arc (kind 'slash') */
+  arc?: number;
+  /** chill added per hit; at 1 the monster freezes solid, takes more damage and shatters when it dies */
+  chill?: number;
+  /** leaves burning ground where its fire lands */
+  scorch?: boolean;
+  /** its blasts and flames wreck cars and houses */
+  demolish?: boolean;
 }
 
 export const WEAPONS: WeaponDef[] = [
@@ -65,6 +97,22 @@ WEAPONS.push(
 /** Guns reach 40% of their listed range; treats add flat metres and premium kids multiply the total. */
 export const GUN_RANGE_SCALE = 0.4;
 export const GUN_RANGE_MAX = 14;
+// ---- 80s/90s screen weapons: each one works differently from the toy guns above ----
+WEAPONS.push(
+  // free
+  { id: 'stream', name: 'Spectre Stream', desc: 'A crackling particle stream. The longer you hold it on a monster, the harder it burns.', dmg: 2, rate: 15, mag: 90, reload: 2.2, speed: 0, spread: 0, pellets: 1, range: 8, pierce: 0, bounce: 0, elem: 'shock', elemChance: 0.1, explode: 0, kind: 'beam', color: '#ff9a3a', critBonus: 0, shake: 0.4, stream: true },
+  { id: 'disc', name: 'Grid Disc', desc: 'A light disc that ricochets off walls and leaves a burning neon line behind it.', dmg: 9, rate: 1.6, mag: 6, reload: 1.6, speed: 12, spread: 0.02, pellets: 1, range: 13, pierce: 4, bounce: 2, elemChance: 0, explode: 0, kind: 'disc', color: '#21d0ff', critBonus: 0.05, shake: 1, trail: 2.5 },
+  { id: 'sabre', name: 'Thunder Sabre', desc: 'Swing a blade of lightning: a wide arc that cuts through everything close to you.', dmg: 14, rate: 1.8, mag: 8, reload: 1.4, speed: 0, spread: 0, pellets: 1, range: 7, pierce: 99, bounce: 0, elem: 'shock', elemChance: 0.35, explode: 0, kind: 'slash', color: '#ffe14a', critBonus: 0.05, shake: 2.5, arc: 0.95 },
+  { id: 'glaive', name: 'Star Glaive', desc: 'A five-bladed star that flies out, turns, and comes back through the horde.', dmg: 11, rate: 1.1, mag: 3, reload: 1.3, speed: 11, spread: 0.02, pellets: 1, range: 12, pierce: 99, bounce: 0, elemChance: 0, explode: 0, kind: 'glaive', color: '#f1d8a0', critBonus: 0.1, shake: 1.5, boomerang: true },
+  { id: 'flamer', name: 'Bug-Hunt Flamethrower', desc: 'A short, hungry cone of fire. Whatever it touches burns, and so does the ground.', dmg: 2, rate: 14, mag: 60, reload: 2.2, speed: 8.5, spread: 0.45, pellets: 1, range: 6, pierce: 2, bounce: 0, elem: 'fire', elemChance: 0.45, explode: 0, kind: 'flame', color: '#ff7a1a', critBonus: 0, shake: 0.4, scorch: true },
+  { id: 'swarm', name: 'Micro-Missile Pod', desc: 'A volley of little heat-seekers. Each one finds its own monster.', dmg: 5, rate: 1.2, mag: 4, reload: 2, speed: 8.5, spread: 0.7, pellets: 4, range: 12, pierce: 0, bounce: 0, elem: 'fire', elemChance: 0.2, explode: 0.8, kind: 'missile', color: '#ff7a1a', critBonus: 0, shake: 2, homing: 5 },
+  // full game
+  { id: 'singularity', premium: true, name: 'Event Horizon', desc: 'Fires a collapsing star. It drags monsters in, then goes off.', dmg: 22, rate: 0.6, mag: 2, reload: 2.4, speed: 7, spread: 0.02, pellets: 1, range: 10, pierce: 0, bounce: 0, elem: 'ecto', elemChance: 0.5, explode: 2.4, kind: 'void', color: '#b44dff', critBonus: 0, shake: 5, vortex: 1.6 },
+  { id: 'annihilator', premium: true, name: 'Annihilator', desc: 'A shoulder cannon for when the whole street has to go. Wrecks cars and houses.', dmg: 34, rate: 0.7, mag: 2, reload: 2.6, speed: 11, spread: 0.02, pellets: 1, range: 13, pierce: 0, bounce: 0, elem: 'fire', elemChance: 0.5, explode: 2.6, kind: 'shell', color: '#ff5a14', critBonus: 0, shake: 9, demolish: true },
+  { id: 'incinerator', premium: true, name: "Dragon's Breath", desc: 'A roaring cone of fire. The ground keeps burning, and so do cars and houses.', dmg: 3, rate: 16, mag: 80, reload: 2.4, speed: 9, spread: 0.5, pellets: 1, range: 6.5, pierce: 3, bounce: 0, elem: 'fire', elemChance: 0.5, explode: 0, kind: 'flame', color: '#ff7a1a', critBonus: 0, shake: 0.5, scorch: true, demolish: true },
+  { id: 'lance', premium: true, name: 'Phase Lance', desc: 'An instant bolt through everything. Its wake hangs in the air and keeps cutting.', dmg: 20, rate: 1, mag: 4, reload: 1.9, speed: 0, spread: 0, pellets: 1, range: 14, pierce: 99, bounce: 0, elem: 'ecto', elemChance: 0.3, explode: 0, kind: 'beam', color: '#7cff64', critBonus: 0.1, shake: 2.5, trail: 3 },
+  { id: 'cryo', premium: true, name: 'Cryo Ray', desc: 'A freezing stream. Monsters slow, lock solid, then shatter.', dmg: 2, rate: 14, mag: 80, reload: 2.2, speed: 0, spread: 0, pellets: 1, range: 8, pierce: 0, bounce: 0, elemChance: 0, explode: 0, kind: 'beam', color: '#9fe8ff', critBonus: 0, shake: 0.3, stream: true, chill: 0.12 },
+);
 export const WEAPON_BY_ID = Object.fromEntries(WEAPONS.map((w) => [w.id, w])) as Record<string, WeaponDef>;
 
 /**
@@ -73,9 +121,11 @@ export const WEAPON_BY_ID = Object.fromEntries(WEAPONS.map((w) => [w.id, w])) as
  *  ◆ trigger    conditional: first shot, kills, combos, standing still…
  *  ★ unique     changes how the gun behaves (epic+; a legendary always has one)
  *  ✦ deal       a "Spooky Deal": a big bonus with a catch (rare+, purple)
+ *  ✹ legend     a legendary line, far stronger than the rest: a 1% chance on a rare gun, 3% on an epic, 10% on a legendary
+ * Lines are shown in loot colours: stat green (uncommon), trigger blue (rare), unique and deal purple (epic), legend orange.
  * Static numbers live in weaponStats(); the triggers are handled by the engine (see Game.insc*).
  */
-export type InscTier = 'stat' | 'trigger' | 'unique' | 'deal';
+export type InscTier = 'stat' | 'trigger' | 'unique' | 'deal' | 'legend';
 export interface Trait { id: string; name: string; desc: string; minRarity: number; tier: InscTier }
 export const TRAITS: Trait[] = [
   // ● stat lines
@@ -112,18 +162,26 @@ export const TRAITS: Trait[] = [
   { id: 'tummy', tier: 'deal', name: 'Tummy Ache', desc: '+40% damage, but -15% move speed while held', minRarity: 2 },
   { id: 'glasspump', tier: 'deal', name: 'Glass Pumpkin', desc: '+60% crit damage, but take +15% damage while held', minRarity: 2 },
   { id: 'crash', tier: 'deal', name: 'Sugar Crash', desc: '+50% fire rate, but +50% reload time', minRarity: 2 },
+  // ✹ legendary lines (very rare, see LEGEND_ODDS)
+  { id: 'fullsize', tier: 'legend', name: 'Full-Size Candy Bar', desc: '+60% damage and +25% fire rate', minRarity: 2 },
+  { id: 'bottomless', tier: 'legend', name: 'Bottomless Bag', desc: '+150% magazine and -40% reload time', minRarity: 2 },
+  { id: 'trio', tier: 'legend', name: 'Three of a Kind', desc: '+2 projectiles', minRarity: 2 },
+  { id: 'midnight', tier: 'legend', name: 'Stroke of Midnight', desc: '+25% crit chance and +100% crit damage', minRarity: 2 },
 ];
+/** chance of a legendary line on a gun, by the gun's rarity */
+export const LEGEND_ODDS = [0, 0, 0.01, 0.03, 0.1];
 export const TRAIT_BY_ID = Object.fromEntries(TRAITS.map((t) => [t.id, t])) as Record<string, Trait>;
 export const INSCRIPTIONS = TRAITS;
 export const INSC_STYLE: Record<InscTier, { glyph: string; color: string; label: string }> = {
-  stat: { glyph: '●', color: '#8fdc7a', label: 'Inscription' },
-  trigger: { glyph: '◆', color: '#3fd0e0', label: 'Trigger' },
-  unique: { glyph: '★', color: '#ffb43c', label: 'Unique' },
-  deal: { glyph: '✦', color: '#c08cff', label: 'Spooky deal' },
+  stat: { glyph: '●', color: '#1eff00', label: 'Inscription' },
+  trigger: { glyph: '◆', color: '#2a8cff', label: 'Trigger' }, // the rare blue, a step lighter so small text reads on the dark cards
+  unique: { glyph: '★', color: '#b65cf5', label: 'Unique' },
+  deal: { glyph: '✦', color: '#b65cf5', label: 'Spooky deal' },
+  legend: { glyph: '✹', color: '#ff8000', label: 'Legendary' },
 };
 
 /** per-gun runtime state used by trigger inscriptions */
-export interface WeaponFx { shots: number; combo: number; comboT: number; fresh: number; hasty: number }
+export interface WeaponFx { shots: number; combo: number; comboT: number; fresh: number; hasty: number; /** stream guns: ticks held on target, and the grace time before the ramp drops */ ramp?: number; rampT?: number }
 export interface Weapon { uid: number; def: WeaponDef; rarity: number; level: number; traits: string[]; ammo: number; reloadT: number; cd: number; fx?: WeaponFx }
 
 let uidc = 1;
@@ -140,7 +198,10 @@ export function rollRarity(luck: number, minR = 0, maxR = 4) {
 /** Inscription lines per rarity: common 0-1 · uncommon 1 · rare 2 · epic 3 (25% one unique) · legendary 3 + a unique */
 export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   const ok = (t: Trait) => t.minRarity <= rarity && (!['fire', 'shock', 'ecto'].includes(t.id) || !def.elem || def.elem === t.id || Math.random() < 0.3)
-    && !(t.id === 'speed' && def.kind === 'beam') && !(t.id === 'haunted' && def.kind === 'beam') && !(t.id === 'split' && def.kind === 'beam');
+    && !(['speed', 'haunted', 'split'].includes(t.id) && (def.kind === 'beam' || def.kind === 'slash'))
+    && !(['haunted', 'split', 'bounce'].includes(t.id) && (def.boomerang || def.vortex || def.homing))
+    && !(['pierce', 'bounce', 'trio', 'twin'].includes(t.id) && def.kind === 'slash')
+    && !(t.id === 'trio' && def.stream);
   const take = (pool: Trait[], out: string[]) => {
     const p = pool.filter((t) => ok(t) && !out.includes(t.id));
     if (p.length) out.push(p[Math.floor(Math.random() * p.length)].id);
@@ -155,6 +216,8 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   for (let i = 0; i < n; i++) take(i < trig ? triggers : stats, out);
   if (rarity >= 2 && Math.random() < 0.22) { out.pop(); take(deals, out); }
   if (unique) take(uniques, out);
+  // once in a long while: an orange line on top of everything else
+  if (Math.random() < (LEGEND_ODDS[rarity] ?? 0)) take(TRAITS.filter((t) => t.tier === 'legend'), out);
   return out;
 }
 
@@ -186,20 +249,20 @@ export function weaponStats(w: Weapon, s: Stats): WStats {
   const lvlMul = 1 + (w.level - 1) * 0.14;
   const ch = (e: Elem) => (d.elem === e ? d.elemChance : 0) + has(e) * 0.15 + (s as unknown as Record<string, number>)[e === 'fire' ? 'burn' : e];
   return {
-    dmg: d.dmg * rarMul * lvlMul * (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4) * s.dmg,
-    rate: d.rate * (1 + has('rate') * 0.15) * (1 + has('crash') * 0.5) * s.rate * (1 + (w.level - 1) * 0.03),
-    mag: Math.max(1, Math.round(d.mag * (1 + has('mag') * 0.4) * s.mag)),
-    reload: d.reload * (1 - has('reload') * 0.25) * (1 + has('crash') * 0.5) * s.reload,
+    dmg: d.dmg * rarMul * lvlMul * (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4) * (1 + has('fullsize') * 0.6) * s.dmg * (s.oneShot ? 4 : 1),
+    rate: d.rate * (1 + has('rate') * 0.15) * (1 + has('crash') * 0.5) * (1 + has('fullsize') * 0.25) * s.rate * (1 + (w.level - 1) * 0.03),
+    mag: s.oneShot ? 1 : Math.max(1, Math.round(d.mag * (1 + has('mag') * 0.4 + has('bottomless') * 1.5) * s.mag)),
+    reload: d.reload * (1 - has('reload') * 0.25) * (1 - has('bottomless') * 0.4) * (1 + has('crash') * 0.5) * s.reload,
     pierce: d.pierce + has('pierce') + s.pierce,
     bounce: d.bounce + has('bounce') + s.bounce,
-    pellets: d.pellets + has('twin') + s.pellets,
-    crit: s.crit + d.critBonus + has('crit') * 0.08,
+    pellets: d.pellets + has('twin') + has('trio') * 2 + s.pellets,
+    crit: s.crit + d.critBonus + has('crit') * 0.08 + has('midnight') * 0.25,
     fire: ch('fire'),
     shock: ch('shock'),
     ecto: ch('ecto'),
     vamp: has('vamp') > 0,
     range: Math.min(GUN_RANGE_MAX, (d.range * GUN_RANGE_SCALE * (1 + has('speed') * 0.2) + s.range) * s.rangeMul),
-    critMul: s.critDmg + has('critdmg') * 0.5 + has('glasspump') * 0.6,
+    critMul: s.critDmg + has('critdmg') * 0.5 + has('glasspump') * 0.6 + has('midnight'),
     speed: d.speed * (1 + has('speed') * 0.6),
   };
 }
@@ -220,27 +283,27 @@ export function weaponDps(w: Weapon, s: Stats) {
 export interface Scroll { id: string; name: string; quote?: string; icon: string; rarity: number; desc: string; max: number; premium?: boolean; apply: (s: Stats) => void }
 
 export const SCROLLS: Scroll[] = [
-  { id: 'sugar', name: "Up, Up, Down, Down…", quote: "Cheat code entered. Fingers go brrr.", icon: '🍭', rarity: 0, desc: '+15% fire rate', max: 8, apply: (s) => (s.rate *= 1.15) },
-  { id: 'king', name: "Blessing of the Barbarian Prince", quote: "Raise the sword. You have the power.", icon: '🍫', rarity: 0, desc: '+18% damage', max: 8, apply: (s) => (s.dmg *= 1.18) },
-  { id: 'sour', name: "Eye of the Tiger", quote: "Rising up to the challenge of your rival.", icon: '🍬', rarity: 0, desc: '+8% crit chance', max: 6, apply: (s) => (s.crit += 0.08) },
+  { id: 'sugar', name: "Up, Up, Down, Down…", quote: "Cheat code entered. Fingers go brrr.", icon: '🍭', rarity: 1, desc: '+15% fire rate', max: 8, apply: (s) => (s.rate *= 1.15) },
+  { id: 'king', name: "Blessing of the Barbarian Prince", quote: "Raise the sword. You have the power.", icon: '🍫', rarity: 1, desc: '+18% damage', max: 8, apply: (s) => (s.dmg *= 1.18) },
+  { id: 'sour', name: "Eye of the Tiger", quote: "Rising up to the challenge of your rival.", icon: '🍬', rarity: 1, desc: '+8% crit chance', max: 6, apply: (s) => (s.crit += 0.08) },
   { id: 'jaw', name: "Crane Kick", quote: "If do right, no can defend.", icon: '🔮', rarity: 1, desc: '+40% crit damage', max: 5, apply: (s) => (s.critDmg += 0.4) },
-  { id: 'bag', name: "Unlicensed Nuclear Accelerator", quote: "Bigger pack. Don't ask where it came from.", icon: '🎒', rarity: 0, desc: '+35% magazine size', max: 5, apply: (s) => (s.mag *= 1.35) },
-  { id: 'sticky', name: "Duct-Tape Genius Mullet", quote: "Business up front, reload in the back.", icon: '🖐️', rarity: 0, desc: '-20% reload time', max: 4, apply: (s) => (s.reload *= 0.8) },
-  { id: 'shoes', name: "Self-Lacing Sneakers", quote: "Power laces, alright!", icon: '👟', rarity: 0, desc: '+10% move speed', max: 5, apply: (s) => (s.move *= 1.1) },
-  { id: 'pad', name: "Cyborg Cop Plating", quote: "Dead or alive, the candy's coming with me.", icon: '🛡️', rarity: 0, desc: '+25 max shield', max: 6, apply: (s) => (s.maxShield += 25) },
-  { id: 'lasagna', name: "Raw-Egg Breakfast", quote: "Five raw eggs, then up the museum steps.", icon: '🍝', rarity: 0, desc: '+25 max HP', max: 6, apply: (s) => (s.maxHp += 25) },
-  { id: 'magnet', name: "Tractor Beam", quote: "Candy goes up. You get it.", icon: '🧲', rarity: 0, desc: '+40% pickup radius, +2 m gun range', max: 4, apply: (s) => { s.magnet *= 1.4; s.range += 2; } },
+  { id: 'bag', name: "Unlicensed Nuclear Accelerator", quote: "Bigger pack. Don't ask where it came from.", icon: '🎒', rarity: 1, desc: '+35% magazine size', max: 5, apply: (s) => (s.mag *= 1.35) },
+  { id: 'sticky', name: "Duct-Tape Genius Mullet", quote: "Business up front, reload in the back.", icon: '🖐️', rarity: 1, desc: '-20% reload time', max: 4, apply: (s) => (s.reload *= 0.8) },
+  { id: 'shoes', name: "Self-Lacing Sneakers", quote: "Power laces, alright!", icon: '👟', rarity: 1, desc: '+10% move speed', max: 5, apply: (s) => (s.move *= 1.1) },
+  { id: 'pad', name: "Cyborg Cop Plating", quote: "Dead or alive, the candy's coming with me.", icon: '🛡️', rarity: 1, desc: '+25 max shield', max: 6, apply: (s) => (s.maxShield += 25) },
+  { id: 'lasagna', name: "Raw-Egg Breakfast", quote: "Five raw eggs, then up the museum steps.", icon: '🍝', rarity: 1, desc: '+25 max HP', max: 6, apply: (s) => (s.maxHp += 25) },
+  { id: 'magnet', name: "Tractor Beam", quote: "Candy goes up. You get it.", icon: '🧲', rarity: 1, desc: '+40% pickup radius, +2 m gun range', max: 4, apply: (s) => { s.magnet *= 1.4; s.range += 2; } },
   { id: 'cane', name: "Laser Sword", quote: "Vrrmm. Swish. Through two of them.", icon: '🦯', rarity: 1, desc: '+1 pierce and +2 m range for all weapons', max: 3, apply: (s) => { s.pierce += 1; s.range += 2; } },
   { id: 'bouncy', name: "Pinball Wizard", quote: "Tilt? Never heard of it.", icon: '⚾', rarity: 1, desc: '+1 ricochet for all weapons', max: 3, apply: (s) => (s.bounce += 1) },
   { id: 'bubble', name: "Two-Player Mode", quote: "Insert another quarter.", icon: '🫧', rarity: 3, desc: '+1 projectile, -10% damage', max: 3, apply: (s) => { s.pellets += 1; s.dmg *= 0.9; } },
   { id: 'fireball', name: "Firestarter Stare", quote: "Don't make her angry.", icon: '🔥', rarity: 1, desc: '+20% Burn chance on hit', max: 4, apply: (s) => (s.burn += 0.2) },
   { id: 'pop', name: "Short-Circuit Spark", quote: "Malfunction! Need input!", icon: '⚡', rarity: 1, desc: '+20% Shock chance on hit', max: 4, apply: (s) => (s.shock += 0.2) },
   { id: 'gummy', name: "Slimed!", quote: "It's all over you. And them.", icon: '🟢', rarity: 1, desc: '+20% Ecto chance on hit', max: 4, apply: (s) => (s.ecto += 0.2) },
-  { id: 'pepper', name: "Bug-Hunt Flame Fuel", quote: "Get away from her!", icon: '🌶️', rarity: 2, desc: 'Burn deals +60% damage', max: 3, apply: (s) => (s.burnDmg *= 1.6) },
+  { id: 'pepper', name: "Bug-Hunt Flame Fuel", quote: "Top up the tank. Everything burns hotter.", icon: '🛢️', rarity: 2, desc: 'Burn deals +60% damage', max: 3, apply: (s) => (s.burnDmg *= 1.6) },
   { id: 'sweater', name: "1.21 Jigawatts", quote: "Great Scott! Lightning never strikes once.", icon: '🧶', rarity: 2, desc: 'Shock chains to +2 more enemies', max: 3, apply: (s) => (s.chain += 2) },
   { id: 'taffy', name: "Sewer Ooze Canister", quote: "Glows in the dark. Mutates everything else.", icon: '☣️', rarity: 2, desc: 'Ecto enemies take +15% more damage', max: 3, apply: (s) => (s.ectoAmp += 0.15) },
   { id: 'fangs', name: "Lost-Boy Fangs", quote: "Sleep all day. Party all night.", icon: '🧛', rarity: 1, desc: '10% chance to heal 2 HP on kill', max: 4, apply: (s) => (s.vamp += 0.1) },
-  { id: 'trick', name: "Thermos Lunchbox", quote: "Mom packed extra snacks.", icon: '👜', rarity: 0, desc: 'Monsters drop chocolate bars more often', max: 3, apply: (s) => (s.healDrop += 0.012) },
+  { id: 'trick', name: "Thermos Lunchbox", quote: "Mom packed extra snacks.", icon: '👜', rarity: 1, desc: 'Monsters drop chocolate bars more often', max: 3, apply: (s) => (s.healDrop += 0.012) },
   { id: 'energy', name: "Training Montage", quote: "Cue the synths. Fast-forward.", icon: '🥤', rarity: 1, desc: '-20% skill cooldown', max: 3, apply: (s) => (s.skillCd *= 0.8) },
   { id: 'orbit', name: "Five-Bladed Glaive", quote: "Throw it like the fate of the realm depends on it.", icon: '🌀', rarity: 2, desc: '+1 orbiting candy-corn blade', max: 5, apply: (s) => (s.orbit += 1) },
   { id: 'buddy', name: "Pocket Ghost Pal", quote: "He's friendly. Mostly.", icon: '👻', rarity: 3, desc: 'A friendly ghost follows you and shoots monsters', max: 3, apply: (s) => (s.familiar += 1) },
@@ -248,8 +311,8 @@ export const SCROLLS: Scroll[] = [
   { id: 'clover', name: "One-Eyed Pirate's Map", quote: "Never say die. X marks the loot.", icon: '🍀', rarity: 2, desc: 'Better loot rarity', max: 3, apply: (s) => (s.luck += 1) },
   { id: 'firesneak', name: "88 MPH Fire Trails", quote: "Where we're going, we don't need roads.", icon: '🥾', rarity: 2, desc: 'Dashing leaves a burning trail', max: 1, apply: (s) => (s.dashFire = 1) },
   { id: 'helmet', name: "Half-Shell Armour", quote: "Heroes in a… shell.", icon: '⛑️', rarity: 1, desc: 'Take 12% less damage', max: 3, apply: (s) => (s.armor = 1 - (1 - s.armor) * 0.88) },
-  { id: 'piggy', name: "Greed Is Good Briefcase", quote: "Lunch is for wimps.", icon: '🐷', rarity: 0, desc: '+40% coins', max: 3, apply: (s) => (s.coinGain *= 1.4) },
-  { id: 'homework', name: "Wax On, Wax Off", quote: "Every chore was practice.", icon: '📚', rarity: 0, desc: '+20% XP gain', max: 3, apply: (s) => (s.xpGain *= 1.2) },
+  { id: 'piggy', name: "Greed Is Good Briefcase", quote: "Lunch is for wimps.", icon: '🐷', rarity: 1, desc: '+40% coins', max: 3, apply: (s) => (s.coinGain *= 1.4) },
+  { id: 'homework', name: "Wax On, Wax Off", quote: "Every chore was practice.", icon: '📚', rarity: 1, desc: '+20% XP gain', max: 3, apply: (s) => (s.xpGain *= 1.2) },
   { id: 'bang', name: "Yippee-Ki-Yay", quote: "Come out to the coast, we'll get together…", icon: '💥', rarity: 1, desc: '+35% skill power & radius', max: 3, apply: (s) => (s.skillPow *= 1.35) },
   { id: 'jackpot', name: "Arcade High Score", quote: "Enter your initials.", icon: '🎰', rarity: 4, desc: '+1 projectile and +15% fire rate', max: 1, apply: (s) => { s.pellets += 1; s.rate *= 1.15; } },
 ];
@@ -259,7 +322,7 @@ SCROLLS.push(
   { id: 'fullbag', name: "The Trap Is Full", quote: "Whatever you do, don't cross the streams.", icon: '🛍️', rarity: 1, desc: '+40% damage while your magazine is over 80% full', max: 1, apply: (s) => (s.fullBag = 1) },
   { id: 'skate', name: "Hoverboard Grind", quote: "Doesn't work on water.", icon: '🛹', rarity: 2, desc: 'Dashing instantly refills your magazine', max: 1, apply: (s) => (s.skate = 1) },
   { id: 'statue', name: "Unstoppable Cyborg Stance", quote: "Stand still. Hit harder. It'll be back.", icon: '🗿', rarity: 1, desc: '+35% damage after standing still for 1s', max: 1, apply: (s) => (s.statue = 1) },
-  { id: 'bluff', name: "Danger-Zone Aviators", quote: "You can be my wingman any time.", icon: '😤', rarity: 0, desc: '+25% damage while at full HP, +2 m gun range', max: 1, apply: (s) => { s.bluff = 1; s.range += 2; } },
+  { id: 'bluff', name: "Danger-Zone Aviators", quote: "You can be my wingman any time.", icon: '😤', rarity: 1, desc: '+25% damage while at full HP, +2 m gun range', max: 1, apply: (s) => { s.bluff = 1; s.range += 2; } },
   { id: 'bedtime', name: "Elm Street Bedtime", quote: "Whatever you do… don't fall asleep.", icon: '🛏️', rarity: 3, desc: 'Normal monsters under 12% HP are popped instantly', max: 1, apply: (s) => (s.execute = 1) },
   { id: 'owl', name: "Heat-Vision Hunter", quote: "If it bleeds, you can crit it.", icon: '🦉', rarity: 2, desc: '+100% crit damage and +2 m gun range, but -25% damage on non-crits', max: 1, apply: (s) => { s.owl = 1; s.critDmg += 1; s.range += 2; } },
   { id: 'cursed', name: "Fed After Midnight", quote: "Three rules. You broke the last one.", icon: '🍬', rarity: 4, desc: '+60% damage, but -50% max HP', max: 1, apply: (s) => { s.dmg *= 1.6; s.maxHp *= 0.5; } },
@@ -268,6 +331,28 @@ SCROLLS.push(
   { id: 'walkie', premium: true, name: "Never-Say-Die Walkies", quote: "Over and out, buddy.", icon: '📻', rarity: 1, desc: '+25% companion damage', max: 4, apply: (s) => (s.companionDmg *= 1.25) },
   { id: 'firstaid', premium: true, name: "Wilderness Survival Kit", quote: "Four friends, one long walk along the tracks.", icon: '🩹', rarity: 2, desc: 'Revives are 25% faster', max: 3, apply: (s) => (s.reviveSpeed *= 1.25) },
   { id: 'friendship', premium: true, name: "Wolf Pack Bracelets", quote: "Friends forever. BMX gang rules.", icon: '🧶', rarity: 2, desc: 'Companion takes 15% less damage', max: 3, apply: (s) => (s.companionArmor = 1 - (1 - s.companionArmor) * 0.85) },
+);
+// COMMON treats: small, stackable boosts, about half of their Uncommon big brothers. These fill most level-ups.
+SCROLLS.push(
+  { id: 'mixtape', name: "Mixtape, Side A", quote: "Press play. Hit a little harder.", icon: '📼', rarity: 0, desc: '+9% damage', max: 8, apply: (s) => (s.dmg *= 1.09) },
+  { id: 'masher', name: "Button Masher", quote: "A, B, A, B, A, B…", icon: '🎮', rarity: 0, desc: '+8% fire rate', max: 8, apply: (s) => (s.rate *= 1.08) },
+  { id: 'token', name: "Lucky Arcade Token", quote: "One more credit.", icon: '🕹️', rarity: 0, desc: '+4% crit chance', max: 6, apply: (s) => (s.crit += 0.04) },
+  { id: 'batteries', name: "Walkman Batteries", quote: "Four double-As and a long night.", icon: '🔋', rarity: 0, desc: '+18% magazine size', max: 5, apply: (s) => (s.mag *= 1.18) },
+  { id: 'griptape', name: "Fresh Grip Tape", quote: "Kickflip the reload.", icon: '🛹', rarity: 0, desc: '-10% reload time', max: 4, apply: (s) => (s.reload *= 0.9) },
+  { id: 'skates', name: "Roller Rink Wheels", quote: "Couples skate is cancelled.", icon: '🛼', rarity: 0, desc: '+5% move speed', max: 5, apply: (s) => (s.move *= 1.05) },
+  { id: 'denim', name: "Patched Denim Jacket", quote: "Every patch has a story.", icon: '🧥', rarity: 0, desc: '+12 max shield', max: 6, apply: (s) => (s.maxShield += 12) },
+  { id: 'slurp', name: "Gas-Station Slush", quote: "Brain freeze builds character.", icon: '🥤', rarity: 0, desc: '+12 max HP', max: 6, apply: (s) => (s.maxHp += 12) },
+  { id: 'yoyo', name: "Walk-the-Dog Yo-Yo", quote: "It always comes back.", icon: '🪀', rarity: 0, desc: '+20% pickup radius', max: 4, apply: (s) => (s.magnet *= 1.2) },
+  { id: 'lunchmoney', name: "Lunch Money", quote: "Don't spend it all on gum.", icon: '🍱', rarity: 0, desc: '+20% coins', max: 3, apply: (s) => (s.coinGain *= 1.2) },
+  { id: 'cartoons', name: "Saturday Morning Cartoons", quote: "Cereal, pyjamas, life lessons.", icon: '📺', rarity: 0, desc: '+10% XP gain', max: 3, apply: (s) => (s.xpGain *= 1.1) },
+);
+// EXTREME full-game treats: one big upside, one real price. All one-off.
+SCROLLS.push(
+  { id: 'forcefield', premium: true, name: "Deflector Shield Belt", quote: "Shields up. Do not, under any circumstances, let them down.", icon: '🛸', rarity: 4, desc: '+500 max shield, but your max HP becomes 1', max: 1, apply: (s) => { s.maxShield += 500; s.frail = 1; } },
+  { id: 'berserk', premium: true, name: "Barbarian's Blood Oath", quote: "No armour. No fear. No plan.", icon: '🪓', rarity: 4, desc: '+100% damage, but you have no shield at all', max: 1, apply: (s) => { s.dmg *= 2; s.bare = 1; } },
+  { id: 'oneshot', premium: true, name: "One in the Chamber", quote: "Make it count.", icon: '🎯', rarity: 3, desc: 'Every shot deals +300% damage, but your magazine holds a single shot', max: 1, apply: (s) => (s.oneShot = 1) },
+  { id: 'kaiju', premium: true, name: "Kaiju Growth Ray", quote: "The city is not insured for this.", icon: '🦖', rarity: 3, desc: '+200 max HP and +40% damage, but -35% move speed and one less dash', max: 1, apply: (s) => { s.maxHp += 200; s.dmg *= 1.4; s.move *= 0.65; s.dashCharges = Math.max(0, s.dashCharges - 1); } },
+  { id: 'goldfever', premium: true, name: "Temple Idol", quote: "It belongs in a museum. It is also cursed.", icon: '🗿', rarity: 2, desc: '+150% coins and +50% XP, but you take +40% damage', max: 1, apply: (s) => { s.coinGain *= 2.5; s.xpGain *= 1.5; s.armor = 1 - (1 - s.armor) * 1.4; } },
 );
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 
@@ -301,18 +386,18 @@ export function rollScrolls(n: number, owned: Record<string, number>, luck: numb
 // ================= TALENTS (meta progression) =================
 export interface Talent {
   premium?: boolean;
-  id: string; branch: 0 | 1 | 2; name: string; icon: string; max: number; cost: (lvl: number) => number; desc: string; apply: (s: Stats, lvl: number) => void;
-  /** position in the tree canvas (viewBox 1000 x 900) */
+  id: string; branch: 0 | 1 | 2 | 3; name: string; icon: string; max: number; cost: (lvl: number) => number; desc: string; apply: (s: Stats, lvl: number) => void;
+  /** position in the tree canvas (drawn in a viewBox of x -160..1560, y -250..1000; the root is at 500, 450) */
   x: number; y: number;
   /** unlock requires at least 1 rank in ANY of these (empty = connected to the root) */
   req: string[];
   capstone?: boolean;
 }
 
-export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts'];
-export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility'];
+export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts', 'Buddy System'];
+export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility', 'Partner'];
 /** saturated neon, one per branch: they sit on a busy painted night sky */
-export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a'];
+export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a', '#ff4fd8'];
 export const TALENT_ROOT = { x: 500, y: 450 };
 export const TALENTS: Talent[] = [
   // ---- Mischief (upper-left) ----
@@ -349,6 +434,43 @@ TALENTS.push(
   { id: 'studygroup', premium: true, branch: 2, x: 150, y: 600, req: ['pockets'], name: 'Study Group', icon: '📚', max: 4, cost: (l) => 60 + l * 40, desc: '+10% run XP per rank', apply: (s, l) => (s.xpGain *= 1 + l * 0.1) },
   { id: 'paperroute', premium: true, branch: 2, x: 100, y: 745, req: ['studygroup'], name: 'Paper Route', icon: '🗞️', max: 3, cost: (l) => 80 + l * 45, desc: '+20% coin gain per rank', apply: (s, l) => (s.coinGain *= 1 + l * 0.2) },
   { id: 'seeker', premium: true, branch: 2, x: 85, y: 855, req: ['paperroute'], capstone: true, name: 'Master Seeker', icon: '🔦', max: 3, cost: (l) => 130 + l * 60, desc: '+15% pickup radius and 4% move speed per rank', apply: (s, l) => { s.magnet *= 1 + l * 0.15; s.move *= 1 + l * 0.04; } },
+);
+// ---- beyond the capstones: two more stars at the end of every arm (free arm and full-game arm of each branch). They
+// cost several runs of Soul Candy and are meant to be felt: whoever gets this far has earned it. ----
+TALENTS.push(
+  // Mischief
+  { id: 'boombox', branch: 0, x: 335, y: -45, req: ['prankster'], name: 'Boombox Bass', icon: '📻', max: 3, cost: (l) => 180 + l * 90, desc: '+10% damage and +5% fire rate per rank', apply: (s, l) => { s.dmg *= 1 + 0.1 * l; s.rate *= 1 + 0.05 * l; } },
+  { id: 'rewind', branch: 0, x: 245, y: -165, req: ['boombox'], capstone: true, name: 'Be Kind, Rewind', icon: '📼', max: 1, cost: () => 700, desc: 'FINALE · All weapons fire +1 more projectile, and every shot passes through +1 monster', apply: (s, l) => { s.pellets += l; s.pierce += l; } },
+  { id: 'flash', premium: true, branch: 0, x: 55, y: -50, req: ['bestfriends'], name: 'Flash Photo', icon: '📸', max: 3, cost: (l) => 220 + l * 100, desc: '+8% crit chance per rank', apply: (s, l) => (s.crit += 0.08 * l) },
+  { id: 'rockstar', premium: true, branch: 0, x: 100, y: -170, req: ['flash'], capstone: true, name: 'Rock Star', icon: '🎤', max: 1, cost: () => 800, desc: 'FINALE · +100% crit damage and +50% companion damage', apply: (s, l) => { s.critDmg += l; s.companionDmg *= 1 + 0.5 * l; } },
+  // Costume
+  { id: 'lava', branch: 1, x: 665, y: -45, req: ['master'], name: 'Lava Lamp Glow', icon: '🫧', max: 3, cost: (l) => 180 + l * 90, desc: '+25 max HP and +20 max shield per rank', apply: (s, l) => { s.maxHp += 25 * l; s.maxShield += 20 * l; } },
+  { id: 'slinky', branch: 1, x: 755, y: -165, req: ['lava'], capstone: true, name: 'Bounce Back', icon: '🌈', max: 1, cost: () => 700, desc: 'FINALE · +1 revive every run, and take 15% less damage', apply: (s, l) => { s.revive += l; s.armor = 1 - (1 - s.armor) * (1 - 0.15 * l); } },
+  { id: 'shades', premium: true, branch: 1, x: 945, y: -50, req: ['guardians'], name: 'Too Cool to Hit', icon: '🕶️', max: 3, cost: (l) => 220 + l * 100, desc: '+7% dodge per rank', apply: (s, l) => (s.dodge += 0.07 * l) },
+  { id: 'pet', premium: true, branch: 1, x: 900, y: -170, req: ['shades'], capstone: true, name: 'Pocket Pet', icon: '🥚', max: 1, cost: () => 800, desc: 'FINALE · +100 max shield, the shield recharges 40% sooner, and your companion takes 25% less damage', apply: (s, l) => { s.maxShield += 100 * l; s.shieldDelay *= 1 - 0.4 * l; s.companionArmor = 1 - (1 - s.companionArmor) * (1 - 0.25 * l); } },
+  // Street Smarts
+  { id: 'cube', branch: 2, x: 640, y: 825, req: ['legend'], name: 'Puzzle Master', icon: '🧩', max: 3, cost: (l) => 180 + l * 90, desc: '+12% run XP and +1 treat reroll per rank', apply: (s, l) => { s.xpGain *= 1 + 0.12 * l; s.rerolls += l; } },
+  { id: 'floppy', branch: 2, x: 790, y: 850, req: ['cube'], capstone: true, name: 'Save Game', icon: '💾', max: 1, cost: () => 700, desc: 'FINALE · Start every run with +200 coins and a starting weapon one rarity higher', apply: (s, l) => { s.startCoins += 200 * l; s.startRarity += l; } },
+  { id: 'pager', premium: true, branch: 2, x: -45, y: 800, req: ['seeker'], name: 'Beeper Network', icon: '📟', max: 3, cost: (l) => 220 + l * 100, desc: '+20% coin gain per rank, and better loot rarity', apply: (s, l) => { s.coinGain *= 1 + 0.2 * l; s.luck += l; } },
+  { id: 'brick', premium: true, branch: 2, x: -70, y: 650, req: ['pager'], capstone: true, name: 'Brick Phone', icon: '📱', max: 1, cost: () => 800, desc: 'FINALE · +2 dash charges and +15% move speed', apply: (s, l) => { s.dashCharges += 2 * l; s.move *= 1 + 0.15 * l; } },
+);
+// ---- Buddy System (right): a whole constellation for the friends at your side. Nothing here changes your own kid. ----
+TALENTS.push(
+  { id: 'buddy', branch: 3, x: 705, y: 515, req: [], name: 'Fist Bump', icon: '🤜', max: 5, cost: (l) => 15 + l * 15, desc: 'Friends deal +8% damage per rank', apply: (s, l) => (s.companionDmg *= 1 + 0.08 * l) },
+  { id: 'snacks', branch: 3, x: 840, y: 455, req: ['buddy'], name: 'Shared Snacks', icon: '🍫', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends have +25 max HP per rank', apply: (s, l) => (s.mateHp += 25 * l) },
+  { id: 'walkie', branch: 3, x: 840, y: 600, req: ['buddy'], name: 'Walkie Check', icon: '📻', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends fire 8% faster per rank', apply: (s, l) => (s.mateRate *= 1 + 0.08 * l) },
+  { id: 'backup', branch: 3, x: 975, y: 525, req: ['snacks', 'walkie'], name: 'Got Your Back', icon: '🛡️', max: 3, cost: (l) => 40 + l * 25, desc: 'Friends take 8% less damage per rank', apply: (s, l) => (s.companionArmor = 1 - (1 - s.companionArmor) * (1 - 0.08 * l)) },
+  { id: 'sleepover', branch: 3, x: 965, y: 685, req: ['walkie'], name: 'Sleepover Plans', icon: '🛏️', max: 1, cost: () => 150, desc: 'A friend is at your side from the start of every survival night', apply: (s, l) => (s.mateStart += l) },
+  { id: 'bff', branch: 3, x: 1115, y: 525, req: ['backup'], capstone: true, name: 'Best Friends Forever', icon: '💞', max: 1, cost: () => 260, desc: 'CAPSTONE · A friend who goes down gets back up on their own after 12 seconds', apply: (s, l) => { if (l) s.mateUp = 12; } },
+  { id: 'stickers', branch: 3, x: 1250, y: 455, req: ['bff'], name: 'Sticker Swap', icon: '🎒', max: 3, cost: (l) => 180 + l * 90, desc: 'Friends deal +12% damage and have +15 max HP per rank', apply: (s, l) => { s.companionDmg *= 1 + 0.12 * l; s.mateHp += 15 * l; } },
+  { id: 'double', branch: 3, x: 1390, y: 520, req: ['stickers'], capstone: true, name: 'Double Team', icon: '🔫', max: 1, cost: () => 700, desc: 'FINALE · Every friend fires +1 projectile', apply: (s, l) => (s.matePellets += l) },
+  { id: 'borrow', premium: true, branch: 3, x: 1100, y: 680, req: ['backup'], name: 'Hand-Me-Down Blaster', icon: '🎁', max: 2, cost: (l) => 80 + l * 80, desc: 'Friends bring a gun one rarity better per rank', apply: (s, l) => (s.mateGun += l) },
+  { id: 'sharpeye', premium: true, branch: 3, x: 1235, y: 620, req: ['borrow'], name: 'Eagle-Eyed Pals', icon: '🔭', max: 3, cost: (l) => 80 + l * 45, desc: 'Friends land critical hits for double damage: +10% chance per rank', apply: (s, l) => (s.mateCrit += 0.1 * l) },
+  { id: 'helpup', premium: true, branch: 3, x: 1235, y: 770, req: ['borrow'], name: 'Helping Hand', icon: '🤝', max: 3, cost: (l) => 60 + l * 40, desc: '+15% revive speed and 5 more seconds to reach a friend who is down, per rank', apply: (s, l) => { s.reviveSpeed *= 1 + 0.15 * l; s.mateDown += 5 * l; } },
+  { id: 'pinky', premium: true, branch: 3, x: 1100, y: 835, req: ['borrow'], name: 'Pinky Promise', icon: '🤞', max: 3, cost: (l) => 80 + l * 45, desc: 'Friends heal 1.5 HP per second per rank', apply: (s, l) => (s.mateRegen += 1.5 * l) },
+  { id: 'medic', premium: true, branch: 3, x: 1375, y: 690, req: ['sharpeye', 'helpup'], capstone: true, name: 'Candy Medics', icon: '🩹', max: 1, cost: () => 300, desc: 'CAPSTONE · A friend can pick you up every 30 seconds instead of once a minute', apply: (s, l) => { if (l) s.mateReviveCd *= 0.5; } },
+  { id: 'range', premium: true, branch: 3, x: 1490, y: 800, req: ['medic'], name: 'Tin-Can Telephone', icon: '🥫', max: 3, cost: (l) => 220 + l * 100, desc: 'Friends shoot 15% further per rank', apply: (s, l) => (s.mateRange *= 1 + 0.15 * l) },
+  { id: 'tagteam', premium: true, branch: 3, x: 1370, y: 880, req: ['range'], capstone: true, name: 'Tag Team Champions', icon: '🏆', max: 1, cost: () => 800, desc: 'FINALE · Friends deal +60% damage and have +80 max HP', apply: (s, l) => { s.companionDmg *= 1 + 0.6 * l; s.mateHp += 80 * l; } },
 );
 export const TALENT_BY_ID = Object.fromEntries(TALENTS.map((t) => [t.id, t])) as Record<string, Talent>;
 export function talentUnlocked(t: Talent, ranks: Record<string, number>) {
