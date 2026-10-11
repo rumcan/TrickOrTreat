@@ -18,7 +18,7 @@ import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMB
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, GOLD_DMG, FAR_SHOT, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, rerollInscriptions, essenceEarned, GOLD_DMG, FAR_SHOT, BulletKind, storeSave,
   COSTUME_BY_ID, HERO_COSTUME, GIVE_LINES,
 } from './data';
 
@@ -3172,6 +3172,41 @@ export class Game {
     if (gun) this.lockedChoice = { scroll: null, weapon: gun };
     else if (scrolls.length) this.lockedChoice = { scroll: scrolls[Math.floor(Math.random() * scrolls.length)], weapon: null };
   }
+  /**
+   * The locked full-game prize in a bowl, earned by watching an ad (the UI calls this only after the reward): it is
+   * this bowl's pick, for this run. A treat is applied; a gun goes into a free hand, or lands at the kid's feet to be
+   * looked at and swapped like any gun on the ground.
+   */
+  takeLocked(): boolean {
+    const lock = this.lockedChoice;
+    if (this.state !== 'levelup' || !lock) return false;
+    this.lockedChoice = null;
+    this.treatGuideNotice = false;
+    this.input.pressed.clear();
+    gameAudio.play('unlock');
+    if (lock.weapon) {
+      const free = this.p.weapons.findIndex((w) => !w);
+      if (free >= 0 && free < 2) { this.p.weapons[free] = lock.weapon; this.p.cur = free; this.syncTeamWeapons(); }
+      else this.dropWeapon(this.p.x + 0.5, this.p.y + 0.4, lock.weapon);
+      this.setBanner('NEW WEAPON!', `${lock.weapon.def.name} · ${RARITY[lock.weapon.rarity].name}`, 'loot');
+    } else if (lock.scroll) {
+      this.scrolls[lock.scroll.id] = (this.scrolls[lock.scroll.id] || 0) + 1;
+      this.scrollOrder.push(lock.scroll.id);
+      this.recalcStats();
+    }
+    // it was this window's pick: close the window the way any pick does
+    const mode = this.choiceMode;
+    this.gunChoices = []; this.choices = []; this.friendChoice = null;
+    this.choiceMode = 'level';
+    if (mode === 'shop') { this.state = 'shop'; return true; }
+    if (mode === 'level') {
+      this.pendingLevels = Math.max(0, this.pendingLevels - 1);
+      if (this.pendingLevels > 0) { this.choiceN = 3; this.choiceLuck = this.stats.luck; this.rollChoices(); return true; }
+    }
+    this.state = 'play';
+    this.p.invuln = 1;
+    return true;
+  }
   reroll() {
     if (this.rerolls <= 0) return;
     this.rerolls--;
@@ -3380,6 +3415,21 @@ export class Game {
   }
   /** what the shop asks for the next level of a gun (the tutorial's first upgrade is free) */
   upgradePrice(w: Weapon) { return this.tutorial?.freeUpgrade ? 0 : upgradeCost(w); }
+  shopRerolls = 0;
+  /** rolling a gun's inscriptions again: each go costs 60% more than the last */
+  rerollCost() { return Math.round(40 * Math.pow(1.6, this.shopRerolls)); }
+  /** The Candy Lady scratches the lines off a gun and writes new ones: a gamble (see rerollInscriptions). */
+  shopReroll(slot: number) {
+    const w = this.p.weapons[slot], c = this.rerollCost();
+    if (!w || this.p.coins < c) return;
+    this.p.coins -= c;
+    this.shopRerolls++;
+    rerollInscriptions(w);
+    w.fx = undefined; // trigger lines start counting from nothing
+    this.recalcStats();
+    w.ammo = Math.min(w.ammo, weaponStats(w, this.stats).mag);
+    gameAudio.play('unlock', 0.3);
+  }
   healCost() { return 30 + this.shopHealBuys * 15; }
   /** friends who went down and were not reached in time: the shop can bring them back */
   lostFriends: RescueFriend[] = [];

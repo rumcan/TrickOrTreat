@@ -958,3 +958,7 @@ button.kit-tile:not(:disabled):hover {
 .touch-game .walkie-bubble p { font-size: 13px; }
 .touch-game .walkie-actions button { min-height: 36px; }
 @media (prefers-reduced-motion: reduce) { .walkie.is-talking .walkie-radio, .walkie-bubble { animation: none; } }
+
+/* the locked full-game prize can be earned with a rewarded ad: its button is the one live thing on the card */
+.hm-locked .hm-ad-btn { width: 100%; min-height: 40px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; }
+.hm-locked .hm-ad-btn:disabled { cursor: progress; opacity: .7; }

@@ -11,6 +11,7 @@ import { RunInventory } from './RunInventory';
 import { TalentTree } from './TalentTree';
 import { gameAudio } from '../game/audio';
 import { tutorialSeen, forgetTutorial, rememberTutorial } from '../game/tutorial';
+import { adsAvailable, watchRewardedAd } from '../game/ads';
 import { expansion, hasFullGame } from '../game/expansion';
 import { ExpansionUnlock } from './ExpansionUnlock';
 import { UnlockShowcase } from './UnlockShowcase';
@@ -306,12 +307,22 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
 /** a treat's retro card illustration */
 
 /** Free game: a full-game treat or gun on show behind glass. Read-only, never pickable; it teases the unlock. */
-function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: Weapon | null; game: Game }) {
+function LockedPick({ scroll, weapon, game, onTaken }: { scroll: Scroll | null; weapon: Weapon | null; game: Game; onTaken: () => void }) {
+  // RUN's apps can show a rewarded ad: watch one and the locked prize is this bowl's pick (for this run)
+  const [ad, setAd] = useState<'idle' | 'playing' | 'failed'>('idle');
+  const offer = adsAvailable();
+  const watch = async () => {
+    if (ad === 'playing') return;
+    setAd('playing');
+    const earned = await watchRewardedAd('locked-prize');
+    if (earned && game.takeLocked()) { onTaken(); return; }
+    setAd('failed');
+  };
   const rarity = weapon ? weapon.rarity : scroll?.rarity ?? 2;
   const rc = RARITY_KIT[rarity];
   const st = weapon ? weaponStats(weapon, game.stats) : null;
   return (
-    <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled="true" role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. Unlock the full game to find it.`}>
+    <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled={!offer} role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. ${offer ? 'Watch an ad to take it this run, or unlock the full game.' : 'Unlock the full game to find it.'}`}>
       <div className={`hm-pick-art ${weapon ? 'hm-pick-gun' : ''}`} style={{ ['--glow' as string]: rc }}>
         {weapon ? <GunArt id={weapon.def.id} /> : scroll && <TreatArt id={scroll.id} />}
         <span className="hm-lock" aria-hidden="true"><Lock size={26} strokeWidth={2.5} /></span>
@@ -325,7 +336,12 @@ function LockedPick({ scroll, weapon, game }: { scroll: Scroll | null; weapon: W
         <div className="hm-label mt-3">{weapon ? 'Firepower' : 'Effect'}</div>
         <div className="hm-pick-desc">{weapon && st ? <span className="font-num">{weaponDps(weapon, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</span> : scroll?.desc}</div>
         {weapon && <Inscriptions w={weapon} compact />}
-        <div className="hm-locked-foot mt-auto pt-3"><Lock size={12} strokeWidth={3} /> Unlock the full game to find this</div>
+        {offer
+          ? <div className="mt-auto pt-3">
+              <button type="button" className="hm-btn hm-ad-btn" disabled={ad === 'playing'} onClick={() => void watch()}><Play size={14} fill="currentColor" /> {ad === 'playing' ? 'Ad playing…' : `Watch an ad · take this ${weapon ? 'gun' : 'treat'}`}</button>
+              <div className="hm-locked-foot mt-2">{ad === 'failed' ? 'No reward: the ad was not watched to the end' : 'Yours for this run · or unlock the full game'}</div>
+            </div>
+          : <div className="hm-locked-foot mt-auto pt-3"><Lock size={12} strokeWidth={3} /> Unlock the full game to find this</div>}
       </div>
     </div>
   );
@@ -472,7 +488,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
               </div>
             </button>
           )}
-          {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} />}
+          {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} onTaken={() => { force((n) => n + 1); onDone(); }} />}
         </div>
         <div className="hm-foot">
           <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack up to their maximum</span>
@@ -519,6 +535,9 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
               </div>
               <div className="text-[13px] text-[#c9bda6]">+14% damage · +3% fire rate per level</div>
               <button className="hm-btn" disabled={p.coins < game.upgradePrice(w)} onClick={() => { game.shopUpgrade(i); f(); }}>Level {w.level + 1} · {game.upgradePrice(w) ? `${game.upgradePrice(w)} coins` : 'FREE'}</button>
+              <div className="shop-lines" aria-label={`Inscriptions on ${w.def.name}`}>{w.traits.length ? <Inscriptions w={w} compact /> : <span className="text-[13px] text-[#8f8676]">No inscriptions</span>}</div>
+              <button className="hm-btn ghost" disabled={p.coins < game.rerollCost()} title="A gamble: anything from no lines at all to a legendary set" onClick={() => { game.shopReroll(i); f(); }}>Reroll inscriptions · {game.rerollCost()} coins</button>
+              <div className="text-[12px] text-[#8f8676]">A gamble: you may get amazing lines, or lose the ones you have. Costs more every time.</div>
             </div>
           ))}
           <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #e8433c' }}>

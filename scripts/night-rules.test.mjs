@@ -6,6 +6,8 @@ import { chromium } from 'playwright-core';
 //  · the shop no longer sells treats; it brings back a friend who is out for the night
 //  · the Starcade closes after wave 5: whoever is inside is put out, the sign says CLOSED, the door stays shut
 //  · destruction is part of the normal game: a free gun's rockets blow a parked car up
+//  · the shop rerolls a gun's inscriptions as a gamble, dearer every time
+//  · a rewarded ad (where RUN has ads) takes the locked full-game prize from a bowl for this run
 //  · walking in and out earns no Essence; hide and seek is shelved, so a full-game run starts like any other
 const browser = await chromium.launch({ channel: 'msedge' });
 try {
@@ -58,6 +60,26 @@ try {
       const down = g.revivable.map(f => f.hero);
       g.shopRevive(2);
       out.revive = { lost, broke, back, down, jessUp: jess.hp === jess.maxHp, treatsSold: false };
+    }
+
+    // ---- the shop rerolls inscriptions: a gamble that gets dearer ----
+    {
+      const g = make(), w = d.makeWeapon('pea', 1); g.p.weapons[0] = w; g.p.cur = 0;
+      const costs = [g.rerollCost()];
+      g.p.coins = 10; g.shopReroll(0); const broke = g.shopRerolls;
+      g.p.coins = 100000;
+      for (let i = 0; i < 4; i++) { g.shopReroll(0); costs.push(g.rerollCost()); }
+      const spent = 100000 - g.p.coins;
+      // what the gamble can do: 4000 rolls on the same common gun
+      let none = 0, rich = 0, legend = 0, most = 0;
+      for (let i = 0; i < 4000; i++) {
+        const lines = d.rerollInscriptions(w);
+        if (!lines.length) none++;
+        if (lines.length >= 3) rich++;
+        if (lines.some(id => d.TRAIT_BY_ID[id].tier === 'legend')) legend++;
+        most = Math.max(most, lines.length);
+      }
+      out.reroll = { costs, broke, spent, none: none > 200, rich: rich > 400, legend: legend > 5, most, valid: w.traits.every(id => !!d.TRAIT_BY_ID[id]), odds: d.REROLL_ODDS.reduce((a, b) => a + b, 0) };
     }
 
     // ---- the Starcade closes after wave 5 ----
@@ -127,6 +149,8 @@ try {
   assert.equal(engine.revive.broke, false, 'Not without the coins');
   assert.deepEqual(engine.revive.back, { inTeam: true, full: true, near: true, coins: 380, lostLeft: 0, next: 180, gun: true }, 'The shop brings the friend back beside the kid at full health; the next one costs more');
   assert.deepEqual([engine.revive.down, engine.revive.jessUp], [[2], true], 'A friend who is down right now can be helped at the shop too');
+  assert.deepEqual([engine.reroll.costs, engine.reroll.broke, engine.reroll.spent], [[40, 64, 102, 164, 262], 0, 40 + 64 + 102 + 164], 'Rerolling inscriptions costs 60% more every time');
+  assert.deepEqual({ ...engine.reroll, costs: 0, broke: 0, spent: 0, most: 0 }, { costs: 0, broke: 0, spent: 0, most: 0, none: true, rich: true, legend: true, valid: true, odds: 100 }, `The gamble can leave a gun with nothing, with a rich set, or with a legendary line (${JSON.stringify(engine.reroll)})`);
   assert.equal(engine.lastWave, 5);
   assert.deepEqual(engine.arcade, { openLabel: 'Enter the Starcade', inside: 'arcade', stillIn: 'arcade', map: 'town', banner: 'THE STARCADE IS CLOSED', shut: true, standsStopCounting: 3, label: engine.arcade.label, reentered: 'town' },
     'After wave 5 the Starcade puts the kid out, says so, stops counting its stands, and stays shut');
@@ -139,11 +163,34 @@ try {
   await page.getByRole('button', { name: 'Go trick-or-treating' }).click();
   await page.waitForFunction(() => window.__tot?.game?.state === 'play');
   assert.equal(await page.evaluate(() => window.__tot.game.campaign), false, 'The app starts the ordinary night');
-  await page.evaluate(() => { const g = window.__tot.game; g.director = () => {}; g.enemies = []; g.p.invuln = 1e9; g.state = 'shop'; });
+  await page.evaluate(() => { const g = window.__tot.game; g.director = () => {}; g.enemies = []; g.p.invuln = 1e9; g.p.coins = 500; g.state = 'shop'; });
   const shop = page.locator('.hm-modal');
   await shop.getByText('Bring a friend back').waitFor();
   assert.equal(await shop.getByText('Mystery treat').count(), 0, 'The shop no longer sells treats');
   assert.match(await shop.innerText(), /Nobody is missing/);
+  const rerollButton = shop.getByRole('button', { name: /Reroll inscriptions · 40 coins/ });
+  await rerollButton.click();
+  await shop.getByRole('button', { name: /Reroll inscriptions · 64 coins/ }).waitFor();
+  assert.equal(await page.evaluate(() => window.__tot.game.p.coins), 460, 'The reroll button takes the coins and raises the price');
+  // ---- a locked full-game prize in the bowl: no ad button on the web, one where RUN has ads ----
+  const bowl = async () => { await page.evaluate(async () => { const g = window.__tot.game; const { makeLockedWeapon } = await import('/src/game/data.ts'); g.state = 'play'; g.pendingLevels = 0; g.p.weapons[1] = null; g.openLevelUp('house', 3, 0); g.lockedChoice = { scroll: null, weapon: makeLockedWeapon(3) }; window.__locked = g.lockedChoice.weapon; }); await page.keyboard.press('Shift'); };
+  await bowl();
+  const lockedCard = page.locator('.hm-pick.hm-locked');
+  await lockedCard.waitFor();
+  assert.equal(await lockedCard.getByRole('button').count(), 0, 'Where RUN has no ads (the web), the locked prize offers no ad');
+  await page.evaluate(() => { window.__totAd = false; window.__tot.game.state = 'play'; });
+  await lockedCard.waitFor({ state: 'detached' });
+  await bowl();
+  const adButton = lockedCard.getByRole('button', { name: /Watch an ad · take this gun/ });
+  await adButton.click();
+  await lockedCard.getByText(/No reward/).waitFor();
+  assert.equal(await page.evaluate(() => window.__tot.game.state), 'levelup', 'An ad that was not watched through gives nothing and leaves the bowl open');
+  await page.evaluate(() => { window.__totAd = true; });
+  await adButton.click();
+  await page.waitForFunction(() => window.__tot.game.state === 'play');
+  const took = await page.evaluate(() => { const g = window.__tot.game; return { equipped: g.p.weapons.includes(window.__locked), premium: !!window.__locked.def.premium, lockGone: g.lockedChoice === null }; });
+  assert.deepEqual(took, { equipped: true, premium: true, lockGone: true }, 'A watched ad puts the locked full-game gun in the kid’s hand for this run');
+  await page.evaluate(() => { delete window.__totAd; window.__tot.game.state = 'shop'; });
   // closing time, drawn on the door
   const texts = () => page.evaluate(() => {
     const { game: g, renderer } = window.__tot, ctx = renderer.ctx, seen = [], fillText = ctx.fillText;
@@ -171,5 +218,5 @@ try {
   assert.ok(!/wreck|destruction|hide.and.seek|rescue campaign/i.test(text.replace(/Wrecks cars and houses\.?/g, '')), 'The full-game poster no longer sells destruction or hide and seek');
   assert.match(text, /Twenty-four bosses/);
   assert.deepEqual(errors, [], 'No page errors');
-  console.log(`night rules: no Essence for an empty run; bowl before level-ups; shop revives friends; Starcade closes after wave ${engine.lastWave}; a free gun wrecks a car in ${engine.wreck.shots} rockets; hide and seek shelved: ok`);
+  console.log(`night rules: inscription rerolls ${engine.reroll.costs.join('/')}; ad unlock of the locked prize; no Essence for an empty run; bowl before level-ups; shop revives friends; Starcade closes after wave ${engine.lastWave}; a free gun wrecks a car in ${engine.wreck.shots} rockets; hide and seek shelved: ok`);
 } finally { await browser.close(); }

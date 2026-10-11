@@ -203,7 +203,7 @@ export function rollRarity(luck: number, minR = 0, maxR = 4) {
 }
 
 /** Inscription lines per rarity: common 0-1 · uncommon 1 · rare 2 · epic 3 (25% one unique) · legendary 3 + a unique */
-export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
+export function rollInscriptions(def: WeaponDef, rarity: number, legendBoost = 1): string[] {
   const ok = (t: Trait) => t.minRarity <= rarity && (!['fire', 'shock', 'ecto'].includes(t.id) || !def.elem || def.elem === t.id || Math.random() < 0.3)
     && !(['speed', 'haunted', 'split'].includes(t.id) && (def.kind === 'beam' || def.kind === 'slash'))
     && !(['haunted', 'split', 'bounce'].includes(t.id) && (def.boomerang || def.vortex || def.homing))
@@ -224,8 +224,19 @@ export function rollInscriptions(def: WeaponDef, rarity: number): string[] {
   if (rarity >= 2 && Math.random() < 0.22) { out.pop(); take(deals, out); }
   if (unique) take(uniques, out);
   // once in a long while: an orange line on top of everything else
-  if (Math.random() < (LEGEND_ODDS[rarity] ?? 0)) take(TRAITS.filter((t) => t.tier === 'legend'), out);
+  if (Math.random() < (LEGEND_ODDS[rarity] ?? 0) * legendBoost) take(TRAITS.filter((t) => t.tier === 'legend'), out);
   return out;
+}
+/**
+ * The shop's gamble: a gun's lines are rolled again as if it were of a RANDOM rarity, whatever it really is.
+ * So a common gun can walk away with an epic set, and a legendary one with nothing at all. Legendary lines are
+ * two and a half times as likely as on found guns. Chances per rarity rolled: see REROLL_ODDS.
+ */
+export const REROLL_ODDS = [22, 26, 24, 18, 10];
+export function rerollInscriptions(w: Weapon): string[] {
+  let roll = Math.random() * REROLL_ODDS.reduce((a, b) => a + b, 0), as = 0;
+  for (; as < REROLL_ODDS.length - 1; as++) { roll -= REROLL_ODDS[as]; if (roll < 0) break; }
+  return (w.traits = rollInscriptions(w.def, as, 2.5));
 }
 
 /** a full-game gun built only to be shown (locked) to free players: the teaser card on level-ups and houses */
