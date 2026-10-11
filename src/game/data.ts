@@ -467,7 +467,7 @@ TALENTS.push(
   { id: 'seeker', premium: true, branch: 2, x: 85, y: 855, req: ['paperroute'], capstone: true, name: 'Master Seeker', icon: '🔦', max: 3, cost: (l) => 130 + l * 60, desc: '+15% pickup radius and 4% move speed per rank', apply: (s, l) => { s.magnet *= 1 + l * 0.15; s.move *= 1 + l * 0.04; } },
 );
 // ---- beyond the capstones: two more stars at the end of every arm (free arm and full-game arm of each branch). They
-// cost several runs of Soul Candy and are meant to be felt: whoever gets this far has earned it. ----
+// cost several runs of Essence and are meant to be felt: whoever gets this far has earned it. ----
 TALENTS.push(
   // Mischief
   { id: 'boombox', branch: 0, x: 335, y: -45, req: ['prankster'], name: 'Boombox Bass', icon: '📻', max: 3, cost: (l) => 180 + l * 90, desc: '+10% damage and +5% fire rate per rank', apply: (s, l) => { s.dmg *= 1 + 0.1 * l; s.rate *= 1 + 0.05 * l; } },

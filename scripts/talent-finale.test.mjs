@@ -53,7 +53,7 @@ try {
   assert.deepEqual(tree.rockstar, { critDmg: 1, mate: 1.5 });
   assert.deepEqual(tree.brick, { dash: 2, move: 1.15 });
   assert.deepEqual(tree.pet, { shield: 100 });
-  assert.ok(tree.cost >= 600, 'A finale costs several runs of Soul Candy');
+  assert.ok(tree.cost >= 600, 'A finale costs several runs of Essence');
 
   // on screen: the whole constellation fits its sky, and the new stars can be bought in order
   await page.reload();

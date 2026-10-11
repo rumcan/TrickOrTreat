@@ -183,22 +183,22 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           <div className="paper-kicker">Permanent upgrades</div>
           <h2 className="paper-title !text-[34px]">Talent constellations</h2>
           <span className="paper-rule" />
-          <p className="mt-3 text-[13px] leading-snug text-[#c9bda6]">Click a star to invest Soul Candy. Each star unlocks the stars it links to.</p>
+          <p className="mt-3 text-[13px] leading-snug text-[#c9bda6]">Click a star to invest Essence. Each star unlocks the stars it links to.</p>
         </header>
 
         {earned !== undefined && (
           <section className="paper-card" style={{ borderLeft: '5px solid #c46bff' }}>
             <div className="label">Make the next run stronger</div>
-            <div className="font-cond text-2xl leading-tight text-[#d9a8ff]">+{earned} Soul Candy earned this run</div>
+            <div className="font-cond text-2xl leading-tight text-[#d9a8ff]">+{earned} Essence earned this run</div>
             <p className="mt-1 text-xs text-[#8f8676]">Spend your permanent talent XP below. Run levels reset; these skills stay.</p>
           </section>
         )}
 
         <div className="flex items-stretch gap-2">
-          <div className="talent-wallet" title="Soul Candy is earned at the end of every run (kills, time survived, boss).">
+          <div className="talent-wallet" title="Essence is earned at the end of every run (monsters, time survived, bosses and waves).">
             <CandyIcon size={26} />
             <div>
-              <div className="label">Soul Candy</div>
+              <div className="label">Essence</div>
               <b>{save.soul}</b>
             </div>
           </div>
@@ -224,7 +224,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           </div>
           <div className="mt-1.5 flex justify-between font-cond2 text-xs font-bold uppercase tracking-[0.14em] text-[#8f8676]">
             <span>Rank {fl} / {focus.max}</span>
-            {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {talentCost(focus, fl)} candy</span>}
+            {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {talentCost(focus, fl)} Essence</span>}
           </div>
           {focus.premium && !hasFullGame() && <p role="status" className="mt-3 border border-[#ffc453]/50 bg-black/30 p-3 text-sm text-white">Full-game talent: unlock the full game using the button in the main-menu header. After unlocking, the linked talent requirements below still apply.</p>}
           {focus.req.length > 0 && (
@@ -238,7 +238,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           {fst !== 'locked' && fst !== 'maxed' && save.soul < talentCost(focus, fl) && <p className="mt-3 text-sm text-white">Earn {talentCost(focus, fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
           {focus.id === 'master' && <div className="mt-2 font-cond2 text-xs font-semibold text-[#c9bda6]">One costume per kid: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
           <button className="hm-btn mt-4 w-full" disabled={!canBuy(focus)} onClick={() => buy(focus.id)}>
-            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · 🍬 ${talentCost(focus, fl)}`}
+            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · ${talentCost(focus, fl)} Essence`}
           </button>
         </section>
 
