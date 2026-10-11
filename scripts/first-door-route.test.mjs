@@ -65,7 +65,8 @@ try {
     renderer.render(g, 0.01); ctx.ellipse = ellipse;
     return { dots: dots.length, route: g.treatRoute().length };
   });
-  assert.ok(drawn.route > 8 && drawn.dots >= Math.floor((drawn.route - 6) / 2) - 1, `The route is drawn as dots on the ground (${JSON.stringify(drawn)})`);
+  // one dot per half tile of route; the part of a long route that is off screen is not drawn
+  assert.ok(drawn.route > 8 && drawn.dots >= 4 && drawn.dots <= Math.ceil(drawn.route / 2), `The route is drawn as dots on the ground (${JSON.stringify(drawn)})`);
   assert.deepEqual(errors, [], 'No page errors');
   console.log(`first door: nearest by walking on 14 maps (detour at most x${Math.max(...out.detours)}), a dotted route round buildings; ground guns gone after ${out.time}s: ok`);
 } finally { await browser.close(); }
