@@ -539,17 +539,33 @@ export class Renderer {
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(isoX(l.x1, l.y1), isoY(l.x1, l.y1), 2.2 * HW * 1.3, 2.2 * HH * 1.3, 0, 0, Math.PI * 2); ctx.stroke();
     }
-    // tornado body
+    // tornado body: nothing but flying bits (toilet paper, dust, a few leaves) spiralling up a funnel. No drawn rings.
     for (const z of g.zones) {
       if (z.kind !== 'tornado') continue;
       const sx = isoX(z.x, z.y), sy = isoY(z.x, z.y);
+      const fade = Math.min(1, (z.life - z.t) * 2, z.t * 4 + 0.15), H = 170, top = z.r * HW * 0.7, n = settings.lowFx ? 90 : 210;
       ctx.save();
-      ctx.globalAlpha = Math.min(1, (z.life - z.t) * 2) * 0.8;
-      for (let k = 0; k < 7; k++) {
-        const w = (z.r * HW * 0.5) * (0.4 + k * 0.15), y = sy - k * 22;
-        ctx.strokeStyle = k % 2 ? '#f4f4ee' : '#d8d8d0';
-        ctx.lineWidth = 6;
-        ctx.beginPath(); ctx.ellipse(sx + Math.sin(this.t * 8 + k) * 6, y, w, w * 0.3, 0, this.t * 6 + k, this.t * 6 + k + 4.5); ctx.stroke();
+      for (let i = 0; i < n; i++) {
+        // each bit keeps its own place in the swirl: it climbs, widens with the funnel, and starts again at the ground
+        const seed = i * 0.6180339887, h = (seed * 7.3 + this.t * (0.55 + (i % 5) * 0.09)) % 1;
+        const R = top * (0.16 + 0.84 * h) * (0.75 + ((i * 37) % 10) * 0.05);
+        const ang = i * 2.399963 + this.t * (9 - h * 4.5) + Math.sin(this.t * 2 + i) * 0.25;
+        const c = Math.cos(ang), sn = Math.sin(ang);
+        const x = sx + c * R + Math.sin(this.t * 3 + h * 5) * 7 * h, y = sy - h * H + sn * R * 0.32;
+        const size = (i % 7 === 0 ? 9 : 5.5) * (0.75 + h * 0.6);
+        const a = fade * (sn < 0 ? 0.5 : 1) * Math.min(1, h * 9) * Math.min(1, (1 - h) * 5);
+        if (i % 5 === 3) {
+          // a puff of dust: gives the funnel a body without a single drawn line
+          ctx.globalAlpha = a * 0.22; ctx.fillStyle = '#d6d2c4';
+          ctx.beginPath(); ctx.arc(x, y, 9 + h * 12, 0, Math.PI * 2); ctx.fill();
+          continue;
+        }
+        ctx.globalAlpha = a;
+        ctx.fillStyle = i % 11 === 0 ? '#e8862e' : i % 6 === 0 ? '#9a948a' : i % 2 ? '#f4f4ee' : '#dcd8cc';
+        if (i % 7 === 0) {
+          // a torn strip of paper, tumbling as it goes round
+          ctx.save(); ctx.translate(x, y); ctx.rotate(ang * 1.7 + i); ctx.fillRect(-size, -size * 0.3, size * 2, size * 0.6); ctx.restore();
+        } else ctx.fillRect(x - size / 2, y - size / 2, size, size);
       }
       ctx.restore();
     }
