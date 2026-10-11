@@ -220,10 +220,10 @@ export const TURRET = { dmg: 9.6, rate: 11, speed: 21, range: 13, heatPerShot: 0
 export const FRIEND_CARD_CHANCE = 0.2;
 /** a friend who goes down can be helped up for this long; after that they are out for the night */
 /**
- * The Starcade interior is not finished (there is no way back out yet), so its door is closed: the arcade is an
- * ordinary building to trick-or-treat at, as it was before. Set to true to work on the interior.
+ * The vector-guided Starcade has a tested return portal and persistent scene state.
+ * Keep this switch available to close entry without trapping a kid already inside.
  */
-export const ARCADE_OPEN = false;
+export const ARCADE_OPEN = true;
 /** seconds a gun lies on the ground before it is gone (it blinks for the last ten) */
 export const GUN_GROUND_TIME = 120;
 export const FRIEND_DOWN_TIME = 30;
@@ -333,7 +333,7 @@ export class Game {
 
   /** Keep run progress and per-scene loot; never reset or duplicate rewards on entry. */
   travelArcade(target:'town'|'arcade') {
-    if(!ARCADE_OPEN&&target==='arcade') return; // closed until the interior is ready (leaving stays possible)
+    if(!ARCADE_OPEN&&target==='arcade') return; // emergency entry switch; leaving stays possible
     if(this.state!=='play'||this.mounted>=0||this.tot) return;
     const inside=this.map.kind==='arcade';
     if((target==='arcade')===inside) return;
