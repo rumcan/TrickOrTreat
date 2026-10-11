@@ -365,7 +365,7 @@ export function rollScrolls(n: number, owned: Record<string, number>, luck: numb
 export interface Talent {
   premium?: boolean;
   id: string; branch: 0 | 1 | 2; name: string; icon: string; max: number; cost: (lvl: number) => number; desc: string; apply: (s: Stats, lvl: number) => void;
-  /** position in the tree canvas (viewBox 1000 x 900) */
+  /** position in the tree canvas (drawn in a viewBox of x -160..1040, y -250..965; the root is at 500, 450) */
   x: number; y: number;
   /** unlock requires at least 1 rank in ANY of these (empty = connected to the root) */
   req: string[];
@@ -412,6 +412,25 @@ TALENTS.push(
   { id: 'studygroup', premium: true, branch: 2, x: 150, y: 600, req: ['pockets'], name: 'Study Group', icon: '📚', max: 4, cost: (l) => 60 + l * 40, desc: '+10% run XP per rank', apply: (s, l) => (s.xpGain *= 1 + l * 0.1) },
   { id: 'paperroute', premium: true, branch: 2, x: 100, y: 745, req: ['studygroup'], name: 'Paper Route', icon: '🗞️', max: 3, cost: (l) => 80 + l * 45, desc: '+20% coin gain per rank', apply: (s, l) => (s.coinGain *= 1 + l * 0.2) },
   { id: 'seeker', premium: true, branch: 2, x: 85, y: 855, req: ['paperroute'], capstone: true, name: 'Master Seeker', icon: '🔦', max: 3, cost: (l) => 130 + l * 60, desc: '+15% pickup radius and 4% move speed per rank', apply: (s, l) => { s.magnet *= 1 + l * 0.15; s.move *= 1 + l * 0.04; } },
+);
+// ---- beyond the capstones: two more stars at the end of every arm (free arm and full-game arm of each branch). They
+// cost several runs of Soul Candy and are meant to be felt: whoever gets this far has earned it. ----
+TALENTS.push(
+  // Mischief
+  { id: 'boombox', branch: 0, x: 335, y: -45, req: ['prankster'], name: 'Boombox Bass', icon: '📻', max: 3, cost: (l) => 180 + l * 90, desc: '+10% damage and +5% fire rate per rank', apply: (s, l) => { s.dmg *= 1 + 0.1 * l; s.rate *= 1 + 0.05 * l; } },
+  { id: 'rewind', branch: 0, x: 245, y: -165, req: ['boombox'], capstone: true, name: 'Be Kind, Rewind', icon: '📼', max: 1, cost: () => 700, desc: 'FINALE · All weapons fire +1 more projectile, and every shot passes through +1 monster', apply: (s, l) => { s.pellets += l; s.pierce += l; } },
+  { id: 'flash', premium: true, branch: 0, x: 55, y: -50, req: ['bestfriends'], name: 'Flash Photo', icon: '📸', max: 3, cost: (l) => 220 + l * 100, desc: '+8% crit chance per rank', apply: (s, l) => (s.crit += 0.08 * l) },
+  { id: 'rockstar', premium: true, branch: 0, x: 100, y: -170, req: ['flash'], capstone: true, name: 'Rock Star', icon: '🎤', max: 1, cost: () => 800, desc: 'FINALE · +100% crit damage and +50% companion damage', apply: (s, l) => { s.critDmg += l; s.companionDmg *= 1 + 0.5 * l; } },
+  // Costume
+  { id: 'lava', branch: 1, x: 665, y: -45, req: ['master'], name: 'Lava Lamp Glow', icon: '🫧', max: 3, cost: (l) => 180 + l * 90, desc: '+25 max HP and +20 max shield per rank', apply: (s, l) => { s.maxHp += 25 * l; s.maxShield += 20 * l; } },
+  { id: 'slinky', branch: 1, x: 755, y: -165, req: ['lava'], capstone: true, name: 'Bounce Back', icon: '🌈', max: 1, cost: () => 700, desc: 'FINALE · +1 revive every run, and take 15% less damage', apply: (s, l) => { s.revive += l; s.armor = 1 - (1 - s.armor) * (1 - 0.15 * l); } },
+  { id: 'shades', premium: true, branch: 1, x: 945, y: -50, req: ['guardians'], name: 'Too Cool to Hit', icon: '🕶️', max: 3, cost: (l) => 220 + l * 100, desc: '+7% dodge per rank', apply: (s, l) => (s.dodge += 0.07 * l) },
+  { id: 'pet', premium: true, branch: 1, x: 900, y: -170, req: ['shades'], capstone: true, name: 'Pocket Pet', icon: '🥚', max: 1, cost: () => 800, desc: 'FINALE · +100 max shield, the shield recharges 40% sooner, and your companion takes 25% less damage', apply: (s, l) => { s.maxShield += 100 * l; s.shieldDelay *= 1 - 0.4 * l; s.companionArmor = 1 - (1 - s.companionArmor) * (1 - 0.25 * l); } },
+  // Street Smarts
+  { id: 'cube', branch: 2, x: 640, y: 825, req: ['legend'], name: 'Puzzle Master', icon: '🧩', max: 3, cost: (l) => 180 + l * 90, desc: '+12% run XP and +1 treat reroll per rank', apply: (s, l) => { s.xpGain *= 1 + 0.12 * l; s.rerolls += l; } },
+  { id: 'floppy', branch: 2, x: 790, y: 850, req: ['cube'], capstone: true, name: 'Save Game', icon: '💾', max: 1, cost: () => 700, desc: 'FINALE · Start every run with +200 coins and a starting weapon one rarity higher', apply: (s, l) => { s.startCoins += 200 * l; s.startRarity += l; } },
+  { id: 'pager', premium: true, branch: 2, x: -45, y: 800, req: ['seeker'], name: 'Beeper Network', icon: '📟', max: 3, cost: (l) => 220 + l * 100, desc: '+20% coin gain per rank, and better loot rarity', apply: (s, l) => { s.coinGain *= 1 + 0.2 * l; s.luck += l; } },
+  { id: 'brick', premium: true, branch: 2, x: -70, y: 650, req: ['pager'], capstone: true, name: 'Brick Phone', icon: '📱', max: 1, cost: () => 800, desc: 'FINALE · +2 dash charges and +15% move speed', apply: (s, l) => { s.dashCharges += 2 * l; s.move *= 1 + 0.15 * l; } },
 );
 export const TALENT_BY_ID = Object.fromEntries(TALENTS.map((t) => [t.id, t])) as Record<string, Talent>;
 export function talentUnlocked(t: Talent, ranks: Record<string, number>) {

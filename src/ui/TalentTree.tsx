@@ -73,7 +73,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
       <div className="talent-sky">
         <img src={icon('back')} alt="" draggable={false} className="talent-sky-art" />
         {/* the viewBox leaves a margin all round, so labels, rank pips and the radio in the corner never collide with a star */}
-        <svg viewBox="-40 -48 1080 1010" preserveAspectRatio="xMidYMid meet" className="talent-svg">
+        <svg viewBox="-160 -250 1200 1215" preserveAspectRatio="xMidYMid meet" className="talent-svg">
           <defs>
             <filter id="tglow" x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="6" result="b" />
@@ -89,7 +89,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           {[
             { b: 0, x: 95, y: 430 },
             { b: 1, x: 905, y: 430 },
-            { b: 2, x: 815, y: 880 },
+            { b: 2, x: 895, y: 640 },
           ].map(({ b, x, y }) => (
             <g key={b} textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 6, strokeLinejoin: 'round' }}>
               <text x={x} y={y} fill={TALENT_COLORS[b]} fontSize="34" style={{ fontFamily: 'Anton, Impact, sans-serif', letterSpacing: 2 }}>{TALENT_BRANCHES[b].toUpperCase()}</text>
@@ -211,7 +211,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
               <img src={icon(focus.id)} alt="" draggable={false} style={{ filter: fst === 'locked' ? 'grayscale(1) brightness(0.7)' : undefined }} />
             </div>
             <div className="min-w-0">
-              <div className="label" style={{ color: fc }}>{TALENT_BRANCHES[focus.branch]} · {TALENT_BRANCH_SUB[focus.branch]}{focus.capstone ? ' · Capstone' : ''}</div>
+              <div className="label" style={{ color: fc }}>{TALENT_BRANCHES[focus.branch]} · {TALENT_BRANCH_SUB[focus.branch]}{focus.capstone ? focus.desc.startsWith('FINALE') ? ' · Finale' : ' · Capstone' : ''}</div>
               <div className="font-cond text-[26px] uppercase leading-none text-[#fff0da]">{focus.name}</div>
             </div>
           </div>

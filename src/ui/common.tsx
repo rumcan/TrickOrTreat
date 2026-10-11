@@ -72,7 +72,8 @@ export function HeroPreview({ hero, size = 2, walking = true, costume = null, st
         for (let y = 0; y < s.fh; y++) for (let x = 0; x < s.fw; x++) if ((x === 0 || y === 0 || x === s.fw - 1 || y === s.fh - 1) && pixels[(y * s.fw + x) * 4 + 3] > 32) clipped++;
         if (clipped < best) { best = clipped; selected = f; }
       }
-      ctx.clearRect(0, 0, c.width, c.height); ctx.scale(size, size);
+      // setTransform, not scale: the effect can run more than once and a second scale() would zoom the kid out of the frame
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, c.width, c.height); ctx.setTransform(size, 0, 0, size, 0, 0);
       blitFrame(ctx, s, s.img, 0, selected, s.ax, s.ay);
       return;
     }
