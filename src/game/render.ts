@@ -648,7 +648,7 @@ export class Renderer {
       ctx.lineCap = 'round';
       if (b.zig) {
         for (let pass = 0; pass < 2; pass++) {
-          ctx.lineWidth = pass ? 1.5 : b.w * 2.5;
+          ctx.lineWidth = pass ? 1 : b.w * 1.3;
           ctx.strokeStyle = pass ? '#ffffff' : b.color;
           ctx.beginPath(); ctx.moveTo(x0, y0);
           const n = 6;
@@ -665,17 +665,20 @@ export class Renderer {
         const glowLine = ctx.createLinearGradient(x0, y0, x1, y1);
         glowLine.addColorStop(0, `${b.color}${stream ? '4d' : '00'}`); glowLine.addColorStop(0.55, b.color); glowLine.addColorStop(1, b.color);
         ctx.lineCap = 'butt';
-        ctx.globalAlpha = a * (stream ? 0.75 : 0.6); ctx.strokeStyle = glowLine; ctx.lineWidth = b.w * (stream ? 1.3 : 1.1);
+        ctx.globalAlpha = a * (stream ? 0.6 : 0.5); ctx.strokeStyle = glowLine; ctx.lineWidth = stream ? 3 + b.w * 0.25 : 3;
         ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
         const core = ctx.createLinearGradient(x0, y0, x1, y1);
         core.addColorStop(0, stream ? '#ffffff33' : '#ffffff00'); core.addColorStop(0.6, '#ffffff'); core.addColorStop(1, '#ffffff');
-        ctx.globalAlpha = a * 0.6; ctx.strokeStyle = core; ctx.lineWidth = Math.max(1, b.w * 0.2);
+        ctx.globalAlpha = a * 0.55; ctx.strokeStyle = core; ctx.lineWidth = 1;
         ctx.stroke();
       } else {
-        ctx.lineWidth = b.w * 3 * a;
+        // an ordinary beam (the flashlight, a friend's laser): a slim coloured line with a hairline core
+        ctx.globalAlpha = a * 0.7;
+        ctx.lineWidth = Math.max(1.5, b.w * 0.8 * a);
         ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+        ctx.globalAlpha = a * 0.6;
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = b.w * 0.8;
+        ctx.lineWidth = 1;
         ctx.stroke();
       }
     }
@@ -736,20 +739,22 @@ export class Renderer {
           const soft = ctx.createLinearGradient(x0, y0, x1, y1);
           soft.addColorStop(0, `${col}00`); soft.addColorStop(0.45, col); soft.addColorStop(1, col);
           ctx.lineCap = 'butt';
-          ctx.globalAlpha = 0.3 * flick; ctx.strokeStyle = soft; ctx.lineWidth = 4;
+          ctx.globalAlpha = 0.26 * flick; ctx.strokeStyle = soft; ctx.lineWidth = 2.5;
           ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
           const core = ctx.createLinearGradient(x0, y0, x1, y1);
           core.addColorStop(0, '#ffffff00'); core.addColorStop(0.5, '#ffffff');  core.addColorStop(1, '#ffffff');
-          ctx.globalAlpha = 0.4; ctx.strokeStyle = core; ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.32; ctx.strokeStyle = core; ctx.lineWidth = 0.8;
           ctx.stroke();
         }
       } else if (z.kind === 'trail') {
         const x1 = isoX(z.x1 ?? z.x, z.y1 ?? z.y), y1 = isoY(z.x1 ?? z.x, z.y1 ?? z.y) - 12;
-        const fade = Math.min(1, (z.life - z.t) * 2), flick = 0.75 + Math.sin(this.t * 22 + z.x * 7) * 0.25;
+        // the line a disc leaves: thin and quiet. Every piece fades over its whole life, and the pieces nearest the gun
+        // were laid first, so the line thins out from the gun end like the wake of a beam.
+        const left = Math.max(0, 1 - z.t / z.life), flick = 0.85 + Math.sin(this.t * 14 + z.x * 7) * 0.15;
         ctx.lineCap = 'round';
-        ctx.globalAlpha = fade * 0.55 * flick; ctx.strokeStyle = z.color ?? '#21d0ff'; ctx.lineWidth = 10;
+        ctx.globalAlpha = left * 0.3 * flick; ctx.strokeStyle = z.color ?? '#21d0ff'; ctx.lineWidth = 2.5;
         ctx.beginPath(); ctx.moveTo(sx, sy - 12); ctx.lineTo(x1, y1); ctx.stroke();
-        ctx.globalAlpha = fade * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+        ctx.globalAlpha = left * 0.35; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.8;
         ctx.stroke();
       } else if (z.kind === 'vortex' && !z.done) {
         const col = z.color ?? '#b44dff', pull = 1 - t * 0.35;
@@ -1256,7 +1261,7 @@ export class Renderer {
       else if (z.kind === 'tornado') light(z.x, z.y, z.r * 1.4, 0.4);
       else if (z.kind === 'vortex') light(z.x, z.y, z.r * 0.9, 0.7);
       else if (z.kind === 'trail' && z.wake) light(z.x1 ?? z.x, z.y1 ?? z.y, 0.7, (1 - z.t / z.life) * 0.25);
-      else if (z.kind === 'trail') { const k = Math.min(1, (z.life - z.t) * 2) * 0.5; light(z.x, z.y, 0.9, k); light(z.x1 ?? z.x, z.y1 ?? z.y, 0.9, k); }
+      else if (z.kind === 'trail') light(z.x1 ?? z.x, z.y1 ?? z.y, 0.7, (1 - z.t / z.life) * 0.25);
     }
     for (const b of g.ebullets) light(b.x, b.y, 0.9, 0.7);
     for (const e of g.enemies) {

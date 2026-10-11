@@ -144,7 +144,7 @@ try {
     await dispatch('touchCancel', []);
     await page.getByRole('button', { name: 'Pause', exact: true }).tap();
     await page.waitForFunction(() => window.__tot.game.state === 'pause');
-    assert.equal(await page.getByTestId('touch-move').count(), 0);
+    await page.getByTestId('touch-move').waitFor({ state: 'detached' }); // the screen follows the game a frame later
     await page.getByRole('button', { name: /Resume/i }).tap();
     await page.getByTestId('touch-move').waitFor();
     await page.evaluate(() => {
