@@ -1,0 +1,11 @@
+{
+  "id": "postoffice",
+  "tool": "built-in imagegen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a\\exec-21a061c7-2d1b-404d-8d58-d0f6fa5c731d.png",
+  "prompt": "Use case: sketch-to-render. Asset type: single transparent game building sprite. Image1 is the AUTHORITATIVE vector model and framing. Image2 is ONLY the material/painting/lighting reference. Paint image1 into a modest two-storey red-brick small-town POST OFFICE, stone window surrounds, dark slate flat roof, small brass clock over central glazed front entrance, warm windows, brass letter slots. Do not invent a new camera or volume; image1's body MUST remain EXACTLY the same physical shape. In normalized 1024-square canvas, footprint corners are rear (448,494), right (960,750), front (576,942), left (64,686); roof edges directly above these by 380 pixels. This is 4×3 tiles: the front-facing +Y facade runs from left to front, projected length ratio front:side EXACTLY 4:3, not a long wide facade with a short right side. Verticals vertical. All ground edges 2 horizontal to 1 vertical slope. Body corners and ground corner at (576,942) are paramount. Match guide canvas, body height, body position, width/depth and scale. Front door belongs centered between LEFT and FRONT ground corners, not on right face. Use two large front display windows flanking the door, upstairs windows and understated clock. No grand extended portico or protruding steps; entrance can be recessed with one small step INSIDE footprint. Richly detailed hand-painted stylized realism matching image2, cool blue upper-left moonlight, warm light ONLY inside windows and actual brass lamps. Single isolated asset with actual alpha background, no ground slab, no cast shadows, no scenery/people/HUD/text except small POST OFFICE signage. Preserve exact geometry and generous margins from image1.",
+  "references": [
+    "C:/Work Admin/PERSONAL/Repos/TrickOrTreat/.codex-session/town-worktree/art/town/guides/postoffice.png",
+    "C:/Work Admin/PERSONAL/Repos/TrickOrTreat/.codex-session/town-worktree/art/reference/style-target.webp"
+  ],
+  "stage": "generated"
+}

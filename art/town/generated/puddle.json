@@ -1,0 +1,11 @@
+{
+  "id": "puddle",
+  "tool": "built-in image_gen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a\\exec-377508dd-357a-4db8-8dad-59003cd97094.png",
+  "prompt": "Use case: stylized-concept.\nAsset type: production transparent ground PNG decal for Trick or Treat — Maple Falls.\nInput image 1 is ONLY the painting/material/lighting reference. Input image 2 is the EXACT flat horizontal footprint and framing guide, not the final medium. Do not copy UI or characters from image1. Do not simply repaint the crude guide as vector clipart.\nPrimary request: Subtle shallow irregular rain puddle with muted cool blue reflections and soft broken feathered edges, no glowing white highlights, absolutely flat.\nStyle: rich, detailed hand-painted stylized realism matching the supplied Halloween suburban world. Era late 1980s/early 1990s American small town. Deep navy and muted teal moonlit surfaces, weathered materials, warm amber confined to actual windows/lamps. Cold blue moonlight from UPPER LEFT; do NOT apply orange studio light to every face. Runtime supplies point-light falloff, shadows, darkness and fog.\nProjection: EXACT 2:1 DIMETRIC orthographic projection; ground X is screen (+2,+1), ground Y screen (-2,+1). Vertical lines remain vertical; absolutely no perspective convergence or skew. This is a single NON-TILING flat decal to overlay grass or pavement, not a terrain tile. Keep its whole shape inside image2's thin horizontal patch band, naturally compressed by the 2:1 view. No perspective wedge, raised platform, grass/road background or rectangular plate. Use ragged/feathered ALPHA edges, transparent holes and surrounding margins.\nComposition: SINGLE isolated asset in the SAME square canvas framing as image2. Preserve generous transparent padding and exact object placement; do not zoom in, move it to another canvas position or crop any part. No ground/background, cast shadow, halo/bloom outside silhouette, characters, people, animals, HUD, border, checkerboard, watermark or invented extra objects. Use genuine alpha transparency throughout the background. No extra text except signage specifically described in the primary request.",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/town/guides/puddle.png"
+  ],
+  "stage": "generated"
+}

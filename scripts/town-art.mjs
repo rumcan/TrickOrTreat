@@ -2,8 +2,11 @@ import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import {chromium} from 'playwright-core';
 const root='art/town',command=process.argv[2];
+const selected=JSON.parse(await fs.readFile(root+'/source-selection.json','utf8').catch(()=>'{}'));
+const sourceFor=id=>root+'/generated/'+(selected[id]||id+'.png');
 await fs.mkdir(root+'/guides',{recursive:true});await fs.mkdir(root+'/generated',{recursive:true});await fs.mkdir(root+'/checks',{recursive:true});
 if(command==='prepare'){
+ if(await fs.access(root+'/baseline.json').then(()=>true,()=>false))throw Error('Baseline already exists. Preserve the pre-redesign snapshot; use the layout review test for current-map exports.');
  const browser=await chromium.launch({channel:'msedge'});
  try{
   const page=await browser.newPage();await page.goto('http://127.0.0.1:5192/');
@@ -39,4 +42,59 @@ if(command==='prepare'){
   }
   console.log('Baseline exported for both towns: '+result.inventory.length+' reusable world assets; '+specs.length+' exact isometric guides.');
  }finally{await browser.close();}
-}else throw Error('Use prepare');
+}else if(command==='pack'){
+ const specs=JSON.parse(await fs.readFile(root+'/specs.json','utf8')),report=[];
+ await fs.mkdir('public/assets/town',{recursive:true});
+ for(const s of specs.filter(s=>!process.argv[3]||process.argv[3].split(',').includes(s.id))){
+  const path=sourceFor(s.id);
+  if(!await fs.access(path).then(()=>true,()=>false)){console.log(s.id+': still queued');continue;}
+  const meta=await sharp(path).metadata();if(!meta.hasAlpha)throw Error(s.id+': no transparent alpha');
+  const source=await sharp(path).resize(1024,1024).ensureAlpha().png().toBuffer();
+  const k=1024/Math.max(s.w,s.h),width=Math.round(s.w*k),height=Math.round(s.h*k),left=Math.round((1024-width)/2),top=Math.round((1024-height)/2);
+  const raw=await sharp(source).ensureAlpha().raw().toBuffer();let count=0,outside=0,bg=0;
+  for(let y=0;y<1024;y++)for(let x=0;x<1024;x++)if(raw[(y*1024+x)*4+3]>64){
+   count++;if(x<left||x>=left+width||y<top||y>=top+height)outside++;
+   if(x<3||x>1020||y<3||y>1020)bg++;
+  }
+  if(count<400)throw Error(s.id+': empty art');
+  if(outside/count>.001||bg>16){report.push({id:s.id,status:'needs-framing-review',outside:outside/count,borderPixels:bg});console.log(s.id+': framing review required');continue;}
+  const file='town/'+s.id+'-v1.png';
+  // Undo the guide's letterboxing with one uniform transform; never squeeze a building to fit.
+  let packed=await sharp(source).extract({left,top,width,height}).resize(s.w*2,s.h*2).ensureAlpha().png().toBuffer();
+  let groundCorrection=[0,0];
+  if(s.kind==='building'){
+   // A rectangular building's lowest opaque ground point is its front footprint
+   // corner. Align that measured point, not the roof or a guessed sprite centre.
+   const d=await sharp(packed).raw().toBuffer(),pw=s.w*2,ph=s.h*2;
+   let bottom=-1;
+   for(let y=ph-1;y>=0&&bottom<0;y--)for(let x=0;x<pw;x++)if(d[(y*pw+x)*4+3]>64){bottom=y;break;}
+   let sum=0,n=0;for(let y=bottom-1;y<=bottom;y++)for(let x=0;x<pw;x++)if(d[(y*pw+x)*4+3]>64){sum+=x;n++;}
+   const px=sum/n,dx=Math.round((s.ax+(s.fw-s.fh)*32)*2-px),dy=Math.round((s.ay+(s.fw+s.fh)*16)*2-bottom);
+   if(Math.abs(dx)>48||Math.abs(dy)>48){report.push({id:s.id,status:'needs-ground-review',correction:[dx,dy]});console.log(s.id+': ground pivot review required');continue;}
+   const temp=await sharp({create:{width:pw+128,height:ph+128,channels:4,background:'#00000000'}}).composite([{input:packed,left:64+dx,top:64+dy}]).png().toBuffer();
+   packed=await sharp(temp).extract({left:64,top:64,width:pw,height:ph}).png().toBuffer();groundCorrection=[dx,dy];
+  }
+  await sharp(packed).png({compressionLevel:9}).toFile('public/assets/'+file);
+  const label=Buffer.from('<svg width="600" height="28"><text x="8" y="20" fill="white" font-family="sans-serif" font-size="17">'+s.id+' — vector guide / painted sprite</text></svg>');
+  const guide=await sharp(root+'/guides/'+s.id+'.png').resize(300,300).flatten({background:'#17212c'}).png().toBuffer();
+  const paint=await sharp(source).resize(300,300).flatten({background:'#17212c'}).png().toBuffer();
+  await sharp({create:{width:600,height:330,channels:3,background:'#17212c'}}).composite([{input:guide,left:0,top:30},{input:paint,left:300,top:30},{input:label,left:0,top:0}]).png().toFile(root+'/checks/'+s.id+'.png');
+  report.push({id:s.id,status:'packed',file,scale:2,anchor:[s.ax*2,s.ay*2],w:s.w*2,h:s.h*2,groundCorrection,outside:outside/count,sourceWidth:meta.width,sourceHeight:meta.height});
+ }
+ const old=JSON.parse(await fs.readFile(root+'/packing-report.json','utf8').catch(()=> '[]'));
+ const merged=[...old.filter(r=>!report.some(n=>n.id===r.id)),...report];
+ await fs.writeFile(root+'/packing-report.json',JSON.stringify(merged,null,2)+'\n');
+ console.log(report.filter(r=>r.status==='packed').length+' assets packed; '+report.filter(r=>r.status!=='packed').length+' need visual/framing review. No runtime overrides activated.');
+}else if(command==='contact'){
+ const specs=JSON.parse(await fs.readFile(root+'/specs.json','utf8'));
+ for(const [name,list,cols]of [['buildings',specs.filter(s=>s.kind==='building'),3],['furniture',specs.filter(s=>s.kind==='prop'||s.kind==='foliage'),4],['decals',specs.filter(s=>s.kind==='decal'),5]]){
+  const layers=[];
+  for(const [i,s]of list.entries()){
+   const path=sourceFor(s.id);if(!await fs.access(path).then(()=>true,()=>false))continue;
+   const label=Buffer.from('<svg width="384" height="25"><text x="8" y="20" fill="white" font-family="sans-serif" font-size="17">'+s.id+'</text></svg>');
+   layers.push({input:await sharp(path).resize(384,384).flatten({background:'#121f2b'}).composite([{input:label,left:0,top:0}]).png().toBuffer(),left:i%cols*384,top:Math.floor(i/cols)*384});
+  }
+  await sharp({create:{width:cols*384,height:Math.ceil(list.length/cols)*384,channels:3,background:'#121f2b'}}).composite(layers).png().toFile(root+'/checks/'+name+'-contact.png');
+ }
+ console.log('Three labelled source-art contact sheets saved for visual inspection.');
+}else throw Error('Use prepare, pack or contact');

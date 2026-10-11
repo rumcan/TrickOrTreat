@@ -8,6 +8,9 @@ import {
   getSwings, getMerryGoRound, getSchoolBus, getBarn, getGazebo, getBench,
 } from './art/props';
 import { Img } from './assets';
+import { TOWN_ASSETS, type TownAssetId } from './town-assets';
+import { TOWN_SITES, TOWN_CORRIDORS } from './town-plan';
+import { getTownProp, getTownDecal } from './art/town';
 
 export interface PropInst {
   id: number;
@@ -100,6 +103,15 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   let pid = 1;
   const idx = (x: number, y: number) => y * MAP_W + x;
   const inMap = (x: number, y: number) => x >= 0 && y >= 0 && x < MAP_W && y < MAP_H;
+  // Plan before scattering: decoration may not consume a future shop, loading
+  // lane or pedestrian route. Occupancy and reservation are separate concepts.
+  const reserved = new Uint8Array(N);
+  const reserve = (x:number,y:number,w:number,h:number) => {
+    for(let yy=y;yy<y+h;yy++) for(let xx=x;xx<x+w;xx++) if(inMap(xx,yy)) reserved[idx(xx,yy)]=1;
+  };
+  for(const site of TOWN_SITES){const a=TOWN_ASSETS.find(a=>a.id===site.asset)!;reserve(site.x,site.y,a.fw,a.fh);}
+  const townCorridors=TOWN_CORRIDORS.filter(c=>!('expandedOnly' in c && c.expandedOnly)||expanded);
+  for(const c of townCorridors) reserve(c.x,c.y,c.w,c.h);
 
   // ---- base ground ----
   for (let y = 0; y < MAP_H; y++)
@@ -121,10 +133,10 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     const cx1 = Math.min(CW, Math.ceil(x1 * CR)), cy1 = Math.min(CH, Math.ceil(y1 * CR));
     for (let cy = cy0; cy < cy1; cy++) for (let cx = cx0; cx < cx1; cx++) coll[cy * CW + cx] = Math.max(coll[cy * CW + cx], v);
   };
-  const free = (x: number, y: number, w = 1, h = 1, allowHard = false) => {
+  const free = (x: number, y: number, w = 1, h = 1, allowHard = false, respectPlan = true) => {
     for (let yy = y; yy < y + h; yy++)
       for (let xx = x; xx < x + w; xx++) {
-        if (!inMap(xx, yy) || occ[idx(xx, yy)]) return false;
+        if (!inMap(xx, yy) || occ[idx(xx, yy)] || (respectPlan && reserved[idx(xx,yy)])) return false;
         const g = ground[idx(xx, yy)];
         if (!allowHard && (g === G.ROAD || g === G.SIDEWALK)) return false;
         if (g === G.ROAD) return false;
@@ -179,10 +191,11 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   };
 
   // ---- house lots ----
-  const houseBlock = (bx: number, by: number, withShop: boolean) => {
+  const houseBlock = (bx: number, by: number, withShop: boolean, lowerAt?: [number,number]) => {
     for (let ly = 0; ly < 2; ly++)
       for (let lx = 0; lx < 2; lx++) {
-        const ox = bx + lx * 6, oy = by + ly * 6;
+        const ox = (ly===1 && lowerAt ? lowerAt[0] : bx) + lx * 6;
+        const oy = ly===1 && lowerAt ? lowerAt[1] : by + ly * 6;
         if (withShop && lx === 0 && ly === 1) {
           // candy stand lot
           for (let y = oy; y < oy + 6; y++) for (let x = ox; x < ox + 6; x++) if (rnd() < 0.5) ground[idx(x, y)] = G.DIRT;
@@ -284,6 +297,12 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   };
 
   // ================= DISTRICTS =================
+  // The seven Main Street shops and two civic buildings belong to both town
+  // modes. Each keeps the existing building trick-or-treat reward flow.
+  for(const site of TOWN_SITES) {
+    const a=TOWN_ASSETS.find(a=>a.id===site.asset)!;
+    addVenue(getTownProp(site.asset),site.x,site.y,'town_'+site.asset,a.name);
+  }
   // CENTER — home suburb (always open)
   houseBlock(26, 26, true);
   for (let i = 0; i < 6; i++) addSmall(getTree('oak', i % 3), 25 + Math.floor(rnd() * 20), 40 + Math.floor(rnd() * 5), 'tree');
@@ -296,8 +315,8 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     addSmall(getBleachers(), 34, 10, 'hedge', false, true);
     addSmall(getGoalPosts(), 26, 15, 'hydrant', false, true);
     addSmall(getGoalPosts(), 43, 15, 'hydrant', false, true);
-    addSmall(getScoreboard(), 44, 11, 'lamp', false, true);
-    for (const [lx, ly] of [[25, 6], [44, 6], [25, 16], [44, 16]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
+    addSmall(getScoreboard(), 42, 10, 'lamp', false, true);
+    for (const [lx, ly] of [[25, 6], [38, 3], [25, 16], [43, 21]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
     for (let i = 0; i < 5; i++) addSmall(getTree('oak', i % 3), 46 + Math.floor(rnd() * 3), 5 + Math.floor(rnd() * 15), 'tree');
     for (let i = 0; i < 4; i++) addSmall(getBush(i % 3), 27 + i * 5, 21, 'bush', false, true);
   }
@@ -313,7 +332,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     if (v) { v.interact = 'shop'; shops.push({ x: 55.5, y: 31.2, prop: v }); }
     addSmall(getLamp(), 56, 25, 'lamp', true, true);
     addSmall(getLamp(), 66, 25, 'lamp', true, true);
-    houseBlock(56, 33, false);
+    houseBlock(56, 33, false, [50,63]);
     for (let i = 0; i < 4; i++) addSmall(getPumpkin(i % 2), 50 + Math.floor(rnd() * 4), 30 + Math.floor(rnd() * 2), 'pumpkin', false, true);
   }
 
@@ -417,7 +436,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
       }
     addVenue(getSnackBar(), 80, 80, 'snackbar', 'Moonlite Drive-In Snack Bar');
     addSmall(getMarquee(), 84, 74, 'sign', true, true);
-    for (const [lx, ly] of [[78, 78], [78, 86], [83, 85]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
+    for (const [lx, ly] of [[79, 78], [79, 87], [84, 85]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
     scatterTrees(78, 87, 90, 90, 6, ['pine', 'dead']);
     scatterTrees(86, 76, 90, 86, 6, ['pine']);
   }
@@ -430,7 +449,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     paint(12, 74, 20, 89, G.DARKGRASS);
     for (let y = 75; y <= 88; y += 2) for (let x = 13; x <= 19; x += 2) if (rnd() < 0.8) addSmall(getGrave(Math.floor(rnd() * 3)), x, y, 'grave');
     for (let i = 0; i < 12; i++) { addSmall(getFence('iron', 'y'), 11, 74 + i, 'fencey'); }
-    for (const [lx, ly] of [[6, 81], [9, 81], [10, 88]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
+    for (const [lx, ly] of [[6, 81], [11, 87], [10, 88]]) addSmall(getLamp(), lx, ly, 'lamp', true, true);
     scatterTrees(2, 82, 10, 90, 7, ['dead', 'pine']);
     scatterTrees(12, 74, 20, 89, 4, ['dead']);
     for (let i = 0; i < 3; i++) addSmall(getPumpkin(i % 2), 5 + i * 2, 80, 'pumpkin');
@@ -497,6 +516,14 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     for (const [x0, y0] of [[3, 3], [73, 3], [3, 73], [73, 73]]) scatterTrees(x0, y0, x0 + 17, y0 + 17, 5, ['oak', 'dead', 'pine']);
   }
 
+  // Restore the planned ground after lot painting. Service access is asphalt;
+  // promenades are paving. Never paint over a through road or a solid building.
+  for(const c of townCorridors) for(let y=c.y;y<c.y+c.h;y++) for(let x=c.x;x<c.x+c.w;x++){
+    if(!inMap(x,y)||ground[idx(x,y)]===G.ROAD) continue;
+    if(props.some(p=>p.big && x>=p.x0 && x<p.x0+p.fw && y>=p.y0 && y<p.y0+p.fh)) continue;
+    ground[idx(x,y)]=c.type==='service'?G.DRIVEWAY:G.SIDEWALK;
+  }
+
   // ---- hideouts: every gated district has a gazebo, and that is where the missing friends wait ----
   const hideouts: GameMap['hideouts'] = [];
   if (expanded) {
@@ -532,6 +559,53 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   for (let i = 0; i < 16; i++) {
     const x = 24 + Math.floor(rnd() * 46), y = 24 + Math.floor(rnd() * 46);
     if (inMap(x, y) && ground[idx(x, y)] === G.SIDEWALK && !occ[idx(x, y)]) addSmall(rnd() < 0.5 ? getHydrant() : getTrash(), x, y, rnd() < 0.5 ? 'hydrant' : 'trash', true);
+  }
+
+  // ---- lived-in, contextual street dressing ----
+  // Furniture is hand-placed at edges, never tiled across a promenade. Additional
+  // foliage follows actual gardens/trees; decals below follow plausible sources.
+  const nearEntrance = (x:number,y:number,w=1,h=1) =>
+    houses.some(v=>v.door.x>x-1.3 && v.door.x<x+w+1.3 && v.door.y>y-1.3 && v.door.y<y+h+1.3) ||
+    shops.some(s=>s.x>x-1.3 && s.x<x+w+1.3 && s.y>y-1.3 && s.y<y+h+1.3) ||
+    hideouts.some(s=>s.x>x-2 && s.x<x+w+2 && s.y>y-2 && s.y<y+h+2);
+  const furniture = (id:TownAssetId,x:number,y:number) => {
+    const sp=getTownProp(id),w=Math.ceil(sp.fw),h=Math.ceil(sp.fh);
+    if(!free(x,y,w,h,true,false)||nearEntrance(x,y,w,h)) return null;
+    return addBig(sp,x,y,'town_furniture',.25,1);
+  };
+  const details: [TownAssetId,number,number][] = [
+    // Back-of-shop pockets outside the clear two-tile alleys.
+    ['dumpster',28,37],['delivery_crates',33,37],['utility_pole',42,37],
+    ['dumpster',52,37],['delivery_crates',54,37],['utility_pole',68,39],
+    // Front corners, not the doorways. The lower sidewalk remains unobstructed.
+    ['planter_terracotta',29,42],['planter_square',34,42],['produce_stand',43,43],
+    ['phone_booth',45,42],['planter_terracotta',55,42],['planter_square',59,42],
+    ['bike_rack',62,44],['bus_stop',40,49],
+    // School/civic and arcade foot traffic.
+    ['bike_rack',36,8],['bus_stop',26,18],['planter_square',38,10],
+    ['bike_rack',52,11],['phone_booth',57,31],['planter_terracotta',49,28],
+    // Public gathering pockets and roadside services.
+    ['picnic_table',82,46],['picnic_table',40,58],['planter_square',13,42],
+    ['dumpster',28,55],['delivery_crates',35,55],['phone_booth',38,54],
+    ['stop_sign',20,33],['stop_sign',49,20],['stop_sign',69,58],
+    ['street_sign',20,45],['street_sign',45,69],['street_sign',72,45],
+    ['traffic_light',20,20],['traffic_light',48,20],['traffic_light',48,48],
+    ['traffic_light',69,48],['traffic_light',72,72],
+  ];
+  if(expanded) details.push(
+    ['picnic_table',19,16],['delivery_crates',17,14],['utility_pole',20,18],
+    ['planter_terracotta',38,79],['phone_booth',43,77],['dumpster',84,83],
+    ['picnic_table',79,86],['planter_terracotta',79,79],['bus_stop',83,12]);
+  else details.push(['picnic_table',16,17],['bike_rack',68,12],['picnic_table',80,86]);
+  for(const [id,x,y] of details) furniture(id,x,y);
+  // Same deterministic art-only RNG for either mode; no loot/combat randomness.
+  const detailRng=makeRng(seed+90731);
+  for(const p of [...props]) {
+    if(!['house','tree','gazebo'].includes(p.kind)) continue;
+    if(p.kind==='tree' && detailRng()>.24) continue;
+    const id:TownAssetId=p.kind==='house'?'hydrangea':p.kind==='tree'?'fern':'ornamental_grass';
+    const spots=p.kind==='house'?[[p.x0-1,p.y0+1],[p.x0+p.fw,p.y0+1]]:[[p.x0-1,p.y0],[p.x0+1,p.y0+1]];
+    for(const [x,y] of spots) if(Number.isInteger(x)&&Number.isInteger(y)&&!nearEntrance(x,y)) addSmall(getTownProp(id),x,y,'bush');
   }
 
   // ================= GATED DISTRICT WALLS =================
@@ -612,6 +686,37 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   const nb = [[0, -1], [1, 0], [0, 1], [-1, 0]];
   const isGreen = (g: number) => g === G.GRASS || g === G.DARKGRASS || g === G.FLAGSTONE || g === G.FIELD;
   const vr = makeRng(seed + 5);
+  const floorDetails=new Map<number,TownAssetId>();
+  const decal=(id:TownAssetId,x:number,y:number,allowed:G[])=>{
+    x=Math.floor(x);y=Math.floor(y);
+    if(!inMap(x,y)||floorDetails.has(idx(x,y))||!allowed.includes(ground[idx(x,y)])||nearEntrance(x,y,.5,.5))return;
+    // All decals are non-colliding ground overlays, not pickup/prop sprites.
+    floorDetails.set(idx(x,y),id);
+  };
+  for(const p of props) {
+    const x=p.x0,y=p.y0;
+    if(p.kind==='tree'&&detailRng()<.45) decal('leaf_drift',x+1,y+1,[G.GRASS,G.DARKGRASS,G.DIRT,G.SIDEWALK]);
+    if(p.kind==='house') {
+      decal('mud_grass',x-1,y,[G.GRASS,G.DIRT]);
+      if(detailRng()<.5)decal('bare_grass',x+p.fw,y+2,[G.GRASS,G.DIRT]);
+    }
+    if(p.kind==='car') decal('oil_stain',x,y+p.fh,[G.DRIVEWAY,G.GRAVEL]);
+    if(p.kind==='vending'||p.kind==='trash')decal('paper_litter',x+1,y,[G.SIDEWALK,G.GRASS,G.DRIVEWAY]);
+    if(p.kind==='town_furniture') {
+      if(p.sp===getTownProp('dumpster')) {
+        decal('bag_litter',x-1,y,[G.GRASS,G.DRIVEWAY,G.DIRT]);
+        decal('puddle',x+1,y+1,[G.DRIVEWAY]);
+      }
+      if(p.sp===getTownProp('bus_stop'))decal('paper_litter',x+1,y+1,[G.GRASS,G.DRIVEWAY,G.SIDEWALK]);
+    }
+  }
+  for(const [x,y] of [[27,39],[37,38],[52,39],[64,39]])decal('paving_wear',x,y,[G.DRIVEWAY]);
+  for(const [x,y] of [[26,40],[44,42],[49,39],[65,42],[20,18]])decal('gravel_spill',x,y,[G.GRASS,G.DRIVEWAY,G.DIRT]);
+  if(expanded) {
+    decal('wheel_wear',19,13,[G.GRASS,G.DIRT]);
+    decal('bare_grass',59,18,[G.DIRT]);
+    decal('paper_litter',81,85,[G.GRAVEL,G.GRASS]);
+  }
   for (let y = 0; y < MAP_H; y++)
     for (let x = 0; x < MAP_W; x++) {
       const g = ground[idx(x, y)] as G;
@@ -639,6 +744,8 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
           else if (x % 24 === 22) ov.push(getRoadLine(1));
         }
       }
+      const d=floorDetails.get(idx(x,y));
+      if(d)ov.push(getTownDecal(d));
       overlays[idx(x, y)] = ov;
     }
 
@@ -648,7 +755,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
   houses.filter(h => h.prop.kind === 'house').forEach((h, i) => (h.owner = OWNERS[(i * 5 + Math.floor(rnd() * 12)) % OWNERS.length]));
 
   // Meet on the open central sidewalk, not inside the randomized housing lot.
-  const map: GameMap = { ground, tiles, overlays, coll, props, lights, shops, houses, gates, barriers, turrets, hideouts, start: { x: 35, y: 45 } };
+  const map: GameMap = { kind:'town',name:'Maple Falls',pois:TOWN_SITES.map(s=>({x:s.x,y:s.y,name:TOWN_ASSETS.find(a=>a.id===s.asset)!.name})),ground, tiles, overlays, coll, props, lights, shops, houses, gates, barriers, turrets, hideouts, start: { x: 35, y: 45 } };
   for (const venue of houses.filter(h => h.prop.kind !== 'house')) {
     if (!blockedCircle(map, venue.door.x, venue.door.y, 0.3)) continue;
     const { x0, y0, fw, fh } = venue.prop;

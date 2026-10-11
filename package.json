@@ -4,6 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "art:town:prepare": "node scripts/town-art.mjs prepare",
+    "art:town:pack": "node scripts/town-art.mjs pack",
+    "art:town:contact": "node scripts/town-art.mjs contact",
+    "test:town:art": "node scripts/town-art.test.mjs",
+    "test:town:layout": "node scripts/town-layout.test.mjs",
+    "test:town:production": "node scripts/town-production.test.mjs",
     "test:nightmare": "node scripts/nightmare-art.test.mjs && node scripts/nightmare-roster.test.mjs",
     "art:nightmare:export": "node scripts/nightmare-art.mjs export",
     "art:nightmare:pack": "node scripts/nightmare-art.mjs pack",

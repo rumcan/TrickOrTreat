@@ -1,0 +1,377 @@
+[
+  {
+    "id": "S01",
+    "area": "Central homes",
+    "subsection": "Front doors and paths",
+    "bounds": "26–38,26–38",
+    "brief": "Preserve first-house tutorial approach, plant beds to the sides, not over doorstep.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Hydrangeas placed beside homes; tutorial approach checked with gates locked.",
+    "evidence": [
+      "checks/sections/S01.png",
+      "checks/sections/S01-placement.png"
+    ]
+  },
+  {
+    "id": "S02",
+    "area": "Central homes",
+    "subsection": "Rear gardens / service seam",
+    "bounds": "25–45,36–40",
+    "brief": "Keep two-tile shop service lane clear; place bins and deliveries at edges.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Rear seam kept clear by reservation; roofs fade normally when walking behind shops.",
+    "evidence": [
+      "checks/sections/S02.png",
+      "checks/sections/S02-placement.png"
+    ]
+  },
+  {
+    "id": "S03",
+    "area": "Main Street",
+    "subsection": "Western shop frontage",
+    "bounds": "25–45,40–46",
+    "brief": "Bakery/hardware/pharmacy/grocery; planters, produce, bikes, clean glazing and 2+ tile promenade.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Four storefronts face Main Street; display glazing and promenade align to world axes.",
+    "evidence": [
+      "checks/sections/S03.png",
+      "checks/sections/S03-placement.png"
+    ]
+  },
+  {
+    "id": "S04",
+    "area": "Main Street",
+    "subsection": "Eastern shop frontage",
+    "bounds": "50–67,40–46",
+    "brief": "Laundromat/barber/tackle; move old lower housing row to Moonlight Court before placement.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Three east storefronts replace lower home row; delivery pockets and pedestrian link retained.",
+    "evidence": [
+      "checks/sections/S04.png",
+      "checks/sections/S04-placement.png"
+    ]
+  },
+  {
+    "id": "S05",
+    "area": "Main Street",
+    "subsection": "Service alleys",
+    "bounds": "25–45 / 50–67,38–40",
+    "brief": "Dumpsters at back corners, irregular litter by bins, delivery crates away from exits, no lane dead ends.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Two-tile rear asphalt lanes have paved connections at both ends; bins/crates at edge pockets.",
+    "evidence": [
+      "checks/sections/S05.png",
+      "checks/sections/S05-placement.png"
+    ]
+  },
+  {
+    "id": "S06",
+    "area": "Town roads",
+    "subsection": "Major junctions",
+    "bounds": "22 / 46 / 70 intersections",
+    "brief": "Crosswalks and signals where arterial routes meet; no posts on road or crossing mouth.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Signals and existing geometry-driven crosswalks align; no painted road image distortion.",
+    "evidence": [
+      "checks/sections/S06.png",
+      "checks/sections/S06-placement.png"
+    ]
+  },
+  {
+    "id": "S07",
+    "area": "Town roads",
+    "subsection": "Residential side approaches",
+    "bounds": "Road frontage away from arterial junctions",
+    "brief": "Stop signs and street blades, intermittent grass verges and hydrants; do not duplicate a sign every tile.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Stop/street signs mark selected approaches, without filling every roadside tile.",
+    "evidence": [
+      "checks/sections/S07.png",
+      "checks/sections/S07-placement.png"
+    ]
+  },
+  {
+    "id": "S08",
+    "area": "School quarter",
+    "subsection": "Original school entrance",
+    "bounds": "27–44,3–11",
+    "brief": "Reserve firehouse at39,4; move lamps; keep two-tile east lane and bay apron clear.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "New firehouse apron and school east lane; lamps and scoreboard relocated off walking routes.",
+    "evidence": [
+      "checks/sections/S08.png",
+      "checks/sections/S08-placement.png"
+    ]
+  },
+  {
+    "id": "S09",
+    "area": "School quarter",
+    "subsection": "Playing field / rescue gazebo",
+    "bounds": "24–45,11–21",
+    "brief": "Field remains a combat space; wear at entrances/bleacher edges, bushes outside field lines.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Playing field remains deliberate encounter space; rescue gazebo still accessible.",
+    "evidence": [
+      "checks/sections/S09.png",
+      "checks/sections/S09-placement.png"
+    ]
+  },
+  {
+    "id": "S10",
+    "area": "Primary school",
+    "subsection": "Entrance and bus bays",
+    "bounds": "49–90,3–11",
+    "brief": "Bus shelter/bikes/bins at pedestrian edge; planting islands, worn pavement by parking.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Primary school forecourt gains bike parking and garden layers; existing bus bays retained.",
+    "evidence": [
+      "checks/sections/S10.png",
+      "checks/sections/S10-placement.png"
+    ]
+  },
+  {
+    "id": "S11",
+    "area": "Primary school",
+    "subsection": "Play equipment and turrets",
+    "bounds": "56–74,8–21",
+    "brief": "Bare ground under swings, benches and litter beside seating, preserve both turret approaches.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Turret reach checked; wear added near swings, no colliding debris under play equipment.",
+    "evidence": [
+      "checks/sections/S11.png",
+      "checks/sections/S11-placement.png"
+    ]
+  },
+  {
+    "id": "S12",
+    "area": "Starcade",
+    "subsection": "Entrance forecourt",
+    "bounds": "49–57,25–34",
+    "brief": "Arcade portal, payphone, bikes and planter; keep visible approach and standing room.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Arcade approach reserved; payphone at parking edge, portal/door reward unchanged.",
+    "evidence": [
+      "checks/sections/S12.png",
+      "checks/sections/S12-placement.png"
+    ]
+  },
+  {
+    "id": "S13",
+    "area": "Starcade",
+    "subsection": "Parking lot",
+    "bounds": "56–68,25–33",
+    "brief": "Varied cars, plausible oil patches and curb litter; distinct pedestrian route to doors.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Car bays kept distinct; oil/pavement wear contextual rather than uniformly tiled.",
+    "evidence": [
+      "checks/sections/S13.png",
+      "checks/sections/S13-placement.png"
+    ]
+  },
+  {
+    "id": "S14",
+    "area": "East neighbourhood",
+    "subsection": "Hollow Pines homes / Moonlight Park",
+    "bounds": "72–90,24–69",
+    "brief": "Yard and park variation, picnic table, ferns in shade, desire-line grass patches, no uniform vegetation carpet.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Tree variants layered with ferns; picnic furniture in a park edge pocket, combat space retained.",
+    "evidence": [
+      "checks/sections/S14.png",
+      "checks/sections/S14-placement.png"
+    ]
+  },
+  {
+    "id": "S15",
+    "area": "Moonlight Court",
+    "subsection": "Relocated lower Starcade row",
+    "bounds": "50–64,63–69",
+    "brief": "Two homes at51,64 and57,64; front access joins southern sidewalk; retain existing homes/park above.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Both lower Starcade homes relocated to Moonlight Court; access remains from southern pavement.",
+    "evidence": [
+      "checks/sections/S15.png",
+      "checks/sections/S15-placement.png"
+    ]
+  },
+  {
+    "id": "S16",
+    "area": "Old cemetery",
+    "subsection": "Crypt, gates and grave paths",
+    "bounds": "3–20,24–39",
+    "brief": "Leaf drifts and shaded ferns, sparse bare patches, paths obvious and accessible.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Existing crypt/fence paths preserved with leaf drifts and shaded planting.",
+    "evidence": [
+      "checks/sections/S16.png",
+      "checks/sections/S16-placement.png"
+    ]
+  },
+  {
+    "id": "S17",
+    "area": "Historic civic edge",
+    "subsection": "Water tower / post office",
+    "bounds": "3–20,40–46",
+    "brief": "New post office at15,41; clear forecourt, benches/planter, service bins behind, tower remains distinct.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Post office facade matches 4:3 vector footprint; forecourt and tower remain distinct.",
+    "evidence": [
+      "checks/sections/S17.png",
+      "checks/sections/S17-placement.png"
+    ]
+  },
+  {
+    "id": "S18",
+    "area": "Downtown",
+    "subsection": "Diner and video frontage",
+    "bounds": "25–44,49–56",
+    "brief": "Outdoor seating cues, bins behind food venue, litter near vending—not scattered evenly.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Diner/video unchanged as landmarks; service details and phone inserted at back/side pockets.",
+    "evidence": [
+      "checks/sections/S18.png",
+      "checks/sections/S18-placement.png"
+    ]
+  },
+  {
+    "id": "S19",
+    "area": "Downtown",
+    "subsection": "Lantern/Willow residential lanes",
+    "bounds": "3–45,56–90",
+    "brief": "Vary tree/bush groupings, gardens, mailboxes and minor paved connections; preserve free/full substitutions.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Garden foliage applied to existing residential/free-mode substitution blocks.",
+    "evidence": [
+      "checks/sections/S19.png",
+      "checks/sections/S19-placement.png"
+    ]
+  },
+  {
+    "id": "S20",
+    "area": "Church quarter",
+    "subsection": "Chapel steps / churchyard",
+    "bounds": "3–20,73–90",
+    "brief": "Clear approach, fern/leaf pockets by graves and walls, quiet planting rather than urban loading clutter.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Dead-end church path corrected with street approach and cross-court paving; lamp moved.",
+    "evidence": [
+      "checks/sections/S20.png",
+      "checks/sections/S20-placement.png"
+    ]
+  },
+  {
+    "id": "S21",
+    "area": "Video Vault",
+    "subsection": "Entrance and parking",
+    "bounds": "38–45,74–90",
+    "brief": "Bikes/payphone only if space, parking stains, low shrubs; no cars on reward doorway.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Video Vault has reserved street-side approach; parking stains away from door.",
+    "evidence": [
+      "checks/sections/S21.png",
+      "checks/sections/S21-placement.png"
+    ]
+  },
+  {
+    "id": "S22",
+    "area": "Drive-in",
+    "subsection": "Screen, car rows and pedestrian lane",
+    "bounds": "49–77,73–90",
+    "brief": "Retain screen sightlines, distinguish car bays, gentle gravel wear and sparse litter by speaker posts.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Dedicated two-tile pedestrian lane separates drive-in car bays from snack bar access.",
+    "evidence": [
+      "checks/sections/S22.png",
+      "checks/sections/S22-placement.png"
+    ]
+  },
+  {
+    "id": "S23",
+    "area": "Drive-in",
+    "subsection": "Snack bar / marquee",
+    "bounds": "78–90,73–90",
+    "brief": "Food litter and bins in service corner; seating/planter, visible entrance from road.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Snack bar apron, dumpster and nearby litter with lamps shifted away from path.",
+    "evidence": [
+      "checks/sections/S23.png",
+      "checks/sections/S23-placement.png"
+    ]
+  },
+  {
+    "id": "S24",
+    "area": "Farm",
+    "subsection": "Barn and pumpkin rows",
+    "bounds": "3–20,3–21",
+    "brief": "Wheel tracks/gravel at access, picnic table by barn, irregular grass at dirt boundaries, keep rural character.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Barn receives paved service access, deliveries and rural wear; pumpkin rows stay open.",
+    "evidence": [
+      "checks/sections/S24.png",
+      "checks/sections/S24-placement.png"
+    ]
+  },
+  {
+    "id": "S25",
+    "area": "Map edge",
+    "subsection": "Woodland and incidental clearings",
+    "bounds": "Outer perimeter and remaining non-venue pockets",
+    "brief": "Layer existing tree variants with new foliage, sparse leaf/soil decals, preserve spawn/reachability and deliberate combat clearings.",
+    "status": "implemented and visually reviewed",
+    "placed": true,
+    "reviewed": true,
+    "reviewNotes": "Existing varied outer trees enriched with shaded ferns and leaf drifts; clear encounter pockets preserved.",
+    "evidence": [
+      "checks/sections/S25.png",
+      "checks/sections/S25-placement.png"
+    ]
+  }
+]

@@ -1,0 +1,273 @@
+{
+  "layout": {
+    "bad": [],
+    "stats": [
+      {
+        "seed": 1337,
+        "expanded": false,
+        "doors": 49,
+        "props": 1960,
+        "newBuildings": 9,
+        "newFurniture": 34,
+        "overlays": 3750
+      },
+      {
+        "seed": 7932,
+        "expanded": false,
+        "doors": 49,
+        "props": 1937,
+        "newBuildings": 9,
+        "newFurniture": 33,
+        "overlays": 3787
+      },
+      {
+        "seed": 15851,
+        "expanded": false,
+        "doors": 49,
+        "props": 1960,
+        "newBuildings": 9,
+        "newFurniture": 32,
+        "overlays": 3769
+      },
+      {
+        "seed": 23770,
+        "expanded": false,
+        "doors": 49,
+        "props": 1937,
+        "newBuildings": 9,
+        "newFurniture": 32,
+        "overlays": 3680
+      },
+      {
+        "seed": 791903,
+        "expanded": false,
+        "doors": 49,
+        "props": 1950,
+        "newBuildings": 9,
+        "newFurniture": 32,
+        "overlays": 3765
+      },
+      {
+        "seed": 1337,
+        "expanded": true,
+        "doors": 50,
+        "props": 2023,
+        "newBuildings": 9,
+        "newFurniture": 39,
+        "overlays": 3765
+      },
+      {
+        "seed": 7932,
+        "expanded": true,
+        "doors": 50,
+        "props": 1985,
+        "newBuildings": 9,
+        "newFurniture": 39,
+        "overlays": 3847
+      },
+      {
+        "seed": 15851,
+        "expanded": true,
+        "doors": 50,
+        "props": 2004,
+        "newBuildings": 9,
+        "newFurniture": 39,
+        "overlays": 3784
+      },
+      {
+        "seed": 23770,
+        "expanded": true,
+        "doors": 50,
+        "props": 2000,
+        "newBuildings": 9,
+        "newFurniture": 38,
+        "overlays": 3757
+      },
+      {
+        "seed": 791903,
+        "expanded": true,
+        "doors": 50,
+        "props": 1996,
+        "newBuildings": 9,
+        "newFurniture": 40,
+        "overlays": 3824
+      }
+    ],
+    "files": [
+      {
+        "key": "town_fish_tackle",
+        "file": "town/fish_tackle-v1.png"
+      },
+      {
+        "key": "town_grocery",
+        "file": "town/grocery-v1.png"
+      },
+      {
+        "key": "town_hardware",
+        "file": "town/hardware-v1.png"
+      },
+      {
+        "key": "town_bakery",
+        "file": "town/bakery-v1.png"
+      },
+      {
+        "key": "town_laundromat",
+        "file": "town/laundromat-v1.png"
+      },
+      {
+        "key": "town_pharmacy",
+        "file": "town/pharmacy-v1.png"
+      },
+      {
+        "key": "town_barber",
+        "file": "town/barber-v1.png"
+      },
+      {
+        "key": "town_postoffice",
+        "file": "town/postoffice-v1.png"
+      },
+      {
+        "key": "town_firestation",
+        "file": "town/firestation-v1.png"
+      },
+      {
+        "key": "town_dumpster",
+        "file": "town/dumpster-v1.png"
+      },
+      {
+        "key": "town_delivery_crates",
+        "file": "town/delivery_crates-v1.png"
+      },
+      {
+        "key": "town_planter_terracotta",
+        "file": "town/planter_terracotta-v1.png"
+      },
+      {
+        "key": "town_planter_square",
+        "file": "town/planter_square-v1.png"
+      },
+      {
+        "key": "town_traffic_light",
+        "file": "town/traffic_light-v1.png"
+      },
+      {
+        "key": "town_stop_sign",
+        "file": "town/stop_sign-v1.png"
+      },
+      {
+        "key": "town_street_sign",
+        "file": "town/street_sign-v1.png"
+      },
+      {
+        "key": "town_bus_stop",
+        "file": "town/bus_stop-v1.png"
+      },
+      {
+        "key": "town_phone_booth",
+        "file": "town/phone_booth-v1.png"
+      },
+      {
+        "key": "town_bike_rack",
+        "file": "town/bike_rack-v1.png"
+      },
+      {
+        "key": "town_picnic_table",
+        "file": "town/picnic_table-v1.png"
+      },
+      {
+        "key": "town_utility_pole",
+        "file": "town/utility_pole-v1.png"
+      },
+      {
+        "key": "town_produce_stand",
+        "file": "town/produce_stand-v1.png"
+      },
+      {
+        "key": "town_fern",
+        "file": "town/fern-v1.png"
+      },
+      {
+        "key": "town_hydrangea",
+        "file": "town/hydrangea-v1.png"
+      },
+      {
+        "key": "town_ornamental_grass",
+        "file": "town/ornamental_grass-v1.png"
+      },
+      {
+        "key": "town_bare_grass",
+        "file": "town/bare_grass-v1.png"
+      },
+      {
+        "key": "town_mud_grass",
+        "file": "town/mud_grass-v1.png"
+      },
+      {
+        "key": "town_leaf_drift",
+        "file": "town/leaf_drift-v1.png"
+      },
+      {
+        "key": "town_paper_litter",
+        "file": "town/paper_litter-v1.png"
+      },
+      {
+        "key": "town_bag_litter",
+        "file": "town/bag_litter-v1.png"
+      },
+      {
+        "key": "town_puddle",
+        "file": "town/puddle-v1.png"
+      },
+      {
+        "key": "town_oil_stain",
+        "file": "town/oil_stain-v1.png"
+      },
+      {
+        "key": "town_paving_wear",
+        "file": "town/paving_wear-v1.png"
+      },
+      {
+        "key": "town_wheel_wear",
+        "file": "town/wheel_wear-v1.png"
+      },
+      {
+        "key": "town_gravel_spill",
+        "file": "town/gravel_spill-v1.png"
+      }
+    ]
+  },
+  "mobile": [
+    {
+      "width": 390,
+      "height": 844,
+      "median": 6.399999976158142,
+      "p95": 14,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "median": 6.199999928474426,
+      "p95": 10.5,
+      "horizontalOverflow": false
+    }
+  ],
+  "production": {
+    "paintedAssets": 35,
+    "gameplayStarted": true,
+    "pngBytes": 17820839,
+    "releaseBytes": 2682648,
+    "decodedBytes": 47425536,
+    "errors": []
+  },
+  "date": "2026-10-11",
+  "branch": "feature/maple-falls-lived-in",
+  "typeScript": "pass",
+  "build": "pass",
+  "generalProduction": "354 assets loaded; desktop and touch contexts 390x844/844x390; inventory, map, pause/resume; premium ownership unchanged; no developer globals",
+  "visualReview": "25 subsection pairs reviewed; placement-only lighting override exists in test only; all actual runtime lighting retained",
+  "limitations": [
+    "Phone checks are emulation in desktop Edge, not a physical phone measurement.",
+    "Merge, external push and RUN deployment were not requested for this branch."
+  ]
+}

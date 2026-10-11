@@ -32,7 +32,7 @@ for (const value of Object.values(manifest.overrides)) {
 // and every one of them is fetched before the title screen.
 let slimmed = 0;
 for (const value of Object.values(manifest.overrides)) {
-  if (typeof value !== 'object' || !value.file?.startsWith('monsters/nightmare/') || !value.file.endsWith('.png')) continue;
+  if (typeof value !== 'object' || !(value.file?.startsWith('monsters/nightmare/') || value.file?.startsWith('town/')) || !value.file.endsWith('.png')) continue;
   const source = assetPath(value.file), file = value.file.replace(/\.png$/, '.webp');
   await sharp(await fs.readFile(source)).webp({ quality: 90, alphaQuality: 100, effort: 5 }).toFile(assetPath(file));
   await fs.unlink(source);
@@ -49,4 +49,4 @@ async function omitUnreferenced(directory) {
 }
 await omitUnreferenced(assetPath('generated'));
 await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
-console.log(`Release assets: ${resized} images packed to runtime maxScale; ${slimmed} monster sheets shipped as WebP; ${omitted} unreferenced masters/sidecars omitted from dist only.`);
+console.log(`Release assets: ${resized} images packed to runtime maxScale; ${slimmed} monster/town assets shipped as WebP; ${omitted} unreferenced masters/sidecars omitted from dist only.`);

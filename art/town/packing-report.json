@@ -1,0 +1,667 @@
+[
+  {
+    "id": "fish_tackle",
+    "status": "packed",
+    "file": "town/fish_tackle-v1.png",
+    "scale": 2,
+    "anchor": [
+      512,
+      636
+    ],
+    "w": 1024,
+    "h": 892,
+    "groundCorrection": [
+      -10,
+      28
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "grocery",
+    "status": "packed",
+    "file": "town/grocery-v1.png",
+    "scale": 2,
+    "anchor": [
+      576,
+      712
+    ],
+    "w": 1152,
+    "h": 1000,
+    "groundCorrection": [
+      4,
+      -31
+    ],
+    "outside": 0.0002242975408833245,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "hardware",
+    "status": "packed",
+    "file": "town/hardware-v1.png",
+    "scale": 2,
+    "anchor": [
+      512,
+      716
+    ],
+    "w": 1024,
+    "h": 972,
+    "groundCorrection": [
+      -39,
+      -17
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "bakery",
+    "status": "packed",
+    "file": "town/bakery-v1.png",
+    "scale": 2,
+    "anchor": [
+      448,
+      564
+    ],
+    "w": 896,
+    "h": 788,
+    "groundCorrection": [
+      -27,
+      14
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "laundromat",
+    "status": "packed",
+    "file": "town/laundromat-v1.png",
+    "scale": 2,
+    "anchor": [
+      512,
+      592
+    ],
+    "w": 1024,
+    "h": 848,
+    "groundCorrection": [
+      -10,
+      9
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "pharmacy",
+    "status": "packed",
+    "file": "town/pharmacy-v1.png",
+    "scale": 2,
+    "anchor": [
+      448,
+      660
+    ],
+    "w": 896,
+    "h": 884,
+    "groundCorrection": [
+      -28,
+      1
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "barber",
+    "status": "packed",
+    "file": "town/barber-v1.png",
+    "scale": 2,
+    "anchor": [
+      448,
+      552
+    ],
+    "w": 896,
+    "h": 776,
+    "groundCorrection": [
+      -36,
+      5
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "firestation",
+    "status": "packed",
+    "file": "town/firestation-v1.png",
+    "scale": 2,
+    "anchor": [
+      640,
+      768
+    ],
+    "w": 1280,
+    "h": 1088,
+    "groundCorrection": [
+      -20,
+      1
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "dumpster",
+    "status": "packed",
+    "file": "town/dumpster-v1.png",
+    "scale": 2,
+    "anchor": [
+      224,
+      328
+    ],
+    "w": 448,
+    "h": 440,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "delivery_crates",
+    "status": "packed",
+    "file": "town/delivery_crates-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      304
+    ],
+    "w": 384,
+    "h": 400,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "planter_terracotta",
+    "status": "packed",
+    "file": "town/planter_terracotta-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      332
+    ],
+    "w": 384,
+    "h": 428,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "planter_square",
+    "status": "packed",
+    "file": "town/planter_square-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      328
+    ],
+    "w": 384,
+    "h": 424,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "traffic_light",
+    "status": "packed",
+    "file": "town/traffic_light-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      456
+    ],
+    "w": 384,
+    "h": 552,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "stop_sign",
+    "status": "packed",
+    "file": "town/stop_sign-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      380
+    ],
+    "w": 384,
+    "h": 476,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "street_sign",
+    "status": "packed",
+    "file": "town/street_sign-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      392
+    ],
+    "w": 384,
+    "h": 488,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "bus_stop",
+    "status": "packed",
+    "file": "town/bus_stop-v1.png",
+    "scale": 2,
+    "anchor": [
+      256,
+      432
+    ],
+    "w": 512,
+    "h": 560,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "phone_booth",
+    "status": "packed",
+    "file": "town/phone_booth-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      400
+    ],
+    "w": 384,
+    "h": 496,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "bike_rack",
+    "status": "packed",
+    "file": "town/bike_rack-v1.png",
+    "scale": 2,
+    "anchor": [
+      256,
+      308
+    ],
+    "w": 512,
+    "h": 436,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "picnic_table",
+    "status": "packed",
+    "file": "town/picnic_table-v1.png",
+    "scale": 2,
+    "anchor": [
+      288,
+      328
+    ],
+    "w": 576,
+    "h": 472,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "utility_pole",
+    "status": "packed",
+    "file": "town/utility_pole-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      484
+    ],
+    "w": 384,
+    "h": 580,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "produce_stand",
+    "status": "packed",
+    "file": "town/produce_stand-v1.png",
+    "scale": 2,
+    "anchor": [
+      224,
+      288
+    ],
+    "w": 448,
+    "h": 400,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "fern",
+    "status": "packed",
+    "file": "town/fern-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      260
+    ],
+    "w": 384,
+    "h": 356,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "hydrangea",
+    "status": "packed",
+    "file": "town/hydrangea-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      296
+    ],
+    "w": 384,
+    "h": 392,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "ornamental_grass",
+    "status": "packed",
+    "file": "town/ornamental_grass-v1.png",
+    "scale": 2,
+    "anchor": [
+      192,
+      284
+    ],
+    "w": 384,
+    "h": 380,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "bare_grass",
+    "status": "packed",
+    "file": "town/bare_grass-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "mud_grass",
+    "status": "packed",
+    "file": "town/mud_grass-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "leaf_drift",
+    "status": "packed",
+    "file": "town/leaf_drift-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "paper_litter",
+    "status": "packed",
+    "file": "town/paper_litter-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "bag_litter",
+    "status": "packed",
+    "file": "town/bag_litter-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "puddle",
+    "status": "packed",
+    "file": "town/puddle-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "wheel_wear",
+    "status": "packed",
+    "file": "town/wheel_wear-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "oil_stain",
+    "status": "packed",
+    "file": "town/oil_stain-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "paving_wear",
+    "status": "packed",
+    "file": "town/paving_wear-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "gravel_spill",
+    "status": "packed",
+    "file": "town/gravel_spill-v1.png",
+    "scale": 2,
+    "anchor": [
+      128,
+      64
+    ],
+    "w": 256,
+    "h": 128,
+    "groundCorrection": [
+      0,
+      0
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  },
+  {
+    "id": "postoffice",
+    "status": "packed",
+    "file": "town/postoffice-v1.png",
+    "scale": 2,
+    "anchor": [
+      512,
+      668
+    ],
+    "w": 1024,
+    "h": 924,
+    "groundCorrection": [
+      3,
+      -11
+    ],
+    "outside": 0,
+    "sourceWidth": 1254,
+    "sourceHeight": 1254
+  }
+]

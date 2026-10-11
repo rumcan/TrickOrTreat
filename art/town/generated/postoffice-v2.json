@@ -1,0 +1,12 @@
+{
+  "id": "postoffice",
+  "iteration": 2,
+  "tool": "built-in image_gen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a\\exec-99a6447e-946b-49b5-baea-d8615e362238.png",
+  "prompt": "Use case: precise-object-edit. Image1 is the post-office sprite to correct; image2 is the authoritative 4×3-tile orthographic 2:1 dimetric vector guide; image3 is the original game's painting/lighting reference. Preserve this post office's brick and stone materials, clock, brass letter slots, warm windows, central front door, carved POST OFFICE sign and rich painted detail. Correct ONLY its building proportions and placement to match image2 exactly. The CURRENT front is too long and the right side is too shallow: the +Y front face must span exactly FOUR world tile units, the +X side face THREE world tile units. Their projected edge-length ratio is exactly 4:3, NOT 5:2. Ground and roof corners must line up with the four corners in image2. Keep the total outer framing, isometric camera, building height and 2:1 edge slopes. Vertical edges vertical; no perspective convergence. Front ground corner must match image2's front ground corner and central entrance remain centered on +Y front. Shorten front width and deepen the right side accordingly; do NOT correct by skewing or stretching the entire image. Steps remain strictly inside the building footprint, no broad sidewalk pad. Match image3's cool upper-left moonlight and warm actual lamps/windows. Entire single isolated sprite inside same square canvas with generous alpha margins. Genuine transparent background, no floor, cast shadow, people, characters, atmosphere or extra objects.",
+  "references": [
+    "art/town/generated/postoffice.png",
+    "art/town/guides/postoffice.png",
+    "art/reference/style-target.webp"
+  ]
+}
