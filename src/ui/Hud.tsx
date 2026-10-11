@@ -81,6 +81,7 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
         <div className="hm-time">{fmtTime(s.time)}</div>
         <div className="hm-time-sub">
           {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop</span>
+            : s.bossFight ? <span className="text-[#ff5a6e]">Wave {Math.max(1, s.wave)} · Boss fight</span>
             : s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
             : s.bossIn !== null ? <span>Boss in {fmtTime(s.bossIn)}</span>
               : <span>Night falls</span>}
