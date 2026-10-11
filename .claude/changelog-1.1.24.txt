@@ -1,0 +1,9 @@
+When a boss is beaten it drops a magnet: every coin and candy in town flies to that spot so you can collect it all there.
+Coins, candy and treat bags left on the ground now disappear after one minute. They blink before they go.
+Houses give treats again only after you have visited every house in town and the three stands in the Starcade.
+When a boss arrives, the other monsters leave. Each boss now fights with a bigger group of its own helpers.
+New treat: Long-Distance Dedication. Much stronger against monsters far away, weaker against monsters up close.
+Temple Idol is new: the more coins you carry, the stronger you are.
+Friends walk smoothly beside you. In hide and seek, a friend who falls gets back up after 20 seconds.
+New setting to hide the names above monsters. The bars above monsters are smaller.
+The Starcade door now says ENTER HERE.

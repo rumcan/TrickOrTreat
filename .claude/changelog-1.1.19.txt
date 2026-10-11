@@ -1,0 +1,4 @@
+Gun beams and trails are now thin, soft lines that are easier on the eyes.
+The Grid Disc trail fades away from the gun end like the Phase Lance.
+The candy machine keeps its buttons on screen, with no scrolling needed on desktop.
+The pause menu fits on one page. Only the list of treats scrolls.
