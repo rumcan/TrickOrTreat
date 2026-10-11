@@ -11,7 +11,7 @@ try {
   await page.goto('http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   const out = await page.evaluate(async () => {
-    const { Game, FRIEND_HP, FRIEND_DOWN_TIME } = await import('/src/game/engine.ts');
+    const { Game, FRIEND_HP, FRIEND_DOWN_TIME, SEEK_FRIEND_UP } = await import('/src/game/engine.ts');
     const d = await import('/src/game/data.ts');
     const { expansion } = await import('/src/game/expansion.ts');
     const input = () => ({ keys: new Set(), pressed: new Set(), mouseActive: false, mdown: false, rpressed: false, wheel: 0, touchFiring: false, endFrame() { this.pressed.clear(); this.rpressed = false; this.wheel = 0; } });
@@ -45,6 +45,9 @@ try {
     const rescue = game({}, true), hidden = rescue.friends[0];
     const freeDoor = game({}); let offers = 0;
     for (let i = 0; i < 200; i++) { freeDoor.openLevelUp('house', 3, 0); if (freeDoor.friendChoice !== null) offers++; }
+    // hide and seek: a friend who goes down is never lost again, they get back up alone
+    const seek = (seconds) => { const g = game({}, true), f = g.friends[0]; f.status = 'rescued'; f.x = g.p.x - 6; f.y = g.p.y; f.hp = 0; f.downT = 0; g.p.invuln = 1e9; for (let i = 0; i < seconds * 30; i++) { g.enemies = []; g.update(1 / 30); } return { there: g.friends.includes(f), up: f.hp > 0 }; };
+    res.seek = { time: SEEK_FRIEND_UP, free: game({}).friendUpTime, before: seek(SEEK_FRIEND_UP - 2), after: seek(SEEK_FRIEND_UP + 2) };
     res.found = { flag: hidden.found === true, maxHp: hidden.maxHp, gun: hidden.weapon.rarity, doorOffersWithFullGame: offers };
     const plain = shoot({}), fast = shoot({ walkie: 3 }), two = shoot({ double: 1 }), crit = shoot({ sharpeye: 3 }), far = shoot({ range: 3 }), hard = shoot({ buddy: 5 });
     res.shoot = { plain: plain.bullets, two: two.bullets, rate: +(plain.cd / fast.cd).toFixed(2), crit: +(crit.dmg / plain.dmg).toFixed(2), far: +(far.life / plain.life).toFixed(2), hard: +(hard.dmg / plain.dmg).toFixed(2) };
@@ -93,6 +96,7 @@ try {
   assert.equal(out.campaignStart, 0, 'The rescue campaign still hides every friend');
   assert.deepEqual(out.shoot, { plain: 1, two: 2, rate: 1.24, crit: 2, far: 1.45, hard: 1.4 }, 'Walkie Check, Double Team, Eagle-Eyed Pals, Tin-Can Telephone, Fist Bump');
   assert.deepEqual(out.found, { flag: true, maxHp: 160, gun: 2, doorOffersWithFullGame: 0, dmg: 2 }, 'A friend found in hide and seek is twice as strong; full-game players get no door-bell friends');
+  assert.deepEqual(out.seek, { time: 20, free: 0, before: { there: true, up: false }, after: { there: true, up: true } }, 'In hide and seek a friend who goes down gets back up alone after 20 seconds; in the free game they do not');
   assert.deepEqual(out.reach, { without: 0, with: 1 }, 'The telephone lets friends hit what was out of reach');
   assert.deepEqual(out.gun, { plain: 1, better: 3 }, 'Hand-Me-Down Blaster');
   assert.ok(out.regen >= 18 && out.regen <= 20, `Pinky Promise heals 4.5 HP a second (10 → ${out.regen} in 2s)`);

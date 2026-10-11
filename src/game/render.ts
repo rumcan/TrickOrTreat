@@ -362,11 +362,11 @@ export class Renderer {
           ctx.strokeText(label, 0, fallen ? -40 : -95); ctx.fillText(label, 0, fallen ? -40 : -95);
           if (fallen) {
             // a sign above a fallen friend: what to press and how long is left
-            const left = Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
+            const left = Math.max(0, Math.ceil(g.friendCountdown - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
             const text = `${touchViewport ? 'TAP INTERACT' : 'E'} · REVIVE · ${left}s`;
             ctx.font = '700 16px "Barlow Condensed", system-ui, sans-serif';
             const w = ctx.measureText(text).width + 20;
-            ctx.fillStyle = left <= 10 ? '#d33838' : '#fb8016'; ctx.strokeStyle = '#06090b'; ctx.lineWidth = 2;
+            ctx.fillStyle = left <= 10 && !g.friendUpTime ? '#d33838' : '#fb8016'; // red only when they are about to be lost ctx.strokeStyle = '#06090b'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.roundRect(-w / 2, -82 + bob, w, 26, 4); ctx.fill(); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(-6, -56 + bob); ctx.lineTo(6, -56 + bob); ctx.lineTo(0, -48 + bob); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#1d1d1b'; ctx.textBaseline = 'middle'; ctx.fillText(text, 0, -67 + bob); ctx.textBaseline = 'alphabetic';
@@ -653,10 +653,6 @@ export class Renderer {
         const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
         ctx.globalAlpha = 0.4;
         ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : '#ff2a2a', 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
-      }
-      if (e.affix) {
-        ctx.globalAlpha = 0.65; ctx.strokeStyle = AFFIX_INFO[e.affix].color; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y), e.r * 65 + 10, e.r * 30 + 5, 0, 0, Math.PI * 2); ctx.stroke();
       }
     }
     ctx.globalAlpha = 1;
@@ -1134,7 +1130,7 @@ export class Renderer {
         ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
       }
     }
-    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`);
+    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(g.friendCountdown - (friend.downT ?? 0)))}s`);
     // where to shop: the stand always, the candy machines for a minute after they move
     if (g.state === 'play' && !g.bigMap) for (const shop of m.shops) {
       const stand = shop.prop.kind !== 'vending';
@@ -1264,7 +1260,7 @@ export class Renderer {
         ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#1a070c'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
         if (big) {
-          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`;
+          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(g.friendCountdown - (friend.downT ?? 0)))}s`;
           ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
           ctx.strokeStyle = '#1a070c'; ctx.lineWidth = 3; ctx.strokeText(label, a, b - 8 * k);
           ctx.fillStyle = '#ffd0da'; ctx.fillText(label, a, b - 8 * k);

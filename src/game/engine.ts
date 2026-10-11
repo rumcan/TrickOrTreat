@@ -241,6 +241,8 @@ const ARCADE_SEEN_KEY = 'tot_arcade_seen_v1';
 /** seconds a gun lies on the ground before it is gone (it blinks for the last ten) */
 export const GUN_GROUND_TIME = 120;
 export const FRIEND_DOWN_TIME = 30;
+/** hide and seek: a friend who goes down gets back up alone after this long (nobody found is lost again) */
+export const SEEK_FRIEND_UP = 20;
 /** seconds of calm after every boss (the clock only runs while the kid is free to move) */
 export const BUY_WINDOW = 20;
 /** a friend's max HP before the Buddy System talents · seconds between two pick-ups of the player by the same friend */
@@ -665,8 +667,8 @@ export class Game {
     for (const f of team) {
       if (f.hp > 0) { f.downT = 0; continue; }
       if (this.state === 'play') f.downT = (f.downT ?? 0) + dt;
-      if (this.stats.mateUp && (f.downT ?? 0) >= this.stats.mateUp) {
-        // Best Friends Forever: they shake it off on their own
+      if (this.friendUpTime && (f.downT ?? 0) >= this.friendUpTime) {
+        // Best Friends Forever, and every friend in hide and seek: they shake it off on their own
         f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0;
         gameAudio.play('revive', 0.5); this.text(f.x, f.y, 'BACK UP!', '#ff4fd8', 13);
         continue;
@@ -690,7 +692,7 @@ export class Game {
         if (this.p.hurtT > 0) f.pauseT = 0.35; // a hit stalls the revive for a moment, it never wipes it
         if (!f.pauseT) f.progress += dt * this.stats.reviveSpeed;
       }
-      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil((this.stats.mateUp || this.friendDownTime) - (f.downT ?? 0))}s ${this.stats.mateUp ? 'until they get up' : 'left'}`;
+      this.rescuePrompt = f.channel ? `Helping ${name} up…` : `Revive ${name} · ${Math.ceil(this.friendCountdown - (f.downT ?? 0))}s ${this.friendUpTime ? 'until they get up' : 'left'}`;
       this.rescueProgress = Math.min(1, f.progress / RESCUE_TIME);
       if (f.progress >= RESCUE_TIME) { f.hp = f.maxHp * 0.5; f.progress = 0; f.channel = false; f.hurtCd = 3; f.downT = 0; gameAudio.play('revive'); }
     }
@@ -741,7 +743,7 @@ export class Game {
         bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
         if (friend === reviver) this.playerReviveProgress = 0;
       }
-      if (friend.hp <= 0) { friend.downT = 0; this.toast(this.stats.mateUp ? `${HERO_INFO[friend.hero].name} is down! Back up in ${this.stats.mateUp} seconds, sooner with your help.` : `${HERO_INFO[friend.hero].name} is down! ${this.friendDownTime} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
+      if (friend.hp <= 0) { friend.downT = 0; this.toast(this.friendUpTime ? `${HERO_INFO[friend.hero].name} is down! Back up in ${this.friendUpTime} seconds, sooner with your help.` : `${HERO_INFO[friend.hero].name} is down! ${this.friendDownTime} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
       if (this.state === 'downed') return; // everyone's attention is on the player
       for (const pickup of this.pickups) if (pickup.friendOnly && !pickup.dead && Math.hypot(pickup.x - friend.x, pickup.y - friend.y) < 6) {
         pickup.dead = true; friend.candy++; friend.hp = Math.min(friend.maxHp, friend.hp + 5); gameAudio.play('pickup', 0.25);
@@ -3030,6 +3032,10 @@ export class Game {
   get friendMaxHp() { return FRIEND_HP + (this.stats?.mateHp ?? 0); }
   /** seconds a friend who is down can still be helped up */
   get friendDownTime() { return FRIEND_DOWN_TIME + (this.stats?.mateDown ?? 0); }
+  /** seconds after which a friend who is down gets up alone: Best Friends Forever, and always in hide and seek (0 = never) */
+  get friendUpTime() { const seek = this.campaign ? SEEK_FRIEND_UP : 0, bff = this.stats?.mateUp ?? 0; return seek && bff ? Math.min(seek, bff) : seek || bff; }
+  /** what the countdown over a downed friend runs to: getting up alone, or being out for the night */
+  get friendCountdown() { return this.friendUpTime || this.friendDownTime; }
   /** seconds before the same friend can pick the player up again */
   get friendReviveCd() { return Math.round(FRIEND_REVIVE_CD * (this.stats?.mateReviveCd ?? 1)); }
   /**
