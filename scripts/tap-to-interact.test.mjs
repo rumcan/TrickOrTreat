@@ -60,6 +60,30 @@ try {
     await page.getByText(/^Tap the screen: /).waitFor();
     await page.touchscreen.tap(spot.x, spot.y);
     await page.waitForFunction(() => !window.__tot.game.pickups.some(k => k.kind === 'chest'), null, { timeout: 5000 });
+    // a second finger aims: the kid shoots toward it for as long as it is held, like holding the mouse there
+    await page.evaluate(() => { const g = window.__tot.game; g.pickups = []; g.pendingLevels = 0; g.enemies = []; if (g.state !== 'play') { g.choices = []; g.gunChoices = []; g.state = 'play'; } g.p.weapons[g.p.cur].ammo = 10; g.p.weapons[g.p.cur].reloadT = 0; });
+    const mid = { x: Math.round(viewport.width / 2), y: Math.round(viewport.height / 2) };
+    const steer = { x: mid.x - 90, y: mid.y + 60, id: 1 };
+    const read = () => page.evaluate(() => { const g = window.__tot.game; return { mdown: g.input.mdown, aimX: g.p.aimX, aimY: g.p.aimY, ammo: g.p.weapons[g.p.cur].ammo, moving: Math.hypot(g.input.touchMoveX, g.input.touchMoveY) > 0.4, crosshair: g.input.mouseActive }; });
+    const dragged = { ...steer, x: steer.x - 60 };
+    for (const [name, at, sign] of [['right', { x: mid.x + 130, y: mid.y }, 1], ['left', { x: mid.x - 130, y: mid.y }, -1]]) {
+      await touch('touchStart', [steer]);
+      await touch('touchMove', [dragged]);
+      await page.waitForTimeout(150);
+      const oneFinger = await read();
+      assert.ok(oneFinger.moving && !oneFinger.mdown, `${tag}: one finger steers and does not take over the aim`);
+      await touch('touchStart', [dragged, { ...at, id: 2 }]);
+      await page.waitForTimeout(350);
+      const held = await read();
+      // screen-right is +x -y in the world, screen-left the opposite
+      assert.ok(held.mdown && held.moving && !held.crosshair && Math.sign(held.aimX - held.aimY) === sign, `${tag}: a second finger to the ${name} aims the shots there while the first keeps steering (${JSON.stringify(held)})`);
+      assert.ok(held.ammo < 10, `${tag}: the kid fires toward the second finger with nothing to auto-aim at`);
+      await touch('touchEnd', []);
+      await page.waitForTimeout(80);
+      const after = await read();
+      assert.ok(!after.mdown && !after.moving, `${tag}: lifting the fingers hands the aim back and stops the kid`);
+      await page.evaluate(() => { const g = window.__tot.game; g.p.weapons[g.p.cur].ammo = 10; g.p.weapons[g.p.cur].reloadT = 0; });
+    }
     // every touch control is on the screen
     await page.evaluate(() => { const g = window.__tot.game; g.pickups = []; g.pendingLevels = 0; if (g.state !== 'play') { g.choices = []; g.gunChoices = []; g.state = 'play'; } });
     await page.locator('.touch-action').first().waitFor();

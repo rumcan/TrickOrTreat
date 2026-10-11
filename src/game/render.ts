@@ -1148,13 +1148,19 @@ export class Renderer {
         ctx.fillRect(0, 0, vw, vh);
       }
       // HexMatch minimap frame: 4px ink border + 1px orange outline
+      // The corner map is see-through: the fight goes on underneath it. Only the markers drawn on top stay solid.
+      // The big map (M / Tab) is a screen of its own and stays opaque.
+      ctx.globalAlpha = big ? 1 : 0.28;
       ctx.fillStyle = '#172022';
       ctx.fillRect(mx - 6, my - 6, mw + 12, mh + 12);
       ctx.fillStyle = '#0d1418';
       ctx.fillRect(mx - 2, my - 2, mw + 4, mh + 4);
+      ctx.globalAlpha = big ? 1 : 0.55;
       ctx.strokeStyle = '#ec9633'; ctx.lineWidth = 1;
       ctx.strokeRect(mx - 6.5, my - 6.5, mw + 13, mh + 13);
+      ctx.globalAlpha = big ? 1 : 0.5;
       ctx.drawImage(this.minimap, mx, my, mw, mh);
+      ctx.globalAlpha = 1;
       const s = 3 * sc;
       const MP = (x: number, y: number): [number, number] => [mx + ((x - y) * s + this.minimapGrid * s), my + ((x + y) * s) / 2];
       ctx.fillStyle = '#ff4a4a';

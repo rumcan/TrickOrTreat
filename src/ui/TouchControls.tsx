@@ -31,16 +31,26 @@ const DRAG_RADIUS = 56;
 
 /**
  * Movement on a phone: put a finger down anywhere on the play area and drag. Where it lands is the centre of an
- * invisible stick; the kid aims and fires on their own. Sits under the HUD, so buttons keep working.
+ * invisible stick; the kid aims and fires on their own. A SECOND finger anywhere on the play area takes over the aim:
+ * the kid shoots toward that finger for as long as it is held, exactly like holding the mouse button there. There is
+ * nothing to see for it. Sits under the HUD, so buttons keep working.
  */
 export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boolean }) {
   const input = game.input;
   const pointer = useRef<number | null>(null);
+  const aimer = useRef<number | null>(null);
   const origin = useRef({ x: 0, y: 0 });
   // a quick touch that never became a drag is a tap: it does what the Interact button does
   const press = useRef({ x: 0, y: 0, at: 0, moved: 0 });
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null);
-  const reset = () => { pointer.current = null; input.setTouchMove(0, 0); setStick(null); };
+  const stopAim = () => { if (aimer.current !== null) { aimer.current = null; input.mdown = false; } };
+  const reset = () => { pointer.current = null; input.setTouchMove(0, 0); setStick(null); stopAim(); };
+  /** the second finger is the mouse: where it is, is where the kid shoots */
+  const aimAt = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const box = (document.querySelector('canvas.game-canvas') ?? event.currentTarget).getBoundingClientRect();
+    input.mx = event.clientX - box.left; input.my = event.clientY - box.top;
+    input.mdown = true; input.touchActive = true; input.mouseActive = false;
+  };
   useEffect(() => {
     const hidden = () => { if (document.hidden) reset(); };
     window.addEventListener('blur', reset);
@@ -59,6 +69,7 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
   useEffect(() => { if (!enabled) reset(); }, [enabled]);
   if (!enabled) return null;
   const move = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (aimer.current === event.pointerId) { event.preventDefault(); aimAt(event); return; }
     if (pointer.current !== event.pointerId) return;
     event.preventDefault();
     press.current.moved = Math.max(press.current.moved, Math.hypot(event.clientX - press.current.x, event.clientY - press.current.y));
@@ -73,9 +84,10 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
     const vector = stickVector(dx, dy, DRAG_RADIUS);
     input.setTouchMove(vector.x, vector.y);
     const scale = Math.min(1, DRAG_RADIUS / (Math.hypot(dx, dy) || 1));
-    setStick({ ...origin.current, dx: dx * scale, dy: dy * scale });
+    setStick({ ...origin.current, dx: dx * scale * 0.5, dy: dy * scale * 0.5 }); // the knob stays inside its small ring
   };
   const end = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (aimer.current === event.pointerId) { stopAim(); return; }
     if (pointer.current !== event.pointerId) return;
     // New players tap the door, the bag or the gun itself, not a button at the bottom of the screen. When something
     // is in reach (the prompt is showing), a tap anywhere on the play area is "interact".
@@ -85,7 +97,17 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
   };
   return <div className="touch-surface" role="group" aria-label="Drag anywhere to move" data-testid="touch-move"
     onPointerDown={event => {
-      if (pointer.current !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      if (pointer.current !== null) {
+        // a second finger while the first one steers: aim and fire toward it
+        if (aimer.current !== null || event.pointerType === 'mouse') return;
+        event.preventDefault();
+        aimer.current = event.pointerId;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        press.current.moved = 99; // two fingers down is never a tap
+        aimAt(event);
+        return;
+      }
       event.preventDefault();
       if (game.bigMap) { game.bigMap = false; return; } // a tap on the open map puts it away
       pointer.current = event.pointerId;

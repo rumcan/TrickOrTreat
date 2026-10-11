@@ -491,8 +491,9 @@ button.kit-tile:not(:disabled):hover {
 .touch-controls { position: absolute; inset: 0; z-index: 25; pointer-events: none; user-select: none; -webkit-user-select: none; }
 /* Movement: a finger anywhere on the play area. The surface sits under the HUD; the ring only shows while dragging. */
 .touch-surface { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.touch-drag { position: absolute; width: 112px; height: 112px; margin: -56px 0 0 -56px; border: 2px solid #d1efde4d; border-radius: 50%; background: radial-gradient(circle, #102b3426, #0c151b4d); pointer-events: none; }
-.touch-drag i { position: absolute; left: calc(50% - 20px); top: calc(50% - 20px); width: 40px; height: 40px; border: 2px solid #d1efdeba; border-radius: 50%; background: linear-gradient(#79a9a9cc, #26474edd); box-shadow: 0 3px 8px #0008; }
+/* the drag stick: small and faint, a hint of where the thumb landed rather than a control on top of the game */
+.touch-drag { position: absolute; width: 72px; height: 72px; margin: -36px 0 0 -36px; border: 1px solid #d1efde2e; border-radius: 50%; background: radial-gradient(circle, #102b3414, #0c151b26); pointer-events: none; }
+.touch-drag i { position: absolute; left: calc(50% - 13px); top: calc(50% - 13px); width: 26px; height: 26px; border: 1px solid #d1efde73; border-radius: 50%; background: linear-gradient(#79a9a955, #26474e66); }
 .touch-actions { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--touch-bottom) + 10px); display: flex; gap: 8px; }
 .touch-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 58px; min-height: 52px; padding: 4px 1px; color: #fff4de; border: 1px solid #bfb39a; border-radius: 9px; background: #15252dce; pointer-events: auto; touch-action: manipulation; font: 700 11px/1.1 "Barlow Condensed", sans-serif; }
 .touch-action--interact { border-color: #84db9f; color: #c8ffd9; }
