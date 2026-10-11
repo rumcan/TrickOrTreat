@@ -5,7 +5,7 @@ const browser=await chromium.launch({channel:'msedge'});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto(process.env.TOT_ARCADE_URL || 'http://127.0.0.1:5173/');
+ await page.goto(process.env.TOT_ARCADE_URL || 'http://127.0.0.1:5190/');
  await page.getByRole('button',{name:'Go trick-or-treating'}).waitFor({timeout:120000});
  await page.getByRole('button',{name:'Go trick-or-treating'}).click();
  await page.waitForFunction(()=>window.__tot?.game);
@@ -24,10 +24,17 @@ try{
   for(const p of [...ARCADE_POIS,...m.shops,...m.houses.map(h=>h.door)])if(!reachable(p))throw Error(`Unreachable arcade point ${JSON.stringify(p)}`);
   for(const p of [{x:1,y:25},{x:51,y:25},{x:25,y:1},{x:25,y:51}])if(!blockedCircle(m,p.x,p.y,g.p.r))throw Error('Room boundary leaks');
   const colors={cabinet:'#26a9df',pinball:'#d77332',skeeball:'#cf5734',airhockey:'#2862ac',foosball:'#aa893d',prizes:'#b638a2',pizza:'#e78036',booth:'#ac384f',stage:'#6d4998',photo:'#ba44b0',tokens:'#b39940',party:'#974e83',wall:'#323b54'};
-  const rects=ARCADE_FIXTURES.map(f=>`<g><rect x="${f.x*18}" y="${f.y*18}" width="${f.w*18}" height="${f.h*18}" rx="2" fill="${colors[f.kind]}" stroke="#fff" stroke-opacity=".3"/><title>${f.label}</title></g>`).join('');
+  const rects=ARCADE_FIXTURES.map(f=>`<g><rect x="${f.x*18}" y="${f.y*18}" width="${f.w*18}" height="${f.h*18}" rx="2" fill="${colors[f.kind]}" stroke="#fff" stroke-opacity=".3"/><title>${f.label}</title></g>`).join('')+m.props.filter(p=>p.kind?.startsWith('arcade_decor_')).map(p=>`<g><rect x="${p.x0*18}" y="${p.y0*18}" width="${p.fw*18}" height="${p.fh*18}" fill="#8d6651" stroke="#ffb86c"/><title>${p.kind}</title></g>`).join('');
   const pois=ARCADE_POIS.map(p=>`<text x="${p.x*18}" y="${p.y*18}" fill="#ffeabd" font-size="12" text-anchor="middle">${p.name}</text>`).join('');
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1000" viewBox="0 0 960 1000"><rect width="960" height="1000" fill="#101525"/><text x="42" y="26" fill="#ffad4a" font-size="19">THE STARCADE · 48 × 48 tiles · four town blocks</text><rect x="36" y="36" width="864" height="864" fill="#20233c" stroke="#ec9142" stroke-width="4"/>${rects}${pois}<circle cx="450" cy="846" r="13" fill="#62f3b0"/><text x="42" y="960" fill="#fff" font-size="15">Wide cross aisles · persistent loot · pizza shop · token machine · return to town</text></svg>`;
-  return {svg,size:ARCADE_SIZE,fixtures:m.props.length,reachable:seen.size};
+  const litter=m.overlays.reduce((sum,items)=>sum+items.length,0);
+  if(litter<35||!m.props.some(p=>p.kind==='arcade_decor_bigfoot'))throw Error('The arcade is missing its lived-in clutter');
+  if(new Set(m.overlays.flat()).size!==8)throw Error('All eight small litter/large pile variants must appear');
+  const {ARCADE_PILES}=await import('/src/game/arcade-clutter.ts');
+  for(const p of ARCADE_PILES)if(blockedCircle(m,p.x+.5,p.y+.5,g.p.r))throw Error(`Clutter pile is not walkable: ${JSON.stringify(p)}`);
+  // Tightened banks retain a real walking corridor, not just an apparent gap.
+  for(const p of [{x:11.5,y:17},{x:8,y:17.5},{x:15,y:28.5},{x:42,y:31.2}])if(!reachable(p))throw Error(`Furniture aisle too tight: ${JSON.stringify(p)}`);
+  return {svg,size:ARCADE_SIZE,fixtures:m.props.length,reachable:seen.size,litter};
  });
  assert.equal(result.size,48);assert.ok(result.fixtures>40);
  await fs.mkdir('art/arcade',{recursive:true});await fs.writeFile('art/arcade/layout.svg',result.svg);
@@ -56,7 +63,7 @@ try{
   if(JSON.stringify(indoorShops)!==JSON.stringify(g.map.shops.map(s=>[s.x,s.y])))throw Error('Indoor shops moved out of the room');
   g.state='play';Object.assign(g.p,interior.start);g.travelArcade('town');
   if(g.townShopMovePending||g.map!==map)throw Error('Deferred town shop refresh failed');
-  g.travelArcade('arcade');g.enemies=[];g.state='play';g.p.x=20;g.p.y=31;g.hitStop=0;g.p.hurtT=0;g.p.hp=g.stats.maxHp;
+  g.travelArcade('arcade');g.enemies=[];g.state='play';g.p.x=12;g.p.y=21;g.hitStop=0;g.p.hurtT=0;g.p.hp=g.stats.maxHp;
   // A boss clear sets a one-frame interruption, normally consumed by update().
   g.bossBreak=false;g.computeFlow(true);for(let i=0;i<180;i++)g.updateTeam(1/30);
   if(g.friends.some(f=>f.status==='rescued'&&f.hp>0&&Math.hypot(f.x-g.p.x,f.y-g.p.y)>4))throw Error('Friend failed to keep up inside');
@@ -66,5 +73,5 @@ try{
  assert.equal(travel.kind,'arcade');
  await page.waitForTimeout(800);await page.screenshot({path:'art/arcade/gameplay.png'});
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({tiles:result.size**2,fixtures:result.fixtures,reachableCells:result.reachable,persistentScene:true,combat:true}));
+ console.log(JSON.stringify({tiles:result.size**2,fixtures:result.fixtures,litterDecals:result.litter,reachableCells:result.reachable,persistentScene:true,combat:true}));
 }finally{await browser.close();}

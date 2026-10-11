@@ -1,0 +1,219 @@
+[
+  {
+    "key": "arcade_v2_cabinet_0.55_0.75",
+    "iou": 0.9617316236686605,
+    "overflow": 0,
+    "width": 232,
+    "height": 372
+  },
+  {
+    "key": "arcade_v2_pinball_0.65_1.15",
+    "iou": 0.823034428500573,
+    "overflow": 0,
+    "width": 296,
+    "height": 404
+  },
+  {
+    "key": "arcade_v2_skeeball_2.1_2.7",
+    "iou": 0.9305187879875609,
+    "overflow": 0,
+    "width": 680,
+    "height": 596
+  },
+  {
+    "key": "arcade_v2_airhockey_2.1_1.2",
+    "iou": 0.7157833799555469,
+    "overflow": 0,
+    "width": 488,
+    "height": 376
+  },
+  {
+    "key": "arcade_v2_foosball_1.5_1",
+    "iou": 0.6896647490577267,
+    "overflow": 0,
+    "width": 384,
+    "height": 324
+  },
+  {
+    "key": "arcade_v2_prizes_5_1.2",
+    "iou": 0.9599294528403017,
+    "overflow": 0,
+    "width": 858,
+    "height": 758
+  },
+  {
+    "key": "arcade_v2_pizza_6_1.4",
+    "iou": 0.9432176553905791,
+    "overflow": 0,
+    "width": 1012,
+    "height": 834
+  },
+  {
+    "key": "arcade_v2_booth_2.4_1.3",
+    "iou": 0.9802287664398766,
+    "overflow": 0,
+    "width": 538,
+    "height": 426
+  },
+  {
+    "key": "arcade_v2_stage_5_2.4",
+    "iou": 0.9235964392455941,
+    "overflow": 0,
+    "width": 1012,
+    "height": 822
+  },
+  {
+    "key": "arcade_v2_photo_0.8_0.7",
+    "iou": 0.9320668127090413,
+    "overflow": 0,
+    "width": 256,
+    "height": 384
+  },
+  {
+    "key": "arcade_v2_tokens_0.55_0.6",
+    "iou": 0.9473684210526315,
+    "overflow": 0,
+    "width": 212,
+    "height": 362
+  },
+  {
+    "key": "arcade_v2_party_3_1.8",
+    "iou": 0.923240058910162,
+    "overflow": 0,
+    "width": 680,
+    "height": 596
+  },
+  {
+    "key": "arcade_v2_wall_8_0.15",
+    "iou": 0.7984558708261483,
+    "overflow": 0.005350841788515871,
+    "width": 1108,
+    "height": 878
+  },
+  {
+    "key": "arcade_v2_wall_0.15_7.5",
+    "iou": 0.626697578216449,
+    "overflow": 0.028346004795836034,
+    "width": 1044,
+    "height": 846
+  },
+  {
+    "key": "arcade_v2_carpet",
+    "iou": 0.992234572036302,
+    "overflow": 0.007765427963697891,
+    "width": 512,
+    "height": 512
+  },
+  {
+    "key": "arcade_v2_clutter_bigfoot",
+    "iou": 0.9887861785007871,
+    "overflow": 0,
+    "width": 276,
+    "height": 438
+  },
+  {
+    "key": "arcade_v2_clutter_robot",
+    "iou": 0.9796578284459372,
+    "overflow": 0,
+    "width": 276,
+    "height": 438
+  },
+  {
+    "key": "arcade_v2_clutter_poster",
+    "iou": 0.9767663113870036,
+    "overflow": 0,
+    "width": 212,
+    "height": 358
+  },
+  {
+    "key": "arcade_v2_clutter_jukebox",
+    "iou": 0.9767581333106569,
+    "overflow": 0,
+    "width": 218,
+    "height": 342
+  },
+  {
+    "key": "arcade_v2_clutter_gumball",
+    "iou": 0.9308490915832406,
+    "overflow": 0,
+    "width": 142,
+    "height": 232
+  },
+  {
+    "key": "arcade_v2_clutter_vhs",
+    "iou": 0.9739388756357744,
+    "overflow": 0,
+    "width": 244,
+    "height": 268
+  },
+  {
+    "key": "arcade_v2_clutter_chair",
+    "iou": 0.6811801891862219,
+    "overflow": 0,
+    "width": 180,
+    "height": 154
+  },
+  {
+    "key": "arcade_v2_clutter_plant",
+    "iou": 0.9639411567949735,
+    "overflow": 0,
+    "width": 168,
+    "height": 250
+  },
+  {
+    "key": "arcade_v2_clutter_popcorn",
+    "iou": 0.4790324791010004,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_soda",
+    "iou": 0.7693349028840495,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_pizza_box",
+    "iou": 0.9665548988406456,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_tickets",
+    "iou": 0.5468918661502318,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_snack_pile",
+    "iou": 0.47737771978700144,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_party_pile",
+    "iou": 0.6881162163199018,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_paper_pile",
+    "iou": 0.687934366640642,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  },
+  {
+    "key": "arcade_v2_clutter_arcade_junk",
+    "iou": 0.5867765655703451,
+    "overflow": 0,
+    "width": 256,
+    "height": 128
+  }
+]

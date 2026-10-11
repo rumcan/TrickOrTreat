@@ -11,6 +11,8 @@ import { weaponIcon, pickupIcon, treatIcon, TREAT_ICON_IDS, WEAPON_ICON_IDS, PIC
 import { treatArt, TREAT_ART_IDS } from './art/treats';
 import { loadOverrides } from './assets';
 import { ARCADE_ART_KINDS,getArcadeFixture,getArcadeFloor } from './art/arcade';
+import {CLUTTER_KINDS} from './arcade-clutter';
+import {getArcadeClutter} from './art/arcade-clutter';
 
 const nextFrame = () => new Promise<void>((r) => setTimeout(r, 0));
 
@@ -37,7 +39,7 @@ async function boot(progress: (p: number, label: string) => void) {
   for (const f of [getPrimarySchool, getDriveInScreen, getSpeakerPost, getSnackBar, getMarquee, getChurch, getVideoRental, getSwings, getMerryGoRound, getBarn, getGazebo, getBench, getTurretSheet]) jobs.push(['Preparing the expanded town', () => { f(); }]);
   jobs.push(['Opening the playground', () => { getJungleGym(0); getJungleGym(1); getSchoolBus(false); }]);
   jobs.push(['Closing the roads', () => { getGate(); getBleachers(); getGoalPosts(); getScoreboard(); }]);
-  jobs.push(['Opening the Starcade',()=>{ ARCADE_ART_KINDS.forEach(k=>getArcadeFixture(k));getArcadeFixture('wall',.75,7.5);getArcadeFloor(); }]);
+  jobs.push(['Opening the Starcade',()=>{ ARCADE_ART_KINDS.forEach(k=>getArcadeFixture(k));getArcadeFixture('wall',.15,7.5);getArcadeFloor();CLUTTER_KINDS.forEach(getArcadeClutter); }]);
   HEROES.forEach((_, i) => jobs.push(['Dressing kids', () => heroSheet(i)]));
   // each kid only ever wears their own costume
   HEROES.forEach((_, i) => jobs.push(['Sewing costumes', () => heroSheet(i, HERO_COSTUME[i])]));

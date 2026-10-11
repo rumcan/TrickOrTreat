@@ -1,0 +1,800 @@
+[
+  {
+    "key": "arcade_v2_cabinet_0.55_0.75",
+    "file": "arcade/arcade_v2_cabinet_0.55_0.75.webp",
+    "category": "prop",
+    "w": 116,
+    "h": 186,
+    "anchor": [
+      57.6,
+      140.8
+    ],
+    "footprint": [
+      0.55,
+      0.75
+    ],
+    "desc": "Starcade cabinet",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade cabinet; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.55x0.75.",
+    "guide": {
+      "left": 232,
+      "top": 64,
+      "width": 559,
+      "height": 896,
+      "scale": 2.4086021505376345
+    },
+    "pixelWidth": 232,
+    "pixelHeight": 372
+  },
+  {
+    "key": "arcade_v2_pinball_0.65_1.15",
+    "file": "arcade/arcade_v2_pinball_0.65_1.15.webp",
+    "category": "prop",
+    "w": 148,
+    "h": 202,
+    "anchor": [
+      73.6,
+      148.8
+    ],
+    "footprint": [
+      0.65,
+      1.15
+    ],
+    "desc": "Starcade pinball",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade pinball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.65x1.15.",
+    "guide": {
+      "left": 184,
+      "top": 64,
+      "width": 656,
+      "height": 896,
+      "scale": 2.217821782178218
+    },
+    "pixelWidth": 296,
+    "pixelHeight": 404
+  },
+  {
+    "key": "arcade_v2_skeeball_2.1_2.7",
+    "file": "arcade/arcade_v2_skeeball_2.1_2.7.webp",
+    "category": "prop",
+    "w": 340,
+    "h": 298,
+    "anchor": [
+      169.60000000000002,
+      196.8
+    ],
+    "footprint": [
+      2.1,
+      2.7
+    ],
+    "desc": "Starcade skeeball",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade skeeball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 2.1x2.7.",
+    "guide": {
+      "left": 64,
+      "top": 119,
+      "width": 896,
+      "height": 785,
+      "scale": 1.3176470588235294
+    },
+    "pixelWidth": 680,
+    "pixelHeight": 596
+  },
+  {
+    "key": "arcade_v2_airhockey_2.1_1.2",
+    "file": "arcade/arcade_v2_airhockey_2.1_1.2.webp",
+    "category": "prop",
+    "w": 244,
+    "h": 188,
+    "anchor": [
+      121.6,
+      110.8
+    ],
+    "footprint": [
+      2.1,
+      1.2
+    ],
+    "desc": "Starcade airhockey",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade airhockey; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 2.1x1.2.",
+    "guide": {
+      "left": 64,
+      "top": 167,
+      "width": 896,
+      "height": 690,
+      "scale": 1.8360655737704918
+    },
+    "pixelWidth": 488,
+    "pixelHeight": 376
+  },
+  {
+    "key": "arcade_v2_foosball_1.5_1",
+    "file": "arcade/arcade_v2_foosball_1.5_1.webp",
+    "category": "prop",
+    "w": 192,
+    "h": 162,
+    "anchor": [
+      96,
+      98
+    ],
+    "footprint": [
+      1.5,
+      1
+    ],
+    "desc": "Starcade foosball",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade foosball; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 1.5x1.",
+    "guide": {
+      "left": 64,
+      "top": 134,
+      "width": 896,
+      "height": 756,
+      "scale": 2.3333333333333335
+    },
+    "pixelWidth": 384,
+    "pixelHeight": 324
+  },
+  {
+    "key": "arcade_v2_prizes_5_1.2",
+    "file": "arcade/arcade_v2_prizes_5_1.2.webp",
+    "category": "prop",
+    "w": 429,
+    "h": 379,
+    "anchor": [
+      214.4,
+      255.2
+    ],
+    "footprint": [
+      5,
+      1.2
+    ],
+    "desc": "Starcade prizes",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade prizes; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 5x1.2.",
+    "guide": {
+      "left": 64,
+      "top": 116,
+      "width": 896,
+      "height": 792,
+      "scale": 1.0442890442890442
+    },
+    "pixelWidth": 858,
+    "pixelHeight": 758
+  },
+  {
+    "key": "arcade_v2_pizza_6_1.4",
+    "file": "arcade/arcade_v2_pizza_6_1.4.webp",
+    "category": "prop",
+    "w": 506,
+    "h": 417,
+    "anchor": [
+      252.8,
+      274.4
+    ],
+    "footprint": [
+      6,
+      1.4
+    ],
+    "desc": "Starcade pizza",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade pizza; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 6x1.4.",
+    "guide": {
+      "left": 64,
+      "top": 143,
+      "width": 896,
+      "height": 738,
+      "scale": 0.8853754940711462
+    },
+    "pixelWidth": 1012,
+    "pixelHeight": 834
+  },
+  {
+    "key": "arcade_v2_booth_2.4_1.3",
+    "file": "arcade/arcade_v2_booth_2.4_1.3.webp",
+    "category": "prop",
+    "w": 269,
+    "h": 213,
+    "anchor": [
+      134.4,
+      129.2
+    ],
+    "footprint": [
+      2.4,
+      1.3
+    ],
+    "desc": "Starcade booth",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade booth; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 2.4x1.3.",
+    "guide": {
+      "left": 64,
+      "top": 157,
+      "width": 896,
+      "height": 709,
+      "scale": 1.6654275092936803
+    },
+    "pixelWidth": 538,
+    "pixelHeight": 426
+  },
+  {
+    "key": "arcade_v2_stage_5_2.4",
+    "file": "arcade/arcade_v2_stage_5_2.4.webp",
+    "category": "prop",
+    "w": 506,
+    "h": 411,
+    "anchor": [
+      252.8,
+      268.4
+    ],
+    "footprint": [
+      5,
+      2.4
+    ],
+    "desc": "Starcade stage",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade stage; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 5x2.4.",
+    "guide": {
+      "left": 64,
+      "top": 148,
+      "width": 896,
+      "height": 728,
+      "scale": 0.8853754940711462
+    },
+    "pixelWidth": 1012,
+    "pixelHeight": 822
+  },
+  {
+    "key": "arcade_v2_photo_0.8_0.7",
+    "file": "arcade/arcade_v2_photo_0.8_0.7.webp",
+    "category": "prop",
+    "w": 128,
+    "h": 192,
+    "anchor": [
+      64,
+      144
+    ],
+    "footprint": [
+      0.8,
+      0.7
+    ],
+    "desc": "Starcade photo",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade photo; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.8x0.7.",
+    "guide": {
+      "left": 213,
+      "top": 64,
+      "width": 597,
+      "height": 896,
+      "scale": 2.3333333333333335
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 384
+  },
+  {
+    "key": "arcade_v2_tokens_0.55_0.6",
+    "file": "arcade/arcade_v2_tokens_0.55_0.6.webp",
+    "category": "prop",
+    "w": 106,
+    "h": 181,
+    "anchor": [
+      52.8,
+      138.4
+    ],
+    "footprint": [
+      0.55,
+      0.6
+    ],
+    "desc": "Starcade tokens",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade tokens; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.55x0.6.",
+    "guide": {
+      "left": 249,
+      "top": 64,
+      "width": 525,
+      "height": 896,
+      "scale": 2.4751381215469612
+    },
+    "pixelWidth": 212,
+    "pixelHeight": 362
+  },
+  {
+    "key": "arcade_v2_party_3_1.8",
+    "file": "arcade/arcade_v2_party_3_1.8.webp",
+    "category": "prop",
+    "w": 340,
+    "h": 298,
+    "anchor": [
+      169.6,
+      196.8
+    ],
+    "footprint": [
+      3,
+      1.8
+    ],
+    "desc": "Starcade party",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade party; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 3x1.8.",
+    "guide": {
+      "left": 64,
+      "top": 119,
+      "width": 896,
+      "height": 785,
+      "scale": 1.3176470588235294
+    },
+    "pixelWidth": 680,
+    "pixelHeight": 596
+  },
+  {
+    "key": "arcade_v2_wall_8_0.15",
+    "file": "arcade/arcade_v2_wall_8_0.15.webp",
+    "category": "prop",
+    "w": 554,
+    "h": 439,
+    "anchor": [
+      276.8,
+      284.4
+    ],
+    "footprint": [
+      8,
+      0.15
+    ],
+    "desc": "Starcade wall",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade wall; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 8x0.15.",
+    "guide": {
+      "left": 64,
+      "top": 157,
+      "width": 896,
+      "height": 710,
+      "scale": 0.8086642599277978
+    },
+    "pixelWidth": 1108,
+    "pixelHeight": 878
+  },
+  {
+    "key": "arcade_v2_wall_0.15_7.5",
+    "file": "arcade/arcade_v2_wall_0.15_7.5.webp",
+    "category": "prop",
+    "w": 522,
+    "h": 423,
+    "anchor": [
+      260.8,
+      276.4
+    ],
+    "footprint": [
+      0.15,
+      7.5
+    ],
+    "desc": "Starcade wall",
+    "prompt": "Isolated 2:1 dimetric Halloween 1990 arcade wall; match the user's warm amber/neon reference; transparent background, no floor or shadow. Keep vector silhouette and footprint 0.15x7.5.",
+    "guide": {
+      "left": 64,
+      "top": 149,
+      "width": 896,
+      "height": 726,
+      "scale": 0.8582375478927203
+    },
+    "pixelWidth": 1044,
+    "pixelHeight": 846
+  },
+  {
+    "key": "arcade_v2_carpet",
+    "file": "arcade/v2/carpet.webp",
+    "category": "tile",
+    "w": 256,
+    "h": 256,
+    "desc": "Quiet navy confetti carpet",
+    "prompt": "Paint this exact overhead vector carpet: sparse muted orange magenta cyan confetti, navy backing, flat even lighting, no props or perspective.",
+    "guide": {
+      "left": 64,
+      "top": 64,
+      "width": 896,
+      "height": 896,
+      "scale": 1.75
+    },
+    "pixelWidth": 512,
+    "pixelHeight": 512
+  },
+  {
+    "key": "arcade_v2_clutter_bigfoot",
+    "file": "arcade/v2/arcade_v2_clutter_bigfoot.webp",
+    "category": "prop",
+    "w": 138,
+    "h": 219,
+    "anchor": [
+      69,
+      168.4
+    ],
+    "footprint": [
+      0.85,
+      0.8
+    ],
+    "desc": "Starcade bigfoot",
+    "prompt": "Preserve this exact projected vector bigfoot, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 229,
+      "top": 64,
+      "width": 565,
+      "height": 896,
+      "scale": 2.045662100456621
+    },
+    "pixelWidth": 276,
+    "pixelHeight": 438
+  },
+  {
+    "key": "arcade_v2_clutter_robot",
+    "file": "arcade/v2/arcade_v2_clutter_robot.webp",
+    "category": "prop",
+    "w": 138,
+    "h": 219,
+    "anchor": [
+      69,
+      168.4
+    ],
+    "footprint": [
+      0.85,
+      0.8
+    ],
+    "desc": "Starcade robot",
+    "prompt": "Preserve this exact projected vector robot, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 229,
+      "top": 64,
+      "width": 565,
+      "height": 896,
+      "scale": 2.045662100456621
+    },
+    "pixelWidth": 276,
+    "pixelHeight": 438
+  },
+  {
+    "key": "arcade_v2_clutter_poster",
+    "file": "arcade/v2/arcade_v2_clutter_poster.webp",
+    "category": "prop",
+    "w": 106,
+    "h": 179,
+    "anchor": [
+      53,
+      136.4
+    ],
+    "footprint": [
+      1,
+      0.15
+    ],
+    "desc": "Starcade poster",
+    "prompt": "Preserve this exact projected vector poster, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 246,
+      "top": 64,
+      "width": 531,
+      "height": 896,
+      "scale": 2.5027932960893855
+    },
+    "pixelWidth": 212,
+    "pixelHeight": 358
+  },
+  {
+    "key": "arcade_v2_clutter_jukebox",
+    "file": "arcade/v2/arcade_v2_clutter_jukebox.webp",
+    "category": "prop",
+    "w": 109,
+    "h": 171,
+    "anchor": [
+      54.5,
+      127.2
+    ],
+    "footprint": [
+      0.7,
+      0.5
+    ],
+    "desc": "Starcade jukebox",
+    "prompt": "Preserve this exact projected vector jukebox, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 226,
+      "top": 64,
+      "width": 571,
+      "height": 896,
+      "scale": 2.6198830409356724
+    },
+    "pixelWidth": 218,
+    "pixelHeight": 342
+  },
+  {
+    "key": "arcade_v2_clutter_gumball",
+    "file": "arcade/v2/arcade_v2_clutter_gumball.webp",
+    "category": "prop",
+    "w": 71,
+    "h": 116,
+    "anchor": [
+      35.5,
+      81.6
+    ],
+    "footprint": [
+      0.3,
+      0.3
+    ],
+    "desc": "Starcade gumball",
+    "prompt": "Preserve this exact projected vector gumball, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 238,
+      "top": 64,
+      "width": 548,
+      "height": 896,
+      "scale": 3.8620689655172415
+    },
+    "pixelWidth": 142,
+    "pixelHeight": 232
+  },
+  {
+    "key": "arcade_v2_clutter_vhs",
+    "file": "arcade/v2/arcade_v2_clutter_vhs.webp",
+    "category": "prop",
+    "w": 122,
+    "h": 134,
+    "anchor": [
+      61,
+      87.4
+    ],
+    "footprint": [
+      1,
+      0.4
+    ],
+    "desc": "Starcade vhs",
+    "prompt": "Preserve this exact projected vector vhs, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 104,
+      "top": 64,
+      "width": 816,
+      "height": 896,
+      "scale": 3.343283582089552
+    },
+    "pixelWidth": 244,
+    "pixelHeight": 268
+  },
+  {
+    "key": "arcade_v2_clutter_chair",
+    "file": "arcade/v2/arcade_v2_clutter_chair.webp",
+    "category": "prop",
+    "w": 90,
+    "h": 77,
+    "anchor": [
+      45,
+      38.4
+    ],
+    "footprint": [
+      0.5,
+      0.4
+    ],
+    "desc": "Starcade chair",
+    "prompt": "Preserve this exact projected vector chair, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 128,
+      "width": 896,
+      "height": 767,
+      "scale": 4.977777777777778
+    },
+    "pixelWidth": 180,
+    "pixelHeight": 154
+  },
+  {
+    "key": "arcade_v2_clutter_plant",
+    "file": "arcade/v2/arcade_v2_clutter_plant.webp",
+    "category": "prop",
+    "w": 84,
+    "h": 125,
+    "anchor": [
+      42,
+      87.8
+    ],
+    "footprint": [
+      0.4,
+      0.4
+    ],
+    "desc": "Starcade plant",
+    "prompt": "Preserve this exact projected vector plant, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 211,
+      "top": 64,
+      "width": 602,
+      "height": 896,
+      "scale": 3.584
+    },
+    "pixelWidth": 168,
+    "pixelHeight": 250
+  },
+  {
+    "key": "arcade_v2_clutter_popcorn",
+    "file": "arcade/v2/arcade_v2_clutter_popcorn.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade popcorn",
+    "prompt": "Preserve this exact projected vector popcorn, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_soda",
+    "file": "arcade/v2/arcade_v2_clutter_soda.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade soda",
+    "prompt": "Preserve this exact projected vector soda, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_pizza_box",
+    "file": "arcade/v2/arcade_v2_clutter_pizza_box.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade pizza_box",
+    "prompt": "Preserve this exact projected vector pizza_box, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_tickets",
+    "file": "arcade/v2/arcade_v2_clutter_tickets.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade tickets",
+    "prompt": "Preserve this exact projected vector tickets, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_snack_pile",
+    "file": "arcade/v2/arcade_v2_clutter_snack_pile.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade snack_pile",
+    "prompt": "Preserve this exact projected vector snack_pile, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_party_pile",
+    "file": "arcade/v2/arcade_v2_clutter_party_pile.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade party_pile",
+    "prompt": "Preserve this exact projected vector party_pile, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_paper_pile",
+    "file": "arcade/v2/arcade_v2_clutter_paper_pile.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade paper_pile",
+    "prompt": "Preserve this exact projected vector paper_pile, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  },
+  {
+    "key": "arcade_v2_clutter_arcade_junk",
+    "file": "arcade/v2/arcade_v2_clutter_arcade_junk.webp",
+    "category": "overlay",
+    "w": 128,
+    "h": 64,
+    "anchor": [
+      64,
+      32
+    ],
+    "footprint": [
+      1,
+      1
+    ],
+    "desc": "Starcade arcade_junk",
+    "prompt": "Preserve this exact projected vector arcade_junk, its size and ground anchor; warm amber light, navy shadows.",
+    "guide": {
+      "left": 64,
+      "top": 288,
+      "width": 896,
+      "height": 448,
+      "scale": 3.5
+    },
+    "pixelWidth": 256,
+    "pixelHeight": 128
+  }
+]
