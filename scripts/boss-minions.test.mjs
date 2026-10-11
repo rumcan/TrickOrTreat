@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
 
 // Waves and bosses go together: while a boss lives the waves, hordes and elites wait, and the boss fights with its own
-// kind of minions (an escort on arrival, then squads up to a cap). When it falls the wave clock picks up where it was.
+// kind of minions (an escort on arrival, then squads up to a cap). When it falls the wave clock picks up where it was,
+// and it drops a magnet that gathers every coin and candy on the map into a pile where it fell.
 const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
@@ -20,7 +21,9 @@ try {
     const rounds = [];
     for (const type of ['hex', 'alpha', 'warden', 'king']) {
       g.enemies = []; g.calmT = 0; g.bossBreak = false;
-      step(Math.max(0.2, g.nextBossAt - g.time + 0.2));
+      step(Math.max(0.2, g.nextBossAt - g.time - 3));
+      for (let i = 0; i < 12; i++) g.spawnEnemy('skeleton', g.p.x + 4 + i * 0.3, g.p.y + 3, false, null); // what the wave left on the street
+      step(3.2);
       const boss = g.boss;
       if (!boss || boss.type !== type) { rounds.push({ type, error: `no ${type}: ${boss?.type}` }); break; }
       const others = g.enemies.filter(e => e !== boss && !e.minion).length; // whatever the wave had left on the street
@@ -29,14 +32,30 @@ try {
       step(75); // well over a wave, a horde mark and an elite timer
       const crowd = g.enemies.filter(e => e.minion);
       rounds.push({
-        type, escort: escort.length, escortKinds: [...new Set(escort.map(e => e.type))].sort().join(),
+        type, leftovers: others, escort: escort.length, escortKinds: [...new Set(escort.map(e => e.type))].sort().join(),
         wanted: [...BOSS_MINIONS[type]].sort().join(), allowed: crowd.every(e => BOSS_MINIONS[type].includes(e.type)),
         crowd: crowd.length, newcomers: g.enemies.filter(e => e !== boss && !e.minion).length - others,
         waveHeld: g.wave === wave, hud: snap.bossFight, elites: g.enemies.filter(e => e.type === 'werewolf').length - elitesBefore,
       });
+      // loot lying all over town, some of it about to be swept up, plus things the magnet leaves alone
+      g.pickups = [];
+      const far = [[30, 0, 'coin'], [-25, 18, 'xp1'], [0, -40, 'xp3'], [12, 12, 'heal']].map(([dx, dy, kind]) => { g.dropPickup(boss.x + dx, boss.y + dy, kind, 2); const k = g.pickups[g.pickups.length - 1]; k.t = 58; return k; });
+      g.dropPickup(boss.x + 20, boss.y, 'chest', 0); const bag = g.pickups[g.pickups.length - 1], bagAt = bag.x;
+      const fell = { x: boss.x, y: boss.y };
       g.killEnemy(boss);
+      const magnet = { there: !!g.lootMagnet && g.lootMagnet.x === fell.x && g.lootMagnet.y === fell.y, flying: far.every(k => !!k.pull) && !bag.pull };
+      g.p.x = fell.x + 12; g.p.y = fell.y; // the kid is not standing on the pile
+      for (let i = 0; i < 4 * 30; i++) g.updatePickups(1 / 30);
+      magnet.piled = far.every(k => g.pickups.includes(k) && !k.pull && Math.hypot(k.x - fell.x, k.y - fell.y) < 0.9);
+      magnet.fresh = far.every(k => k.t < 10); magnet.bagStays = Math.abs(bag.x - bagAt) < 3 && g.pickups.includes(bag);
+      for (let i = 0; i < 4 * 30; i++) g.updatePickups(1 / 30);
+      magnet.gone = g.lootMagnet === null;
+      g.p.x = fell.x; g.p.y = fell.y; const coins = g.p.coins;
+      for (let i = 0; i < 3 * 30; i++) g.updatePickups(1 / 30);
+      magnet.collected = far.every(k => !g.pickups.includes(k)) && g.p.coins > coins;
+      g.pickups = [];
       const afterKill = { calm: g.calmT, minionsLeft: g.enemies.filter(e => e.minion).length };
-      rounds[rounds.length - 1].afterKill = afterKill;
+      rounds[rounds.length - 1].afterKill = afterKill; rounds[rounds.length - 1].magnet = magnet;
       // the quiet does not eat wave time either
       const pause = g.wavePause; g.bossBreak = false; step(5);
       rounds[rounds.length - 1].quietPaused = g.wavePause - pause > 4.5 && g.wave === wave;
@@ -55,13 +74,15 @@ try {
   assert.equal(out.rounds.length, 4);
   for (const r of out.rounds) {
     assert.ok(!r.error, r.error);
-    assert.ok(r.escort >= 5, `${r.type} arrives with an escort (${r.escort})`);
+    assert.ok(r.escort >= 8, `${r.type} arrives with an escort (${r.escort})`);
+    assert.equal(r.leftovers, 0, `The wave's own monsters leave the street when ${r.type} arrives`);
     assert.equal(r.escortKinds.split(',').every(k => r.wanted.split(',').includes(k)), true, `${r.type}'s escort is its own kind (${r.escortKinds} of ${r.wanted})`);
-    assert.ok(r.allowed && r.crowd >= r.escort && r.crowd <= 18, `${r.type} keeps a capped crowd of its own minions (${r.crowd})`);
+    assert.ok(r.allowed && r.crowd >= r.escort && r.crowd <= 24, `${r.type} keeps a capped crowd of its own minions (${r.crowd})`);
     assert.equal(r.newcomers, 0, `No ordinary wave monsters arrive during the ${r.type} fight`);
     assert.ok(r.waveHeld && r.hud && r.elites === 0, `The wave waits for ${r.type}: no new wave, no elite`);
     assert.deepEqual(r.afterKill, { calm: out.quiet, minionsLeft: 0 }, `${r.type}'s crowd leaves with it and the quiet begins`);
     assert.ok(r.quietPaused, 'The wave clock stands still during the quiet');
+    assert.deepEqual(r.magnet, { there: true, flying: true, piled: true, fresh: true, bagStays: true, gone: true, collected: true }, `${r.type} drops a magnet: far-off coins and candy pile up where it fell, with a fresh minute, and the kid picks them up there`);
   }
   assert.equal(new Set(out.rounds.map(r => r.wanted)).size, 4, 'Four bosses, four different crowds');
   assert.deepEqual([out.waves.before, out.waves.during, out.waves.after, out.waves.hudDuring], [2, 2, 3, true], 'A wave passes, none during a 130s boss fight, the next one a minute after it');

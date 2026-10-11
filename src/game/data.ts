@@ -29,13 +29,15 @@ export interface Stats {
   frail: number; bare: number; oneShot: number;
   /** Temple Idol: damage grows with the coins in the kid's pocket (see GOLD_DMG) */
   goldDmg: number;
+  /** Long-Distance Dedication: hits are multiplied by FAR_SHOT.far or FAR_SHOT.near, by how far the monster is from the kid */
+  farShot: number;
 }
 
 /** Temple Idol: damage per coin carried, and the most it can add */
 export const GOLD_DMG = { perCoin: 0.001, max: 1.5 };
 export function baseStats(): Stats {
   return {
-    goldDmg: 0,
+    goldDmg: 0, farShot: 0,
     dmg: 1, rate: 1, crit: 0.05, critDmg: 1.8, reload: 1, mag: 1, move: 1,
     maxHp: 100, maxShield: 50, shieldDelay: 3, armor: 0,
     magnet: 1, pierce: 0, bounce: 0, pellets: 0,
@@ -358,6 +360,11 @@ SCROLLS.push(
   { id: 'oneshot', premium: true, name: "One in the Chamber", quote: "Make it count.", icon: '🎯', rarity: 3, desc: 'Every shot deals +300% damage, but your magazine holds a single shot', max: 1, apply: (s) => (s.oneShot = 1) },
   { id: 'kaiju', premium: true, name: "Kaiju Growth Ray", quote: "The city is not insured for this.", icon: '🦖', rarity: 3, desc: '+200 max HP and +40% damage, but -35% move speed and one less dash', max: 1, apply: (s) => { s.maxHp += 200; s.dmg *= 1.4; s.move *= 0.65; s.dashCharges = Math.max(0, s.dashCharges - 1); } },
   { id: 'goldfever', premium: true, name: "Temple Idol", quote: "It belongs in a museum. It likes to be kept in gold.", icon: '🗿', rarity: 2, desc: '+1% damage for every 10 coins you are carrying, up to +150%. Spend them and it fades.', max: 1, apply: (s) => (s.goldDmg += 1) },
+);
+/** Long-Distance Dedication: damage to monsters `dist` metres or more from the kid, and to monsters closer than that */
+export const FAR_SHOT = { dist: 10, far: 3, near: 0.5 };
+SCROLLS.push(
+  { id: 'longshot', name: "Long-Distance Dedication", quote: "This one goes out to the monster way in the back.", icon: '💿', rarity: 3, desc: `${FAR_SHOT.far * 100}% damage to monsters ${FAR_SHOT.dist} m or more away from you, but -${(1 - FAR_SHOT.near) * 100}% damage to monsters closer than ${FAR_SHOT.dist} m`, max: 1, apply: (s) => (s.farShot = 1) },
 );
 export const SCROLL_BY_ID = Object.fromEntries(SCROLLS.map((s) => [s.id, s])) as Record<string, Scroll>;
 

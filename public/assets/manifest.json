@@ -1891,6 +1891,14 @@
     "arcade_v2_exit_mat": {
       "file": "arcade/v2/arcade_v2_exit_mat.webp",
       "scale": 2
+    },
+    "treatart_longshot": {
+      "file": "treats/longshot.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
     }
   }
 }

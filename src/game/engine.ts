@@ -16,7 +16,7 @@ import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMB
 import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
-  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, GOLD_DMG, BulletKind, storeSave,
+  Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, essenceEarned, GOLD_DMG, FAR_SHOT, BulletKind, storeSave,
   COSTUME_BY_ID, HERO_COSTUME, GIVE_LINES,
 } from './data';
 
@@ -174,7 +174,7 @@ export interface Bullet {
   mate?: boolean; by?: { x: number; y: number };
 }
 export interface EBullet { x: number; y: number; vx: number; vy: number; r: number; dmg: number; life: number; color: string; kind: 'orb' | 'seed'; dead: boolean }
-export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean }
+export interface Pickup { x: number; y: number; z: number; vz: number; vx: number; vy: number; kind: 'xp1' | 'xp2' | 'xp3' | 'coin' | 'heal' | 'chest' | 'weapon' | 'costume'; value: number; weapon?: Weapon; costume?: string; mag: boolean; t: number; dead: boolean; friendOnly?: boolean; /** flying to a boss magnet's pile */ pull?: { x: number; y: number } }
 export interface Particle { x: number; y: number; z: number; vx: number; vy: number; vz: number; life: number; max: number; color: string; size: number; kind: 'sq' | 'glow' | 'leaf' | 'gore' }
 export interface FText { x: number; y: number; z: number; text: string; color: string; life: number; size: number; vx: number; kind: 'ui' | 'dmg' | 'reason' }
 export interface Beam { x0: number; y0: number; x1: number; y1: number; color: string; life: number; max: number; zig: boolean; w: number; /** a quiet beam (streams, the Phase Lance): thin, and faint at the gun end */ soft?: boolean }
@@ -239,7 +239,13 @@ export const FOUND_FRIEND = { dmg: 2, hp: 2, gun: 1 };
 export const ARCADE_OPEN: boolean = true;
 const ARCADE_SEEN_KEY = 'tot_arcade_seen_v1';
 /** seconds a gun lies on the ground before it is gone (it blinks for the last ten) */
+/** the trick-or-treat stands inside the Starcade (counted before the kid has ever been inside) */
+export const ARCADE_VENUES = 3;
 export const GUN_GROUND_TIME = 120;
+/** coins and candy left on the ground are gone after this long (treat bags, first aid, guns and costumes are not) */
+export const LOOT_GROUND_TIME = 60;
+/** how long a fallen boss's magnet stays over the spot where it gathered the town's coins and candy */
+export const BOSS_MAGNET_TIME = 6;
 export const FRIEND_DOWN_TIME = 30;
 /** hide and seek: a friend who goes down gets back up alone after this long (nobody found is lost again) */
 export const SEEK_FRIEND_UP = 20;
@@ -368,7 +374,7 @@ export class Game {
     this.bullets=[];this.ebullets=[];this.zones=[];this.lobs=[];this.beams=[];this.particles=[];this.texts=[];this.bubbles=[];this.procQueue=[];
     this.interact=null;this.inspecting=null;this.nearbyWeapon=null;this.nearbyCostume=null;this.rescuePrompt='';this.rescueProgress=-1;this.tutorialHouse=null;
     this.spawnAcc=0;this.shake=0;this.vw=1;this.bigMap=false;this.computeFlow(true);
-    if(inside&&this.townShopMovePending){this.relightHouses();this.relocateShops();this.townShopMovePending=false;}
+    if(inside&&this.townShopMovePending){this.relocateShops();this.townShopMovePending=false;}
     for(const f of this.friends)if(f.status==='rescued')Object.assign(f,this.freeSpot(this.p.x+.8,this.p.y+.8,true),{moving:false});
     if(inside)this.selectTutorialHouse();
     this.input.keys.clear();this.input.pressed.clear();this.input.mdown=false;
@@ -798,7 +804,9 @@ export class Game {
     } else if (def.kind === 'slash') this.swing(weapon, friend.x, friend.y, angle, { ...st, dmg: damage }, false);
     else for (let i = 0; i < st.pellets; i++) {
       const a = angle + rand(-def.spread, def.spread) + (st.pellets > base.pellets ? (i - (st.pellets - 1) / 2) * 0.1 : 0), life = st.range / Math.max(def.speed, 1);
-      this.bullets.push({ x: friend.x, y: friend.y, vx: Math.cos(a) * def.speed, vy: Math.sin(a) * def.speed, dmg: damage, r: 0.1,
+      // a shot leaves from the gun, not from the middle of the friend: its glow is drawn over the kids and sat on them as a white ball
+      const out = cellAt(this.map, friend.x + Math.cos(angle) * 0.45, friend.y + Math.sin(angle) * 0.45) === 2 ? 0 : 0.45;
+      this.bullets.push({ x: friend.x + Math.cos(angle) * out, y: friend.y + Math.sin(angle) * out, vx: Math.cos(a) * def.speed, vy: Math.sin(a) * def.speed, dmg: damage, r: 0.1,
         life, max: life, pierce: st.pierce, bounce: st.bounce, kind: def.kind, color: def.color,
         crit: 0, fire: st.fire, shock: st.shock, ecto: st.ecto, explode: def.explode, hit: [], vamp: false, dead: false, spin: 0, element: def.elem ?? null,
         // only the special guns carry their gun along (trail, boomerang, seeker, singularity, demolition); it flies back to the friend
@@ -1510,6 +1518,7 @@ export class Game {
     if (e.affix === 'stormproof' && shock > 0) { this.defenseHint(e, 'Lightning immune'); shock = 0; }
     if (e.affix === 'ectoproof' && ecto > 0) { this.defenseHint(e, 'Ecto immune'); ecto = 0; }
     const s = this.stats, bd = this.build;
+    if (s.farShot) dmg *= Math.hypot(e.x - this.p.x, e.y - this.p.y) >= FAR_SHOT.dist ? FAR_SHOT.far : FAR_SHOT.near;
     const layers = typeof critIn === 'number' ? critIn : critIn ? 1 : 0, crit = layers > 0;
     const src = this.hitSrc;
     if (src) {
@@ -1971,7 +1980,6 @@ export class Game {
       this.bossRound++;
       this.bossKilled = !this.campaign || this.bossRound >= CAMPAIGN_BOSSES.length;
       this.bossBreak = true;
-      this.relightHouses();
       this.relocateShops();
       // Despawn, don't kill: no duplicate XP/loot from clearing the encounter.
       for (const creature of this.enemies) creature.dead = true;
@@ -1985,6 +1993,7 @@ export class Game {
       this.calmT = BUY_WINDOW;
       this.p.invuln = Math.max(this.p.invuln, 1);
       this.hitStop = 0.25;
+      this.dropLootMagnet(e.x, e.y);
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
       this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `${BUY_WINDOW} quiet seconds: follow the arrow to the shop`, 'win');
@@ -2442,6 +2451,7 @@ export class Game {
           if (h.light) h.light.i = 0;
           if (this.tutorialHouse === h) this.selectTutorialHouse();
           if (this.tot?.house === h) this.cancelTot(false);
+          this.relightWhenAllVisited(); // a house that burnt down no longer has to be visited
           // what was inside lands on the lawn
           for (let i = 0; i < 10; i++) this.dropPickup(h.door.x, h.door.y, 'coin', 3);
           for (let i = 0; i < 6; i++) this.dropPickup(h.door.x, h.door.y, 'xp3', 4);
@@ -2520,6 +2530,21 @@ export class Game {
       it.t = 0;
     });
   }
+  /** the magnet a boss leaves where it fell (drawn for BOSS_MAGNET_TIME) */
+  lootMagnet: { x: number; y: number; t: number; map: GameMap } | null = null;
+  /** A boss drops a magnet: every coin and candy on the map flies to the spot where it fell and waits there in a pile. */
+  private dropLootMagnet(x: number, y: number) {
+    this.lootMagnet = { x, y, t: 0, map: this.map };
+    let pulled = 0;
+    for (const k of this.pickups) {
+      if (k.dead || k.friendOnly || k.kind === 'weapon' || k.kind === 'chest' || k.kind === 'costume') continue;
+      const a = rand(0, Math.PI * 2), d = Math.sqrt(Math.random()) * 0.85, tx = x + Math.cos(a) * d, ty = y + Math.sin(a) * d;
+      k.pull = cellAt(this.map, tx, ty) === 0 ? { x: tx, y: ty } : { x, y };
+      k.mag = false; k.vx = 0; k.vy = 0; pulled++;
+    }
+    this.text(x, y, 'LOOT MAGNET', '#ff8a8a', 14);
+    if (pulled) this.toast('The boss dropped a magnet: every coin and candy in town is piled up where it fell.');
+  }
   dropWeapon(x: number, y: number, w: Weapon) {
     this.pickups.push({ x, y, z: 0.5, vz: 3, vx: 0, vy: 0, kind: 'weapon', value: 0, weapon: w, mag: false, t: 0, dead: false });
   }
@@ -2527,6 +2552,7 @@ export class Game {
   private updatePickups(dt: number) {
     const p = this.p, s = this.stats;
     const magR = 1.0 * s.magnet;
+    if (this.lootMagnet && (this.lootMagnet.t += dt) > BOSS_MAGNET_TIME) this.lootMagnet = null;
     for (const k of this.pickups) {
       k.t += dt;
       if (k.friendOnly) { if (k.t > 45) k.dead = true; continue; }
@@ -2536,6 +2562,15 @@ export class Game {
         for (let i = 0; i < 8; i++) this.particle(k.x, k.y, 0.3, rand(-1, 1), rand(-1, 1), rand(1, 3), 0.5, '#c9bda6', 3, 'sq');
         continue;
       }
+      if (k.pull) {
+        // the boss magnet: over the rooftops, fast from far away and gentle at the end; it lands with a fresh minute
+        const tx = k.pull.x - k.x, ty = k.pull.y - k.y, td = Math.hypot(tx, ty), step = Math.max(6, td * 2.5) * dt;
+        k.z = Math.min(0.9, k.z + dt * 3); k.vz = 0;
+        if (td <= step) { k.x = k.pull.x; k.y = k.pull.y; k.pull = undefined; k.t = 0.61; }
+        else { k.x += (tx / td) * step; k.y += (ty / td) * step; }
+        continue;
+      }
+      if (k.t > LOOT_GROUND_TIME && !k.mag && (k.kind === 'coin' || k.kind.startsWith('xp'))) { k.dead = true; continue; } // swept up
       if (k.z > 0 || k.vz > 0) {
         k.vz -= 12 * dt;
         k.z += k.vz * dt;
@@ -2880,11 +2915,13 @@ export class Game {
     const T = this.tot!;
     const h = T.house;
     this.tot = null;
+    const trick = h.trick;
     h.visited = true;
     this.housesVisited++;
     if (h.light) h.light.i = 0.12;
+    this.relightWhenAllVisited();
     const dx = h.door.x, dy = h.door.y;
-    if (h.trick) {
+    if (trick) {
       this.shake = 10;
       this.explode(dx, dy, 1.2, 0, null, false);
       this.spawnAround(dx, dy, 4, 1, 2.5, ['pumpkin']);
@@ -3047,7 +3084,7 @@ export class Game {
     return Math.max(1, Math.max(this.p.level, best - 1) - (Math.random() < 0.4 ? 1 : 0));
   }
   private friendGun(better = 0) { return makeWeapon('nerf', Math.min(4, 1 + better + (this.stats?.mateGun ?? 0))); }
-  /** after a boss falls the porch lights come back on: every house can be trick-or-treated again */
+  /** the porch lights come back on once every house has been trick-or-treated (see relightWhenAllVisited) */
   /** game time of the last shop move (the screen-edge arrows for the candy machines show for a while after it) */
   shopsMovedAt = -999;
   /**
@@ -3106,16 +3143,34 @@ export class Game {
     return null;
   }
   private relightHouses() {
-    const hs = this.map.houses;
-    for (const h of hs) {
-      if (h.gone) continue; // burnt down
-      h.visited = false;
-      h.trick = false;
-      if (h.light) h.light.i = h.lightI;
+    // the streets and the Starcade together: whichever of the two the kid is not in right now is relit as well
+    const elsewhere = this.map.kind === 'arcade' ? this.townScene?.map : this.arcadeScene?.map;
+    for (const m of [this.map, elsewhere]) {
+      if (!m) continue;
+      const hs = m.houses;
+      for (const h of hs) {
+        if (h.gone) continue; // burnt down
+        h.visited = false;
+        h.trick = false;
+        if (h.light) h.light.i = h.lightI;
+      }
+      for (let i = 0; i < Math.max(1, Math.floor(hs.length / 6)); i++) hs[Math.floor(Math.random() * hs.length)].trick = true;
     }
-    for (let i = 0; i < Math.max(1, Math.floor(hs.length / 6)); i++) hs[Math.floor(Math.random() * hs.length)].trick = true;
     this.selectTutorialHouse();
-    this.toast('The porch lights are back on: every house has fresh treats');
+    this.toast('You have been to every house: the porch lights are back on with fresh treats');
+  }
+  /** doors still to ring before the porch lights come back on: every house in town, and the Starcade's stands while it is open */
+  get housesToGo() {
+    const open = (hs: HouseInst[]) => hs.filter(h => !h.gone && !h.visited && !(ARCADE_OPEN && h.prop.kind === 'arcade')).length;
+    const town = this.map.kind === 'arcade' ? this.townScene?.map.houses ?? [] : this.map.houses;
+    const arcade = this.map.kind === 'arcade' ? this.map.houses : this.arcadeScene?.map.houses;
+    return open(town) + (!ARCADE_OPEN ? 0 : arcade ? open(arcade) : ARCADE_VENUES);
+  }
+  /** Houses do not come back with time or with a boss: the kid has to trick-or-treat at every single one first. */
+  private relightWhenAllVisited() {
+    const left = this.housesToGo;
+    if (left === 0) this.relightHouses();
+    else if (left <= 3 || left === 10) this.toast(`${left} more ${left === 1 ? 'house' : 'houses'} to visit, then every porch light comes back on.`);
   }
   choose(id: string) {
     if (this.state !== 'levelup' || !this.choices.some(c => c.id === id)) return;
@@ -3272,15 +3327,24 @@ export class Game {
   /** the boss's own crowd: an escort the moment it arrives, then squads while it lives */
   private bossMinions(dt: number) {
     const boss = this.boss!, first = this.minionBoss !== boss;
-    if (first) { this.minionBoss = boss; this.minionT = 0; }
+    if (first) {
+      this.minionBoss = boss; this.minionT = 0;
+      // the street empties when a boss arrives: from here on it is the boss and its own kind, nobody else
+      for (const e of this.enemies) {
+        if (e === boss || e.minion || e.def.boss) continue;
+        e.dead = true; // slipping away, not killed: no loot
+        for (let i = 0; i < 4; i++) this.particle(e.x, e.y, rand(0.2, 0.9), rand(-1, 1), rand(-1, 1), rand(1, 2.5), 0.5, '#8d8aa8', 4, 'sq');
+      }
+      this.enemies = this.enemies.filter(e => !e.dead);
+    }
     this.minionT -= dt;
     if (this.minionT > 0) return;
     this.minionT = 6;
     const types = BOSS_MINIONS[boss.type] ?? ['zombie'];
     let alive = 0;
     for (const e of this.enemies) if (e.minion && !e.dead) alive++;
-    const cap = Math.min(18, 8 + this.bossRound * 2 + (this.endless ? 4 : 0));
-    const n = Math.min(cap - alive, first ? 5 + Math.min(4, this.bossRound) : 3 + Math.min(3, Math.floor(this.bossRound / 2)));
+    const cap = Math.min(24, 12 + this.bossRound * 3 + (this.endless ? 4 : 0));
+    const n = Math.min(cap - alive, first ? 8 + Math.min(6, this.bossRound * 2) : 4 + Math.min(4, this.bossRound));
     if (n <= 0) return;
     const from = this.enemies.length;
     this.spawnAround(boss.x, boss.y, n, 1.5, 3.8, types);

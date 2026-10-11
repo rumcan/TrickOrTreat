@@ -89,10 +89,10 @@ try {
       const { Renderer } = await import('/src/game/render.ts');
       const renderer = new Renderer(canvas, 0);
       renderer.render(nav, 1 / 60);
-      const healthBar = rectangles.find(r => r.color === '#ff3b3b' && r.w === 60 && r.h === 6);
-      const shieldBar = rectangles.find(r => r.color === '#76ddff' && r.w === 30 && r.h === 4);
+      const healthBar = rectangles.find(r => r.color === '#ff3b3b' && r.w === 30 && r.h === 3);
+      const shieldBar = rectangles.find(r => r.color === '#76ddff' && r.w === 15 && r.h === 2);
       require(healthBar && shieldBar && shieldBar.x === healthBar.x && shieldBar.y + shieldBar.h < healthBar.y, 'Light-blue shield line is above enemy health');
-      require(rectangles.some(r => r.x === healthBar.x && r.w === 5 && r.h === 4 && r.y > healthBar.y + healthBar.h), 'Status markers do not obscure the shield');
+      require(rectangles.some(r => r.x === healthBar.x && r.w === 3 && r.h === 3 && r.y > healthBar.y + healthBar.h), 'Status markers do not obscure the shield');
       require(labels.some(t => t.includes('gate') || t.startsWith('Rescue ')), 'Screen points toward next kid');
       require(!labels.includes(String.fromCodePoint(0x1f383)), 'No bag indicator arrows');
       nav.bigMap = true; labels.length = 0; renderer.render(nav, 1 / 60);

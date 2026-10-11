@@ -72,6 +72,7 @@ Object.assign(SPECS, {
   berserk: { bg: 'fire', motif: 'sword', c: '#ff4d6d', c2: '#ffb43c', prompt: 'a bare-chested barbarian silhouette roaring with a huge double-headed axe raised, broken shield at his feet, fantasy paperback cover' },
   oneshot: { bg: 'sunset', motif: 'crane', c: '#ffe14a', c2: '#ff4d6d', prompt: 'a single gleaming golden bullet standing upright in a spotlight, an empty revolver cylinder behind it, action-movie poster' },
   kaiju: { bg: 'fire', motif: 'tiger', c: '#7cff64', c2: '#ff7a1a', prompt: 'a giant green lizard monster towering over a tiny city skyline at night, rubber-suit monster movie, a ray gun beam hitting it' },
+  longshot: { bg: 'space', motif: 'ufo', c: '#b44dff', c2: '#21d0ff', prompt: 'a shining rainbow compact disc, a late-night radio long-distance dedication' },
   goldfever: { bg: 'woods', motif: 'canister', c: '#ffe14a', c2: '#7cff64', prompt: 'a small golden idol on a stone pedestal in a jungle temple, a beam of light on it, a rolling boulder looming in the dark behind' },
 } satisfies Record<string, ArtSpec>);
 export const TREAT_ART_IDS = Object.keys(SPECS);

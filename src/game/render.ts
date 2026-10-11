@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, GUN_GROUND_TIME, ARCADE_OPEN } from './engine';
+import { Game, Enemy, Turret, GUN_GROUND_TIME, LOOT_GROUND_TIME, BOSS_MAGNET_TIME, ARCADE_OPEN } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -383,6 +383,29 @@ export class Renderer {
       if (!inView(sx - es.ax * sc, sy - es.ay * sc, sx + es.ax * sc, sy + 10)) continue;
       items.push({ key: e.x + e.y, x: e.x, y: e.y, bx0: sx - es.ax * sc, by0: sy - es.ay * sc, bx1: sx + es.ax * sc, by1: sy, draw: () => this.drawEnemy(e, sx, sy, sc) });
     }
+    if (g.lootMagnet && g.lootMagnet.map === g.map) {
+      // the magnet a boss left behind, hanging over the pile it gathered
+      const m = g.lootMagnet, sx = isoX(m.x, m.y), sy = isoY(m.x, m.y);
+      if (inView(sx - 60, sy - 120, sx + 60, sy + 30)) items.push({
+        key: m.x + m.y + 0.02, x: m.x, y: m.y, bx0: sx - 22, by0: sy - 100, bx1: sx + 22, by1: sy,
+        draw: () => {
+          const a = Math.max(0, Math.min(1, m.t * 4, (BOSS_MAGNET_TIME - m.t) * 2)), bob = Math.sin(this.t * 5) * 4;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * (0.45 + Math.sin(this.t * 8) * 0.12);
+          ctx.drawImage(glow('#ff5a5a', 64), sx - 56, sy - 28, 112, 56);
+          ctx.restore();
+          ctx.save();
+          ctx.globalAlpha = a; ctx.translate(sx, sy - 66 + bob); ctx.rotate(Math.sin(this.t * 3) * 0.12);
+          const shoe = () => { ctx.beginPath(); ctx.moveTo(-13, 17); ctx.lineTo(-13, 0); ctx.arc(0, 0, 13, Math.PI, 0); ctx.lineTo(13, 17); ctx.stroke(); };
+          ctx.lineCap = 'butt'; ctx.lineJoin = 'round';
+          ctx.strokeStyle = '#0c0a10'; ctx.lineWidth = 14; shoe();
+          ctx.strokeStyle = '#e3342f'; ctx.lineWidth = 9; shoe();
+          ctx.strokeStyle = '#e8edf2'; ctx.lineWidth = 9;
+          for (const x of [-13, 13]) { ctx.beginPath(); ctx.moveTo(x, 9); ctx.lineTo(x, 15.5); ctx.stroke(); }
+          ctx.restore();
+        },
+      });
+    }
     for (const k of g.pickups) {
       const sx = isoX(k.x, k.y), sy = isoY(k.x, k.y);
       if (!inView(sx - 30, sy - 150, sx + 30, sy + 10)) continue;
@@ -449,6 +472,8 @@ export class Renderer {
             ctx.restore();
             ctx.drawImage(pickupIcon('chest'), sx - 24, sy - 46 - z, 48, 48);
           } else {
+            // coins and candy blink for their last eight seconds on the ground (LOOT_GROUND_TIME)
+            if (!k.mag && !k.pull && k.kind !== 'heal' && k.t > LOOT_GROUND_TIME - 8 && Math.sin(this.t * (k.t > LOOT_GROUND_TIME - 3 ? 22 : 11)) < 0) return;
             ctx.drawImage(pickupIcon(k.kind), sx - 12, sy - 22 - z + (k.mag ? 0 : bob * 0.5), 24, 24);
           }
         },
@@ -845,31 +870,33 @@ export class Renderer {
       if (e.def.boss) continue;
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
       if (e.hp < e.maxHp || e.maxShield > 0 || e.affix) {
-        const w = e.elite ? 60 : 30, h = e.elite ? 6 : 4;
+        const w = e.elite ? 30 : 15, h = e.elite ? 3 : 2;
         const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
         ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
         ctx.fillRect(sx - w / 2, top, (w * Math.max(0, e.hp)) / e.maxHp, h);
-        if (e.affix) {
+        if (e.affix && settings.names) {
           ctx.font = '600 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
           ctx.fillStyle = AFFIX_INFO[e.affix].color;
-          const labelY = top - (e.maxShield > 0 ? 29 : 13);
+          const labelY = top - (e.maxShield > 0 ? 19 : 5);
           ctx.strokeText(AFFIX_INFO[e.affix].name, sx, labelY); ctx.fillText(AFFIX_INFO[e.affix].name, sx, labelY);
         }
         if (e.maxShield > 0) {
-          ctx.fillStyle = '#162d38'; ctx.fillRect(sx - w / 2, top - 7, w, 4);
-          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 7, w * clamp(e.shield / e.maxShield, 0, 1), 4);
-          ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
-          ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
-          ctx.strokeText('LIEUTENANT', sx, top - 13); ctx.fillText('LIEUTENANT', sx, top - 13);
+          ctx.fillStyle = '#162d38'; ctx.fillRect(sx - w / 2, top - 4, w, 2);
+          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 4, w * clamp(e.shield / e.maxShield, 0, 1), 2);
+          if (settings.names) {
+            ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
+            ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
+            ctx.strokeText('LIEUTENANT', sx, top - 8); ctx.fillText('LIEUTENANT', sx, top - 8);
+          }
         }
         let ix = sx - w / 2;
-        const statusY = top + h + 3; // Leave the shield line above HP unobstructed.
-        if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) { ctx.fillStyle = '#9fe8ff'; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if (e.stunT > 0 && !e.frozenT) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 5, 4); }
+        const statusY = top + h + 2; // Leave the shield line above HP unobstructed.
+        if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, statusY, 3, 3); ix += 4; }
+        if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, statusY, 3, 3); ix += 4; }
+        if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) { ctx.fillStyle = '#9fe8ff'; ctx.fillRect(ix, statusY, 3, 3); ix += 4; }
+        if (e.stunT > 0 && !e.frozenT) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 3, 3); }
       }
     }
 
@@ -899,10 +926,26 @@ export class Renderer {
 
     // trick-or-treat door markers (unvisited houses)
     for (const h of m.houses) {
-      if (h.visited) continue;
+      const starcade = ARCADE_OPEN && h.prop.kind === 'arcade';
+      if (starcade ? h.gone : h.visited) continue;
       const sx = isoX(h.door.x, h.door.y), sy = isoY(h.door.x, h.door.y);
       if (!inView(sx - 40, sy - 160, sx + 40, sy + 20)) continue;
       const bob = Math.sin(this.t * 3 + h.door.x) * 5;
+      if (starcade) {
+        // the Starcade is a door you walk through, not a bowl: its sign says so (first-timers get the big arrow instead)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.35 + Math.sin(this.t * 4 + h.door.y) * 0.1;
+        ctx.drawImage(glow('#ff4fd8', 64), sx - 30, sy - 14, 60, 28);
+        ctx.restore();
+        if (g.arcadeSeen || !g.treatGuideComplete) {
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.font = '15px Anton, Impact, sans-serif';
+          ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(36,12,32,0.85)'; ctx.fillStyle = '#ff9be9';
+          ctx.strokeText('ENTER HERE', sx, sy - 96 + bob); ctx.fillText('ENTER HERE', sx, sy - 96 + bob);
+        }
+        continue;
+      }
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = 0.35 + Math.sin(this.t * 4 + h.door.y) * 0.1;

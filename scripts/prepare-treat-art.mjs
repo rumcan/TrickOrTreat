@@ -17,9 +17,9 @@ const SHEET = [
   [null, null, 'token', 'masher', 'skates'],
   ['griptape', null, 'yoyo', null, 'cartoons'],
   [null, 'denim', null, null, null], // the sneaker is left out: it carries a real brand's logo
-  ['lunchmoney', null, null, 'slurp', null],
+  ['lunchmoney', null, null, 'slurp', 'longshot'],
 ];
-const GLOW = { mixtape: '#ff4d6d', batteries: '#ffb43c', token: '#b44dff', masher: '#21d0ff', skates: '#ff2ea6', yoyo: '#ff4d6d', cartoons: '#7fd8ff', denim: '#4f8aff', griptape: '#ffe14a', lunchmoney: '#ffb43c', slurp: '#2ec4b0' };
+const GLOW = { longshot: '#b44dff', mixtape: '#ff4d6d', batteries: '#ffb43c', token: '#b44dff', masher: '#21d0ff', skates: '#ff2ea6', yoyo: '#ff4d6d', cartoons: '#7fd8ff', denim: '#4f8aff', griptape: '#ffe14a', lunchmoney: '#ffb43c', slurp: '#2ec4b0' };
 
 export async function prepareTreatArt() {
   await fs.mkdir(output, { recursive: true });
