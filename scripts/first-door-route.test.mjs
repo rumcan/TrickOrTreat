@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
 
 // The first door the game sends a new player to is the nearest one by WALKING, and the guide is a route on the ground
-// that goes round buildings, so nobody is sent into a wall. Guns left on the ground are gone after two minutes, coins
-// and candy after one; treat bags and first aid stay.
+// that goes round buildings, so nobody is sent into a wall. Guns left on the ground are gone after two minutes, coins,
+// candy and treat bags after one; first aid stays.
 const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
@@ -53,11 +53,11 @@ try {
     const drop = (age) => { g.dropWeapon(g.p.x + 3, g.p.y, makeWeapon('pea', 1)); const k = g.pickups[g.pickups.length - 1]; k.t = age; return k; };
     const young = drop(30), old = drop(GUN_GROUND_TIME - 0.2), coin = (g.dropPickup(g.p.x + 4, g.p.y, 'coin', 1), g.pickups[g.pickups.length - 1]);
     const put = (kind, age) => { g.dropPickup(g.p.x + 4, g.p.y, kind, 1); const k = g.pickups[g.pickups.length - 1]; k.t = age; return k; };
-    const candy = put('xp2', LOOT_GROUND_TIME - 0.2), fresh = put('coin', 30), bag = put('chest', 500), aid = put('heal', 500);
+    const candy = put('xp2', LOOT_GROUND_TIME - 0.2), fresh = put('coin', 30), bag = put('chest', LOOT_GROUND_TIME - 0.2), freshBag = put('chest', 30), aid = put('heal', 500);
     coin.t = LOOT_GROUND_TIME - 0.2;
     for (let i = 0; i < 30; i++) g.updatePickups(1 / 30);
     const has = k => g.pickups.includes(k);
-    return { problems, detours, afterBowl, time: GUN_GROUND_TIME, lootTime: LOOT_GROUND_TIME, young: has(young), old: has(old), coin: has(coin), candy: has(candy), fresh: has(fresh), bag: has(bag), aid: has(aid) };
+    return { problems, detours, afterBowl, time: GUN_GROUND_TIME, lootTime: LOOT_GROUND_TIME, young: has(young), old: has(old), coin: has(coin), candy: has(candy), fresh: has(fresh), bag: has(bag), freshBag: has(freshBag), aid: has(aid) };
   });
   assert.deepEqual(out.problems, []);
   assert.ok(out.detours.every(d => d < 2.2), `The first door is never a long way round (${out.detours})`);
@@ -65,7 +65,7 @@ try {
   assert.equal(out.time, 120);
   assert.deepEqual([out.young, out.old], [true, false], 'A gun is gone after two minutes on the ground');
   assert.equal(out.lootTime, 60);
-  assert.deepEqual([out.coin, out.candy, out.fresh, out.bag, out.aid], [false, false, true, true, true], 'Coins and candy are gone after a minute on the ground; treat bags and first aid stay');
+  assert.deepEqual([out.coin, out.candy, out.bag, out.fresh, out.freshBag, out.aid], [false, false, false, true, true, true], 'Coins, candy and treat bags are gone after a minute on the ground; younger ones and first aid stay');
 
   // on screen: dots on the ground, and the hint says to follow them when the door is out of view
   await page.getByRole('button', { name: 'Go trick-or-treating' }).click();

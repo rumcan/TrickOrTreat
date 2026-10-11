@@ -465,6 +465,8 @@ export class Renderer {
             ctx.fillStyle = cd.color;
             ctx.fillText(`${cd.icon} ${cd.name}`, sx, sy + 14);
           } else if (k.kind === 'chest') {
+            // a treat bag nobody opened blinks for its last eight seconds (LOOT_GROUND_TIME)
+            if (k.t > LOOT_GROUND_TIME - 8 && Math.sin(this.t * (k.t > LOOT_GROUND_TIME - 3 ? 22 : 11)) < 0) return;
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = 0.5;

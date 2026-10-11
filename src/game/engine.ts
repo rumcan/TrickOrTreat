@@ -242,7 +242,7 @@ const ARCADE_SEEN_KEY = 'tot_arcade_seen_v1';
 /** the trick-or-treat stands inside the Starcade (counted before the kid has ever been inside) */
 export const ARCADE_VENUES = 3;
 export const GUN_GROUND_TIME = 120;
-/** coins and candy left on the ground are gone after this long (treat bags, first aid, guns and costumes are not) */
+/** coins, candy and treat bags left on the ground are gone after this long (first aid, guns and costumes are not) */
 export const LOOT_GROUND_TIME = 60;
 /** how long a fallen boss's magnet stays over the spot where it gathered the town's coins and candy */
 export const BOSS_MAGNET_TIME = 6;
@@ -2570,7 +2570,11 @@ export class Game {
         else { k.x += (tx / td) * step; k.y += (ty / td) * step; }
         continue;
       }
-      if (k.t > LOOT_GROUND_TIME && !k.mag && (k.kind === 'coin' || k.kind.startsWith('xp'))) { k.dead = true; continue; } // swept up
+      if (k.t > LOOT_GROUND_TIME && !k.mag && (k.kind === 'coin' || k.kind === 'chest' || k.kind.startsWith('xp'))) { // swept up
+        k.dead = true;
+        if (k.kind === 'chest') for (let i = 0; i < 8; i++) this.particle(k.x, k.y, 0.3, rand(-1, 1), rand(-1, 1), rand(1, 3), 0.5, '#ffcf3a', 3, 'sq');
+        continue;
+      }
       if (k.z > 0 || k.vz > 0) {
         k.vz -= 12 * dt;
         k.z += k.vz * dt;
