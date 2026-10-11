@@ -52,6 +52,7 @@ export const SCROLL_TAGS: Record<string, Tag[]> = {
   walkie: ['summon'], firstaid: ['tank'], friendship: ['summon', 'tank'],
   mixtape: [], masher: ['sugar'], token: ['crit'], batteries: ['sugar'], griptape: ['sugar'], skates: ['sugar'], denim: ['tank'], slurp: ['tank'], yoyo: [], lunchmoney: [], cartoons: [],
   forcefield: ['tank', 'tank'], berserk: ['kill', 'crit'], oneshot: ['crit', 'crit'], kaiju: ['tank', 'tank'], goldfever: ['kill'],
+  longshot: ['crit'],
 };
 export const INSC_TAGS: Record<string, Tag[]> = {
   dmg: [], rate: ['sugar'], mag: ['sugar'], reload: ['sugar'], crit: ['crit'], critdmg: ['crit'], speed: [], fire: ['fire'], shock: ['shock'], ecto: ['ecto'],

@@ -11,7 +11,7 @@ try {
   await page.goto('http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   const out = await page.evaluate(async () => {
-    const { Game, FRIEND_HP, FRIEND_DOWN_TIME } = await import('/src/game/engine.ts');
+    const { Game, FRIEND_HP, FRIEND_DOWN_TIME, SEEK_FRIEND_UP } = await import('/src/game/engine.ts');
     const d = await import('/src/game/data.ts');
     const { expansion } = await import('/src/game/expansion.ts');
     const input = () => ({ keys: new Set(), pressed: new Set(), mouseActive: false, mdown: false, rpressed: false, wheel: 0, touchFiring: false, endFrame() { this.pressed.clear(); this.rpressed = false; this.wheel = 0; } });
@@ -45,6 +45,9 @@ try {
     const rescue = game({}, true), hidden = rescue.friends[0];
     const freeDoor = game({}); let offers = 0;
     for (let i = 0; i < 200; i++) { freeDoor.openLevelUp('house', 3, 0); if (freeDoor.friendChoice !== null) offers++; }
+    // hide and seek: a friend who goes down is never lost again, they get back up alone
+    const seek = (seconds) => { const g = game({}, true), f = g.friends[0]; f.status = 'rescued'; f.x = g.p.x - 6; f.y = g.p.y; f.hp = 0; f.downT = 0; g.p.invuln = 1e9; for (let i = 0; i < seconds * 30; i++) { g.enemies = []; g.update(1 / 30); } return { there: g.friends.includes(f), up: f.hp > 0 }; };
+    res.seek = { time: SEEK_FRIEND_UP, free: game({}).friendUpTime, before: seek(SEEK_FRIEND_UP - 2), after: seek(SEEK_FRIEND_UP + 2) };
     res.found = { flag: hidden.found === true, maxHp: hidden.maxHp, gun: hidden.weapon.rarity, doorOffersWithFullGame: offers };
     const plain = shoot({}), fast = shoot({ walkie: 3 }), two = shoot({ double: 1 }), crit = shoot({ sharpeye: 3 }), far = shoot({ range: 3 }), hard = shoot({ buddy: 5 });
     res.shoot = { plain: plain.bullets, two: two.bullets, rate: +(plain.cd / fast.cd).toFixed(2), crit: +(crit.dmg / plain.dmg).toFixed(2), far: +(far.life / plain.life).toFixed(2), hard: +(hard.dmg / plain.dmg).toFixed(2) };
@@ -64,6 +67,27 @@ try {
     res.pickup = { plain: plain.g.friendReviveCd, medic: shoot({ medic: 1 }).g.friendReviveCd };
     const big = shoot({ snacks: 3, stickers: 3, tagteam: 1 });
     res.big = { maxHp: big.f.maxHp, dmg: +(big.dmg / plain.dmg).toFixed(2) };
+    // ---- four friends following: nobody flickers between walking and standing, or snaps about between shots ----
+    {
+      const { CW, CR, MAP_W, MAP_H } = await import('/src/game/config.ts');
+      const g = game({}), p = g.p;
+      const open = (tx, ty) => { for (let cy = (ty - 4) * CR; cy < (ty + 4) * CR; cy++) for (let cx = (tx - 4) * CR; cx < (tx + 4) * CR; cx++) if (g.map.coll[cy * CW + cx] !== 0) return false; return true; };
+      let spot = null;
+      for (let ty = 6; ty < MAP_H - 6; ty++) for (let tx = 6; tx < MAP_W - 6; tx++) { const d = Math.hypot(tx - p.x, ty - p.y); if ((!spot || d < spot.d) && open(tx, ty)) spot = { x: tx, y: ty, d }; }
+      p.x = spot.x; p.y = spot.y; g.computeFlow(true);
+      for (const hero of [1, 2, 3, 4]) g.addFriend(hero);
+      // a few tough monsters around, so the friends shoot while they walk
+      for (let i = 0; i < 6; i++) { const a = i * 1.05, e = g.spawnEnemy('zombie', spot.x + Math.cos(a) * 3.4, spot.y + Math.sin(a) * 3.4, false, null); e.spawnT = 0; e.maxHp = e.hp = 1e7; e.def = { ...e.def, speed: 0, dmg: 0, mass: 1e6 }; }
+      const seen = g.friends.map(f => ({ moving: f.moving, toggles: 0, idleFrames: 0 }));
+      const dt = 1 / 30;
+      for (let i = 0; i < 300; i++) { // ten seconds: the kid walks round and round a small circle at walking pace
+        const a = i * dt * 1.2;
+        p.x = spot.x + Math.cos(a) * 1.6; p.y = spot.y + Math.sin(a) * 1.6;
+        g.rebuildGrid?.(); g.computeFlow(false, dt); g.updateTeam(dt);
+        g.friends.forEach((f, k) => { if (i > 30 && !!f.moving !== !!seen[k].moving) seen[k].toggles++; seen[k].moving = f.moving; });
+      }
+      res.follow = { friends: g.friends.length, worst: Math.max(...seen.map(s => s.toggles)), near: g.friends.every(f => Math.hypot(f.x - p.x, f.y - p.y) < 5) };
+    }
     return res;
   });
   assert.deepEqual(out.tree, { count: 15, free: 8, full: 7, name: 'Buddy System', roots: ['buddy'], orphans: [] }, 'A whole constellation of its own');
@@ -72,6 +96,7 @@ try {
   assert.equal(out.campaignStart, 0, 'The rescue campaign still hides every friend');
   assert.deepEqual(out.shoot, { plain: 1, two: 2, rate: 1.24, crit: 2, far: 1.45, hard: 1.4 }, 'Walkie Check, Double Team, Eagle-Eyed Pals, Tin-Can Telephone, Fist Bump');
   assert.deepEqual(out.found, { flag: true, maxHp: 160, gun: 2, doorOffersWithFullGame: 0, dmg: 2 }, 'A friend found in hide and seek is twice as strong; full-game players get no door-bell friends');
+  assert.deepEqual(out.seek, { time: 20, free: 0, before: { there: true, up: false }, after: { there: true, up: true } }, 'In hide and seek a friend who goes down gets back up alone after 20 seconds; in the free game they do not');
   assert.deepEqual(out.reach, { without: 0, with: 1 }, 'The telephone lets friends hit what was out of reach');
   assert.deepEqual(out.gun, { plain: 1, better: 3 }, 'Hand-Me-Down Blaster');
   assert.ok(out.regen >= 18 && out.regen <= 20, `Pinky Promise heals 4.5 HP a second (10 → ${out.regen} in 2s)`);
@@ -80,6 +105,7 @@ try {
   assert.ok(!out.left.gone.there && out.left.kept.there && out.left.kept.window === 45, 'Helping Hand gives 15 more seconds to reach a friend');
   assert.deepEqual(out.pickup, { plain: 60, medic: 30 }, 'Candy Medics');
   assert.deepEqual(out.big, { maxHp: 80 + 75 + 45 + 80, dmg: +(1.36 * 1.6).toFixed(2) }, 'Sticker Swap and Tag Team Champions stack');
+  assert.ok(out.follow.friends === 4 && out.follow.near && out.follow.worst <= 14, `Four friends follow steadily: at most a handful of starts and stops in ten seconds (worst ${out.follow.worst})`);
   assert.deepEqual(errors, [], 'No page errors');
   console.log('partner talents: 15 Buddy System stars, each changing the friends and only the friends: ok');
 } finally { await browser.close(); }

@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, GUN_GROUND_TIME, ARCADE_OPEN } from './engine';
+import { Game, Enemy, Turret, GUN_GROUND_TIME, LOOT_GROUND_TIME, BOSS_MAGNET_TIME, ARCADE_OPEN } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -362,11 +362,11 @@ export class Renderer {
           ctx.strokeText(label, 0, fallen ? -40 : -95); ctx.fillText(label, 0, fallen ? -40 : -95);
           if (fallen) {
             // a sign above a fallen friend: what to press and how long is left
-            const left = Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
+            const left = Math.max(0, Math.ceil(g.friendCountdown - (friend.downT ?? 0))), bob = Math.sin(this.t * 5) * 3;
             const text = `${touchViewport ? 'TAP INTERACT' : 'E'} · REVIVE · ${left}s`;
             ctx.font = '700 16px "Barlow Condensed", system-ui, sans-serif';
             const w = ctx.measureText(text).width + 20;
-            ctx.fillStyle = left <= 10 ? '#d33838' : '#fb8016'; ctx.strokeStyle = '#06090b'; ctx.lineWidth = 2;
+            ctx.fillStyle = left <= 10 && !g.friendUpTime ? '#d33838' : '#fb8016'; // red only when they are about to be lost ctx.strokeStyle = '#06090b'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.roundRect(-w / 2, -82 + bob, w, 26, 4); ctx.fill(); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(-6, -56 + bob); ctx.lineTo(6, -56 + bob); ctx.lineTo(0, -48 + bob); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#1d1d1b'; ctx.textBaseline = 'middle'; ctx.fillText(text, 0, -67 + bob); ctx.textBaseline = 'alphabetic';
@@ -382,6 +382,29 @@ export class Renderer {
       const sc = e.elite && !e.def.elite ? 1.25 : 1;
       if (!inView(sx - es.ax * sc, sy - es.ay * sc, sx + es.ax * sc, sy + 10)) continue;
       items.push({ key: e.x + e.y, x: e.x, y: e.y, bx0: sx - es.ax * sc, by0: sy - es.ay * sc, bx1: sx + es.ax * sc, by1: sy, draw: () => this.drawEnemy(e, sx, sy, sc) });
+    }
+    if (g.lootMagnet && g.lootMagnet.map === g.map) {
+      // the magnet a boss left behind, hanging over the pile it gathered
+      const m = g.lootMagnet, sx = isoX(m.x, m.y), sy = isoY(m.x, m.y);
+      if (inView(sx - 60, sy - 120, sx + 60, sy + 30)) items.push({
+        key: m.x + m.y + 0.02, x: m.x, y: m.y, bx0: sx - 22, by0: sy - 100, bx1: sx + 22, by1: sy,
+        draw: () => {
+          const a = Math.max(0, Math.min(1, m.t * 4, (BOSS_MAGNET_TIME - m.t) * 2)), bob = Math.sin(this.t * 5) * 4;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * (0.45 + Math.sin(this.t * 8) * 0.12);
+          ctx.drawImage(glow('#ff5a5a', 64), sx - 56, sy - 28, 112, 56);
+          ctx.restore();
+          ctx.save();
+          ctx.globalAlpha = a; ctx.translate(sx, sy - 66 + bob); ctx.rotate(Math.sin(this.t * 3) * 0.12);
+          const shoe = () => { ctx.beginPath(); ctx.moveTo(-13, 17); ctx.lineTo(-13, 0); ctx.arc(0, 0, 13, Math.PI, 0); ctx.lineTo(13, 17); ctx.stroke(); };
+          ctx.lineCap = 'butt'; ctx.lineJoin = 'round';
+          ctx.strokeStyle = '#0c0a10'; ctx.lineWidth = 14; shoe();
+          ctx.strokeStyle = '#e3342f'; ctx.lineWidth = 9; shoe();
+          ctx.strokeStyle = '#e8edf2'; ctx.lineWidth = 9;
+          for (const x of [-13, 13]) { ctx.beginPath(); ctx.moveTo(x, 9); ctx.lineTo(x, 15.5); ctx.stroke(); }
+          ctx.restore();
+        },
+      });
     }
     for (const k of g.pickups) {
       const sx = isoX(k.x, k.y), sy = isoY(k.x, k.y);
@@ -442,6 +465,8 @@ export class Renderer {
             ctx.fillStyle = cd.color;
             ctx.fillText(`${cd.icon} ${cd.name}`, sx, sy + 14);
           } else if (k.kind === 'chest') {
+            // a treat bag nobody opened blinks for its last eight seconds (LOOT_GROUND_TIME)
+            if (k.t > LOOT_GROUND_TIME - 8 && Math.sin(this.t * (k.t > LOOT_GROUND_TIME - 3 ? 22 : 11)) < 0) return;
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = 0.5;
@@ -449,6 +474,8 @@ export class Renderer {
             ctx.restore();
             ctx.drawImage(pickupIcon('chest'), sx - 24, sy - 46 - z, 48, 48);
           } else {
+            // coins and candy blink for their last eight seconds on the ground (LOOT_GROUND_TIME)
+            if (!k.mag && !k.pull && k.kind !== 'heal' && k.t > LOOT_GROUND_TIME - 8 && Math.sin(this.t * (k.t > LOOT_GROUND_TIME - 3 ? 22 : 11)) < 0) return;
             ctx.drawImage(pickupIcon(k.kind), sx - 12, sy - 22 - z + (k.mag ? 0 : bob * 0.5), 24, 24);
           }
         },
@@ -654,10 +681,6 @@ export class Renderer {
         ctx.globalAlpha = 0.4;
         ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : '#ff2a2a', 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
       }
-      if (e.affix) {
-        ctx.globalAlpha = 0.65; ctx.strokeStyle = AFFIX_INFO[e.affix].color; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.ellipse(isoX(e.x, e.y), isoY(e.x, e.y), e.r * 65 + 10, e.r * 30 + 5, 0, 0, Math.PI * 2); ctx.stroke();
-      }
     }
     ctx.globalAlpha = 1;
     // enemy bullets (bright & readable)
@@ -849,31 +872,33 @@ export class Renderer {
       if (e.def.boss) continue;
       const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
       if (e.hp < e.maxHp || e.maxShield > 0 || e.affix) {
-        const w = e.elite ? 60 : 30, h = e.elite ? 6 : 4;
+        const w = e.elite ? 30 : 15, h = e.elite ? 3 : 2;
         const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
         ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
         ctx.fillRect(sx - w / 2, top, (w * Math.max(0, e.hp)) / e.maxHp, h);
-        if (e.affix) {
+        if (e.affix && settings.names) {
           ctx.font = '600 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
           ctx.fillStyle = AFFIX_INFO[e.affix].color;
-          const labelY = top - (e.maxShield > 0 ? 29 : 13);
+          const labelY = top - (e.maxShield > 0 ? 19 : 5);
           ctx.strokeText(AFFIX_INFO[e.affix].name, sx, labelY); ctx.fillText(AFFIX_INFO[e.affix].name, sx, labelY);
         }
         if (e.maxShield > 0) {
-          ctx.fillStyle = '#162d38'; ctx.fillRect(sx - w / 2, top - 7, w, 4);
-          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 7, w * clamp(e.shield / e.maxShield, 0, 1), 4);
-          ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
-          ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
-          ctx.strokeText('LIEUTENANT', sx, top - 13); ctx.fillText('LIEUTENANT', sx, top - 13);
+          ctx.fillStyle = '#162d38'; ctx.fillRect(sx - w / 2, top - 4, w, 2);
+          ctx.fillStyle = '#76ddff'; ctx.fillRect(sx - w / 2, top - 4, w * clamp(e.shield / e.maxShield, 0, 1), 2);
+          if (settings.names) {
+            ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
+            ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
+            ctx.strokeText('LIEUTENANT', sx, top - 8); ctx.fillText('LIEUTENANT', sx, top - 8);
+          }
         }
         let ix = sx - w / 2;
-        const statusY = top + h + 3; // Leave the shield line above HP unobstructed.
-        if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) { ctx.fillStyle = '#9fe8ff'; ctx.fillRect(ix, statusY, 5, 4); ix += 7; }
-        if (e.stunT > 0 && !e.frozenT) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 5, 4); }
+        const statusY = top + h + 2; // Leave the shield line above HP unobstructed.
+        if (e.burnT > 0) { ctx.fillStyle = ELEM.fire.color; ctx.fillRect(ix, statusY, 3, 3); ix += 4; }
+        if (e.ectoT > 0) { ctx.fillStyle = ELEM.ecto.color; ctx.fillRect(ix, statusY, 3, 3); ix += 4; }
+        if ((e.frozenT ?? 0) > 0 || (e.chill ?? 0) > 0.15) { ctx.fillStyle = '#9fe8ff'; ctx.fillRect(ix, statusY, 3, 3); ix += 4; }
+        if (e.stunT > 0 && !e.frozenT) { ctx.fillStyle = '#ffe14a'; ctx.fillRect(ix, statusY, 3, 3); }
       }
     }
 
@@ -903,10 +928,26 @@ export class Renderer {
 
     // trick-or-treat door markers (unvisited houses)
     for (const h of m.houses) {
-      if (h.visited) continue;
+      const starcade = ARCADE_OPEN && h.prop.kind === 'arcade';
+      if (starcade ? h.gone : h.visited) continue;
       const sx = isoX(h.door.x, h.door.y), sy = isoY(h.door.x, h.door.y);
       if (!inView(sx - 40, sy - 160, sx + 40, sy + 20)) continue;
       const bob = Math.sin(this.t * 3 + h.door.x) * 5;
+      if (starcade) {
+        // the Starcade is a door you walk through, not a bowl: its sign says so (first-timers get the big arrow instead)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.35 + Math.sin(this.t * 4 + h.door.y) * 0.1;
+        ctx.drawImage(glow('#ff4fd8', 64), sx - 30, sy - 14, 60, 28);
+        ctx.restore();
+        if (g.arcadeSeen || !g.treatGuideComplete) {
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.font = '15px Anton, Impact, sans-serif';
+          ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(36,12,32,0.85)'; ctx.fillStyle = '#ff9be9';
+          ctx.strokeText('ENTER HERE', sx, sy - 96 + bob); ctx.fillText('ENTER HERE', sx, sy - 96 + bob);
+        }
+        continue;
+      }
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = 0.35 + Math.sin(this.t * 4 + h.door.y) * 0.1;
@@ -1134,7 +1175,7 @@ export class Renderer {
         ctx.strokeText(label, sx, sy - 65); ctx.fillText(label, sx, sy - 65);
       }
     }
-    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`);
+    for (const friend of g.friends) if (friend.status === 'rescued' && friend.hp <= 0) ind(friend.x, friend.y, '#ff6a8a', `Revive ${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(g.friendCountdown - (friend.downT ?? 0)))}s`);
     // where to shop: the stand always, the candy machines for a minute after they move
     if (g.state === 'play' && !g.bigMap) for (const shop of m.shops) {
       const stand = shop.prop.kind !== 'vending';
@@ -1264,7 +1305,7 @@ export class Renderer {
         ctx.beginPath(); ctx.arc(a, b, 5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#1a070c'; ctx.fillRect(a - 3 * k, b - k, 6 * k, 2 * k); ctx.fillRect(a - k, b - 3 * k, 2 * k, 6 * k);
         if (big) {
-          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil((g.stats.mateUp || g.friendDownTime) - (friend.downT ?? 0)))}s`;
+          const label = `${HERO_INFO[friend.hero].name} · ${Math.max(0, Math.ceil(g.friendCountdown - (friend.downT ?? 0)))}s`;
           ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
           ctx.strokeStyle = '#1a070c'; ctx.lineWidth = 3; ctx.strokeText(label, a, b - 8 * k);
           ctx.fillStyle = '#ffd0da'; ctx.fillText(label, a, b - 8 * k);
