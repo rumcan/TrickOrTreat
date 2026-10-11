@@ -957,13 +957,15 @@ export class Renderer {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         ctx.globalAlpha = 0.35 + Math.sin(this.t * 4 + h.door.y) * 0.1;
-        ctx.drawImage(glow('#ff4fd8', 64), sx - 30, sy - 14, 60, 28);
+        if (!g.arcadeShut) ctx.drawImage(glow('#ff4fd8', 64), sx - 30, sy - 14, 60, 28);
         ctx.restore();
-        if (g.arcadeSeen || !g.treatGuideComplete) {
+        if (g.arcadeShut || g.arcadeSeen || !g.treatGuideComplete) {
+          // after closing time the sign says so (ARCADE_LAST_WAVE)
+          const sign = g.arcadeShut ? 'CLOSED' : 'ENTER HERE';
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.font = '15px Anton, Impact, sans-serif';
-          ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(36,12,32,0.85)'; ctx.fillStyle = '#ff9be9';
-          ctx.strokeText('ENTER HERE', sx, sy - 96 + bob); ctx.fillText('ENTER HERE', sx, sy - 96 + bob);
+          ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(36,12,32,0.85)'; ctx.fillStyle = g.arcadeShut ? '#ff6a5a' : '#ff9be9';
+          ctx.strokeText(sign, sx, sy - 96 + bob); ctx.fillText(sign, sx, sy - 96 + bob);
         }
         continue;
       }
@@ -1160,7 +1162,7 @@ export class Renderer {
     }
     // First-timers do not know the Starcade can be walked into: until they have been inside once, a pink arrow hangs
     // over its door (and points to it from the edge of the screen). It waits for the first-treat guide to finish.
-    const starcade = ARCADE_OPEN && !g.arcadeSeen && m.kind !== 'arcade' && g.treatGuideComplete && !g.tutorial?.holding && g.state === 'play' && !g.bigMap && !g.tot
+    const starcade = ARCADE_OPEN && !g.arcadeSeen && !g.arcadeShut && m.kind !== 'arcade' && g.treatGuideComplete && !g.tutorial?.holding && g.state === 'play' && !g.bigMap && !g.tot
       ? m.houses.find(h => h.prop.kind === 'arcade' && !h.gone) : undefined;
     if (starcade) {
       const [dx, dy] = toS(isoX(starcade.door.x, starcade.door.y), isoY(starcade.door.x, starcade.door.y));

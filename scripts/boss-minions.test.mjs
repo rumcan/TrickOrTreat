@@ -23,7 +23,9 @@ try {
     for (const type of WAVE_BOSSES) {
       g.enemies = []; g.calmT = 0; g.bossBreak = false;
       step(Math.max(0.2, g.nextBossAt - g.time - 3));
-      for (let i = 0; i < 12; i++) g.spawnEnemy('skeleton', g.p.x + 4 + i * 0.3, g.p.y + 3, false, null); // what the wave left on the street
+      // what is on the street when the boss turns up: six of its own kind (they stay and fight on) and three strays (they go)
+      const own = []; for (let i = 0; i < 6; i++) own.push(g.spawnEnemy(BOSS_MINIONS[type][0], g.p.x + 4 + i * 0.3, g.p.y + 3, false, null));
+      for (let i = 0; i < 3; i++) g.spawnEnemy('werewolf', g.p.x - 4 - i * 0.4, g.p.y + 3, false, null);
       step(3.2);
       const boss = g.boss;
       if (!boss || boss.type !== type) { rounds.push({ type, error: `no ${type}: ${boss?.type}` }); break; }
@@ -33,7 +35,7 @@ try {
       step(75); // well over a wave, a horde mark and an elite timer
       const crowd = g.enemies.filter(e => e.minion);
       rounds.push({
-        type, leftovers: others, escort: escort.length, escortKinds: [...new Set(escort.map(e => e.type))].sort().join(),
+        type, leftovers: others, stayed: own.every(e => g.enemies.includes(e) && e.minion && !e.dead), strays: elitesBefore, escort: escort.length, escortKinds: [...new Set(escort.map(e => e.type))].sort().join(),
         wanted: [...BOSS_MINIONS[type]].sort().join(), allowed: crowd.every(e => BOSS_MINIONS[type].includes(e.type)),
         crowd: crowd.length, newcomers: g.enemies.filter(e => e !== boss && !e.minion).length - others,
         waveHeld: g.wave === wave, hud: snap.bossFight, elites: g.enemies.filter(e => e.type === 'werewolf').length - elitesBefore,
@@ -76,9 +78,10 @@ try {
   for (const r of out.rounds) {
     assert.ok(!r.error, r.error);
     assert.ok(r.escort >= 8, `${r.type} arrives with an escort (${r.escort})`);
-    assert.equal(r.leftovers, 0, `The wave's own monsters leave the street when ${r.type} arrives`);
+    assert.equal(r.stayed, true, `The monsters already fighting stay when ${r.type} arrives: they are its own crew`);
+    assert.deepEqual([r.leftovers, r.strays], [0, 0], `Only strays of another kind leave when ${r.type} arrives`);
     assert.equal(r.escortKinds.split(',').every(k => r.wanted.split(',').includes(k)), true, `${r.type}'s escort is its own kind (${r.escortKinds} of ${r.wanted})`);
-    assert.ok(r.allowed && r.crowd >= r.escort && r.crowd <= 24, `${r.type} keeps a capped crowd of its own minions (${r.crowd})`);
+    assert.ok(r.allowed && r.crowd >= r.escort && r.crowd <= Math.max(24, r.escort), `${r.type} keeps a capped crowd of its own minions (${r.crowd})`);
     assert.equal(r.newcomers, 0, `No ordinary wave monsters arrive during the ${r.type} fight`);
     assert.ok(r.waveHeld && r.hud && r.elites === 0, `The wave waits for ${r.type}: no new wave, no elite`);
     assert.deepEqual(r.afterKill, { calm: out.quiet, minionsLeft: 0 }, `${r.type}'s crowd leaves with it and the quiet begins`);

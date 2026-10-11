@@ -527,11 +527,13 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
             <div className="text-[13px] text-[#c9bda6]">Restore 50% HP ({Math.ceil(p.hp)}/{Math.round(game.stats.maxHp)})</div>
             <button className="hm-btn ghost" disabled={p.coins < game.healCost() || p.hp >= game.stats.maxHp} onClick={() => { game.shopHeal(); f(); }}>Buy · {game.healCost()} coins</button>
           </div>
-          <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #b98aff' }}>
-            <div className="label">Imagination</div>
-            <div className="font-cond text-xl uppercase leading-tight">Mystery treat</div>
-            <div className="text-[13px] text-[#c9bda6]">Pick 1 of {3 + game.stats.totChoices} treats, like a level-up</div>
-            <button className="hm-btn ghost" disabled={p.coins < game.treatCost()} onClick={() => { game.shopTreat(); onClose(); }}>Buy · {game.treatCost()} coins</button>
+          <div className="paper-card flex flex-col gap-2" style={{ borderLeft: '5px solid #66d2b7' }}>
+            <div className="label">Friends</div>
+            <div className="font-cond text-xl uppercase leading-tight">Bring a friend back</div>
+            {game.revivable.length
+              ? <><div className="text-[13px] text-[#c9bda6]">Back on their feet beside you, at full health.</div>
+                {game.revivable.map(friend => <button key={friend.hero} className="hm-btn ghost" disabled={p.coins < game.reviveCost()} onClick={() => { game.shopRevive(friend.hero); f(); }}>{HERO_INFO[friend.hero].name} · {game.reviveCost()} coins</button>)}</>
+              : <div className="text-[13px] text-[#8f8676]">Nobody is missing. If a friend goes down and is not reached in time, find them here.</div>}
           </div>
         </div>
         <div className="hm-foot">
@@ -584,7 +586,7 @@ export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; 
             <span>essence earned<small>Balance {game.save.soul} · spend it on permanent talents</small></span>
           </div>
           {game.fullGameEarned
-            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. Hide &amp; Shriek is yours: the rescue campaign, Maya and Leo, and every full-game gun, treat and talent.</p>
+            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. It is yours: Maya and Leo, the bigger town, and every full-game gun, treat and talent.</p>
             : !hasFullGame() && <p className="end-unlock end-unlock--progress">Full game unlocks free at {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence earned · {essenceEarned(game.save).toLocaleString('en-US')} so far</p>}
           {recordMessage && <p role="status" className="mt-3 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
           <div className="mt-4 flex flex-col gap-2">

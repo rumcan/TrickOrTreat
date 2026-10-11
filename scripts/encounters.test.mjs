@@ -3,7 +3,7 @@ import { chromium } from 'playwright-core';
 const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto('http://127.0.0.1:5173/?campaign'); // the rescue campaign is shelved for players; development still reaches it
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   await page.getByRole('button', { name: /Preview expansion locally/ }).click();
   await page.getByRole('button', { name: /Play rescue campaign/ }).click();

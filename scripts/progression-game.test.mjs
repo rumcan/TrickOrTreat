@@ -5,7 +5,7 @@ const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage();
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto('http://127.0.0.1:5173/?campaign'); // the rescue campaign is shelved for players; development still reaches it
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   await page.getByRole('button', { name: /Preview expansion locally/ }).click();
   await page.getByRole('button', { name: 'Go trick-or-treating' }).click();

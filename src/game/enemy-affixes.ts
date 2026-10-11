@@ -1,7 +1,7 @@
 import type { Elem } from './config';
 
 export type EnemyAffix = 'stormproof' | 'fireproof' | 'ectoproof' | 'ricochet' | 'armored' | 'piercing';
-export interface DamageProfile { element?: Elem | null; pierce?: number; ricochet?: boolean; /** the blast also wrecks cars and houses */ demolish?: boolean }
+export interface DamageProfile { element?: Elem | null; pierce?: number; ricochet?: boolean; /** a heavy gun's blast: wrecks a car or a house in one hit */ demolish?: boolean; /** a wreck's own explosion: it does not wreck what stands next to it */ noWreck?: boolean }
 export const AFFIX_INFO: Record<EnemyAffix, { name: string; color: string }> = {
   stormproof: { name: 'Stormproof', color: '#99dcff' },
   fireproof: { name: 'Fireproof', color: '#ffa975' },

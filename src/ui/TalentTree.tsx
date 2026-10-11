@@ -1,7 +1,7 @@
 import { useState, useSyncExternalStore } from 'react';
 import { useBack } from './back';
 import { expansion, hasFullGame } from '../game/expansion';
-import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, COSTUMES } from '../game/data';
+import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, talentCost, COSTUMES } from '../game/data';
 import { ChevronLeft, RotateCcw } from 'lucide-react';
 import { CandyIcon } from './common';
 
@@ -26,12 +26,12 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
   };
   const canBuy = (t: Talent) => {
     const st = stateOf(t);
-    return (st === 'available' || st === 'owned') && save.soul >= t.cost(ranks[t.id] || 0);
+    return (st === 'available' || st === 'owned') && save.soul >= talentCost(t, ranks[t.id] || 0);
   };
   const buy = (id: string) => {
     const t = TALENT_BY_ID[id];
     if (!canBuy(t)) return;
-    save.soul -= t.cost(ranks[id] || 0);
+    save.soul -= talentCost(t, ranks[id] || 0);
     save.talents[id] = (ranks[id] || 0) + 1;
     storeSave(save);
     setFlash(id);
@@ -40,7 +40,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
   };
   const refund = () => {
     let r = 0;
-    for (const t of TALENTS) for (let l = 0; l < (ranks[t.id] || 0); l++) r += t.cost(l);
+    for (const t of TALENTS) for (let l = 0; l < (ranks[t.id] || 0); l++) r += talentCost(t, l);
     save.soul += r;
     save.talents = {};
     storeSave(save);
@@ -224,9 +224,9 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           </div>
           <div className="mt-1.5 flex justify-between font-cond2 text-xs font-bold uppercase tracking-[0.14em] text-[#8f8676]">
             <span>Rank {fl} / {focus.max}</span>
-            {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {focus.cost(fl)} candy</span>}
+            {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {talentCost(focus, fl)} candy</span>}
           </div>
-          {focus.premium && !hasFullGame() && <p role="status" className="mt-3 border border-[#ffc453]/50 bg-black/30 p-3 text-sm text-white">Full-game talent: unlock Hide & Shriek using the button in the main-menu header. After unlocking, the linked talent requirements below still apply.</p>}
+          {focus.premium && !hasFullGame() && <p role="status" className="mt-3 border border-[#ffc453]/50 bg-black/30 p-3 text-sm text-white">Full-game talent: unlock the full game using the button in the main-menu header. After unlocking, the linked talent requirements below still apply.</p>}
           {focus.req.length > 0 && (
             <div className="mt-2 font-cond2 text-[13px] font-semibold text-[#c9bda6]">
               Unlock by buying rank 1 in any one of:{' '}
@@ -235,10 +235,10 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
               ))}
             </div>
           )}
-          {fst !== 'locked' && fst !== 'maxed' && save.soul < focus.cost(fl) && <p className="mt-3 text-sm text-white">Earn {focus.cost(fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
+          {fst !== 'locked' && fst !== 'maxed' && save.soul < talentCost(focus, fl) && <p className="mt-3 text-sm text-white">Earn {talentCost(focus, fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
           {focus.id === 'master' && <div className="mt-2 font-cond2 text-xs font-semibold text-[#c9bda6]">One costume per kid: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
           <button className="hm-btn mt-4 w-full" disabled={!canBuy(focus)} onClick={() => buy(focus.id)}>
-            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · 🍬 ${focus.cost(fl)}`}
+            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · 🍬 ${talentCost(focus, fl)}`}
           </button>
         </section>
 

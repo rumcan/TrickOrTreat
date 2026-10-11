@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Game, Input, HudSnap } from './game/engine';
+import { Game, Input, HudSnap, campaignOffered } from './game/engine';
 import { Renderer } from './game/render';
 import { preloadAll } from './game/preload';
 import { tutorialWanted } from './game/tutorial';
@@ -137,7 +137,8 @@ export default function App() {
   const [save, setSave] = useState<Save>(() => loadSave());
   const [campaign, setCampaign] = useState(false);
   useEffect(() => { void expansion.restore(); }, []);
-  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(rescue); setScreen('game'); };
+  // Hide & Shriek is shelved (see CAMPAIGN_OPEN): whoever plays, the night starts the same way, with the tutorial or without
+  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(campaignOffered() && rescue); setScreen('game'); };
 
   useEffect(() => {
     const unlock = (event: Event) => {

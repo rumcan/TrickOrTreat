@@ -166,6 +166,8 @@ export interface Enemy {
 }
 export interface Bullet {
   element?: Elem | null; initialPierce?: number; ricocheted?: boolean;
+  /** has already put its hole in a parked car (one per bullet) */
+  clipped?: boolean;
   x: number; y: number; vx: number; vy: number; dmg: number; r: number; life: number; pierce: number; bounce: number; kind: BulletKind; color: string;
   crit: number; fire: number; shock: number; ecto: number; explode: number; hit: number[]; vamp: boolean; dead: boolean; spin: number; home?: boolean;
   /** drawn height in px (shots fired from up on a jungle gym drop toward the ground as they fly) */
@@ -245,6 +247,19 @@ export const FOUND_FRIEND = { dmg: 2, hp: 2, gun: 1 };
 // Open everywhere, the published game included. Set to false to close the door again: the arcade then is an ordinary
 // trick-or-treat building and Maya and Leo hide at the gazebos like the others.
 export const ARCADE_OPEN: boolean = true;
+/** the Starcade shuts after this wave: whoever is inside is shown the door, and it does not open again that night */
+export const ARCADE_LAST_WAVE = 5;
+/**
+ * Hide & Shriek (the rescue campaign: friends hidden at the gazebos, the intro, their guardians) is shelved for now.
+ * The app no longer starts it: every run is the same night, opening with the tutorial. The mode itself is still here
+ * (and tested) for when it comes back; flip this to offer it again.
+ */
+export const CAMPAIGN_OPEN: boolean = false;
+/** Is the rescue campaign on offer? Shelved for players; a development build still reaches it with ?campaign (its tests do). */
+export function campaignOffered() {
+  if (CAMPAIGN_OPEN) return true;
+  try { return (import.meta as unknown as { env: { DEV?: boolean } }).env.DEV === true && new URLSearchParams(location.search).has('campaign'); } catch { return false; }
+}
 const ARCADE_SEEN_KEY = 'tot_arcade_seen_v1';
 /** seconds a gun lies on the ground before it is gone (it blinks for the last ten) */
 /** the trick-or-treat stands inside the Starcade (counted before the kid has ever been inside) */
@@ -265,6 +280,10 @@ export const FRIEND_HP = 80, FRIEND_REVIVE_CD = 60;
 const STREAM_RAMP_MAX = 20, TRAIL_TICK = 0.35, FREEZE_TIME = 2.4;
 /** structural damage a car and a house take before they go up (an Annihilator shell deals 60, a lick of flame 2.5) */
 const CAR_HP = 50, HOUSE_HP = 170;
+/** what an ordinary blast (a rocket, a balloon, a pumpkin bomb) takes off a car or a house it lands on */
+export const BLAST_WRECK = 20;
+/** what one bullet or beam takes off a parked car it passes through (cars only: a house needs a blast) */
+export const BULLET_WRECK = 2;
 /** seconds of helping a friend up (scaled by the reviveSpeed talent) */
 const RESCUE_TIME = 1.8;
 export const BOSS_NAMES: Record<string, string> = { hex: 'Headmistress Hex', alpha: 'Howler Alpha', warden: 'Graveyard Warden', king: 'The Pumpkin King',...ROSTER_NAMES };
@@ -399,15 +418,31 @@ export class Game {
   /** Keep run progress and per-scene loot; never reset or duplicate rewards on entry. */
   /** this player has been inside the Starcade before (kept between runs): until then an arrow points at its door */
   arcadeSeen = storage.getItem(ARCADE_SEEN_KEY) === '1';
-  travelArcade(target:'town'|'arcade') {
+  /** closed for the night (see ARCADE_LAST_WAVE) */
+  get arcadeShut() { return this.wave > ARCADE_LAST_WAVE; }
+  private arcadeShutSaid = false;
+  /** Closing time: anyone still inside is put out on the street, and the sign on the door changes. */
+  private closeArcade() {
+    if (!ARCADE_OPEN || !this.arcadeShut || this.state !== 'play') return;
+    if (this.map.kind === 'arcade') {
+      if (this.tot) this.cancelTot(false);
+      this.travelArcade('town', true);
+      if (this.map.kind === 'arcade') return; // could not leave this frame: try again
+    }
+    if (this.arcadeShutSaid) return;
+    this.arcadeShutSaid = true;
+    this.setBanner('THE STARCADE IS CLOSED', 'Closing time. It will not open again tonight.', 'info');
+  }
+  travelArcade(target:'town'|'arcade', force = false) {
     if(!ARCADE_OPEN&&target==='arcade') return; // emergency entry switch; leaving stays possible
+    if(target==='arcade'&&this.arcadeShut) return;
     if(this.state!=='play'||this.mounted>=0||this.tot) return;
     const inside=this.map.kind==='arcade';
     if((target==='arcade')===inside) return;
     const arcade=this.map.houses.find(h=>h.prop.kind==='arcade'&&!h.gone);
     const portal=inside?this.map.portals?.[0]:arcade?.door;
-    if(!portal||Math.hypot(this.p.x-portal.x,this.p.y-portal.y)>2) return;
-    if(this.boss&&!this.boss.dead){this.toast('Finish the boss fight before changing rooms.');return;}
+    if(!portal||(!force&&Math.hypot(this.p.x-portal.x,this.p.y-portal.y)>2)) return;
+    if(!force&&this.boss&&!this.boss.dead){this.toast('Finish the boss fight before changing rooms.');return;}
     const snapshot={map:this.map,enemies:this.enemies,pickups:this.pickups,decals:this.decals,turrets:this.turrets};
     if(inside)this.arcadeScene=snapshot;
     else {this.townScene=snapshot;this.arcadeReturn={...arcade!.door};if(!this.arcadeSeen){this.arcadeSeen=true;storage.setItem(ARCADE_SEEN_KEY,'1');}}
@@ -496,7 +531,7 @@ export class Game {
     this.campaign = campaign && hasFullGame();
     this.save = save;
     this.input = input;
-    this.map = buildMap(seed, this.campaign);
+    this.map = buildMap(seed, this.campaign || (!campaignOffered() && hasFullGame())); // the full game's bigger town, campaign or not
     this.turrets = this.map.turrets.map((t) => ({ x: t.x, y: t.y, gym: t.gym, aimX: 0.7, aimY: 0.7, cd: 0, heat: 0, over: 0, barrel: 0, recoil: 0 }));
     for (let i = 0; i < MAP_W * MAP_H; i++) this.grid.push([]);
     this.recalcStats();
@@ -740,8 +775,9 @@ export class Game {
       }
       if ((f.downT ?? 0) >= this.friendDownTime) {
         this.friends = this.friends.filter(x => x !== f);
+        this.lostFriends.push(f);
         if (this.activeFriend === f.hero) this.activeFriend = this.friends.find(x => x.status === 'rescued')?.hero ?? null;
-        this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS OUT FOR THE NIGHT`, this.campaign ? 'Nobody reached them in time.' : 'Nobody reached them in time. They may turn up at another door.', 'danger');
+        this.setBanner(`${HERO_INFO[f.hero].name.toUpperCase()} IS OUT FOR THE NIGHT`, 'Nobody reached them in time. The Candy Lady can bring them back.', 'danger');
         gameAudio.play('hurt', 0.5);
         continue;
       }
@@ -972,6 +1008,7 @@ export class Game {
   update(dtRaw: number) {
     const inp = this.input;
     this.tutorial?.update(this);
+    this.closeArcade();
     if (this.heldBanner && !this.tutorial?.holding) { this.banner = { ...this.heldBanner, t: 3.5 }; this.heldBanner = null; } // the night begins
     if (this.state === 'intro') {
       this.updateIntro(Math.min(dtRaw, 0.05));
@@ -1046,7 +1083,8 @@ export class Game {
       for (const q of this.toasts) q.t -= dt;
       if (this.toasts[0].t <= 0) this.toasts = this.toasts.filter((q) => q.t > 0);
     }
-    if (this.pendingLevels > 0 && this.state === 'play') this.openLevelUp('level');
+    // a level-up waits for a doorbell in progress: the bowl comes first, then the level-ups, never one in the middle of the other
+    if (this.pendingLevels > 0 && this.state === 'play' && !this.tot) this.openLevelUp('level');
     inp.endFrame();
   }
 
@@ -1294,7 +1332,8 @@ export class Game {
   }
   /** tally essence and bank only what hasn't been paid yet (safe to call at victory and again at the very end) */
   private bankRewards() {
-    this.essence = { combat: Math.floor(this.xpCollected / 6), kills: Math.floor(this.kills / 8), survival: Math.floor(this.time / 6), bosses: this.bossWins * 120, waves: this.wave * 25 };
+    // Essence is for what the run did: nothing for walking in and out (a wave pays once it is behind you)
+    this.essence = { combat: Math.floor(this.xpCollected / 8), kills: Math.floor(this.kills / 10), survival: Math.floor(this.time / 8), bosses: this.bossWins * 100, waves: Math.max(0, this.wave - 1) * 20 };
     this.soulEarned = Object.values(this.essence).reduce((sum, value) => sum + value, 0);
     const additional = Math.max(0, this.soulEarned - this.soulPaid);
     const had = hasFullGame();
@@ -1533,7 +1572,11 @@ export class Game {
     let len = st.range;
     // walls
     for (let t = 0; t < st.range; t += 1 / CR) {
-      if (cellAt(this.map, x + dx * t, y + dy * t) === 2) { len = t; break; }
+      if (cellAt(this.map, x + dx * t, y + dy * t) === 2) {
+        len = t;
+        if (this.carAt(x + dx * t, y + dy * t)) this.demolish(x + dx * t, y + dy * t, 0.5, BULLET_WRECK, st.dmg); // a beam that ends on a parked car burns it
+        break;
+      }
     }
     const hits: [number, Enemy][] = [];
     for (const e of this.enemies) {
@@ -1733,7 +1776,9 @@ export class Game {
     }
     if (booms <= 8) this.decals.push({ x, y, r: r * 0.6, color: 'rgba(20,10,5,0.5)', life: 20, rot: rand(0, 6) });
     if (this.decals.length > 160) this.decals.splice(0, this.decals.length - 160);
-    if (fromPlayer && profile.demolish) this.demolish(x, y, r, 60, dmg);
+    // Every blast of the kid's wrecks the street a little; the full game's heavy guns do it in one hit.
+    // (a wreck's own explosion does not pass it on: no chain of wrecks down the street)
+    if (fromPlayer && !profile.noWreck) this.demolish(x, y, r, profile.demolish ? 60 : BLAST_WRECK, dmg);
   }
 
   // ---------- skills ----------
@@ -2297,6 +2342,8 @@ export class Game {
         b.x = px + moveX * i / steps; b.y = py + moveY * i / steps;
         if (cellAt(this.map, b.x, b.y) === 2) { wall = true; break; }
       }
+      // what stopped it was a parked car: every bullet leaves its mark (a rocket's blast does that by itself)
+      if (wall && !b.explode && !b.clipped && this.carAt(b.x, b.y)) { b.clipped = true; this.demolish(b.x, b.y, 0.5, BULLET_WRECK, b.dmg); }
       if (wall && def?.boomerang && !b.child) { wall = false; b.x = px; b.y = py; this.turnBack(b); } // it turns at a wall instead of stopping
       if (wall && def?.demolish && def.kind === 'flame') this.demolish(b.x, b.y, 0.5, 2.5, b.dmg);
       // Grid Disc: lay the neon line behind it, a piece at a time
@@ -2527,6 +2574,14 @@ export class Game {
    * Heavy weapons wreck the street: a car caught in the blast at (x, y), or a house hit directly, takes `points` of structural damage. A car
    * goes up like a bomb; a house burns down and never answers its door again, but it spills what was inside.
    */
+  private carsOf = new WeakMap<GameMap, PropInst[]>();
+  /** the parked car (not yet a wreck) standing on this spot, if any */
+  private carAt(x: number, y: number): PropInst | null {
+    let cars = this.carsOf.get(this.map);
+    if (!cars) this.carsOf.set(this.map, cars = this.map.props.filter(pr => pr.kind === 'car' && !pr.removed));
+    for (const pr of cars) if (!pr.wreck && x >= pr.x0 && x <= pr.x0 + pr.fw && y >= pr.y0 && y <= pr.y0 + pr.fh) return pr;
+    return null;
+  }
   private demolish(x: number, y: number, r: number, points: number, dmg: number) {
     for (const pr of this.map.props) {
       if (pr.removed || pr.wreck || (pr.kind !== 'car' && pr.kind !== 'house')) continue;
@@ -2540,7 +2595,7 @@ export class Game {
       pr.wreck = true; pr.boomT = 0; pr.burnT = house ? 40 : 16;
       this.hitStop = Math.max(this.hitStop, 0.05);
       gameAudio.play('impact', 0.9);
-      this.explode(cx, cy, house ? 3.4 : 2.6, Math.max(20, dmg * 2), 'fire', true, false, { element: 'fire' }); // no chain of wrecks from one blast
+      this.explode(cx, cy, house ? 3.4 : 2.6, Math.max(20, dmg * 2), 'fire', true, false, { element: 'fire', noWreck: true }); // no chain of wrecks from one blast
       this.shake = Math.max(this.shake, house ? 16 : 11);
       for (let i = 0; i < (house ? 3 : 1); i++) this.zones.push({ kind: 'fire', x: cx + rand(-pr.fw, pr.fw) * 0.45, y: pr.y0 + pr.fh + 0.5 + rand(0, 0.6), r: 0.9, t: 0, life: 5, dmg: Math.max(3, dmg * 0.3), tick: 0 });
       if (house) {
@@ -2763,6 +2818,7 @@ export class Game {
     }
     for (const h of this.map.houses) {
       if(ARCADE_OPEN&&h.prop.kind==='arcade'&&!h.gone){
+        if(this.arcadeShut)continue; // closed for the night
         const d=(h.door.x-p.x)**2+(h.door.y-p.y)**2;
         if(d<Math.min(bd,1.5**2)){bd=d;best={kind:'portal',label:'Enter the Starcade',ref:{...h.door,label:'Enter the Starcade',target:'arcade'}};}
         continue;
@@ -3094,9 +3150,9 @@ export class Game {
     }
     // Free game: now and then one of the cards is a kid who wants to come along (the rescue campaign finds its friends
     // at the gazebos instead). Only the free kids, and never one who is already with you.
-    // Full-game players do not get them at doors at all: their friends are the ones they find in hide and seek (far
-    // stronger) and the Starcade crew.
-    const recruits = this.campaign || hasFullGame() ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
+    // While the rescue campaign is open, full-game players do not get them at doors: their friends are the ones they
+    // find in hide and seek (far stronger) and the Starcade crew. With it shelved, everyone meets friends at doors.
+    const recruits = this.campaign || (campaignOffered() && hasFullGame()) ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
     this.friendChoice = recruits.length && n >= 2 && Math.random() < FRIEND_CARD_CHANCE ? recruits[Math.floor(Math.random() * recruits.length)] : null;
     const loot = n - (this.friendChoice === null ? 0 : 1);
     let guns = 0;
@@ -3277,7 +3333,7 @@ export class Game {
     const open = (hs: HouseInst[]) => hs.filter(h => !h.gone && !h.visited && !(ARCADE_OPEN && h.prop.kind === 'arcade')).length;
     const town = this.map.kind === 'arcade' ? this.townScene?.map.houses ?? [] : this.map.houses;
     const arcade = this.map.kind === 'arcade' ? this.map.houses : this.arcadeScene?.map.houses;
-    return open(town) + (!ARCADE_OPEN ? 0 : arcade ? open(arcade) : ARCADE_VENUES);
+    return open(town) + (!ARCADE_OPEN || this.arcadeShut ? 0 : arcade ? open(arcade) : ARCADE_VENUES); // a closed Starcade's stands no longer count
   }
   /** Houses do not come back with time or with a boss: the kid has to trick-or-treat at every single one first. */
   private relightWhenAllVisited() {
@@ -3325,6 +3381,25 @@ export class Game {
   /** what the shop asks for the next level of a gun (the tutorial's first upgrade is free) */
   upgradePrice(w: Weapon) { return this.tutorial?.freeUpgrade ? 0 : upgradeCost(w); }
   healCost() { return 30 + this.shopHealBuys * 15; }
+  /** friends who went down and were not reached in time: the shop can bring them back */
+  lostFriends: RescueFriend[] = [];
+  private shopReviveBuys = 0;
+  /** everyone the shop could help right now: friends out for the night, and friends lying down at this moment */
+  get revivable(): RescueFriend[] { return [...this.lostFriends, ...this.friends.filter(f => f.status === 'rescued' && f.hp <= 0)]; }
+  reviveCost() { return 120 + this.shopReviveBuys * 60; }
+  /** The Candy Lady brings a friend back at full health, beside the kid, with the gun they had. */
+  shopRevive(hero: number) {
+    const f = this.revivable.find(x => x.hero === hero), c = this.reviveCost();
+    if (!f || this.p.coins < c) return;
+    this.p.coins -= c;
+    this.shopReviveBuys++;
+    this.lostFriends = this.lostFriends.filter(x => x !== f);
+    Object.assign(f, this.freeSpot(this.p.x + 0.7, this.p.y + 0.7, true), { hp: f.maxHp, downT: 0, progress: 0, channel: false, hurtCd: 3, moving: false });
+    if (!this.friends.includes(f)) this.friends.push(f);
+    if (this.activeFriend === null) this.activeFriend = f.hero;
+    this.syncTeamWeapons();
+    gameAudio.play('revive');
+  }
   treatCost() { return Math.round(70 * Math.pow(1.35, this.shopTreatBuys)); }
   shopHeal() {
     const c = this.healCost();
@@ -3426,9 +3501,12 @@ export class Game {
     const boss = this.boss!, first = this.minionBoss !== boss;
     if (first) {
       this.minionBoss = boss; this.minionT = 0;
-      // the street empties when a boss arrives: from here on it is the boss and its own kind, nobody else
+      // The monsters already on the street are this boss's own crew: they stay and fight on as its escort.
+      // Only strays of another kind (a quest guardian, a trick house's pumpkins) slip away; the final giant has no crew at all.
+      const crew = BOSS_MINIONS[boss.type] ?? [];
       for (const e of this.enemies) {
         if (e === boss) continue;
+        if (crew.includes(e.type)) { e.minion = true; continue; }
         e.dead = true; // slipping away, not killed: no loot
         for (let i = 0; i < 4; i++) this.particle(e.x, e.y, rand(0.2, 0.9), rand(-1, 1), rand(-1, 1), rand(1, 2.5), 0.5, '#8d8aa8', 4, 'sq');
       }
@@ -3442,7 +3520,8 @@ export class Game {
     let alive = 0;
     for (const e of this.enemies) if (e.minion && !e.dead) alive++;
     const cap = Math.min(24, 12 + this.bossRound * 3 + (this.endless ? 4 : 0));
-    const n = Math.min(cap - alive, first ? 8 + Math.min(6, this.bossRound * 2) : 4 + Math.min(4, this.bossRound));
+    // it always arrives with a few at its side, however full the street already is; after that the cap holds
+    const n = first ? Math.max(4, Math.min(cap - alive, 8 + Math.min(6, this.bossRound * 2))) : Math.min(cap - alive, 4 + Math.min(4, this.bossRound));
     if (n <= 0) return;
     const from = this.enemies.length;
     this.spawnAround(boss.x, boss.y, n, 1.5, 3.8, types);
@@ -3458,6 +3537,7 @@ export class Game {
     if(fight)this.wavePause+=dt;
     if(!this.endless&&!fight&&this.wave<this.bossRound+1){
       while(this.wave<this.bossRound+1)this.advanceWave();
+      if(ARCADE_OPEN&&this.wave===ARCADE_LAST_WAVE)this.toast('Last call at the Starcade: it closes for the night when this wave is over.');
       this.setBanner(`WAVE ${this.wave} · ${BOSS_NAMES[familyForWave(this.wave)]}`, this.wave>10?'Counter their special defenses; switch weapons when needed.':'A new crew is taking over the streets.', 'danger');
     }
     const family=familyForWave(this.wave),types=BOSS_MINIONS[family];

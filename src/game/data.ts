@@ -411,6 +411,14 @@ export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility', 'Partner'];
 /** saturated neon, one per branch: they sit on a busy painted night sky */
 export const TALENT_COLORS = ['#ff5a14', '#00d5ff', '#4dff3a', '#ff4fd8'];
 export const TALENT_ROOT = { x: 500, y: 450 };
+/**
+ * What a rank of a talent costs: its own price, raised the further its star sits from the centre of the constellations
+ * (nothing extra within 150 of the root, then +100% per 500: the outermost stars cost about two and a half times).
+ */
+export function talentCost(t: Talent, level: number) {
+  const far = Math.max(0, Math.hypot(t.x - TALENT_ROOT.x, t.y - TALENT_ROOT.y) - 150) / 500;
+  return Math.round(t.cost(level) * (1 + far) / 5) * 5;
+}
 export const TALENTS: Talent[] = [
   // ---- Mischief (upper-left) ----
   { id: 'sharp', branch: 0, x: 385, y: 370, req: [], name: 'Sharp Teeth', icon: '🦷', max: 5, cost: (l) => 15 + l * 15, desc: '+5% damage per rank', apply: (s, l) => (s.dmg *= 1 + 0.05 * l) },
@@ -523,9 +531,11 @@ export const ESSENCE_UNLOCK = 15000;
 export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number }
 /** what a save has earned in total: its own count, or (older saves) what it holds plus what its talents cost */
 export function essenceEarned(s: Save) {
+  // a save that already keeps count is taken at its word: a talent refund at today's prices must not count as earning
+  if ((s.earned ?? 0) > 0) return s.earned!;
   let invested = 0;
-  for (const tal of TALENTS) for (let l = 0; l < Math.min(tal.max, s.talents?.[tal.id] || 0); l++) invested += tal.cost(l);
-  return Math.max(s.earned ?? 0, (s.soul || 0) + invested);
+  for (const tal of TALENTS) for (let l = 0; l < Math.min(tal.max, s.talents?.[tal.id] || 0); l++) invested += tal.cost(l); // at the old flat prices
+  return (s.soul || 0) + invested;
 }
 /** more than ESSENCE_UNLOCK earned: the full game is the player's, on this save */
 function syncEarnedUnlock(s: Save) {

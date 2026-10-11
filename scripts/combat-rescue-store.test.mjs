@@ -7,7 +7,7 @@ try {
   await page.goto('http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   await page.getByRole('button', { name: 'Support the creator' }).click();
-  const dialog = page.getByRole('dialog', { name: 'HIDE & SHRIEK' });
+  const dialog = page.getByRole('dialog', { name: 'THE FULL GAME' });
   const catalog = await page.evaluate(async () => {
     const d = await import('/src/game/data.ts');
     return [...d.WEAPONS, ...d.SCROLLS, ...d.COSTUMES, ...d.TALENTS].filter(a => a.premium).map(a => a.name).concat(d.HERO_INFO.slice(3).map(h => h.name));
