@@ -24,3 +24,7 @@ art/regen/run.*
 
 # Nightmare roster: test screenshots and contact sheets
 art/nightmare/checks/
+
+# Reproducible town-review screenshots; source guides and generated masters stay tracked.
+art/town/checks/
+.codex-session/
