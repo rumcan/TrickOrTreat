@@ -50,7 +50,7 @@ approved; an image file alone is NOT an approved game asset.
 - [ ] Extract and inspect church/cemetery pilot atlas.
 - [ ] Generate and register ground-only leaves and solid-object atlases.
 - [ ] Assemble full map and verify gameplay, doors and collision.
-- [ ] Commit/push checkpoint (no merge or publication).
+- [x] Commit/push checkpoint (8a111e5 on feature/maple-falls-lived-in; no merge or publication).
 
 ## Resolution correction
 
