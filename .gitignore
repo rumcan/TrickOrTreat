@@ -31,3 +31,8 @@ art/town/checks/
 art/town/review/*.png
 art/town/static/review/*.png
 .codex-session/
+
+# proof sheets of the road trace: regenerate with scripts/town-trace.mjs
+art/town/static/ground/trace/check-[0-9].png
+art/town/static/ground/layout-render.png
+art/town/static/ground/guides/*.png

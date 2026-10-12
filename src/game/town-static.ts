@@ -1,27 +1,44 @@
-import {MAP_W,MAP_H,CW,CH,CR,HW,HH,makeRng,isoX,isoY} from './config';
+import {MAP_W,MAP_H,CW,CH,CR,HW,HH,TW,TH,makeRng,isoX,isoY} from './config';
 import type {GameMap,PropInst,HouseInst} from './map';
 import {blockedCircle} from './map';
-import {G,getTile,getCurb,getFringe,getRoadLine,getCrosswalk} from './art/tiles';
+import {G,getTile,getFringe} from './art/tiles';
 import {getHouse,HOUSE_COUNT,getTree,getBush,getFence,getGrave,getCrypt,getPumpkin,getLamp,
  getMailbox,getTrash,getSchool,getPrimarySchool,getChurch,getBarn,getWaterTower,
  getDriveInScreen,getSnackBar,getSpeakerPost,getMarquee,getGazebo,getBench,getArcade,
- getDiner,getVideoRental,getShop,getJungleGym,getSwings,getSchoolBus,getBleachers,
- getGoalPosts,getScoreboard,type PropSprite} from './art/props';
+ getDiner,getVideoRental,getVideoStore,getShop,getJungleGym,getSwings,getSchoolBus,type PropSprite} from './art/props';
 import {getTownProp,getTownDecal} from './art/town';
 import {staticProp,type StaticArtId} from './art/town-static';
-import {STATIC_DISTRICTS,STATIC_STREETS,type Point} from './town-static-plan';
+import {STATIC_DISTRICTS,STATIC_STREETS,STATIC_CROSSINGS,smoothStreet,type Point} from './town-static-plan';
 import {rawCanvas,poly} from './art/draw';
+import type {Img} from './assets';
 
 interface Rect {x:number;y:number;w:number;h:number}
 interface HomeAccess {house:PropInst;garage:PropInst;driveway:Rect;road:Point}
 
-/** Deliberately separate from buildMap: this is the town's scenery review, before progression integration. */
+const mirrored=new Map<PropSprite,PropSprite>();
+/** The same sprite facing world +X instead of +Y (a mirror image swaps the two ground axes). A layout stand-in only:
+ *  its light then falls from the wrong side, so a building that must face +X gets its own art later. */
+function mirror(sp:PropSprite):PropSprite{
+ let m=mirrored.get(sp);
+ if(!m){
+  const c=rawCanvas(sp.img.width,sp.img.height),ctx=c.getContext('2d')!;
+  ctx.translate(c.width,0);ctx.scale(-1,1);ctx.drawImage(sp.img,0,0);
+  m={img:c,w:sp.w,h:sp.h,ax:sp.w-sp.ax,ay:sp.ay,fw:sp.fh,fh:sp.fw,lights:sp.lights.map(l=>({...l,x:l.y,y:l.x}))};
+  mirrored.set(sp,m);
+ }
+ return m;
+}
+
+/** Deliberately separate from buildMap: this is the town's scenery review, before progression integration.
+ *  The layout is the reference town's (see town-static-plan.ts): streets first, then every place beside them. */
 export function buildStaticTown(seed=1337){
  const rng=makeRng(seed),N=MAP_W*MAP_H;
  const ground=new Uint8Array(N).fill(G.GRASS),coll=new Uint8Array(CW*CH);
  const props:PropInst[]=[],houses:HouseInst[]=[],lights:GameMap['lights']=[];
- const protectedAreas:({name:string}&Rect)[]=[],keepClear:Rect[]=[],homes:HomeAccess[]=[];
- const roadAxes=new Uint8Array(N),pois:NonNullable<GameMap['pois']>=[];
+ const protectedAreas:({name:string}&Rect)[]=[],homes:HomeAccess[]=[];
+ const pois:NonNullable<GameMap['pois']>=[],approaches:{from:{x:number;y:number};name:string}[]=[];
+ /** per tile: something solid stands here / decoration must stay off it */
+ const occupied=new Uint8Array(N),clear=new Uint8Array(N);
  let pid=1;
  const idx=(x:number,y:number)=>Math.floor(y)*MAP_W+Math.floor(x);
  const inside=(x:number,y:number)=>x>=0&&y>=0&&x<MAP_W&&y<MAP_H;
@@ -29,6 +46,7 @@ export function buildStaticTown(seed=1337){
   for(let y=Math.floor(r.y);y<Math.ceil(r.y+r.h);y++)for(let x=Math.floor(r.x);x<Math.ceil(r.x+r.w);x++)if(inside(x,y))fn(x,y);
  };
  const paint=(x:number,y:number,w:number,h:number,g:G)=>rectTiles({x,y,w,h},(a,b)=>ground[idx(a,b)]=g);
+ const keep=(r:Rect)=>rectTiles(r,(x,y)=>clear[idx(x,y)]=1);
  const contains=(r:Rect,x:number,y:number)=>x>=r.x&&x<r.x+r.w&&y>=r.y&&y<r.y+r.h;
  const overlaps=(a:Rect,b:Rect)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
  const footprint=(p:PropInst):Rect=>({x:p.x0,y:p.y0,w:p.fw,h:p.fh});
@@ -36,201 +54,318 @@ export function buildStaticTown(seed=1337){
   for(let y=Math.max(0,Math.floor(r.y*CR));y<Math.min(CH,Math.ceil((r.y+r.h)*CR));y++)
    for(let x=Math.max(0,Math.floor(r.x*CR));x<Math.min(CW,Math.ceil((r.x+r.w)*CR));x++)coll[y*CW+x]=solid;
  };
+
+ // 0. The streets of the plan as smooth curves. Their coverage of every tile decides what may stand where; the same
+ //    curves are drawn onto the ground at the end, so a road bends instead of stepping along the grid.
+ const streets=STATIC_STREETS.map(s=>{
+  const line=smoothStreet(s),along=[0];
+  for(let k=1;k<line.length;k++)along.push(along[k-1]+Math.hypot(line[k][0]-line[k-1][0],line[k][1]-line[k-1][1]));
+  return {...s,line,along};
+ });
+ const PAVEMENT=1,SAMPLES=8;
+ const coverage=(width:(street:number)=>number)=>{
+  const c=rawCanvas(MAP_W*SAMPLES,MAP_H*SAMPLES),ctx=c.getContext('2d',{willReadFrequently:true})!;
+  ctx.scale(SAMPLES,SAMPLES);ctx.strokeStyle='#fff';ctx.lineCap='round';ctx.lineJoin='round';
+  for(const s of streets){
+   ctx.lineWidth=width(s.width);ctx.beginPath();ctx.moveTo(s.line[0][0],s.line[0][1]);
+   for(let k=1;k<s.line.length;k++)ctx.lineTo(s.line[k][0],s.line[k][1]);
+   ctx.stroke();
+  }
+  const data=ctx.getImageData(0,0,c.width,c.height).data,out=new Float32Array(N);
+  for(let y=0;y<MAP_H;y++)for(let x=0;x<MAP_W;x++){
+   let n=0;
+   for(let b=0;b<SAMPLES;b++)for(let a=0;a<SAMPLES;a++)if(data[((y*SAMPLES+b)*c.width+x*SAMPLES+a)*4+3]>127)n++;
+   out[y*MAP_W+x]=n/(SAMPLES*SAMPLES);
+  }
+  c.width=c.height=0;
+  return out;
+ };
+ const roadCover=coverage(w=>w),paveCover=coverage(w=>w+PAVEMENT*2),lineCover=coverage(()=>.5);
+
+ const FURNITURE=new Set(['lamp','mailbox','town_furniture','sign','trash','bench']);
  const add=(sp:PropSprite,x:number,y:number,kind:string,optional=false,solid=2,occludes=true)=>{
   const r={x,y,w:sp.fw,h:sp.fh};
-  if(x<1||y<1||x+sp.fw>MAP_W-1||y+sp.fh>MAP_H-1||props.some(p=>overlaps(r,footprint(p)))){
-   if(optional)return null;throw Error(`Overlapping scenery: ${kind} at ${x},${y}`);
-  }
+  let problem=x<1||y<1||x+sp.fw>MAP_W-1||y+sp.fh>MAP_H-1?'is outside the map':props.some(p=>overlaps(r,footprint(p)))?'overlaps other scenery':'';
+  // street furniture belongs on a pavement; everything else keeps off the pavement as well as the road
+  if(!problem)rectTiles(r,(a,b)=>{if(roadCover[idx(a,b)]>.04||(!FURNITURE.has(kind)&&paveCover[idx(a,b)]>.34))problem='stands on a street';});
+  if(problem){if(optional)return null;throw Error(`${kind} at ${x},${y} ${problem}`);}
   const p:PropInst={id:pid++,sp,x0:x,y0:y,fw:sp.fw,fh:sp.fh,big:kind!=='tree'&&kind!=='bush'&&kind!=='lamp'&&!kind.startsWith('fence'),kind,shadow:kind==='tree'?.55:kind==='car'?.3:.6,occludesCharacter:occludes};
   props.push(p);
-  if(solid){const inset=kind==='tree'?.32:kind==='lamp'?.4:kind.startsWith('fence')?.18:.03;mark({x:x+inset,y:y+inset,w:sp.fw-inset*2,h:sp.fh-inset*2},solid);}
+  if(solid){
+   const inset=kind==='tree'?.32:kind==='lamp'?.4:kind.startsWith('fence')?.18:.03;
+   mark({x:x+inset,y:y+inset,w:sp.fw-inset*2,h:sp.fh-inset*2},solid);
+   if(kind!=='tree'&&kind!=='lamp')rectTiles(r,(a,b)=>occupied[idx(a,b)]=1);
+  }
   for(const l of sp.lights)lights.push({...l,x:x+l.x,y:y+l.y,flicker:0});
   return p;
  };
- const venue=(sp:PropSprite,x:number,y:number,kind:string,name:string,rear=false)=>{
+ /** a place with a door to knock on; 'x' = a mirrored sprite whose front faces +X */
+ const venue=(sp:PropSprite,x:number,y:number,kind:string,name:string,face:'y'|'x'='y')=>{
   const p=add(sp,x,y,kind)!;
-  const door={x:x+sp.fw/2,y:rear?y-.6:y+sp.fh+.65};
+  const door=face==='y'?{x:x+sp.fw/2,y:y+sp.fh+.65}:{x:x+sp.fw+.65,y:y+sp.fh/2};
   houses.push({prop:p,door,light:null,lightI:1,visited:false,trick:false,owner:name});
-  keepClear.push({x:door.x-.75,y:door.y-.65,w:1.5,h:1.3});pois.push({...door,name});
+  keep({x:door.x-.75,y:door.y-.65,w:1.5,h:1.3});pois.push({...door,name});approaches.push({from:door,name});
   return p;
  };
  const detail=(id:Parameters<typeof getTownProp>[0],x:number,y:number)=>add(getTownProp(id),x,y,'town_furniture',true,1);
- const car=(id:StaticArtId,x:number,y:number)=>add(staticProp(id),x,y,'car');
+ const car=(id:StaticArtId,x:number,y:number)=>add(staticProp(id),x,y,'car',true);
  const protect=(name:string,x:number,y:number,w:number,h:number)=>protectedAreas.push({name,x,y,w,h});
- const walkway=(x:number,y:number,w:number,h:number)=>{paint(x,y,w,h,G.FLAGSTONE);keepClear.push({x,y,w,h});};
+ const walkway=(x:number,y:number,w:number,h:number)=>{paint(x,y,w,h,G.FLAGSTONE);keep({x,y,w,h});};
+ const lot=(x:number,y:number,w:number,h:number,g:G=G.DRIVEWAY)=>{paint(x,y,w,h,g);keep({x,y,w,h});};
 
- // 1. Reserve distinct places and their buildings before any public road exists.
- for(const district of STATIC_DISTRICTS)paint(district.x,district.y,district.w,district.h,G.GRASS);
- paint(5,5,19,14,G.DIRT);
- venue(getBarn(),16,7,'barn','Pumpkin farm barn');add(getWaterTower(),24,6,'tower');
- walkway(19,12,2,11);paint(21,11,3,12,G.DRIVEWAY);car('pickup_n',22,14);
- for(let y=7;y<19;y+=3)for(let x=7;x<16;x+=2)add(getPumpkin((x+y)%2),x,y,'pumpkin',false,0,false);
- protect('Pumpkin rows',6,6,10,14);
+ // 1. Surfaces that lie under the streets' edges: yards, lots and forecourts (tile-aligned, like their buildings).
+ paint(6,10,9,8,G.DIRT);paint(16,7,11,10,G.DIRT);                                   // pumpkin field, farmyard
+ paint(4,29,15,2,G.SIDEWALK);paint(11,27,7,2,G.SIDEWALK);                           // school forecourt
+ lot(5,31,6,5);lot(12,31,6,5);lot(18,32,4,2);paint(18,24,3,6,G.DIRT);               // ball court, school lot, playground
+ paint(4,41,10,17,G.DARKGRASS);                                                     // cemetery
+ lot(7,66,5,5);lot(12,68,2,2);                                                      // West Road lay-by
+ lot(21,36,26,3);lot(21,39,15,1);                                                   // service lot behind the shops
+ paint(21,43,15,2,G.SIDEWALK);paint(36,42,11,2,G.SIDEWALK);                         // Main Street pavement at the shop fronts
+ lot(42,25,4,4);lot(46,26,2,2);paint(37,28,5,1,G.SIDEWALK);                         // Starcade lot
+ lot(29,50,5,4);lot(31,49,2,1);lot(42,50,4,4);lot(46,51,2,2);                       // corner-store lot, plaza lot
+ lot(62,2,16,5);lot(66,7,3,2);lot(80,14,10,6);lot(84,20,3,1);                       // gas station, diner
+ lot(25,67,23,16,G.GRAVEL);lot(22,68,3,12,G.GRAVEL);lot(48,72,6,2);                 // drive-in field, its screen, its gate
+ const under=ground.slice();
+ for(let i=0;i<N;i++){
+  if(roadCover[i]>=.5)ground[i]=G.ROAD;
+  else if(paveCover[i]>=.5&&[G.GRASS,G.DARKGRASS,G.DIRT].includes(ground[i]))ground[i]=G.SIDEWALK;
+ }
 
- venue(getSchool(),32,6,'school','Maple Falls Elementary');
- venue(getPrimarySchool(),42,6,'school','Hollow Creek Primary');
- venue(getTownProp('firestation'),49,6,'town_firestation','Maple Falls Fire House');
- paint(31,10,24,4,G.SIDEWALK);paint(49,10,6,3,G.DRIVEWAY);
- paint(32,15,14,10,G.FIELD);protect('Football field',32,15,14,10);
- add(getBleachers(),35,13,'bleachers');add(getGoalPosts(),32,19,'goalposts');add(getGoalPosts(),45,19,'goalposts');add(getScoreboard(),44,13,'scoreboard');
- paint(48,15,7,12,G.DIRT);protect('Playground',48,15,7,12);
- add(getJungleGym(0),48,16,'junglegym');add(getSwings(),49,22,'swings');
- paint(39,25,7,3,G.DRIVEWAY);add(getSchoolBus(false),40,25,'car');
- walkway(46,14,2,14);detail('bike_rack',39,10);detail('bus_stop',36,27);
+ // 2. The places of the reference, each where the trace puts it.
+ // Pumpkin farm: field, barn and silo, farmhouse and shed in the corner between the two legs of Farm Road.
+ venue(getBarn(),16,4,'barn','Pumpkin farm barn');add(getWaterTower(),21,4,'tower');
+ add(staticProp('garage_timber'),24,4,'garage');car('pickup_n',19,10);
+ for(let y=10;y<18;y+=2)for(let x=6;x<15;x+=2)add(getPumpkin((x+y)%2),x,y,'pumpkin',true,0,false);
+ for(let x=6;x<15;x++){add(getFence('picket','x'),x,9,'fencex',true,1);add(getFence('picket','x'),x,18,'fencex',true,1);}
+ protect('Pumpkin rows',6,10,9,8);
 
- venue(getChurch(),9,31,'church',"St. Hallow's Church");
- paint(7,39,18,13,G.DARKGRASS);protect('Church & cemetery',7,30,18,23);
- walkway(13,35,2,19);walkway(7,43,18,2);walkway(7,49,18,2);
- venue(getCrypt(),20,45,'crypt','The Old Crypt');
- for(let y=40;y<52;y+=3)for(let x=8;x<25;x+=3){if(keepClear.some(r=>contains(r,x,y)))continue;add(getGrave((x+y)%3),x,y,'grave',true,1,false);}
- for(let x=7;x<25;x++){if(x<13||x>15)add(getFence('iron','x'),x,52,'fencex',true,1);}
- for(let y=39;y<52;y++){add(getFence('iron','y'),6,y,'fencey',true,1);add(getFence('iron','y'),25,y,'fencey',true,1);}
- detail('planter_square',8,36);add(getLamp(),16,36,'lamp');
+ // The school: two wings facing their forecourt, the ball court and car park in front, the playground by School Road.
+ venue(getSchool(),4,25,'school','Maple Falls Elementary');
+ venue(getPrimarySchool(),11,24,'school','Hollow Creek Primary');
+ add(getSchoolBus(false),13,32,'car',true);car('compact_s',17,33);car('compact_n',12,33);
+ add(getJungleGym(0),18,24,'junglegym');add(getSwings(),18,28,'swings');
+ detail('bike_rack',8,30);detail('bus_stop',15,29);
+ protect('Playground',18,24,3,6);
 
- // A compact shopping street with genuine rear walls on the southern row.
- paint(30,38,35,3,G.SIDEWALK);paint(30,44,35,2,G.SIDEWALK);
- paint(30,32,35,2,G.DRIVEWAY);paint(30,50,35,2,G.DRIVEWAY);
- const retail:[Parameters<typeof getTownProp>[0],number][]=[['bakery',31],['hardware',35],['pharmacy',40],['grocery',44],['laundromat',50],['barber',55],['fish_tackle',59]];
- for(const [id,x]of retail)venue(getTownProp(id),x,35,'town_'+id,id.replace(/_/g,' '));
- for(const [i,x]of [32,39,46,53,59].entries())venue(staticProp(i%2?'shop_market_rear':'shop_brick_rear'),x,46,'town_rear_shop', ['Town books','Corner market','Record shop','Repair shop','Florist'][i],true);
- venue(getTownProp('postoffice'),33,54,'town_postoffice','Maple Falls Post Office');
- venue(getVideoRental(),41,54,'videorental','Video Vault');
- walkway(31,57,30,2);detail('bus_stop',54,55);detail('bike_rack',49,55);
- add(getShop(),57,54,'shop');
- for(const [x,y]of [[33,30],[47,30],[60,30],[33,52],[47,52],[61,52]])detail('dumpster',x,y);
- for(const [x,y]of [[37,32],[52,32],[41,50],[56,50]])detail('delivery_crates',x,y);
- car('van_e',38,32);car('compact_w',54,50);
- for(const x of [34,42,51,60]){detail('planter_terracotta',x,40);detail('planter_square',x,44);}
- detail('phone_booth',30,40);detail('produce_stand',61,44);
+ // St. Hallow's and its cemetery, walled, with the gate on School Road.
+ venue(getChurch(),7,43,'church',"St. Hallow's Church");
+ venue(getCrypt(),5,52,'crypt','The Old Crypt');
+ walkway(9,48,1,3);walkway(9,50,6,1);walkway(6,55,4,1);walkway(9,51,1,4);
+ for(let y=44;y<57;y+=2)for(let x=4;x<14;x+=2){if(clear[idx(x,y)]||occupied[idx(x,y)])continue;add(getGrave((x+y)%3),x,y,'grave',true,1,false);}
+ for(let x=4;x<14;x++){add(getFence('iron','x'),x,40,'fencex',true,1);add(getFence('iron','x'),x,58,'fencex',true,1);}
+ for(let y=41;y<58;y++){add(getFence('iron','y'),3,y,'fencey',true,1);if(y!==50)add(getFence('iron','y'),14,y,'fencey',true,1);}
+ protect('Church & cemetery',4,41,10,17);
 
- // Homes get independently placed garages and continuous driveways to local lanes.
- const home=(x:number,y:number,roadY:number,index:number)=>{
-  const sp=getHouse(index%HOUSE_COUNT,false),p=add(sp,x,y,'house')!;
-  const garage=add(staticProp(index%2?'garage_brick':'garage_timber'),x+sp.fw+1,y,'garage')!;
-  const driveway={x:garage.x0,y:garage.y0+garage.fh,w:2,h:roadY-(garage.y0+garage.fh)+1};
-  if(driveway.h<1)throw Error('Driveway points away from street');
-  paint(driveway.x,driveway.y,driveway.w,driveway.h,G.DRIVEWAY);
-  keepClear.push(driveway);homes.push({house:p,garage,driveway,road:[driveway.x+.5,roadY]});
-  const pl=sp.lights[0],door={x:x+pl.x,y:y+pl.y};
-  houses.push({prop:p,door,light:null,lightI:1,visited:false,trick:false,owner:'Lantern Lane resident '+(index+1)});
-  walkway(Math.floor(door.x),Math.ceil(y+sp.fh),1,Math.max(1,roadY-Math.ceil(y+sp.fh)));
-  keepClear.push({x:door.x-.7,y:door.y-.7,w:1.4,h:1.4});
-  add(getMailbox(),x,roadY-1,'mailbox',true,1,false);
-  add(getPumpkin(index%2),x-1,y+sp.fh,'pumpkin',true,0,false);
-  for(let a=x;a<x+sp.fw;a++)add(getFence('picket','x'),a,y-1,'fencex',true,1);
-  if(driveway.h>4)car(index%2?'compact_n':'compact_s',driveway.x,driveway.y+1);
- };
+ // Main Street: one continuous row of shop fronts on its north side, the service lot and a second row behind.
+ const retail:[Parameters<typeof getTownProp>[0],number,number][]=[['bakery',21,40],['hardware',24,40],['pharmacy',28,40],['grocery',31,40],['laundromat',36,39],['barber',40,39],['fish_tackle',43,39]];
+ for(const [id,x,y]of retail)venue(getTownProp(id),x,y,'town_'+id,id.replace(/_/g,' '));
+ venue(getTownProp('postoffice'),37,33,'town_postoffice','Maple Falls Post Office');
+ venue(getTownProp('firestation'),42,32,'town_firestation','Maple Falls Fire House');
+ for(const [x,y]of [[23,36],[30,36],[34,37]])detail('dumpster',x,y);
+ for(const [x,y]of [[27,36],[33,36]])detail('delivery_crates',x,y);
+ car('van_e',25,38);car('compact_e',30,38);car('compact_w',39,37);
+ for(const x of [22,27,33,38,44]){detail('planter_terracotta',x,x<36?43:42);}
+ detail('phone_booth',35,43);detail('produce_stand',33,43);
+ // the block across Hollow Street: the Starcade with its own lot, under the water tower
+ venue(getArcade(),37,25,'arcade','The Starcade');add(getWaterTower(),34,24,'tower');
+ car('compact_s',42,25);car('compact_n',44,26);detail('bike_rack',37,29);
+ // the corner store and the fountain plaza between Main Street and West Road
+ venue(getVideoRental(),23,50,'videorental','Video Vault');car('compact_e',30,51);car('compact_w',31,53);
+ for(let y=49;y<54;y++)for(let x=36;x<41;x++)if(Math.hypot(x+.5-38.5,y+.5-51.5)<2.4){ground[idx(x,y)]=G.FLAGSTONE;clear[idx(x,y)]=1;}
+ add(getShop(),34,50,'shop');detail('planter_square',38,51);
+ add(getBench(),37,49,'bench',true,1,false);add(getBench(),40,53,'bench',true,1,false);
+ car('compact_n',42,50);car('compact_s',44,51);detail('bus_stop',43,54);
+ protect('Fountain plaza',35,49,6,5);
+
+ // Moonlight park inside Pond Circle: the pond, a path around it, the gazebo towards the east.
+ const pond={cx:59.7,cy:16.5,r:4};
+ for(let y=10;y<24;y++)for(let x=52;x<68;x++){
+  const d=Math.hypot(x+.5-pond.cx,y+.5-pond.cy);
+  if(d>4.8&&d<5.7&&paveCover[idx(x,y)]<.05){ground[idx(x,y)]=G.FLAGSTONE;clear[idx(x,y)]=1;}
+  if(d<pond.r){mark({x,y,w:1,h:1});occupied[idx(x,y)]=1;clear[idx(x,y)]=1;}
+ }
+ walkway(48,16,6,1);walkway(65,16,2,1);walkway(69,17,5,1);walkway(59,22,1,3);
+ add(getGazebo(),67,16,'gazebo');add(getBench(),55,21,'bench',true,1,false);add(getBench(),64,12,'bench',true,1,false);
+ detail('picnic_table',63,21);detail('picnic_table',52,13);
+ protect('Moonlight park',47,10,29,15);
+
+ // Gas station and diner beyond the east side of Pond Circle. (The station is a stand-in building: no art yet.)
+ const station=getVideoStore();
+ venue(station,70,3,'gasstation','Gas station');
+ car('compact_e',64,3);car('compact_w',66,5);car('compact_s',75,3);
+ venue(getDiner(),81,10,'diner',"Mel's Diner");
+ for(const [id,x,y]of [['compact_e',81,15],['compact_w',84,17],['compact_n',87,15],['compact_s',88,17],['pickup_n',82,17]] as [StaticArtId,number,number][])car(id,x,y);
+ detail('phone_booth',86,13);detail('dumpster',86,10);
+
+ // Moonlite Drive-In: the screen along the west side of its field, cars parked facing it, snack bar at the gate.
+ add(mirror(getDriveInScreen()),22,69,'screen');
+ venue(getSnackBar(),49,76,'snackbar','Moonlite snack bar');add(getMarquee(),50,70,'sign',true,1);
+ for(let column=0;column<5;column++)for(let row=0;row<6;row++){
+  const x=27+column*4,y=69+row*2+(column%2);
+  if((row+column*2)%5!==0)car((row+column)%3?'compact_w':'van_e',x,y);
+  if(row%2===0)add(getSpeakerPost(),x+3,y,'speaker',true,1,false);
+ }
+ for(let x=25;x<48;x++){add(getFence('iron','x'),x,66,'fencex',true,1);add(getFence('iron','x'),x,83,'fencex',true,1);}
+ for(let y=67;y<83;y++)if(y<71||y>74)add(getFence('iron','y'),48,y,'fencey',true,1);
+ protect('Drive-in field',25,67,23,16);
+
+ // Homes. Each faces the camera like the reference's; a garage, where there is room, gets a drive straight to its street.
  let homeIndex=0;
- for(const [x,y]of [[59,7],[69,8],[79,9]])home(x,y,18,homeIndex++);
- for(const [x,y]of [[60,24],[70,24],[80,24]])home(x,y,32,homeIndex++);
- for(const [x,y]of [[36,64],[47,65],[58,66]])home(x,y,73,homeIndex++);
- for(const [x,y]of [[40,78],[51,78],[62,78]])home(x,y,86,homeIndex++);
- home(79,70,75,homeIndex++);home(79,82,88,homeIndex++);
-
- // Park paths and water belong to their own precinct; roads stay at its perimeter.
- protect('Moonlight park',69,35,21,21);
- const pond={cx:79,cy:44,rx:4,ry:3};
- for(let y=36;y<55;y++)for(let x=70;x<89;x++){
-  const ring=Math.hypot((x+.5-79)/8.5,(y+.5-44)/8.5);
-  if(ring>.8&&ring<1.02)paint(x,y,1,1,G.FLAGSTONE);
-  if(((x+.5-pond.cx)/pond.rx)**2+((y+.5-pond.cy)/pond.ry)**2<1)mark({x,y,w:1,h:1});
- }
- walkway(66,49,7,2);walkway(72,49,2,6);
- add(getGazebo(),72,50,'gazebo');add(getBench(),74,47,'bench');add(getBench(),83,49,'bench');
- detail('picnic_table',85,38);detail('picnic_table',71,39);
- venue(getArcade(),76,57,'arcade','The Starcade');venue(getDiner(),83,57,'diner',"Mel's Diner");
- paint(75,60,15,7,G.DRIVEWAY);walkway(75,60,15,2);
- for(const [id,x,y]of [['compact_e',76,63],['compact_w',80,65],['compact_n',87,63]] as [StaticArtId,number,number][])car(id,x,y);
- detail('bike_rack',81,61);detail('dumpster',90,58);detail('phone_booth',74,59);
-
- // Cinema is a private gravel lot, with internal aisles and screen-facing cars.
- paint(5,62,25,26,G.GRAVEL);protect('Drive-in interior',5,62,25,26);
- add(getDriveInScreen(),10,64,'screen');venue(getSnackBar(),23,83,'snackbar','Moonlite snack bar');
- for(let row=0;row<3;row++)for(let k=0;k<6;k++){
-  const x=7+k*3,y=69+row*4;
-  if((row+k)%5!==0)car((row+k)%4===0?'pickup_n':'compact_n',x,y);
-  add(getSpeakerPost(),x+1,y+1,'speaker',false,1,false);
- }
- // one private entrance off the Cinema approach: a gravel apron, not a public road through the lot
- walkway(26,81,2,6);paint(28,62,4,3,G.DRIVEWAY);paint(28,84,3,2,G.DRIVEWAY);add(getMarquee(),29,66,'sign');
- for(let x=6;x<29;x++)add(getFence('iron','x'),x,61,'fencex',true,1);
- for(let y=64;y<87;y++)add(getFence('iron','y'),4,y,'fencey',true,1);
- for(const [x,y]of [[7,82],[17,82],[28,78]])add(getLamp(),x,y,'lamp');
-
- // 2. Connect the planned district approaches with offset, finite streets.
- const distanceTo=(x:number,y:number,a:Point,b:Point)=>{
-  const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/(dx*dx+dy*dy||1)));
-  return Math.hypot(x-a[0]-t*dx,y-a[1]-t*dy);
+ const home=(x:number,y:number,opts:{face?:'x'|'y';garage?:'after'|'before'|false;look?:number;owner?:string}={})=>{
+  const index=homeIndex++,face=opts.face??'y',base=getHouse((opts.look??index)%HOUSE_COUNT,false),sp=face==='y'?base:mirror(base);
+  const p=add(sp,x,y,'house')!,pl=sp.lights[0],door={x:x+pl.x,y:y+pl.y};
+  houses.push({prop:p,door,light:null,lightI:1,visited:false,trick:false,owner:opts.owner??'Maple Falls resident '+(index+1)});
+  keep({x:door.x-.7,y:door.y-.7,w:1.4,h:1.4});approaches.push({from:door,name:'home '+(index+1)});
+  if(opts.garage&&face==='y'){
+   const gsp=staticProp(index%2?'garage_brick':'garage_timber');
+   const garage=add(gsp,opts.garage==='before'?x-gsp.fw-1:x+sp.fw+1,y+sp.fh-gsp.fh,'garage')!;
+   let end=garage.y0+garage.fh;
+   while(end<MAP_H-1&&ground[idx(garage.x0,end)]!==G.ROAD&&ground[idx(garage.x0+1,end)]!==G.ROAD){
+    if(end-garage.y0>16||occupied[idx(garage.x0,end)]||occupied[idx(garage.x0+1,end)])throw Error(`Drive of home ${index+1} at ${x},${y} does not reach a street`);
+    end++;
+   }
+   const driveway={x:garage.x0,y:garage.y0+garage.fh,w:2,h:end-(garage.y0+garage.fh)};
+   rectTiles(driveway,(a,b)=>{if(ground[idx(a,b)]!==G.ROAD)ground[idx(a,b)]=G.DRIVEWAY;});
+   keep(driveway);homes.push({house:p,garage,driveway,road:[driveway.x+.5,end+.5]});
+   if(driveway.h>=4)car(index%2?'compact_n':'compact_s',driveway.x+(index%2),driveway.y+1);
+  }
+  add(getPumpkin(index%2),Math.floor(door.x)+1,Math.floor(door.y),'pumpkin',true,0,false);
  };
- for(const street of STATIC_STREETS)for(let k=1;k<street.points.length;k++){
-  const shift=street.width%2===1?.5:0;
-  const a:Point=[street.points[k-1][0]+shift,street.points[k-1][1]+shift],b:Point=[street.points[k][0]+shift,street.points[k][1]+shift],axis=a[1]===b[1]?1:a[0]===b[0]?2:4;
-  for(let y=1;y<MAP_H-1;y++)for(let x=1;x<MAP_W-1;x++)if(distanceTo(x+.5,y+.5,a,b)<=street.width/2){
-   if(protectedAreas.some(r=>contains(r,x+.5,y+.5)))throw Error(`${street.name} crosses a protected district at ${x},${y}`);
-   if(props.some(p=>p.big&&overlaps({x,y,w:1,h:1},footprint(p))))throw Error(`${street.name} crosses ${props.find(p=>p.big&&overlaps({x,y,w:1,h:1},footprint(p)))!.kind} at ${x},${y}`);
-   ground[idx(x,y)]=G.ROAD;roadAxes[idx(x,y)]|=axis;
+ home(22,8,{garage:false,owner:'The farmhouse'});
+ home(34,2,{garage:'after'});home(44,2,{garage:'after'});home(53,2,{garage:'after'});          // Orchard Lane
+ home(32,14,{garage:false});home(39,14,{garage:'before'});                                       // Hollow Street
+ home(53,38,{garage:'after'});home(62,38,{garage:'after'});home(76,37,{garage:'after'});home(53,32,{garage:false}); // above Main Street
+ home(53,50,{garage:false});home(66,48,{face:'x',garage:false});home(62,55,{garage:'after'});   // inside the Lantern Lane bend
+ home(77,50,{garage:'after',look:5,owner:'The Willow Link mansion'});
+ home(63,70,{garage:false});home(70,68,{garage:false});home(71,73,{garage:false});home(76,68,{garage:false}); // south of Lantern Lane
+
+ // 3. A path from every door to the nearest pavement, lot or existing path, around whatever stands in the way.
+ const PAVED=[G.ROAD,G.SIDEWALK,G.DRIVEWAY,G.GRAVEL,G.FLAGSTONE];
+ for(const {from,name}of approaches){
+  const start=idx(from.x,from.y),prev=new Int32Array(N).fill(-1),queue=[start];
+  let goal=-1;prev[start]=start;
+  for(let head=0;head<queue.length&&goal<0;head++){
+   const n=queue[head],x=n%MAP_W,y=Math.floor(n/MAP_W);
+   if(PAVED.includes(ground[n])){goal=n;break;}
+   for(const [dx,dy]of [[0,1],[1,0],[0,-1],[-1,0]]){
+    const a=x+dx,b=y+dy,i=b*MAP_W+a;
+    if(a<2||b<2||a>=MAP_W-2||b>=MAP_H-2||prev[i]>=0||occupied[i])continue;
+    prev[i]=n;queue.push(i);
+   }
+  }
+  if(goal<0)throw Error('No way from a street to '+name);
+  for(let n=goal;;n=prev[n]){
+   clear[n]=1;
+   if([G.GRASS,G.DARKGRASS,G.DIRT].includes(ground[n]))ground[n]=G.FLAGSTONE;
+   if(n===start)break;
   }
  }
- // Sidewalks follow actual streets, preserving every planned yard/driveway/special surface.
- for(let y=1;y<MAP_H-1;y++)for(let x=1;x<MAP_W-1;x++)if(ground[idx(x,y)]===G.GRASS&&
-  [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>ground[idx(x+dx,y+dy)]===G.ROAD)&&
-  !props.some(p=>contains(footprint(p),x+.5,y+.5)))ground[idx(x,y)]=G.SIDEWALK;
 
- // 3. Dress gardens and wooded margins after all entrances and roads are reserved.
- const safeDecor=(x:number,y:number)=>inside(x,y)&&!keepClear.some(r=>contains(r,x+.5,y+.5))&&
-  ![G.ROAD,G.SIDEWALK,G.DRIVEWAY,G.FLAGSTONE,G.FIELD,G.GRAVEL,G.DIRT].includes(ground[idx(x,y)])&&
-  !props.some(p=>overlaps({x,y,w:1,h:1},footprint(p)))&&
-  ((x+.5-pond.cx)/pond.rx)**2+((y+.5-pond.cy)/pond.ry)**2>1.5;
+ // 4. Gardens, woods and street lights after every entrance, path and road is fixed.
+ const safeDecor=(x:number,y:number)=>inside(x,y)&&!clear[idx(x,y)]&&!occupied[idx(x,y)]&&paveCover[idx(x,y)]<.02&&
+  [G.GRASS,G.DARKGRASS].includes(ground[idx(x,y)])&&!props.some(p=>overlaps({x,y,w:1,h:1},footprint(p)));
+ const WOODED:Record<string,number>={farm:.03,campus:.05,'church-cemetery':.06,'main-street':.035,park:.11,leisure:.05,'north-homes':.09,'south-homes':.1,'drive-in':.14};
  for(let y=2;y<MAP_H-2;y++)for(let x=2;x<MAP_W-2;x++){
   const edge=Math.min(x,y,MAP_W-1-x,MAP_H-1-y),r=rng();
   if(!safeDecor(x,y))continue;
   const district=STATIC_DISTRICTS.find(d=>contains(d,x,y));
-  const treeChance=edge<5?.48:!district?.18:district.id==='park'?.1:.025;
+  const treeChance=edge<5?.5:!district?.2:WOODED[district.id];
   if(r<treeChance)add(getTree(edge<6?'pine':rng()<.7?'oak':'dead',Math.floor(rng()*3)),x,y,'tree',true);
   else if(r<treeChance+.03)add(getBush(Math.floor(rng()*3)),x,y,'bush',true,1,false);
  }
  for(const home of homes)for(const [x,y]of [[home.house.x0-1,home.house.y0+1],[home.house.x0+1,home.house.y0+home.house.fh+1]]){
   if(safeDecor(x,y))detail('hydrangea',x,y);
  }
- for(let y=3;y<91;y++)for(let x=3;x<91;x++)if(ground[idx(x,y)]===G.SIDEWALK&&(x*3+y)%13===0&&
-  !keepClear.some(r=>contains(r,x,y)))add(getLamp(),x,y,'lamp',true);
- add(getTrash(),68,50,'trash',true,1,false);
+ for(let y=3;y<91;y++)for(let x=3;x<91;x++){
+  const i=idx(x,y);
+  if(ground[i]===G.SIDEWALK&&paveCover[i]>.9&&roadCover[i]===0&&!clear[i]&&(x*7+y*3)%17===0)add(getLamp(),x,y,'lamp',true);
+  else if(ground[i]===G.SIDEWALK&&paveCover[i]>.9&&roadCover[i]===0&&!clear[i]&&(x*5+y*11)%61===0)add(getMailbox(),x,y,'mailbox',true,1,false);
+ }
+ add(getTrash(),41,49,'trash',true,1,false);
  mark({x:0,y:0,w:MAP_W,h:.6});mark({x:0,y:MAP_H-.6,w:MAP_W,h:.6});
  mark({x:0,y:0,w:.6,h:MAP_H});mark({x:MAP_W-.6,y:0,w:.6,h:MAP_H});
 
+ // 5. Ground art. A tile a street only partly covers keeps the surface beside the street and gets the street drawn
+ //    over it, in the tile's own projection: pavement, kerb, asphalt and centre line all follow the smooth curve.
  const tiles:GameMap['tiles']=new Array(N),overlays:GameMap['overlays']=Array.from({length:N},()=>[]);
  const vr=makeRng(seed+9),nb=[[0,-1],[1,0],[0,1],[-1,0]];
+ const scratch=rawCanvas(TW,TH),sctx=scratch.getContext('2d')!;
+ const world=(ctx:CanvasRenderingContext2D,x:number,y:number)=>ctx.setTransform(HW,HH,-HW,HH,HW-isoX(x,y),-isoY(x,y));
+ /** the stretches of every street that pass within reach of a tile */
+ const near=(x:number,y:number)=>{
+  const runs:{path:Path2D;width:number;offset:number}[]=[];
+  for(const s of streets){
+   const reach=s.width/2+PAVEMENT+1.6;
+   let from=-1;
+   for(let k=0;k<=s.line.length;k++){
+    const close=k<s.line.length&&Math.abs(s.line[k][0]-x-.5)<reach&&Math.abs(s.line[k][1]-y-.5)<reach;
+    if(close&&from<0)from=k;
+    if(!close&&from>=0){
+     const a=Math.max(0,from-1),b=Math.min(s.line.length-1,k),path=new Path2D();
+     path.moveTo(s.line[a][0],s.line[a][1]);
+     for(let j=a+1;j<=b;j++)path.lineTo(s.line[j][0],s.line[j][1]);
+     runs.push({path,width:s.width,offset:s.along[a]});from=-1;
+    }
+   }
+  }
+  return runs;
+ };
+ const streetTile=(x:number,y:number,roadTex:Img,paveTex:Img)=>{
+  const c=rawCanvas(TW,TH),ctx=c.getContext('2d')!,runs=near(x,y);
+  ctx.beginPath();ctx.moveTo(HW,-1);ctx.lineTo(TW+2,HH);ctx.lineTo(HW,TH+1);ctx.lineTo(-2,HH);ctx.closePath();ctx.clip();
+  const layer=(extra:number,fill:Img|string)=>{
+   sctx.setTransform(1,0,0,1,0,0);sctx.globalCompositeOperation='source-over';sctx.clearRect(0,0,TW,TH);
+   world(sctx,x,y);sctx.lineCap='round';sctx.lineJoin='round';sctx.strokeStyle=typeof fill==='string'?fill:'#000';
+   for(const run of runs){sctx.lineWidth=run.width+extra;sctx.stroke(run.path);}
+   if(typeof fill!=='string'){sctx.setTransform(1,0,0,1,0,0);sctx.globalCompositeOperation='source-in';sctx.drawImage(fill,-1,-.5,TW+2,TH+1);}
+   ctx.drawImage(scratch,0,0);
+  };
+  layer(PAVEMENT*2+.12,'rgba(14,18,16,.55)');layer(PAVEMENT*2,paveTex);
+  layer(.2,'#a9a69c');layer(.06,'#3a3b40');layer(0,roadTex);
+  world(ctx,x,y);
+  ctx.strokeStyle='rgba(214,176,70,.8)';ctx.lineWidth=.07;ctx.lineCap='butt';ctx.setLineDash([.5,.6]);
+  for(const run of runs){ctx.lineDashOffset=run.offset;ctx.stroke(run.path);}
+  ctx.setLineDash([]);ctx.fillStyle='rgba(226,224,214,.82)';
+  for(const {at,along}of STATIC_CROSSINGS){
+   if(Math.abs(at[0]-x-.5)>3||Math.abs(at[1]-y-.5)>3)continue;
+   const d=Math.hypot(along[0],along[1]),ux=along[0]/d,uy=along[1]/d;
+   for(let k=-2;k<=2;k++){
+    const cx=at[0]+ux*k*.42,cy=at[1]+uy*k*.42,half=1.25;
+    ctx.beginPath();ctx.moveTo(cx-ux*.1+uy*half,cy-uy*.1-ux*half);ctx.lineTo(cx+ux*.1+uy*half,cy+uy*.1-ux*half);
+    ctx.lineTo(cx+ux*.1-uy*half,cy+uy*.1+ux*half);ctx.lineTo(cx-ux*.1-uy*half,cy-uy*.1+ux*half);ctx.closePath();ctx.fill();
+   }
+  }
+  return c;
+ };
  for(let y=0;y<MAP_H;y++)for(let x=0;x<MAP_W;x++){
-  const i=idx(x,y),g=ground[i] as G;
-  tiles[i]=getTile(g,g===G.FIELD?(y-15)%4===0?2:(x+y)%2:Math.floor(vr()*30));
+  const i=idx(x,y),g=ground[i] as G,variant=Math.floor(vr()*30);
+  const fullRoad=roadCover[i]>=.995,fullPave=paveCover[i]>=.995&&roadCover[i]<=.005,street=paveCover[i]>.005;
+  const partial=street&&!fullRoad&&!fullPave;
+  const base=partial&&(g===G.ROAD||g===G.SIDEWALK)?under[i] as G:g;
+  tiles[i]=getTile(base,variant);
   for(let e=0;e<4;e++){
    const a=x+nb[e][0],b=y+nb[e][1];if(!inside(a,b))continue;
-   if(g===G.SIDEWALK&&ground[idx(a,b)]===G.ROAD)overlays[i].push(getCurb(e));
-   else if([G.GRAVEL,G.DIRT,G.DRIVEWAY,G.SIDEWALK].includes(g)&&[G.GRASS,G.DARKGRASS].includes(ground[idx(a,b)]))overlays[i].push(getFringe(e));
+   if([G.GRAVEL,G.DIRT,G.DRIVEWAY,G.SIDEWALK].includes(base)&&!street&&[G.GRASS,G.DARKGRASS].includes(ground[idx(a,b)]))overlays[i].push(getFringe(e));
   }
-  if(g===G.ROAD){
-   // Direction derives from the local road, not any former district coordinates.
-   if(roadAxes[i]===1&&ground[idx(x,y-1)]!==G.ROAD)overlays[i].push(getRoadLine(2));
-   if(roadAxes[i]===2&&ground[idx(x-1,y)]!==G.ROAD)overlays[i].push(getRoadLine(1));
-   if(roadAxes[i]===1&&[31,63].includes(x)&&y>=40&&y<=43)overlays[i].push(getCrosswalk('x'));
-  }
-  if(x>=74&&x<=83&&y>=40&&y<=48){
-   const c=rawCanvas(128,64),ctx=c.getContext('2d')!;
-   ctx.beginPath();ctx.moveTo(HW,0);ctx.lineTo(128,HH);ctx.lineTo(HW,64);ctx.lineTo(0,HH);ctx.closePath();ctx.clip();
-   const points: [number,number][]=[];
-   for(let k=0;k<64;k++){const a=k/64*Math.PI*2,px=pond.cx+Math.cos(a)*pond.rx,py=pond.cy+Math.sin(a)*pond.ry;points.push([HW+isoX(px,py)-isoX(x,y),isoY(px,py)-isoY(x,y)]);}
+  if(partial||(fullRoad&&lineCover[i]>0))overlays[i].push(streetTile(x,y,getTile(G.ROAD,variant),getTile(G.SIDEWALK,variant)));
+  if(Math.abs(x+.5-pond.cx)<pond.r+1.5&&Math.abs(y+.5-pond.cy)<pond.r+1.5){
+   const c=rawCanvas(TW,TH),ctx=c.getContext('2d')!;
+   ctx.beginPath();ctx.moveTo(HW,0);ctx.lineTo(TW,HH);ctx.lineTo(HW,TH);ctx.lineTo(0,HH);ctx.closePath();ctx.clip();
+   const points:[number,number][]=[];
+   for(let k=0;k<64;k++){const a=k/64*Math.PI*2,px=pond.cx+Math.cos(a)*pond.r,py=pond.cy+Math.sin(a)*pond.r;points.push([HW+isoX(px,py)-isoX(x,y),isoY(px,py)-isoY(x,y)]);}
    poly(ctx,points,'#274753','#657b69',6);overlays[i].push(c);
   }
  }
+ scratch.width=scratch.height=0;
  for(const p of props){
   const x=Math.floor(p.x0),y=Math.floor(p.y0+p.fh),i=idx(x,y);
-  if(!inside(x,y)||keepClear.some(r=>contains(r,x,y)))continue;
+  if(!inside(x,y)||clear[i])continue;
   if(p.kind==='tree'&&rng()<.35&&ground[i]===G.GRASS)overlays[i].push(getTownDecal('leaf_drift'));
   if(p.kind==='car'&&[G.DRIVEWAY,G.GRAVEL].includes(ground[i]))overlays[i].push(getTownDecal('oil_stain'));
  }
- const map:GameMap={kind:'town',name:'Maple Falls - layout review',ground,coll,tiles,overlays,props,lights,houses,
+ const map:GameMap={kind:'town',name:'Maple Falls - reference layout',ground,coll,tiles,overlays,props,lights,houses,
   shops:props.filter(p=>p.kind==='shop').map(prop=>({prop,x:prop.x0+prop.fw/2,y:prop.y0+prop.fh+.6})),
-  gates:[],barriers:[],turrets:[],hideouts:[],pois,start:{x:43,y:42}};
+  gates:[],barriers:[],turrets:[],hideouts:[],pois,start:{x:38.5,y:54.6}};
 
  // Quarter-tile, character-radius reachability detects access errors before exporting.
  const seen=new Uint8Array(CW*CH),queue=new Int32Array(CW*CH);
@@ -245,9 +380,10 @@ export function buildStaticTown(seed=1337){
  const unreachable=houses.filter(h=>!reachable(h.door)).map(h=>h.owner);
  if(unreachable.length)throw Error('Unreachable review entrances: '+unreachable.join(', '));
  for(const access of homes)if(!reachable({x:access.road[0],y:access.road[1]})||ground[idx(...access.road)]!==G.ROAD)throw Error('Disconnected driveway');
- const audit={districts:STATIC_DISTRICTS.length,buildings:houses.length,homes:homes.length,garages:homes.length,
+ const audit={districts:STATIC_DISTRICTS.length,streets:streets.length,buildings:houses.length,homes:homeIndex,garages:homes.length,
   separateOccluders:props.filter(p=>p.occludesCharacter).length,props:props.length,roadTiles:Array.from(ground).filter(g=>g===G.ROAD).length,
+  smoothStreetTiles:overlays.reduce((n,o,i)=>n+(paveCover[i]>.005&&o.length?1:0),0),
   protectedAreas:protectedAreas.map(r=>r.name),roadConflicts:0,unreachableDoors:unreachable,drivewaysConnected:homes.length,
-  vehicleVariants:new Set(props.filter(p=>p.kind==='car').map(p=>p.sp)).size,frontAndRearShops:true,liveGameplayChanged:false};
+  vehicleVariants:new Set(props.filter(p=>p.kind==='car').map(p=>p.sp)).size,liveGameplayChanged:false};
  return {map,districts:STATIC_DISTRICTS.map(d=>({...d})),audit};
 }
