@@ -521,7 +521,7 @@ export class Renderer {
     const fadeIt = (it: Item) => {
       const pr = it.prop;
       if (!pr) return;
-      const tall = pr.big || pr.kind === 'tree' || pr.kind === 'lamp' || pr.kind === 'vending';
+      const tall = pr.occludesCharacter ?? (pr.big || pr.kind === 'tree' || pr.kind === 'lamp' || pr.kind === 'vending');
       if (!tall) return;
       let hide = false;
       if (g.mounted < 0 && overlap(it, playerItem)) {

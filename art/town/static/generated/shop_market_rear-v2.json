@@ -1,0 +1,11 @@
+{
+  "id": "shop_market_rear",
+  "tool": "built-in image_gen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a12e9a-26bc-73c0-9105-45ff62c0ea50\\exec-f941f62c-f9f3-4950-8914-d6db945f55d9.png",
+  "prompt": "Use case: stylized-concept. Asset type: one transparent isometric game scenery sprite. Image 1 is the painting and lighting style reference ONLY; Image 2 is authoritative object position, ground plane and footprint geometry. Subject: REAR VIEW of a one-storey 1980s corner grocery, pale worn brick with teal trim. Storefront is on the FAR -Y side and is NOT visible. Visible +Y rear has a wide double loading door, a small grated window, pipes and vent. Low dark flat roof. No rear awning or shop sign. No separate crates or dumpster baked into the sprite.\nPaint a richly detailed late-1980s American Halloween town object matching the style reference, cold blue light from upper left with restrained warm practical lights. Exact 2:1 orthographic dimetric projection; world +X screen lower-right, world +Y screen lower-left. Footprint 4 by 3 tiles, heights and framing exactly as guide. Retain the guide's object scale, placement, transparent padding, ground corners and axis slopes. Replace the simple primitives with realistic painted architecture or mechanics. For rear views show rear doors and taillights or service doors, never a front facade. For garages create a shallow pitched shingle roof contained within the guide height. One isolated object, actual transparent alpha background, no ground patch, shadows, checkerboard, labels, characters, watermark, extra objects or cropping. Output square 1024x1024.",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/town/static/guides/shop_market_rear.png"
+  ],
+  "stage": "candidate"
+}

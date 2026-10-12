@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maple Falls — actual static map review</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101923;color:#f9ead2;font:14px system-ui,sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #59616a;flex:none}
+h1{font-size:19px;margin:0}p{font-size:13px;color:#c5ced8;margin:5px 0 0}.label{font-size:11px;font-weight:700;letter-spacing:.08em;color:#ffba6b}
+.tools{display:flex;gap:7px;align-items:center;margin-left:auto;flex-wrap:wrap}
+button,a{background:#20394a;color:#fff;border:1px solid #81a7b9;border-radius:5px;padding:7px 10px;font:inherit;cursor:pointer;text-decoration:none}
+button:hover,a:hover,button[aria-pressed=true]{background:#30576a}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffba6b;outline-offset:2px}button:disabled{opacity:.5;cursor:wait}input{width:100px;accent-color:#ff9232}
+main{display:flex;flex:1;min-height:0;min-width:0}aside{width:210px;flex:none;padding:12px;border-right:1px solid #59616a;overflow:auto}aside h2{font-size:14px;margin:0 0 9px}#districts{display:grid;gap:6px}#districts button{text-align:left}aside>a{display:block;margin-top:12px;font-size:13px}#metadata-status{font-size:12px;overflow-wrap:anywhere}
+#stage{flex:1;min-height:0;min-width:0;position:relative;overflow:hidden;background:#17212c;cursor:grab;touch-action:none}#stage.dragging{cursor:grabbing}#town{position:absolute;left:0;top:0;display:block;max-width:none;max-height:none;user-select:none;transform-origin:0 0;pointer-events:none}
+footer{padding:8px 16px;color:#c5ced8;font-size:12px;flex:none}#percent{min-width:36px;font-variant-numeric:tabular-nums}
+dialog{background:#101923;color:#f9ead2;border:1px solid #81a7b9;border-radius:8px;width:min(1100px,94vw);max-height:90dvh;padding:16px}dialog::backdrop{background:#000b}.gallery-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.gallery-head h2{font-size:19px;margin:0}#gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}article{border:1px solid #59616a;border-radius:6px;padding:12px;min-width:0}article h3{margin:0 0 10px;font-size:16px}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}figure{margin:0;min-width:0}figure a{display:block;padding:0;overflow:hidden}figure img{display:block;width:100%;height:auto}figcaption{font-size:12px;margin:6px 0;color:#c5ced8}.studies{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.studies a{font-size:12px}#reference-study{display:inline-block;margin-top:12px}#reference-study[hidden]{display:none}
+@media(max-width:700px){header{padding:9px;gap:8px}h1{font-size:17px}.tools{margin-left:0;gap:5px}.tools button,.tools a{padding:6px 8px;font-size:12px}input{width:75px}main{flex-direction:column}aside{width:100%;padding:8px;border-right:0;border-bottom:1px solid #59616a;max-height:135px;overflow:auto}aside h2{display:none}#districts{display:flex;gap:5px;overflow:auto}#districts button{white-space:nowrap;font-size:12px;padding:6px 8px}aside>a{display:inline-block;margin-top:7px;padding:5px 8px;font-size:12px}#metadata-status{margin-top:4px}footer{padding:6px 9px;font-size:11px}#gallery-grid{grid-template-columns:1fr}dialog{padding:10px}}
+@media(max-height:500px){header p,footer{display:none}header{padding:6px}aside{max-height:85px}}
+</style>
+</head>
+<body>
+<header>
+<div><div class="label" id="phase-label">ACTUAL STATIC MAP</div><h1>Maple Falls · static town review</h1><p id="summary">Complete native scene. District crops and concept studies are labelled separately.</p></div>
+<div class="tools"><button id="fit">Fit town</button><button id="native">100%</button><button id="minus" aria-label="Zoom out">−</button><input id="zoom" aria-label="Map zoom" type="range" min="0.1" max="200" step="0.1" value="100"><button id="plus" aria-label="Zoom in">+</button><span id="percent"></span><button id="compare" aria-pressed="false">Show before map</button><a id="open-png" href="maple-falls-static.png" target="_blank" rel="noopener">Open PNG</a></div>
+</header>
+<main>
+<aside aria-label="District navigation"><h2>Districts</h2><nav id="districts" aria-label="Zoom to district"></nav><p id="metadata-status" role="status">Loading district metadata…</p><a id="gallery-link" href="#district-gallery">District gallery &amp; studies</a></aside>
+<div id="stage" tabindex="0" aria-label="Town map. Drag to pan, use zoom controls or arrow keys." data-ready="false" data-phase="after"><img id="town" alt="Actual complete static Maple Falls map" draggable="false"></div>
+</main>
+<footer><span id="image-status" role="status">Loading actual map…</span> Drag to pan; pinch or Ctrl/⌘ + wheel to zoom. Arrow keys pan. Before crops show approximate old regions.</footer>
+<dialog id="district-gallery" aria-labelledby="gallery-title"><div class="gallery-head"><h2 id="gallery-title">District gallery &amp; studies</h2><button id="close-gallery">Close gallery</button></div><p>Before and after panels are crops of the actual maps. Rectangles include nearby scenery; old regions are approximate equivalents. Concept studies are visual proposals, separate from the actual static map.</p><a id="reference-study" href="../reference-study.png" target="_blank" rel="noopener" hidden>CONCEPT STUDY · whole-town reference</a><div id="gallery-grid"></div></dialog>
+<script id="town-metadata" type="application/json">{
+  "width": 12224,
+  "height": 6282,
+  "scale": 1,
+  "origin": [
+    -6112,
+    -170
+  ],
+  "tiles": 8836,
+  "propsDrawn": 1199,
+  "hiddenBarrierProps": 0,
+  "hideBarriers": true,
+  "fog": false,
+  "districts": [
+    {
+      "id": "farm",
+      "name": "Pumpkin farm",
+      "x": 5,
+      "y": 5,
+      "w": 23,
+      "h": 20,
+      "crops": {
+        "before": {
+          "file": "../sections/farm-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 3,
+            "y": 3,
+            "w": 18,
+            "h": 18
+          },
+          "bounds": {
+            "left": 4843,
+            "top": 0,
+            "width": 2560,
+            "height": 1760
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/farm-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 5,
+            "y": 5,
+            "w": 23,
+            "h": 20
+          },
+          "bounds": {
+            "left": 4704,
+            "top": 0,
+            "width": 3008,
+            "height": 1994
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "campus",
+      "name": "Schools & civic campus",
+      "x": 31,
+      "y": 5,
+      "w": 24,
+      "h": 24,
+      "crops": {
+        "before": {
+          "file": "../sections/campus-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 24,
+            "y": 3,
+            "w": 66,
+            "h": 18
+          },
+          "bounds": {
+            "left": 6187,
+            "top": 512,
+            "width": 5632,
+            "height": 3456
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/campus-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 31,
+            "y": 5,
+            "w": 24,
+            "h": 24
+          },
+          "bounds": {
+            "left": 6112,
+            "top": 682,
+            "width": 3328,
+            "height": 2304
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "church-cemetery",
+      "name": "St. Hallow's & old cemetery",
+      "x": 5,
+      "y": 29,
+      "w": 23,
+      "h": 25,
+      "crops": {
+        "before": {
+          "file": "../sections/church-cemetery-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 3,
+            "y": 24,
+            "w": 18,
+            "h": 65
+          },
+          "bounds": {
+            "left": 491,
+            "top": 512,
+            "width": 5568,
+            "height": 3424
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/church-cemetery-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 5,
+            "y": 29,
+            "w": 23,
+            "h": 25
+          },
+          "bounds": {
+            "left": 2848,
+            "top": 618,
+            "width": 3328,
+            "height": 2304
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "main-street",
+      "name": "Main Street & service alleys",
+      "x": 30,
+      "y": 32,
+      "w": 35,
+      "h": 27,
+      "crops": {
+        "before": {
+          "file": "../sections/main-street-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 24,
+            "y": 38,
+            "w": 45,
+            "h": 30
+          },
+          "bounds": {
+            "left": 3179,
+            "top": 1632,
+            "width": 5056,
+            "height": 3168
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/main-street-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 30,
+            "y": 32,
+            "w": 35,
+            "h": 27
+          },
+          "bounds": {
+            "left": 4128,
+            "top": 1514,
+            "width": 4224,
+            "height": 2752
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "park",
+      "name": "Moonlight pond & park",
+      "x": 69,
+      "y": 35,
+      "w": 21,
+      "h": 21,
+      "crops": {
+        "before": {
+          "file": "../sections/park-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 73,
+            "y": 39,
+            "w": 14,
+            "h": 13
+          },
+          "bounds": {
+            "left": 7339,
+            "top": 3232,
+            "width": 1984,
+            "height": 1632
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/park-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 69,
+            "y": 35,
+            "w": 21,
+            "h": 21
+          },
+          "bounds": {
+            "left": 6816,
+            "top": 2858,
+            "width": 2944,
+            "height": 2112
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "leisure",
+      "name": "Starcade & diner",
+      "x": 75,
+      "y": 57,
+      "w": 16,
+      "h": 10,
+      "crops": {
+        "before": {
+          "file": "../sections/leisure-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 49,
+            "y": 24,
+            "w": 40,
+            "h": 14
+          },
+          "bounds": {
+            "left": 6699,
+            "top": 1984,
+            "width": 3712,
+            "height": 2496
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/leisure-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 75,
+            "y": 57,
+            "w": 16,
+            "h": 10
+          },
+          "bounds": {
+            "left": 6496,
+            "top": 3754,
+            "width": 1920,
+            "height": 1600
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "north-homes",
+      "name": "Hollow Pines terraces",
+      "x": 58,
+      "y": 6,
+      "w": 32,
+      "h": 29,
+      "crops": {
+        "before": {
+          "file": "../sections/north-homes-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 24,
+            "y": 24,
+            "w": 21,
+            "h": 14
+          },
+          "bounds": {
+            "left": 5099,
+            "top": 1184,
+            "width": 2496,
+            "height": 1888
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/north-homes-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 58,
+            "y": 6,
+            "w": 32,
+            "h": 29
+          },
+          "bounds": {
+            "left": 7456,
+            "top": 1578,
+            "width": 4160,
+            "height": 2720
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "south-homes",
+      "name": "Lantern Lane & Willow Court",
+      "x": 35,
+      "y": 63,
+      "w": 55,
+      "h": 28,
+      "crops": {
+        "before": {
+          "file": "../sections/south-homes-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 72,
+            "y": 55,
+            "w": 18,
+            "h": 35
+          },
+          "bounds": {
+            "left": 4843,
+            "top": 3712,
+            "width": 3648,
+            "height": 2464
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/south-homes-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 35,
+            "y": 63,
+            "w": 55,
+            "h": 28
+          },
+          "bounds": {
+            "left": 2400,
+            "top": 2666,
+            "width": 5568,
+            "height": 3424
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "drive-in",
+      "name": "Moonlite Drive-In",
+      "x": 5,
+      "y": 62,
+      "w": 25,
+      "h": 26,
+      "crops": {
+        "before": {
+          "file": "../sections/drive-in-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 50,
+            "y": 74,
+            "w": 40,
+            "h": 16
+          },
+          "bounds": {
+            "left": 3435,
+            "top": 3616,
+            "width": 3840,
+            "height": 2560
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/drive-in-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 5,
+            "y": 62,
+            "w": 25,
+            "h": 26
+          },
+          "bounds": {
+            "left": 672,
+            "top": 1674,
+            "width": 3520,
+            "height": 2400
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    }
+  ],
+  "audit": {
+    "districts": 9,
+    "buildings": 37,
+    "homes": 14,
+    "garages": 14,
+    "separateOccluders": 1028,
+    "props": 1199,
+    "roadTiles": 986,
+    "protectedAreas": [
+      "Pumpkin rows",
+      "Football field",
+      "Playground",
+      "Church & cemetery",
+      "Moonlight park",
+      "Drive-in interior"
+    ],
+    "roadConflicts": 0,
+    "unreachableDoors": [],
+    "drivewaysConnected": 14,
+    "vehicleVariants": 7,
+    "frontAndRearShops": true,
+    "liveGameplayChanged": false
+  },
+  "projection": {
+    "hw": 64,
+    "hh": 32
+  },
+  "cropMargins": {
+    "side": 128,
+    "roof": 640,
+    "bottom": 128
+  },
+  "mapStateUnchanged": true,
+  "bytes": 72210665,
+  "image": "maple-falls-static.png",
+  "preview": "maple-falls-static-overview.webp",
+  "before": {
+    "width": 12271,
+    "height": 6404,
+    "scale": 1,
+    "origin": [
+      -6123,
+      -288
+    ],
+    "tiles": 8836,
+    "propsDrawn": 1331,
+    "hiddenBarrierProps": 692,
+    "hideBarriers": true,
+    "fog": false,
+    "seed": 1337,
+    "expanded": true,
+    "paintedTownAssets": 34,
+    "mapStateUnchanged": true,
+    "bytes": 76381498,
+    "image": "../../review/maple-falls-full.png",
+    "preview": "../../review/maple-falls-full-overview.webp"
+  },
+  "cropNote": "Actual rectangular scene crops; before regions are approximate district equivalents. Neighbouring scenery may appear.",
+  "referenceStudy": "../reference-study.png"
+}</script>
+<script>
+const $=selector=>document.querySelector(selector);
+const stage=$('#stage'),image=$('#town'),slider=$('#zoom'),percent=$('#percent'),compare=$('#compare');
+const imageStatus=$('#image-status'),metadataStatus=$('#metadata-status'),gallery=$('#district-gallery');
+let metadata={},phase='after',selected=null,zoom=1,offsetX=0,offsetY=0,fitted=true,ready=false,preview=false,loadId=0;
+const pointers=new Map();let gesture;
+function phaseMeta(){return phase==='before'?metadata.before:metadata;}
+function dimensions(){const meta=phaseMeta();return {width:meta?.width||image.naturalWidth,height:meta?.height||image.naturalHeight};}
+function imageRatio(){return image.naturalWidth/dimensions().width||1;}
+function clampOffsets(){
+  const {width,height}=dimensions(),w=width*zoom,h=height*zoom;
+  offsetX=w<=stage.clientWidth?(stage.clientWidth-w)/2:Math.min(0,Math.max(stage.clientWidth-w,offsetX));
+  offsetY=h<=stage.clientHeight?(stage.clientHeight-h)/2:Math.min(0,Math.max(stage.clientHeight-h,offsetY));
+}
+function render(){
+  if(!ready)return;clampOffsets();
+  image.style.width=dimensions().width*zoom+'px';
+  image.style.transform=`translate(${offsetX}px,${offsetY}px)`;
+  slider.value=zoom*100;percent.textContent=(zoom*100<10?(zoom*100).toFixed(1):Math.round(zoom*100))+'%';
+}
+function setZoom(value,cx=stage.clientWidth/2,cy=stage.clientHeight/2){
+  if(!ready)return;
+  const next=Math.max(.001,Math.min(2,value)),x=(cx-offsetX)/zoom,y=(cy-offsetY)/zoom;
+  zoom=next;offsetX=cx-x*zoom;offsetY=cy-y*zoom;fitted=false;render();
+}
+function chooseDistrict(id){
+  selected=id;
+  for(const button of $('#districts').children)button.setAttribute('aria-pressed',String(button.dataset.district===id));
+}
+function fit(){
+  if(!ready)return;
+  const {width,height}=dimensions();zoom=Math.min(stage.clientWidth/width,stage.clientHeight/height);
+  offsetX=offsetY=0;fitted=true;chooseDistrict(null);render();
+}
+function showDistrict(id){
+  if(!ready)return;
+  const district=metadata.districts?.find(d=>d.id===id),bounds=district?.crops?.[phase]?.bounds;
+  if(!bounds)return;
+  chooseDistrict(id);fitted=false;
+  zoom=Math.min(2,stage.clientWidth/(bounds.width*1.08),stage.clientHeight/(bounds.height*1.08));
+  offsetX=stage.clientWidth/2-(bounds.left+bounds.width/2)*zoom;
+  offsetY=stage.clientHeight/2-(bounds.top+bounds.height/2)*zoom;render();
+  $('#summary').textContent=district.name+(phase==='before'?' · approximate old region':' · actual static map region');
+}
+function safeFile(value){return typeof value==='string'&&/^(?:\.\.\/)*[a-zA-Z0-9_./-]+\.(?:png|webp)$/.test(value)?value:null;}
+function currentFiles(){const meta=phaseMeta();return {
+  full:safeFile(meta?.image)||(phase==='before'?'../../review/maple-falls-full.png':'maple-falls-static.png'),
+  preview:safeFile(meta?.preview)||(phase==='before'?'../../review/maple-falls-full-overview.webp':'maple-falls-static-overview.webp'),
+};}
+function loadPhase(){
+  const id=++loadId,files=currentFiles();ready=false;preview=false;stage.dataset.ready='false';stage.dataset.phase=phase;
+  image.style.visibility='hidden';imageStatus.textContent='Loading actual map…';compare.disabled=true;
+  $('#phase-label').textContent=phase==='before'?'ACTUAL BEFORE MAP':'ACTUAL STATIC MAP';
+  $('#summary').textContent=phase==='before'?'Original map for comparison. District regions are approximate.':'Complete native scene. District crops and concept studies are labelled separately.';
+  compare.textContent=phase==='before'?'Show static map':'Show before map';compare.setAttribute('aria-pressed',String(phase==='before'));
+  $('#open-png').href=files.full;image.alt=phase==='before'?'Actual original Maple Falls map before the static town pass':'Actual complete static Maple Falls map';
+  image.onload=()=>{
+    if(id!==loadId)return;ready=true;compare.disabled=false;image.style.visibility='visible';
+    imageStatus.textContent=preview?'Compact preview of the actual map.':'Native image of the actual map.';
+    const district=selected;if(district)showDistrict(district);else fit();stage.dataset.ready='true';
+  };
+  image.onerror=()=>{
+    if(id!==loadId)return;
+    if(!preview){preview=true;image.src=files.preview;}
+    else{compare.disabled=false;imageStatus.textContent='Map image unavailable. Export the static map to populate this viewer.';}
+  };
+  image.src=files.full;
+}
+function figureFor(district,kind){
+  const file=safeFile(district.crops?.[kind]?.file);if(!file)return null;
+  const figure=document.createElement('figure'),link=document.createElement('a'),img=document.createElement('img'),caption=document.createElement('figcaption');
+  link.href=file;link.target='_blank';link.rel='noopener';img.src=file;img.loading='lazy';img.width=1600;
+  img.alt=district.name+(kind==='before'?' · actual before map, approximate old region':' · actual static map crop');
+  caption.textContent=kind==='before'?'ACTUAL BEFORE · approximate old region':'ACTUAL AFTER · static map';
+  link.append(img);figure.append(link,caption);return figure;
+}
+function buildNavigation(){
+  const districts=Array.isArray(metadata.districts)?metadata.districts:[];
+  $('#districts').replaceChildren();$('#gallery-grid').replaceChildren();
+  for(const district of districts){
+    const button=document.createElement('button');button.textContent=district.name;button.dataset.district=district.id;
+    button.setAttribute('aria-pressed','false');button.onclick=()=>showDistrict(district.id);$('#districts').append(button);
+    const article=document.createElement('article'),title=document.createElement('h3'),pair=document.createElement('div'),studies=document.createElement('div');
+    title.textContent=district.name;pair.className='pair';studies.className='studies';
+    for(const kind of ['before','after']){
+      const figure=figureFor(district,kind);if(figure)pair.append(figure);
+      const file=safeFile(district.studies?.[kind]);if(file){const link=document.createElement('a');link.href=file;link.target='_blank';link.rel='noopener';link.textContent='CONCEPT STUDY · '+kind;studies.append(link);}
+    }
+    if(!studies.childElementCount){const note=document.createElement('p');note.textContent='No district concept studies attached.';studies.append(note);}
+    article.append(title,pair,studies);$('#gallery-grid').append(article);
+  }
+  if(safeFile(metadata.referenceStudy)){$('#reference-study').href=metadata.referenceStudy;$('#reference-study').hidden=false;}
+  metadataStatus.textContent=districts.length?`${districts.length} districts · actual map crops`:'District metadata unavailable; whole-map controls remain available.';
+}
+$('#fit').onclick=fit;$('#native').onclick=()=>setZoom(imageRatio());
+$('#plus').onclick=()=>setZoom(zoom*1.25);$('#minus').onclick=()=>setZoom(zoom/1.25);slider.oninput=()=>setZoom(Number(slider.value)/100);
+compare.onclick=()=>{phase=phase==='after'?'before':'after';pointers.clear();gesture=null;loadPhase();};
+$('#gallery-link').onclick=event=>{event.preventDefault();gallery.showModal();};$('#close-gallery').onclick=()=>gallery.close();
+stage.addEventListener('wheel',event=>{if(!event.ctrlKey&&!event.metaKey)return;event.preventDefault();const rect=stage.getBoundingClientRect();setZoom(zoom*(event.deltaY<0?1.15:1/1.15),event.clientX-rect.left,event.clientY-rect.top);},{passive:false});
+function resetGesture(){
+  const points=[...pointers.values()];
+  if(points.length>=2){const [a,b]=points;gesture={distance:Math.hypot(a.x-b.x,a.y-b.y),x:(a.x+b.x)/2,y:(a.y+b.y)/2,zoom,offsetX,offsetY};}
+  else if(points.length===1)gesture={x:points[0].x,y:points[0].y,offsetX,offsetY};
+  else{gesture=null;stage.classList.remove('dragging');}
+}
+stage.addEventListener('pointerdown',event=>{if(!ready||(event.pointerType==='mouse'&&event.button!==0))return;event.preventDefault();stage.focus();pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});stage.setPointerCapture(event.pointerId);stage.classList.add('dragging');resetGesture();});
+stage.addEventListener('pointermove',event=>{
+  if(!pointers.has(event.pointerId)||!gesture)return;pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});fitted=false;
+  const points=[...pointers.values()];
+  if(points.length>=2&&gesture.distance){
+    const [a,b]=points,rect=stage.getBoundingClientRect(),cx=(a.x+b.x)/2-rect.left,cy=(a.y+b.y)/2-rect.top;
+    zoom=Math.max(.001,Math.min(2,gesture.zoom*Math.hypot(a.x-b.x,a.y-b.y)/gesture.distance));
+    offsetX=cx-(gesture.x-rect.left-gesture.offsetX)/gesture.zoom*zoom;
+    offsetY=cy-(gesture.y-rect.top-gesture.offsetY)/gesture.zoom*zoom;
+  }else{offsetX=gesture.offsetX+event.clientX-gesture.x;offsetY=gesture.offsetY+event.clientY-gesture.y;}
+  render();
+});
+function release(event){pointers.delete(event.pointerId);resetGesture();}
+stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);stage.addEventListener('lostpointercapture',release);
+stage.addEventListener('keydown',event=>{const directions={ArrowLeft:[80,0],ArrowRight:[-80,0],ArrowUp:[0,80],ArrowDown:[0,-80]};if(directions[event.key]){event.preventDefault();fitted=false;offsetX+=directions[event.key][0];offsetY+=directions[event.key][1];render();}});
+new ResizeObserver(()=>{if(!ready)return;if(fitted)fit();else if(selected)showDistrict(selected);else render();}).observe(stage);
+(async()=>{
+  try{metadata=JSON.parse($('#town-metadata').textContent);if(!metadata.districts){const response=await fetch('maple-falls-static.json');if(!response.ok)throw Error('No metadata');metadata=await response.json();}}
+  catch{metadata={};}
+  buildNavigation();loadPhase();
+})();
+</script>
+</body>
+</html>

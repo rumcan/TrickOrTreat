@@ -1,0 +1,498 @@
+{
+  "width": 12224,
+  "height": 6282,
+  "scale": 1,
+  "origin": [
+    -6112,
+    -170
+  ],
+  "tiles": 8836,
+  "propsDrawn": 1199,
+  "hiddenBarrierProps": 0,
+  "hideBarriers": true,
+  "fog": false,
+  "districts": [
+    {
+      "id": "farm",
+      "name": "Pumpkin farm",
+      "x": 5,
+      "y": 5,
+      "w": 23,
+      "h": 20,
+      "crops": {
+        "before": {
+          "file": "../sections/farm-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 3,
+            "y": 3,
+            "w": 18,
+            "h": 18
+          },
+          "bounds": {
+            "left": 4843,
+            "top": 0,
+            "width": 2560,
+            "height": 1760
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/farm-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 5,
+            "y": 5,
+            "w": 23,
+            "h": 20
+          },
+          "bounds": {
+            "left": 4704,
+            "top": 0,
+            "width": 3008,
+            "height": 1994
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "campus",
+      "name": "Schools & civic campus",
+      "x": 31,
+      "y": 5,
+      "w": 24,
+      "h": 24,
+      "crops": {
+        "before": {
+          "file": "../sections/campus-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 24,
+            "y": 3,
+            "w": 66,
+            "h": 18
+          },
+          "bounds": {
+            "left": 6187,
+            "top": 512,
+            "width": 5632,
+            "height": 3456
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/campus-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 31,
+            "y": 5,
+            "w": 24,
+            "h": 24
+          },
+          "bounds": {
+            "left": 6112,
+            "top": 682,
+            "width": 3328,
+            "height": 2304
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "church-cemetery",
+      "name": "St. Hallow's & old cemetery",
+      "x": 5,
+      "y": 29,
+      "w": 23,
+      "h": 25,
+      "crops": {
+        "before": {
+          "file": "../sections/church-cemetery-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 3,
+            "y": 24,
+            "w": 18,
+            "h": 65
+          },
+          "bounds": {
+            "left": 491,
+            "top": 512,
+            "width": 5568,
+            "height": 3424
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/church-cemetery-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 5,
+            "y": 29,
+            "w": 23,
+            "h": 25
+          },
+          "bounds": {
+            "left": 2848,
+            "top": 618,
+            "width": 3328,
+            "height": 2304
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "main-street",
+      "name": "Main Street & service alleys",
+      "x": 30,
+      "y": 32,
+      "w": 35,
+      "h": 27,
+      "crops": {
+        "before": {
+          "file": "../sections/main-street-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 24,
+            "y": 38,
+            "w": 45,
+            "h": 30
+          },
+          "bounds": {
+            "left": 3179,
+            "top": 1632,
+            "width": 5056,
+            "height": 3168
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/main-street-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 30,
+            "y": 32,
+            "w": 35,
+            "h": 27
+          },
+          "bounds": {
+            "left": 4128,
+            "top": 1514,
+            "width": 4224,
+            "height": 2752
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "park",
+      "name": "Moonlight pond & park",
+      "x": 69,
+      "y": 35,
+      "w": 21,
+      "h": 21,
+      "crops": {
+        "before": {
+          "file": "../sections/park-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 73,
+            "y": 39,
+            "w": 14,
+            "h": 13
+          },
+          "bounds": {
+            "left": 7339,
+            "top": 3232,
+            "width": 1984,
+            "height": 1632
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/park-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 69,
+            "y": 35,
+            "w": 21,
+            "h": 21
+          },
+          "bounds": {
+            "left": 6816,
+            "top": 2858,
+            "width": 2944,
+            "height": 2112
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "leisure",
+      "name": "Starcade & diner",
+      "x": 75,
+      "y": 57,
+      "w": 16,
+      "h": 10,
+      "crops": {
+        "before": {
+          "file": "../sections/leisure-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 49,
+            "y": 24,
+            "w": 40,
+            "h": 14
+          },
+          "bounds": {
+            "left": 6699,
+            "top": 1984,
+            "width": 3712,
+            "height": 2496
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/leisure-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 75,
+            "y": 57,
+            "w": 16,
+            "h": 10
+          },
+          "bounds": {
+            "left": 6496,
+            "top": 3754,
+            "width": 1920,
+            "height": 1600
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "north-homes",
+      "name": "Hollow Pines terraces",
+      "x": 58,
+      "y": 6,
+      "w": 32,
+      "h": 29,
+      "crops": {
+        "before": {
+          "file": "../sections/north-homes-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 24,
+            "y": 24,
+            "w": 21,
+            "h": 14
+          },
+          "bounds": {
+            "left": 5099,
+            "top": 1184,
+            "width": 2496,
+            "height": 1888
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/north-homes-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 58,
+            "y": 6,
+            "w": 32,
+            "h": 29
+          },
+          "bounds": {
+            "left": 7456,
+            "top": 1578,
+            "width": 4160,
+            "height": 2720
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "south-homes",
+      "name": "Lantern Lane & Willow Court",
+      "x": 35,
+      "y": 63,
+      "w": 55,
+      "h": 28,
+      "crops": {
+        "before": {
+          "file": "../sections/south-homes-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 72,
+            "y": 55,
+            "w": 18,
+            "h": 35
+          },
+          "bounds": {
+            "left": 4843,
+            "top": 3712,
+            "width": 3648,
+            "height": 2464
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/south-homes-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 35,
+            "y": 63,
+            "w": 55,
+            "h": 28
+          },
+          "bounds": {
+            "left": 2400,
+            "top": 2666,
+            "width": 5568,
+            "height": 3424
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    },
+    {
+      "id": "drive-in",
+      "name": "Moonlite Drive-In",
+      "x": 5,
+      "y": 62,
+      "w": 25,
+      "h": 26,
+      "crops": {
+        "before": {
+          "file": "../sections/drive-in-before.webp",
+          "source": "../../review/maple-falls-full.png",
+          "worldRect": {
+            "x": 50,
+            "y": 74,
+            "w": 40,
+            "h": 16
+          },
+          "bounds": {
+            "left": 3435,
+            "top": 3616,
+            "width": 3840,
+            "height": 2560
+          },
+          "approximate": true,
+          "previewWidth": 1600
+        },
+        "after": {
+          "file": "../sections/drive-in-after.webp",
+          "source": "maple-falls-static.png",
+          "worldRect": {
+            "x": 5,
+            "y": 62,
+            "w": 25,
+            "h": 26
+          },
+          "bounds": {
+            "left": 672,
+            "top": 1674,
+            "width": 3520,
+            "height": 2400
+          },
+          "approximate": false,
+          "previewWidth": 1600
+        }
+      },
+      "studies": {}
+    }
+  ],
+  "audit": {
+    "districts": 9,
+    "buildings": 37,
+    "homes": 14,
+    "garages": 14,
+    "separateOccluders": 1028,
+    "props": 1199,
+    "roadTiles": 986,
+    "protectedAreas": [
+      "Pumpkin rows",
+      "Football field",
+      "Playground",
+      "Church & cemetery",
+      "Moonlight park",
+      "Drive-in interior"
+    ],
+    "roadConflicts": 0,
+    "unreachableDoors": [],
+    "drivewaysConnected": 14,
+    "vehicleVariants": 7,
+    "frontAndRearShops": true,
+    "liveGameplayChanged": false
+  },
+  "projection": {
+    "hw": 64,
+    "hh": 32
+  },
+  "cropMargins": {
+    "side": 128,
+    "roof": 640,
+    "bottom": 128
+  },
+  "mapStateUnchanged": true,
+  "bytes": 72210665,
+  "image": "maple-falls-static.png",
+  "preview": "maple-falls-static-overview.webp",
+  "before": {
+    "width": 12271,
+    "height": 6404,
+    "scale": 1,
+    "origin": [
+      -6123,
+      -288
+    ],
+    "tiles": 8836,
+    "propsDrawn": 1331,
+    "hiddenBarrierProps": 692,
+    "hideBarriers": true,
+    "fog": false,
+    "seed": 1337,
+    "expanded": true,
+    "paintedTownAssets": 34,
+    "mapStateUnchanged": true,
+    "bytes": 76381498,
+    "image": "../../review/maple-falls-full.png",
+    "preview": "../../review/maple-falls-full-overview.webp"
+  },
+  "cropNote": "Actual rectangular scene crops; before regions are approximate district equivalents. Neighbouring scenery may appear.",
+  "referenceStudy": "../reference-study.png"
+}

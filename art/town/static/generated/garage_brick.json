@@ -1,0 +1,11 @@
+{
+  "id": "garage_brick",
+  "tool": "built-in image_gen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a as C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a\\exec-a54b8735-7a2f-4d66-a754-11380b0bc0ee.png",
+  "prompt": "Use case: stylized-concept. Asset type: single production transparent isometric town sprite.\nInput image 1 is the painting and lighting reference ONLY. Input image 2 is the exact vector geometry, footprint and framing guide.\nSubject: A small detached single-car residential garage, weathered red brick, low dark shingle pitched roof, sage green sectional garage door on +Y front face, small side window and downpipe. No house attached, no car, no driveway or ground.\nStyle: rich detailed hand-painted stylized realism matching the Halloween game reference, 1980s/early-1990s American town. Cold blue moonlight from upper LEFT, muted material colours, warm amber ONLY from real windows/lamps. Not vector clipart.\nProjection: exact 2:1 orthographic dimetric. World +X goes screen(+2,+1), +Y screen(-2,+1); vertical lines stay vertical. No perspective convergence. Footprint EXACTLY 2x2 world tiles. Match image2's footprint corners, ground height and body placement; add architectural/mechanical detail, not a different camera. The visible +Y face is screen lower-left; keep all doors, walls and roof aligned with the guide. Front ground corner must remain on guide corner.\nComposition: one isolated object in the SAME square framing and exact object position as image2, including transparent padding. Do not crop, enlarge or shrink the subject relative to guide. Do not render the primitive guide as cubes; create convincing detailed object geometry within it. Genuine transparent background, no checkerboard, ground patch, cast shadow, people, characters, halo, border, labels, watermark, or unrelated objects. All details within original frame.",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/town/static/guides/garage_brick.png"
+  ],
+  "stage": "generated"
+}

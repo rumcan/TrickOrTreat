@@ -1,0 +1,11 @@
+{
+  "id": "shop_market_rear",
+  "tool": "built-in image_gen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a as C:\\Users\\Francois Smit\\.codex\\generated_images\\01a11f9b-89e0-76d0-a6a1-1460fb6ddf7a\\exec-780fc093-a755-4e79-a0ef-1701b8a0e94d.png",
+  "prompt": "Use case: stylized-concept. Asset type: single production transparent isometric town sprite.\nInput image 1 is the painting and lighting reference ONLY. Input image 2 is the exact vector geometry, footprint and framing guide.\nSubject: REAR VIEW of a one-storey 1980s corner grocery, pale worn brick with teal trim. Storefront is on the FAR -Y side and is NOT visible. Visible +Y rear has a wide double loading door, a small grated window, pipes and vent. Low dark flat roof. No rear awning or shop sign. No separate crates or dumpster baked into the sprite.\nStyle: rich detailed hand-painted stylized realism matching the Halloween game reference, 1980s/early-1990s American town. Cold blue moonlight from upper LEFT, muted material colours, warm amber ONLY from real windows/lamps. Not vector clipart.\nProjection: exact 2:1 orthographic dimetric. World +X goes screen(+2,+1), +Y screen(-2,+1); vertical lines stay vertical. No perspective convergence. Footprint EXACTLY 4x3 world tiles. Match image2's footprint corners, ground height and body placement; add architectural/mechanical detail, not a different camera. The visible +Y face is screen lower-left; keep all doors, walls and roof aligned with the guide. Front ground corner must remain on guide corner.\nComposition: one isolated object in the SAME square framing and exact object position as image2, including transparent padding. Do not crop, enlarge or shrink the subject relative to guide. Do not render the primitive guide as cubes; create convincing detailed object geometry within it. Genuine transparent background, no checkerboard, ground patch, cast shadow, people, characters, halo, border, labels, watermark, or unrelated objects. All details within original frame.",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/town/static/guides/shop_market_rear.png"
+  ],
+  "stage": "generated"
+}

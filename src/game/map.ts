@@ -21,6 +21,8 @@ export interface PropInst {
   shadow: number; // ellipse radius in tiles (small props) or height factor (big)
   interact?: 'shop';
   fade?: number; // runtime alpha
+  /** Explicit for review scenery; omitted keeps the existing production defaults. */
+  occludesCharacter?: boolean;
   removed?: boolean;
   /** demolition (cars and houses): damage it can still take, seconds left burning, seconds since it blew up, and the burnt-out shell that remains */
   hp?: number; burnT?: number; boomT?: number; wreck?: boolean;

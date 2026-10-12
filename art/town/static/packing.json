@@ -1,0 +1,152 @@
+[
+  {
+    "id": "compact_e",
+    "file": "public/assets/town-static/compact_e.png",
+    "w": 512,
+    "h": 416,
+    "anchor": [
+      256,
+      288
+    ],
+    "correction": [
+      0,
+      0
+    ],
+    "alpha": true
+  },
+  {
+    "id": "compact_w",
+    "file": "public/assets/town-static/compact_w.png",
+    "w": 512,
+    "h": 416,
+    "anchor": [
+      256,
+      288
+    ],
+    "correction": [
+      0,
+      0
+    ],
+    "alpha": true
+  },
+  {
+    "id": "compact_s",
+    "file": "public/assets/town-static/compact_s.png",
+    "w": 512,
+    "h": 416,
+    "anchor": [
+      256,
+      288
+    ],
+    "correction": [
+      0,
+      0
+    ],
+    "alpha": true
+  },
+  {
+    "id": "compact_n",
+    "file": "public/assets/town-static/compact_n.png",
+    "w": 512,
+    "h": 416,
+    "anchor": [
+      256,
+      288
+    ],
+    "correction": [
+      0,
+      0
+    ],
+    "alpha": true
+  },
+  {
+    "id": "pickup_n",
+    "file": "public/assets/town-static/pickup_n.png",
+    "w": 576,
+    "h": 470,
+    "anchor": [
+      288,
+      326
+    ],
+    "correction": [
+      0,
+      0
+    ],
+    "alpha": true
+  },
+  {
+    "id": "van_e",
+    "file": "public/assets/town-static/van_e.png",
+    "w": 576,
+    "h": 500,
+    "anchor": [
+      288,
+      356
+    ],
+    "correction": [
+      0,
+      0
+    ],
+    "alpha": true
+  },
+  {
+    "id": "shop_brick_rear",
+    "file": "public/assets/town-static/shop_brick_rear.png",
+    "w": 1024,
+    "h": 954,
+    "anchor": [
+      512,
+      698
+    ],
+    "correction": [
+      9,
+      -28
+    ],
+    "alpha": true
+  },
+  {
+    "id": "shop_market_rear",
+    "file": "public/assets/town-static/shop_market_rear.png",
+    "w": 1024,
+    "h": 814,
+    "anchor": [
+      512,
+      558
+    ],
+    "correction": [
+      4,
+      7
+    ],
+    "alpha": true
+  },
+  {
+    "id": "garage_timber",
+    "file": "public/assets/town-static/garage_timber.png",
+    "w": 640,
+    "h": 528,
+    "anchor": [
+      320,
+      368
+    ],
+    "correction": [
+      -15,
+      12
+    ],
+    "alpha": true
+  },
+  {
+    "id": "garage_brick",
+    "file": "public/assets/town-static/garage_brick.png",
+    "w": 640,
+    "h": 528,
+    "anchor": [
+      320,
+      368
+    ],
+    "correction": [
+      -11,
+      4
+    ],
+    "alpha": true
+  }
+]

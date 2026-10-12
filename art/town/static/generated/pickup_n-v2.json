@@ -1,0 +1,11 @@
+{
+  "id": "pickup_n",
+  "tool": "built-in image_gen",
+  "source": "C:\\Users\\Francois Smit\\.codex\\generated_images\\01a12e9a-26bc-73c0-9105-45ff62c0ea50\\exec-7009fb2f-9687-4a2e-9008-9aceddf000c0.png",
+  "prompt": "Use case: stylized-concept. Asset type: one transparent isometric game scenery sprite. Image 1 is the painting and lighting style reference ONLY; Image 2 is authoritative object position, ground plane and footprint geometry. Subject: A faded mustard late-1980s single-cab compact pickup truck, open empty truck bed, worn black tyres. Nose points along world -Y, screen UPPER RIGHT. Visible rear at lower-left has closed tailgate and red tail lamps. Wheels and long axis obey the guide.\nPaint a richly detailed late-1980s American Halloween town object matching the style reference, cold blue light from upper left with restrained warm practical lights. Exact 2:1 orthographic dimetric projection; world +X screen lower-right, world +Y screen lower-left. Footprint 1 by 2.5 tiles, heights and framing exactly as guide. Retain the guide's object scale, placement, transparent padding, ground corners and axis slopes. Replace the simple primitives with realistic painted architecture or mechanics. For rear views show rear doors and taillights or service doors, never a front facade. For garages create a shallow pitched shingle roof contained within the guide height. One isolated object, actual transparent alpha background, no ground patch, shadows, checkerboard, labels, characters, watermark, extra objects or cropping. Output square 1024x1024.",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/town/static/guides/pickup_n.png"
+  ],
+  "stage": "candidate"
+}

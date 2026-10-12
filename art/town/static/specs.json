@@ -1,0 +1,162 @@
+[
+  {
+    "a": {
+      "id": "compact_e",
+      "fw": 2,
+      "fh": 1,
+      "height": 64,
+      "kind": "car",
+      "look": "A burgundy boxy 1987 compact hatchback. Nose points along world +X, screen LOWER RIGHT. Visible nose has two rectangular headlamps; opposite end has a vertical hatch with red tail lamps."
+    },
+    "w": 256,
+    "h": 208,
+    "ax": 128,
+    "ay": 144,
+    "ox": 96,
+    "oy": 96
+  },
+  {
+    "a": {
+      "id": "compact_w",
+      "fw": 2,
+      "fh": 1,
+      "height": 64,
+      "kind": "car",
+      "look": "A faded sky-blue boxy 1987 compact hatchback. Nose points along world -X, screen UPPER LEFT. Camera sees the REAR HATCH at lower-right, with red tail lamps, licence plate and rear wiper, never headlamps on that visible rear."
+    },
+    "w": 256,
+    "h": 208,
+    "ax": 128,
+    "ay": 144,
+    "ox": 96,
+    "oy": 96
+  },
+  {
+    "a": {
+      "id": "compact_s",
+      "fw": 1,
+      "fh": 2,
+      "height": 64,
+      "kind": "car",
+      "look": "A cream boxy 1987 compact hatchback. Nose points along world +Y, screen LOWER LEFT. Visible nose has two rectangular headlamps, black bumper and grille."
+    },
+    "w": 256,
+    "h": 208,
+    "ax": 128,
+    "ay": 144,
+    "ox": 160,
+    "oy": 96
+  },
+  {
+    "a": {
+      "id": "compact_n",
+      "fw": 1,
+      "fh": 2,
+      "height": 64,
+      "kind": "car",
+      "look": "A dark teal boxy 1987 compact hatchback. Nose points along world -Y, screen UPPER RIGHT. Camera sees the REAR HATCH at lower-left, red tail lamps, licence plate and rear wiper. No headlamps on the visible rear."
+    },
+    "w": 256,
+    "h": 208,
+    "ax": 128,
+    "ay": 144,
+    "ox": 160,
+    "oy": 96
+  },
+  {
+    "a": {
+      "id": "pickup_n",
+      "fw": 1,
+      "fh": 2.5,
+      "height": 75,
+      "kind": "car",
+      "look": "A faded mustard late-1980s single-cab compact pickup truck, open empty truck bed, worn black tyres. Nose points along world -Y, screen UPPER RIGHT. Visible rear at lower-left has closed tailgate and red tail lamps. Wheels and long axis obey the guide."
+    },
+    "w": 288,
+    "h": 235,
+    "ax": 144,
+    "ay": 163,
+    "ox": 192,
+    "oy": 107
+  },
+  {
+    "a": {
+      "id": "van_e",
+      "fw": 2.5,
+      "fh": 1,
+      "height": 90,
+      "kind": "car",
+      "look": "A faded cream-and-blue 1980s compact delivery van, sliding side door, boxy cab, simple black bumpers, no brand logos. Nose points world +X, screen LOWER RIGHT; windshield and front headlamps visible on that end."
+    },
+    "w": 288,
+    "h": 250,
+    "ax": 144,
+    "ay": 178,
+    "ox": 96,
+    "oy": 122
+  },
+  {
+    "a": {
+      "id": "shop_brick_rear",
+      "fw": 4,
+      "fh": 3,
+      "height": 205,
+      "kind": "building",
+      "look": "REAR VIEW of a two-storey small-town brick Main Street shop. The storefront is on the FAR -Y side and is NOT visible. The visible +Y rear wall has a plain steel service door, small upper sash windows, boarded lower window, rain downpipe, weathered electrical meter and small vent. Flat parapet roof with air conditioner. No awning or shop sign on this rear wall. Upper-left cold moonlight; faint warm upper window only."
+    },
+    "w": 512,
+    "h": 477,
+    "ax": 256,
+    "ay": 349,
+    "ox": 224,
+    "oy": 237
+  },
+  {
+    "a": {
+      "id": "shop_market_rear",
+      "fw": 4,
+      "fh": 3,
+      "height": 135,
+      "kind": "building",
+      "look": "REAR VIEW of a one-storey 1980s corner grocery, pale worn brick with teal trim. Storefront is on the FAR -Y side and is NOT visible. Visible +Y rear has a wide double loading door, a small grated window, pipes and vent. Low dark flat roof. No rear awning or shop sign. No separate crates or dumpster baked into the sprite."
+    },
+    "w": 512,
+    "h": 407,
+    "ax": 256,
+    "ay": 279,
+    "ox": 224,
+    "oy": 167
+  },
+  {
+    "a": {
+      "id": "garage_timber",
+      "fw": 2,
+      "fh": 2,
+      "height": 88,
+      "kind": "building",
+      "look": "A small detached single-car residential garage, weathered blue-grey timber siding, dark navy pitched roof, white sectional garage door on +Y front face with four small windows, a side window, old practical porch bulb. No house attached, no car, no driveway or ground."
+    },
+    "w": 320,
+    "h": 264,
+    "ax": 160,
+    "ay": 184,
+    "ox": 160,
+    "oy": 120
+  },
+  {
+    "a": {
+      "id": "garage_brick",
+      "fw": 2,
+      "fh": 2,
+      "height": 88,
+      "kind": "building",
+      "look": "A small detached single-car residential garage, weathered red brick, low dark shingle pitched roof, sage green sectional garage door on +Y front face, small side window and downpipe. No house attached, no car, no driveway or ground."
+    },
+    "w": 320,
+    "h": 264,
+    "ax": 160,
+    "ay": 184,
+    "ox": 160,
+    "oy": 120
+  }
+]

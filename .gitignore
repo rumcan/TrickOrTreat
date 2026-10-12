@@ -29,4 +29,5 @@ art/nightmare/checks/
 art/town/checks/
 # Large native map export is reproducible; keep the compact review image tracked.
 art/town/review/*.png
+art/town/static/review/*.png
 .codex-session/
