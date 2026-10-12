@@ -2,7 +2,7 @@ import * as storage from './storage';
 export interface Settings {
   /** screen-shake strength 0..1 */
   shake: number;
-  /** night brightness 0..1 (0 = the original darkness) */
+  /** uniform painted-scene brightness boost 0..1; never hides unlit areas */
   bright: number;
   dmgText: boolean;
   /** the labels over monsters (their special power, LIEUTENANT) */

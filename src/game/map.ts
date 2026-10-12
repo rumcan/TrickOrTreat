@@ -582,7 +582,7 @@ export function buildMap(seed = 1337, expanded = false): GameMap {
     ['phone_booth',45,42],['planter_terracotta',55,42],['planter_square',59,42],
     ['bike_rack',62,44],['bus_stop',40,49],
     // School/civic and arcade foot traffic.
-    ['bike_rack',36,8],['bus_stop',26,18],['planter_square',38,10],
+    ['bike_rack',36,8],['bus_stop',39,21],['planter_square',38,10],
     ['bike_rack',52,11],['phone_booth',57,31],['planter_terracotta',49,28],
     // Public gathering pockets and roadside services.
     ['picnic_table',82,46],['picnic_table',40,58],['planter_square',13,42],

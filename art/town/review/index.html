@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maple Falls — whole-town review</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101923;color:#f9ead2;font:15px system-ui,sans-serif}
+header{padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid #59616a}
+h1{font-size:19px;margin:0}p{font-size:13px;color:#c5ced8;margin:5px 0 0}
+.tools{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap}
+button,a{background:#20394a;color:#fff;border:1px solid #81a7b9;border-radius:5px;padding:8px 12px;font:inherit;cursor:pointer;text-decoration:none}
+button:hover,a:hover{background:#30576a}input{width:120px;accent-color:#ff9232}
+#stage{height:calc(100dvh - 120px);min-height:200px;overflow:auto;background:#17212c;cursor:grab;touch-action:pan-x pan-y}
+#stage.dragging{cursor:grabbing}img{display:block;max-width:none;user-select:none}
+footer{padding:10px 20px;color:#c5ced8;font-size:12px}
+@media(max-width:700px){header{padding:10px}.tools{margin-left:0}#stage{height:calc(100dvh - 200px)}}
+</style>
+</head>
+<body>
+<header>
+<div><h1>Maple Falls · whole-town review</h1><p>Full town · seed 1337 · no black fog, district hedges or gate props · garden fences remain</p></div>
+<div class="tools"><button id="fit">Fit town</button><button id="native">100%</button><button id="minus" aria-label="Zoom out">−</button><input id="zoom" aria-label="Map zoom" type="range" min="1" max="150" value="100"><button id="plus" aria-label="Zoom in">+</button><span id="percent"></span><a href="maple-falls-full.png" target="_blank" rel="noopener">Open PNG</a></div>
+</header>
+<main id="stage"><img id="town" src="maple-falls-full.png" alt="Complete painted isometric Maple Falls town, without district barriers" draggable="false"></main>
+<footer>Drag to pan; Ctrl/⌘ + wheel to zoom. This is the real map art, not a generated concept. Export does not alter gameplay gates or collision. Critique layout, scale, repetition and walking routes before the next pass.</footer>
+<script>
+const stage=document.querySelector('#stage'),img=document.querySelector('#town'),slider=document.querySelector('#zoom'),percent=document.querySelector('#percent');
+let zoom=1,drag;
+function setZoom(value){const next=Math.max(.01,Math.min(1.5,value)),old=zoom;zoom=next;const x=(stage.scrollLeft+stage.clientWidth/2)/old,y=(stage.scrollTop+stage.clientHeight/2)/old;img.style.width=Math.round(img.naturalWidth*zoom)+'px';slider.value=zoom*100;percent.textContent=Math.round(zoom*100)+'%';stage.scrollLeft=x*zoom-stage.clientWidth/2;stage.scrollTop=y*zoom-stage.clientHeight/2;}
+function fit(){setZoom(Math.min(stage.clientWidth/img.naturalWidth,stage.clientHeight/img.naturalHeight));stage.scrollLeft=stage.scrollTop=0;}
+img.addEventListener('load',fit);img.addEventListener('error',()=>{if(!img.src.endsWith('.webp')){img.src='maple-falls-full-overview.webp';document.querySelector('footer').textContent='Compact preview. Run npm run art:town:overview to regenerate the native-resolution PNG. Drag to pan; Ctrl/⌘ + wheel to zoom.';}});if(img.complete&&img.naturalWidth)fit();
+document.querySelector('#fit').onclick=fit;document.querySelector('#native').onclick=()=>setZoom(1);
+document.querySelector('#plus').onclick=()=>setZoom(zoom*1.25);document.querySelector('#minus').onclick=()=>setZoom(zoom/1.25);slider.oninput=()=>setZoom(Number(slider.value)/100);
+stage.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();setZoom(zoom*(e.deltaY<0?1.15:1/1.15));},{passive:false});
+stage.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:stage.scrollLeft,top:stage.scrollTop};stage.setPointerCapture(e.pointerId);stage.classList.add('dragging');});
+stage.addEventListener('pointermove',e=>{if(!drag)return;stage.scrollLeft=drag.left+drag.x-e.clientX;stage.scrollTop=drag.top+drag.y-e.clientY;});
+function release(){drag=null;stage.classList.remove('dragging');}stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);stage.addEventListener('lostpointercapture',release);
+</script>
+</body></html>

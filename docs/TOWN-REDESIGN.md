@@ -114,6 +114,19 @@ Relocation rule for L01: the Starcade housing block's lower two lots currently c
 
 The first full town redesign and all 35 art jobs are implemented, reviewed and validated. The packed release loads all 35 town assets without errors: 17,820,839 bytes of PNGs become 2,682,648 bytes of release WebPs, with unchanged dimensions/anchors/alpha; decoded native 2x sprite storage is about 47.4 MB. Machine-readable results are retained in `art/town/validation.json`. For additional polish, retain the existing plan/provenance and add new numbered tasks; do not reset the completed checklist. Physical-phone playtesting is still a manual follow-up. Merge/deploy is not requested in this job.
 
+## Review follow-up — 2026-10-12
+
+- [x] R01 Remove the black night-visibility mask and edge vignette in actual gameplay; retain shadows, painted night colours, lamp/loot glows and damage feedback. Brightness now lifts the whole scene uniformly.
+- [x] R02 Move the school bus shelter from field tile (26,18) to roadside pavement (39,21). Halve bicycle-rack draw dimensions, ground anchor and collision footprint together; original PNG masters unchanged.
+- [x] R03 Add a read-only whole-map PNG exporter sharing the game's footprint-aware painter order; hide only district hedge/gate props, retain garden decoration, never mutate collision/progression.
+- [x] R04 Generate and visually inspect the 12,271 × 6,404 stitched map. School placement/scale and mask removal pass; ten map variants pass navigation, desktop/phone viewer controls pass, TypeScript/build and both production regressions pass. Evidence: `art/town/review/validation.json`; reproducible screenshots/reports in ignored `art/town/checks/`.
+
+Run `npm run art:town:overview` with the dev server on5192. It exports the full town at seed1337 to `art/town/review/maple-falls-full.png`, plus a 3200px WebP overview and metadata. `-- --free`, `-- --seed=7932` and `-- --scale=0.5` select a different mode/seed/lighter canvas. Open `art/town/review/index.html` for zoom and pan. Review-only removal of barriers does not remove them from live gameplay.
+
+The large native PNG is kept locally and ignored by git; the compact WebP, viewer, metadata and exporter are tracked. The viewer falls back to the compact preview until the native PNG is regenerated. `npm run test:town:review` checks school placement/scale, read-only export, no-mask rendering and desktop/phone review controls.
+
+Review follow-up completed without further layout redesign, merge or deployment. The black mask and vignette are removed in actual gameplay; district barriers are hidden only in the static export. The ordinary navy background outside the town, object shadows and soft atmospheric puffs remain. Local phone-viewport rendering medians were 6–7ms (p95 <11ms); physical phones still need manual testing.
+
 ## Reproducing the handoff
 
 - Run the dev server on5192, then `npm run test:town:art` and `npm run test:town:layout`. The latter rebuilds 25 night/placement screenshots and reports in ignored `art/town/checks/`.

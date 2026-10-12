@@ -27,4 +27,6 @@ art/nightmare/checks/
 
 # Reproducible town-review screenshots; source guides and generated masters stay tracked.
 art/town/checks/
+# Large native map export is reproducible; keep the compact review image tracked.
+art/town/review/*.png
 .codex-session/

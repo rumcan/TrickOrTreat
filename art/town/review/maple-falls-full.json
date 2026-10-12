@@ -1,0 +1,19 @@
+{
+  "width": 12271,
+  "height": 6404,
+  "scale": 1,
+  "origin": [
+    -6123,
+    -288
+  ],
+  "tiles": 8836,
+  "propsDrawn": 1331,
+  "hiddenBarrierProps": 692,
+  "hideBarriers": true,
+  "fog": false,
+  "seed": 1337,
+  "expanded": true,
+  "paintedTownAssets": 34,
+  "mapStateUnchanged": true,
+  "bytes": 76381498
+}

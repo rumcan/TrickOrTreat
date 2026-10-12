@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-12",
+  "branch": "feature/maple-falls-lived-in",
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "townReviewTest": "passed",
+  "townNavigationTest": "passed: five seeds in each of free/full modes",
+  "schoolBusStop": {"x": 39, "y": 21, "onFootballField": false},
+  "bicycleScale": 0.5,
+  "screenWideBlackMask": false,
+  "darkEdgeVignette": false,
+  "liveGateProgressionChanged": false,
+  "export": {
+    "width": 12271,
+    "height": 6404,
+    "seed": 1337,
+    "mode": "full",
+    "hiddenDistrictBarrierProps": 692,
+    "gardenDecorationRetained": true,
+    "mapStateUnchanged": true,
+    "visuallyInspected": true
+  },
+  "viewer": {"desktop": "passed", "phoneFit": "passed", "zoom": "passed"},
+  "release": {
+    "paintedTownAssetsLoaded": 35,
+    "totalPackedAssetsLoaded": 354,
+    "desktopGameplay": "passed",
+    "mobilePortrait": "passed: emulated 390x844",
+    "mobileLandscape": "passed: emulated 844x390",
+    "physicalPhoneTested": false,
+    "pageErrors": []
+  },
+  "renderingMilliseconds": {
+    "portrait": {"median": 6, "p95": 10.9},
+    "landscape": {"median": 7, "p95": 9.7}
+  },
+  "published": false,
+  "merged": false
+}

@@ -4,7 +4,7 @@ import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
 import { AIM, HeroAim, heroAim, aimDir } from './art/hero-aim';
-import { weaponIcon, pickupIcon, glow, lightSprite, explosionSheet, flameSheet, FX_FRAMES } from './art/fx';
+import { weaponIcon, pickupIcon, glow, explosionSheet, flameSheet, FX_FRAMES } from './art/fx';
 import { tinted, makeCanvas, rawCanvas } from './art/draw';
 import { G } from './art/tiles';
 import { Img } from './assets';
@@ -12,6 +12,7 @@ import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 import { AFFIX_INFO } from './enemy-affixes';
 import {arcadeStaffSheet} from './art/arcade-staff';
+import {orderWorldItems,overlapsWorldItems as overlap,behindWorldItem as behind} from './render-order';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -55,8 +56,6 @@ function spriteTop(img: Img): number {
 export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  light: HTMLCanvasElement;
-  lctx: CanvasRenderingContext2D;
   hero: Sheet;
   heroSil: HTMLCanvasElement;
   heroFlash: HTMLCanvasElement;
@@ -66,7 +65,6 @@ export class Renderer {
   minimap: HTMLCanvasElement | null = null;
   private renderedMap: GameMap | null = null;
   private minimapGrid = MAP_H;
-  vignette: HTMLCanvasElement | null = null;
   leaves: { x: number; y: number; vx: number; vy: number; r: number; c: string }[] = [];
   dpr = 1;
   t = 0;
@@ -80,9 +78,6 @@ export class Renderer {
   constructor(canvas: HTMLCanvasElement, heroIdx: number) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
-    const l = makeCanvas(4, 4);
-    this.light = l.c;
-    this.lctx = l.ctx;
     this.heroIdx = heroIdx;
     this.hero = heroSheet(heroIdx);
     this.heroSil = tinted(this.hero.img, '#7fd8ff', 1);
@@ -117,16 +112,6 @@ export class Renderer {
     this.minimap = c;
   }
 
-  private buildVignette(w: number, h: number) {
-    const { c, ctx } = makeCanvas(w, h);
-    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.7);
-    g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,8,0.75)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
-    this.vignette = c;
-  }
-
   render(g: Game, dt: number) {
     // Release large effect canvases when their family leaves the street. Base art
     // remains loaded; a 24-wave run must not retain three extra copies of every sheet.
@@ -139,14 +124,9 @@ export class Renderer {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.dpr = dpr;
     const vw = cv.clientWidth, vh = cv.clientHeight;
-    // also size our own layers on the first frame: a restarted run reuses a canvas that is already the right size,
-    // and a 4x4 light layer stretched over the screen was the "no flashlight, dark blob" bug on the second game
-    if (cv.width !== Math.floor(vw * dpr) || cv.height !== Math.floor(vh * dpr) || this.light.width !== Math.ceil(Math.floor(vw * dpr) / 2) || !this.vignette) {
+    if (cv.width !== Math.floor(vw * dpr) || cv.height !== Math.floor(vh * dpr)) {
       cv.width = Math.floor(vw * dpr);
       cv.height = Math.floor(vh * dpr);
-      this.light.width = Math.ceil(cv.width / 2);
-      this.light.height = Math.ceil(cv.height / 2);
-      this.buildVignette(cv.width, cv.height);
     }
     if (!this.minimap || this.renderedMap !== g.map) { this.buildMinimap(g); this.renderedMap=g.map; }
     if (g.p.costume !== this.costume) {
@@ -176,6 +156,9 @@ export class Renderer {
     ctx.fillStyle = '#05060c';
     ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.imageSmoothingEnabled = true;
+    // The painted night scene is visible everywhere. Brightness lifts the scene
+    // uniformly; there is no black visibility mask or dark screen-edge vignette.
+    ctx.filter = settings.bright > 0 ? `brightness(${1 + settings.bright * 0.2})` : 'none';
     ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * (vw / 2 - camX * zoom), dpr * (vh / 2 - camY * zoom));
 
     // view bounds in world px
@@ -513,30 +496,7 @@ export class Renderer {
         ctx.restore();
       } });
     }
-    items.sort((a, b) => a.key - b.key);
-    bigs.sort((a, b) => a.big!.x0 + a.big!.fw + a.big!.y0 + a.big!.fh - (b.big!.x0 + b.big!.fw + b.big!.y0 + b.big!.fh));
-    const overlap = (a: Item, b: Item) => a.bx1 > b.bx0 && a.bx0 < b.bx1 && a.by1 > b.by0 && a.by0 < b.by1;
-    const behind = (a: Item, B: PropInst) => {
-      if (a.big) {
-        const A = a.big;
-        if (A.x0 + A.fw <= B.x0 || A.y0 + A.fh <= B.y0) return true;
-        return false;
-      }
-      return a.x < B.x0 + B.fw && a.y < B.y0 + B.fh;
-    };
-    let order = items;
-    for (const B of bigs) {
-      const bp = B.big!;
-      let pos = 0;
-      for (let i = 0; i < order.length; i++) if (overlap(order[i], B) && behind(order[i], bp)) pos = i + 1;
-      const before: Item[] = [], moved: Item[] = [];
-      for (let i = 0; i < pos; i++) {
-        const it = order[i];
-        if (overlap(it, B) && !behind(it, bp)) moved.push(it);
-        else before.push(it);
-      }
-      order = before.concat([B], moved, order.slice(pos));
-    }
+    const order = orderWorldItems(items, bigs);
     // fading of occluders in front of the player (the "mask" effect)
     // A building only fades when the kid's body is actually inside its silhouette (footprint + walls as a hexagon),
     // not merely inside its sprite's bounding box: standing beside a house must not dim it.
@@ -642,8 +602,7 @@ export class Renderer {
     }
     ctx.restore();
 
-    // ===== lighting =====
-    this.drawLighting(g, toS, zoom, vw, vh, camX, camY);
+    ctx.filter = 'none';
 
     // ===== additive & unlit pass (world space) =====
     ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * (vw / 2 - camX * zoom), dpr * (vh / 2 - camY * zoom));
@@ -1236,9 +1195,8 @@ export class Renderer {
     }
     ctx.globalAlpha = 1;
 
-    // vignette + hurt
+    // Damage feedback only: do not darken the edges of the visible world.
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (this.vignette) ctx.drawImage(this.vignette, 0, 0);
     if (p.hurtT > 0 || p.hp < g.stats.maxHp * 0.25) {
       const a = p.hurtT > 0 ? p.hurtT * 1.6 : 0.18 + Math.sin(this.t * 5) * 0.08;
       const gr = ctx.createRadialGradient(cv.width / 2, cv.height / 2, cv.height * 0.3, cv.width / 2, cv.height / 2, cv.height * 0.8);
@@ -1369,75 +1327,6 @@ export class Renderer {
       ctx.moveTo(x, y - 15); ctx.lineTo(x, y - 5); ctx.moveTo(x, y + 5); ctx.lineTo(x, y + 15);
       ctx.stroke();
     }
-  }
-
-  private drawLighting(g: Game, toS: (x: number, y: number) => [number, number], zoom: number, vw: number, vh: number, camX: number, camY: number) {
-    const L = this.lctx, lc = this.light;
-    const k = (lc.width / vw);
-    L.setTransform(1, 0, 0, 1, 0, 0);
-    L.globalCompositeOperation = 'source-over';
-    L.fillStyle = `rgba(5,7,24,${(0.78 * (1 - settings.bright * 0.45)).toFixed(3)})`;
-    L.fillRect(0, 0, lc.width, lc.height);
-    L.globalCompositeOperation = 'destination-out';
-    const spr = lightSprite();
-    const light = (wx: number, wy: number, r: number, i: number, lift = 0) => {
-      const [sx, sy] = toS(isoX(wx, wy), isoY(wx, wy) - lift);
-      const rx = r * HW * 1.42 * zoom * k, ry = r * HH * 1.42 * zoom * k;
-      const x = sx * k, y = sy * k;
-      if (x + rx < 0 || y + ry < 0 || x - rx > lc.width || y - ry > lc.height) return;
-      L.globalAlpha = Math.min(1, i);
-      L.drawImage(spr, x - rx, y - ry, rx * 2, ry * 2);
-    };
-    const p = g.p;
-    for (const s of g.map.lights) {
-      const fl = s.flicker ? 0.85 + Math.sin(this.t * 13 + s.x * 7) * 0.08 + Math.sin(this.t * 31 + s.y) * 0.05 : 1;
-      // street lamps, porch lights and lit windows clear the dark (almost) completely, dim ones just a bit less
-      light(s.x, s.y, s.r, (0.6 + s.i * 0.45) * fl);
-    }
-    light(p.x, p.y, 3.4, 1, 20);
-    // flashlight cone
-    {
-      const [sx, sy] = toS(isoX(p.x, p.y), isoY(p.x, p.y) - 30);
-      const a = Math.atan2(isoY(p.aimX, p.aimY), isoX(p.aimX, p.aimY));
-      const R = 8.5 * HW * zoom * k;
-      const x = sx * k, y = sy * k;
-      const gr = L.createRadialGradient(x, y, 0, x, y, R);
-      gr.addColorStop(0, 'rgba(255,255,255,0.9)');
-      gr.addColorStop(0.6, 'rgba(255,255,255,0.5)');
-      gr.addColorStop(1, 'rgba(255,255,255,0)');
-      L.globalAlpha = 0.85;
-      L.fillStyle = gr;
-      L.beginPath();
-      L.moveTo(x, y);
-      L.arc(x, y, R, a - 0.42, a + 0.42);
-      L.closePath();
-      L.fill();
-    }
-    for (const b of g.bullets) if (b.kind === 'fire' || b.kind === 'rocket' || b.kind === 'balloon' || b.kind === 'water' || b.kind === 'disc' || b.kind === 'void' || b.kind === 'shell' || b.kind === 'flame' || b.kind === 'missile' || b.kind === 'glaive') light(b.x, b.y, b.kind === 'void' ? 2 : 1.2, 0.6);
-    for (const pr of g.map.props) if (pr.burnT || pr.boomT !== undefined) light(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2, Math.max(pr.fw, pr.fh) * (pr.boomT !== undefined ? 2.2 : 1.3) + 1, pr.boomT !== undefined ? 1 : 0.5 + Math.min(0.4, pr.burnT ?? 0));
-    for (const z of g.zones) {
-      if (z.kind === 'boom') light(z.x, z.y, z.r * 2.2, 1 - z.t / z.life);
-      else if (z.kind === 'fire') light(z.x, z.y, z.r * 1.6, 0.7);
-      else if (z.kind === 'flash') light(z.x, z.y, z.r, 1 - z.t / z.life);
-      else if (z.kind === 'tornado') light(z.x, z.y, z.r * 1.4, 0.4);
-      else if (z.kind === 'vortex') light(z.x, z.y, z.r * 0.9, 0.7);
-      else if (z.kind === 'trail' && z.wake) light(z.x1 ?? z.x, z.y1 ?? z.y, 0.7, (1 - z.t / z.life) * 0.25);
-      else if (z.kind === 'trail') light(z.x1 ?? z.x, z.y1 ?? z.y, 0.7, (1 - z.t / z.life) * 0.25);
-    }
-    for (const b of g.ebullets) light(b.x, b.y, 0.9, 0.7);
-    for (const e of g.enemies) {
-      if (e.burnT > 0) light(e.x, e.y, 1.3, 0.6);
-      if (e.def.boss) light(e.x, e.y, 4, 0.9);
-      else if (e.type === 'ghost') light(e.x, e.y, 1.0, 0.35);
-    }
-    for (const q of g.particles) if (q.kind === 'glow' && q.size > 10) light(q.x, q.y, 1.0, (q.life / q.max) * 0.6);
-    for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') light(k2.x, k2.y, 1.3 + (k2.weapon?.rarity ?? 0) * 0.25, 0.65 + (k2.weapon?.rarity ?? 0) * 0.07);
-    L.globalAlpha = 1;
-    L.globalCompositeOperation = 'source-over';
-    const ctx = this.ctx;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.drawImage(lc, 0, 0, this.canvas.width, this.canvas.height);
-    void camX; void camY; void vh;
   }
 
   private drawHeroFrame(img: Img, g: Game, sx: number, sy: number) {

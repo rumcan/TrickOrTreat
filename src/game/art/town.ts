@@ -70,7 +70,10 @@ export function getTownProp(id:TownAssetId):PropSprite{
  const {a,w,h,ax,ay}=townGeometry(id);
  if(a.kind==='decal')throw Error('Use getTownDecal for ground overlays');
  const entry=propAsset({key:'town_'+id,file:'town/'+id+'.png',category:'prop',w,h,anchor:[ax,ay],footprint:[a.fw,a.fh],desc:a.name,prompt:a.look},()=>drawTownGuide(id));
- const sp={img:entry.img,ax:entry.anchor[0],ay:entry.anchor[1],w:entry.w,h:entry.h,fw:a.fw,fh:a.fh,lights:a.kind==='building'?[{x:a.fw/2,y:a.fh+.35,r:3,color:'#ffd896',i:.75}]:[]};
+ // Bikes should be kid-sized, not taller than the school doors. Scale every
+ // draw dimension, ground anchor AND collision footprint together; retain PNG masters.
+ const scale=id==='bike_rack'?.5:1;
+ const sp={img:entry.img,ax:entry.anchor[0]*scale,ay:entry.anchor[1]*scale,w:entry.w*scale,h:entry.h*scale,fw:a.fw*scale,fh:a.fh*scale,lights:a.kind==='building'?[{x:a.fw/2,y:a.fh+.35,r:3,color:'#ffd896',i:.75}]:[]};
  cache.set(id,sp);return sp;
 }
 export function getTownDecal(id:TownAssetId){

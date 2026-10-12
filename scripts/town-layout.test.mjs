@@ -74,7 +74,6 @@ try{
   const [x,y]=positions[i];
   await page.evaluate(async({x,y})=>{
    const {game:g,renderer}=window.__tot;
-   if(window.__townOriginalLighting)renderer.drawLighting=window.__townOriginalLighting;
    const {buildMap}=await import('/src/game/map.ts');
    if(!window.__townReviewMap){
     const m=buildMap(1337,true);window.__townReviewMap=m;
@@ -87,11 +86,7 @@ try{
    renderer.render(g,0);
   },{x,y});
   await page.locator('canvas').first().screenshot({path:'art/town/checks/sections/'+sections[i].id+'.png'});
-  await page.evaluate(()=>{
-   const {game:g,renderer:r}=window.__tot;
-   window.__townOriginalLighting ||= r.drawLighting;
-   r.drawLighting=()=>{};r.render(g,0);
-  });
+  // Gameplay now has no black lighting mask; the same scene is visible in both views.
   await page.locator('canvas').first().screenshot({path:'art/town/checks/sections/'+sections[i].id+'-placement.png'});
  }
  for(let batch=0;batch<3;batch++){
@@ -103,7 +98,6 @@ try{
   await sharp({create:{width:1440,height:900,channels:3,background:'#101923'}}).composite(layers).png().toFile('art/town/checks/section-contact-'+batch+'.png');
  }
  const mobile=[];
- await page.evaluate(()=>{window.__tot.renderer.drawLighting=window.__townOriginalLighting;});
  for(const [width,height]of [[390,844],[844,390]]){
   await page.setViewportSize({width,height});
   const measure=await page.evaluate(()=>{
