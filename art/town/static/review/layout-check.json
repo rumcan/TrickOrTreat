@@ -1,25 +1,26 @@
 {
   "audit": {
     "districts": 9,
+    "streets": 12,
     "buildings": 37,
-    "homes": 14,
-    "garages": 14,
-    "separateOccluders": 1028,
-    "props": 1199,
-    "roadTiles": 986,
+    "homes": 18,
+    "garages": 9,
+    "separateOccluders": 1030,
+    "props": 1229,
+    "roadTiles": 1460,
+    "smoothStreetTiles": 2403,
     "protectedAreas": [
       "Pumpkin rows",
-      "Football field",
       "Playground",
       "Church & cemetery",
+      "Fountain plaza",
       "Moonlight park",
-      "Drive-in interior"
+      "Drive-in field"
     ],
     "roadConflicts": 0,
     "unreachableDoors": [],
-    "drivewaysConnected": 14,
+    "drivewaysConnected": 9,
     "vehicleVariants": 7,
-    "frontAndRearShops": true,
     "liveGameplayChanged": false
   },
   "fading": {

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maple Falls — reference-image pipeline</title>
+<style>
+body{background:#0c1721;color:#fff;font:16px system-ui;margin:0;padding:24px}h1{color:#ffb450;font-size:26px}p{max-width:850px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}article{background:#172936;border:1px solid #486574;padding:12px}img{width:100%;height:230px;object-fit:contain;background:#08111a}a{color:#a8e1ff}small{color:#b9c9d3}button{background:#f68b25;color:#111;border:0;padding:12px 18px;cursor:pointer;margin:4px}dialog{background:#0c1721;color:white;width:90vw;max-width:1500px}dialog img{height:75vh}header{position:sticky;top:0;background:#0c1721;padding:8px 0}body[data-mode="source"] .generated,body[data-mode="generated"] .source{display:none}
+</style>
+<h1>Maple Falls — individual high-resolution objects</h1>
+<p>Every building has its own transparent PNG master. Mixed-sheet building cutouts are rejected. These are artwork assets, not yet the playable map: placement, collision and ground registration remain to be checked.</p>
+<header><strong id="status">Loading…</strong><div><button data-category="objects">Individual buildings & landmarks</button><button data-category="zooms">Quadrant comparisons</button><button data-category="studies">Ground & earlier studies</button></div><div><button data-mode="both">Compare</button><button data-mode="source">Exact source crops</button><button data-mode="generated">Generated artwork</button></div></header>
+<main class="grid" id="grid"></main><dialog><button id="close">Close</button><img id="large" alt="Enlarged artwork"></dialog>
+<script type="module">
+const q=await(await fetch('./queue.json')).json(),s=await(await fetch('./status.json')).json(),objects=await(await fetch('./objects.json')).json();
+const generatedObjects=objects.objects.filter(o=>q.studies.some(j=>j.id===(o.master||o.id))).length;
+document.querySelector('#status').textContent=`${generatedObjects}/${objects.objects.length} individual objects generated · ${s.generated}/${s.total} zooms · ${s.registered} registered`;
+const grid=document.querySelector('#grid');
+function add(id,source,generated,note,master){const a=document.createElement('article'),h=document.createElement('h2');h.textContent=id;a.append(h);for(const [file,cls]of [[source,'source'],[generated,'generated']])if(file){const im=document.createElement('img');im.src='/'+file;im.className=cls;im.alt=id+' '+cls;im.loading='lazy';im.onclick=()=>{document.querySelector('#large').src=master?'/'+master:im.src;document.querySelector('dialog').showModal()};a.append(im);}const p=document.createElement('p');p.textContent=note;a.append(p);grid.append(a)}
+function render(category){grid.replaceChildren();
+if(category==='objects')for(const o of objects.objects){const found=q.studies.find(j=>j.id===(o.master||o.id));add(o.id,null,o.preview||found?.path,found?`${found.width} × ${found.height} native PNG · ${o.check?o.check.nativeLongestEdge+'px visible object · ':''}registration unchecked${o.visualIssues?.length?' · NEEDS REVISION: '+o.visualIssues.join('; '):''}`:'Generation pending',found?.path);}
+if(category==='zooms')for(const j of q.jobs)add(j.id,j.exactCrop,j.artifact?.path,`${j.status} · depth ${j.depth} · registration: ${j.registration}`);
+if(category==='studies')for(const j of q.studies.filter(j=>!/^(building|landmark)-/.test(j.id)))add(j.id,null,j.path,j.id.includes('atlas')?'Mixed-sheet study only: NOT approved for buildings':'Ground study · registration unchecked');
+}
+render('objects');document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>render(b.dataset.category));
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>document.body.dataset.mode=b.dataset.mode);
+document.querySelector('#close').onclick=()=>document.querySelector('dialog').close();
+</script></html>

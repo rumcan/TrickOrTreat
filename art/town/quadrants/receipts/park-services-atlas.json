@@ -1,0 +1,13 @@
+{
+  "id": "park-services-atlas",
+  "path": "art/town/quadrants/generated/park-services-atlas.png",
+  "sha256": "9c6bf851725dadaed64359f0d22801d84787efabfd90c9e652936f13183cf4d6",
+  "bytes": 1267048,
+  "width": 1774,
+  "height": 887,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked"
+}

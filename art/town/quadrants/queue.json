@@ -1,0 +1,2653 @@
+{
+  "version": 1,
+  "source": {
+    "path": "art/town/static/ground/trace/town-reference.png",
+    "sha256": "4412556daef9e82895f9d2c9d8c64ddcab50ed4005f7d3f63059c1ddc659f877",
+    "bytes": 2762352,
+    "width": 1672,
+    "height": 941,
+    "hasAlpha": false,
+    "transparentPixels": false
+  },
+  "quadrantOrder": [
+    "top left",
+    "top right",
+    "bottom left",
+    "bottom right"
+  ],
+  "note": "Exact source bounds are bookkeeping, not proof that AI output is registered. Never auto-approve.",
+  "jobs": [
+    {
+      "id": "1_1",
+      "parent": "1",
+      "depth": 1,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 836,
+        "height": 470
+      },
+      "uv": [
+        0,
+        0,
+        0.5,
+        0.49946865037194477
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1.png",
+      "prompt": "art/town/quadrants/prompts/1_1.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_1.png",
+        "sha256": "d11e75b96145c1f52e8305f8c797ccc1406f8411185af487c345dff66846d5b4",
+        "bytes": 3091653,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_1_1",
+      "parent": "1_1",
+      "depth": 2,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0,
+        0,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_1.png",
+      "prompt": "art/town/quadrants/prompts/1_1_1.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_1_1.png",
+        "sha256": "5049ee649bfaffeb8b3fa04aa8e21d295d877935c992bf4e3c50e2c20c128bd3",
+        "bytes": 2522741,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_1_1_1",
+      "parent": "1_1_1",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_1_1.png",
+      "prompt": "art/town/quadrants/prompts/1_1_1_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_1_2",
+      "parent": "1_1_1",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 209,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.125,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_1_2.png",
+      "prompt": "art/town/quadrants/prompts/1_1_1_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_1_3",
+      "parent": "1_1_1",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_1_3.png",
+      "prompt": "art/town/quadrants/prompts/1_1_1_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_1_4",
+      "parent": "1_1_1",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 209,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.125,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_1_4.png",
+      "prompt": "art/town/quadrants/prompts/1_1_1_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_2",
+      "parent": "1_1",
+      "depth": 2,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 418,
+        "top": 0,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.25,
+        0,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_2.png",
+      "prompt": "art/town/quadrants/prompts/1_1_2.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_1_2.png",
+        "sha256": "1a54a5d8cc98f8326a4e20ce6efc3ff3afa887f8e3bef05c84be8424af55d188",
+        "bytes": 2575075,
+        "width": 1673,
+        "height": 940,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_1_2_1",
+      "parent": "1_1_2",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 418,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.25,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_2_1.png",
+      "prompt": "art/town/quadrants/prompts/1_1_2_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_2_2",
+      "parent": "1_1_2",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 627,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.375,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_2_2.png",
+      "prompt": "art/town/quadrants/prompts/1_1_2_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_2_3",
+      "parent": "1_1_2",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 418,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.25,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_2_3.png",
+      "prompt": "art/town/quadrants/prompts/1_1_2_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_2_4",
+      "parent": "1_1_2",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 627,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.375,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_2_4.png",
+      "prompt": "art/town/quadrants/prompts/1_1_2_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_3",
+      "parent": "1_1",
+      "depth": 2,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 235,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0,
+        0.24973432518597238,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_3.png",
+      "prompt": "art/town/quadrants/prompts/1_1_3.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_1_3.png",
+        "sha256": "80dd5e24f5982cf7803db2521de9fbd1a62194cf28b1dd5ed90f6ed6575486f7",
+        "bytes": 2685802,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_1_3_1",
+      "parent": "1_1_3",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_3_1.png",
+      "prompt": "art/town/quadrants/prompts/1_1_3_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_3_2",
+      "parent": "1_1_3",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 209,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.125,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_3_2.png",
+      "prompt": "art/town/quadrants/prompts/1_1_3_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_3_3",
+      "parent": "1_1_3",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_3_3.png",
+      "prompt": "art/town/quadrants/prompts/1_1_3_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_3_4",
+      "parent": "1_1_3",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 209,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.125,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_3_4.png",
+      "prompt": "art/town/quadrants/prompts/1_1_3_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_4",
+      "parent": "1_1",
+      "depth": 2,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 418,
+        "top": 235,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.25,
+        0.24973432518597238,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_4.png",
+      "prompt": "art/town/quadrants/prompts/1_1_4.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_1_4.png",
+        "sha256": "5ad141cd773e17487956cb59812b941baf274bdf52ef16b9b34ededdbf0d55c1",
+        "bytes": 3149922,
+        "width": 1672,
+        "height": 940,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_1_4_1",
+      "parent": "1_1_4",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 418,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.25,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_4_1.png",
+      "prompt": "art/town/quadrants/prompts/1_1_4_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_4_2",
+      "parent": "1_1_4",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 627,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.375,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_4_2.png",
+      "prompt": "art/town/quadrants/prompts/1_1_4_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_4_3",
+      "parent": "1_1_4",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 418,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.25,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_4_3.png",
+      "prompt": "art/town/quadrants/prompts/1_1_4_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_1_4_4",
+      "parent": "1_1_4",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 627,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.375,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_1_4_4.png",
+      "prompt": "art/town/quadrants/prompts/1_1_4_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2",
+      "parent": "1",
+      "depth": 1,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 836,
+        "top": 0,
+        "width": 836,
+        "height": 470
+      },
+      "uv": [
+        0.5,
+        0,
+        0.5,
+        0.49946865037194477
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2.png",
+      "prompt": "art/town/quadrants/prompts/1_2.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_2.png",
+        "sha256": "7aabaf6646a6b9f4bbd09d5ac191483383f1edd0bc8ce0143491d9fa81b1b01e",
+        "bytes": 3032951,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_2_1",
+      "parent": "1_2",
+      "depth": 2,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 836,
+        "top": 0,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.5,
+        0,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_1.png",
+      "prompt": "art/town/quadrants/prompts/1_2_1.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_2_1.png",
+        "sha256": "2130c57fa1329c222bc90ac40366cebacd2d8bbf674c45dd6e98e5aa64074541",
+        "bytes": 2775551,
+        "width": 1671,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_2_1_1",
+      "parent": "1_2_1",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 836,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.5,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_1_1.png",
+      "prompt": "art/town/quadrants/prompts/1_2_1_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_1_2",
+      "parent": "1_2_1",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1045,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.625,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_1_2.png",
+      "prompt": "art/town/quadrants/prompts/1_2_1_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_1_3",
+      "parent": "1_2_1",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 836,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.5,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_1_3.png",
+      "prompt": "art/town/quadrants/prompts/1_2_1_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_1_4",
+      "parent": "1_2_1",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1045,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.625,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_1_4.png",
+      "prompt": "art/town/quadrants/prompts/1_2_1_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_2",
+      "parent": "1_2",
+      "depth": 2,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1254,
+        "top": 0,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.75,
+        0,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_2.png",
+      "prompt": "art/town/quadrants/prompts/1_2_2.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_2_2.png",
+        "sha256": "4244ed9d92aeb80ffaa84c2be012ab184a71275585d1afdc521ed124e6aa7ae4",
+        "bytes": 2287142,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_2_2_1",
+      "parent": "1_2_2",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 1254,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.75,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_2_1.png",
+      "prompt": "art/town/quadrants/prompts/1_2_2_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_2_2",
+      "parent": "1_2_2",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1463,
+        "top": 0,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.875,
+        0,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_2_2.png",
+      "prompt": "art/town/quadrants/prompts/1_2_2_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_2_3",
+      "parent": "1_2_2",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 1254,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.75,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_2_3.png",
+      "prompt": "art/town/quadrants/prompts/1_2_2_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_2_4",
+      "parent": "1_2_2",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1463,
+        "top": 117,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.875,
+        0.12433581296493093,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_2_4.png",
+      "prompt": "art/town/quadrants/prompts/1_2_2_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_3",
+      "parent": "1_2",
+      "depth": 2,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 836,
+        "top": 235,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.5,
+        0.24973432518597238,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_3.png",
+      "prompt": "art/town/quadrants/prompts/1_2_3.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_2_3_1",
+      "parent": "1_2_3",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 836,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.5,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_3_1.png",
+      "prompt": "art/town/quadrants/prompts/1_2_3_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_3_2",
+      "parent": "1_2_3",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1045,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.625,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_3_2.png",
+      "prompt": "art/town/quadrants/prompts/1_2_3_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_3_3",
+      "parent": "1_2_3",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 836,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.5,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_3_3.png",
+      "prompt": "art/town/quadrants/prompts/1_2_3_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_3_4",
+      "parent": "1_2_3",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1045,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.625,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_3_4.png",
+      "prompt": "art/town/quadrants/prompts/1_2_3_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_4",
+      "parent": "1_2",
+      "depth": 2,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1254,
+        "top": 235,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.75,
+        0.24973432518597238,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_4.png",
+      "prompt": "art/town/quadrants/prompts/1_2_4.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_2_4_1",
+      "parent": "1_2_4",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 1254,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.75,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_4_1.png",
+      "prompt": "art/town/quadrants/prompts/1_2_4_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_4_2",
+      "parent": "1_2_4",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1463,
+        "top": 235,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.875,
+        0.24973432518597238,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_4_2.png",
+      "prompt": "art/town/quadrants/prompts/1_2_4_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_4_3",
+      "parent": "1_2_4",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 1254,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.75,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_4_3.png",
+      "prompt": "art/town/quadrants/prompts/1_2_4_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_2_4_4",
+      "parent": "1_2_4",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1463,
+        "top": 352,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.875,
+        0.3740701381509033,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_2_4_4.png",
+      "prompt": "art/town/quadrants/prompts/1_2_4_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3",
+      "parent": "1",
+      "depth": 1,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 470,
+        "width": 836,
+        "height": 471
+      },
+      "uv": [
+        0,
+        0.49946865037194477,
+        0.5,
+        0.5005313496280552
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3.png",
+      "prompt": "art/town/quadrants/prompts/1_3.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_3.png",
+        "sha256": "6d8c4e729affc83c3a948bb73db4f1668a3b03425dee1e097199667a7a5213d2",
+        "bytes": 2903769,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_3_1",
+      "parent": "1_3",
+      "depth": 2,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 470,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0,
+        0.49946865037194477,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_1.png",
+      "prompt": "art/town/quadrants/prompts/1_3_1.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_3_1.png",
+        "sha256": "c96b303a88ccb0085d6ad9fb45c55255261117ba47a4d97f7f68ea2cf59a5b72",
+        "bytes": 2577140,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_3_1_1",
+      "parent": "1_3_1",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_1_1.png",
+      "prompt": "art/town/quadrants/prompts/1_3_1_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_1_2",
+      "parent": "1_3_1",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 209,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.125,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_1_2.png",
+      "prompt": "art/town/quadrants/prompts/1_3_1_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_1_3",
+      "parent": "1_3_1",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_1_3.png",
+      "prompt": "art/town/quadrants/prompts/1_3_1_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_1_4",
+      "parent": "1_3_1",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 209,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.125,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_1_4.png",
+      "prompt": "art/town/quadrants/prompts/1_3_1_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_2",
+      "parent": "1_3",
+      "depth": 2,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 418,
+        "top": 470,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.25,
+        0.49946865037194477,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_2.png",
+      "prompt": "art/town/quadrants/prompts/1_3_2.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_3_2_1",
+      "parent": "1_3_2",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 418,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.25,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_2_1.png",
+      "prompt": "art/town/quadrants/prompts/1_3_2_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_2_2",
+      "parent": "1_3_2",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 627,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.375,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_2_2.png",
+      "prompt": "art/town/quadrants/prompts/1_3_2_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_2_3",
+      "parent": "1_3_2",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 418,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.25,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_2_3.png",
+      "prompt": "art/town/quadrants/prompts/1_3_2_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_2_4",
+      "parent": "1_3_2",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 627,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.375,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_2_4.png",
+      "prompt": "art/town/quadrants/prompts/1_3_2_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_3",
+      "parent": "1_3",
+      "depth": 2,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 705,
+        "width": 418,
+        "height": 236
+      },
+      "uv": [
+        0,
+        0.7492029755579172,
+        0.25,
+        0.2507970244420829
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_3.png",
+      "prompt": "art/town/quadrants/prompts/1_3_3.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_3_3_1",
+      "parent": "1_3_3",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 0,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_3_1.png",
+      "prompt": "art/town/quadrants/prompts/1_3_3_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_3_2",
+      "parent": "1_3_3",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 209,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.125,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_3_2.png",
+      "prompt": "art/town/quadrants/prompts/1_3_3_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_3_3",
+      "parent": "1_3_3",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 0,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_3_3.png",
+      "prompt": "art/town/quadrants/prompts/1_3_3_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_3_4",
+      "parent": "1_3_3",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 209,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.125,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_3_4.png",
+      "prompt": "art/town/quadrants/prompts/1_3_3_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_4",
+      "parent": "1_3",
+      "depth": 2,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 418,
+        "top": 705,
+        "width": 418,
+        "height": 236
+      },
+      "uv": [
+        0.25,
+        0.7492029755579172,
+        0.25,
+        0.2507970244420829
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_4.png",
+      "prompt": "art/town/quadrants/prompts/1_3_4.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_3_4_1",
+      "parent": "1_3_4",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 418,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.25,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_4_1.png",
+      "prompt": "art/town/quadrants/prompts/1_3_4_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_4_2",
+      "parent": "1_3_4",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 627,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.375,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_4_2.png",
+      "prompt": "art/town/quadrants/prompts/1_3_4_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_4_3",
+      "parent": "1_3_4",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 418,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.25,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_4_3.png",
+      "prompt": "art/town/quadrants/prompts/1_3_4_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_3_4_4",
+      "parent": "1_3_4",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 627,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.375,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_3_4_4.png",
+      "prompt": "art/town/quadrants/prompts/1_3_4_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4",
+      "parent": "1",
+      "depth": 1,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 836,
+        "top": 470,
+        "width": 836,
+        "height": 471
+      },
+      "uv": [
+        0.5,
+        0.49946865037194477,
+        0.5,
+        0.5005313496280552
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4.png",
+      "prompt": "art/town/quadrants/prompts/1_4.txt",
+      "status": "generated",
+      "registration": "unchecked",
+      "artifact": {
+        "path": "art/town/quadrants/generated/1_4.png",
+        "sha256": "0aef25f2866e83745ce4df7a7c1ea3ebc27d56a93f67b830af9bd88cd5381e80",
+        "bytes": 3059493,
+        "width": 1672,
+        "height": 941,
+        "hasAlpha": false,
+        "transparentPixels": false
+      }
+    },
+    {
+      "id": "1_4_1",
+      "parent": "1_4",
+      "depth": 2,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 836,
+        "top": 470,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.5,
+        0.49946865037194477,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_1.png",
+      "prompt": "art/town/quadrants/prompts/1_4_1.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_4_1_1",
+      "parent": "1_4_1",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 836,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.5,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_1_1.png",
+      "prompt": "art/town/quadrants/prompts/1_4_1_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_1_2",
+      "parent": "1_4_1",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1045,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.625,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_1_2.png",
+      "prompt": "art/town/quadrants/prompts/1_4_1_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_1_3",
+      "parent": "1_4_1",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 836,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.5,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_1_3.png",
+      "prompt": "art/town/quadrants/prompts/1_4_1_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_1_4",
+      "parent": "1_4_1",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1045,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.625,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_1_4.png",
+      "prompt": "art/town/quadrants/prompts/1_4_1_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_2",
+      "parent": "1_4",
+      "depth": 2,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1254,
+        "top": 470,
+        "width": 418,
+        "height": 235
+      },
+      "uv": [
+        0.75,
+        0.49946865037194477,
+        0.25,
+        0.24973432518597238
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_2.png",
+      "prompt": "art/town/quadrants/prompts/1_4_2.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_4_2_1",
+      "parent": "1_4_2",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 1254,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.75,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_2_1.png",
+      "prompt": "art/town/quadrants/prompts/1_4_2_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_2_2",
+      "parent": "1_4_2",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1463,
+        "top": 470,
+        "width": 209,
+        "height": 117
+      },
+      "uv": [
+        0.875,
+        0.49946865037194477,
+        0.125,
+        0.12433581296493093
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_2_2.png",
+      "prompt": "art/town/quadrants/prompts/1_4_2_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_2_3",
+      "parent": "1_4_2",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 1254,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.75,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_2_3.png",
+      "prompt": "art/town/quadrants/prompts/1_4_2_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_2_4",
+      "parent": "1_4_2",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1463,
+        "top": 587,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.875,
+        0.6238044633368757,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_2_4.png",
+      "prompt": "art/town/quadrants/prompts/1_4_2_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_3",
+      "parent": "1_4",
+      "depth": 2,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 836,
+        "top": 705,
+        "width": 418,
+        "height": 236
+      },
+      "uv": [
+        0.5,
+        0.7492029755579172,
+        0.25,
+        0.2507970244420829
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_3.png",
+      "prompt": "art/town/quadrants/prompts/1_4_3.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_4_3_1",
+      "parent": "1_4_3",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 836,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.5,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_3_1.png",
+      "prompt": "art/town/quadrants/prompts/1_4_3_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_3_2",
+      "parent": "1_4_3",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1045,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.625,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_3_2.png",
+      "prompt": "art/town/quadrants/prompts/1_4_3_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_3_3",
+      "parent": "1_4_3",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 836,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.5,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_3_3.png",
+      "prompt": "art/town/quadrants/prompts/1_4_3_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_3_4",
+      "parent": "1_4_3",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1045,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.625,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_3_4.png",
+      "prompt": "art/town/quadrants/prompts/1_4_3_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_4",
+      "parent": "1_4",
+      "depth": 2,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1254,
+        "top": 705,
+        "width": 418,
+        "height": 236
+      },
+      "uv": [
+        0.75,
+        0.7492029755579172,
+        0.25,
+        0.2507970244420829
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_4.png",
+      "prompt": "art/town/quadrants/prompts/1_4_4.txt",
+      "status": "pending",
+      "registration": "unchecked"
+    },
+    {
+      "id": "1_4_4_1",
+      "parent": "1_4_4",
+      "depth": 3,
+      "quadrant": 1,
+      "rootBounds": {
+        "left": 1254,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.75,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_4_1.png",
+      "prompt": "art/town/quadrants/prompts/1_4_4_1.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_4_2",
+      "parent": "1_4_4",
+      "depth": 3,
+      "quadrant": 2,
+      "rootBounds": {
+        "left": 1463,
+        "top": 705,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.875,
+        0.7492029755579172,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_4_2.png",
+      "prompt": "art/town/quadrants/prompts/1_4_4_2.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_4_3",
+      "parent": "1_4_4",
+      "depth": 3,
+      "quadrant": 3,
+      "rootBounds": {
+        "left": 1254,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.75,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_4_3.png",
+      "prompt": "art/town/quadrants/prompts/1_4_4_3.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    },
+    {
+      "id": "1_4_4_4",
+      "parent": "1_4_4",
+      "depth": 3,
+      "quadrant": 4,
+      "rootBounds": {
+        "left": 1463,
+        "top": 823,
+        "width": 209,
+        "height": 118
+      },
+      "uv": [
+        0.875,
+        0.8746014877789585,
+        0.125,
+        0.12539851222104145
+      ],
+      "exactCrop": "art/town/quadrants/crops/1_4_4_4.png",
+      "prompt": "art/town/quadrants/prompts/1_4_4_4.txt",
+      "status": "pending",
+      "registration": "unchecked",
+      "ground": "pending",
+      "atlas": "pending"
+    }
+  ],
+  "studies": [
+    {
+      "id": "church-atlas",
+      "path": "art/town/quadrants/generated/church-atlas.png",
+      "sha256": "0db9f6d2d825ab76a98cdffc0703093bc6e1b008ef5422823816724e5e6da6fe",
+      "bytes": 1427647,
+      "width": 1448,
+      "height": 1086,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "farm-school-atlas",
+      "path": "art/town/quadrants/generated/farm-school-atlas.png",
+      "sha256": "0589be64865e41818123ea65beb19a6dd25482c28c6b5207d156e72d8570f70f",
+      "bytes": 1581283,
+      "width": 1774,
+      "height": 887,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "main-street-atlas",
+      "path": "art/town/quadrants/generated/main-street-atlas.png",
+      "sha256": "85a75bb367e1f7389d76e130c5cee494687c895ef85aa46587181c9ed566649b",
+      "bytes": 1737167,
+      "width": 1774,
+      "height": 887,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "park-services-atlas",
+      "path": "art/town/quadrants/generated/park-services-atlas.png",
+      "sha256": "9c6bf851725dadaed64359f0d22801d84787efabfd90c9e652936f13183cf4d6",
+      "bytes": 1267048,
+      "width": 1774,
+      "height": 887,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "drive-in-homes-atlas",
+      "path": "art/town/quadrants/generated/drive-in-homes-atlas.png",
+      "sha256": "1e9a0ddfb734b21760b67c779539dec9fd4c858f9302ef38ca3f680a0693bab4",
+      "bytes": 1454222,
+      "width": 1774,
+      "height": 887,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "ground-1_1",
+      "path": "art/town/quadrants/generated/ground-1_1.png",
+      "sha256": "59bb83d125cf6a116eff2f2ea06ebae36cff5c88547ac8da9a21c896e2b8eee5",
+      "bytes": 2742795,
+      "width": 1672,
+      "height": 941,
+      "hasAlpha": false,
+      "transparentPixels": false,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "ground-1_2",
+      "path": "art/town/quadrants/generated/ground-1_2.png",
+      "sha256": "b07083634b5bcaf0a4e306559dc52c7e53ac8cdfdcfa3fe248d7be75e0ca0b50",
+      "bytes": 2645086,
+      "width": 1672,
+      "height": 941,
+      "hasAlpha": false,
+      "transparentPixels": false,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "ground-1_3",
+      "path": "art/town/quadrants/generated/ground-1_3.png",
+      "sha256": "9578e8096db81226381d7468bb2df4bbe92d7c5e2ba1f3ef5260d9de3a3be53b",
+      "bytes": 2762547,
+      "width": 1672,
+      "height": 941,
+      "hasAlpha": false,
+      "transparentPixels": false,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "ground-1_4",
+      "path": "art/town/quadrants/generated/ground-1_4.png",
+      "sha256": "b6bb7f4398ea292af0a78b862d888b3591f7bb17527cf211f2bedc53e9f8cd8a",
+      "bytes": 2955964,
+      "width": 1672,
+      "height": 941,
+      "hasAlpha": false,
+      "transparentPixels": false,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked"
+    },
+    {
+      "id": "building-church",
+      "path": "art/town/quadrants/generated/building-church.png",
+      "sha256": "4fc9a611b1b92c824956dbad44f4e27d407d485bf5a3a79721b527264977d999",
+      "bytes": 1154687,
+      "width": 1308,
+      "height": 1202,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the cream church with blue slate roof, tall steeple with glowing cross, amber arched windows, entrance porch and stone steps. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.\n"
+    },
+    {
+      "id": "building-school",
+      "path": "art/town/quadrants/generated/building-school.png",
+      "sha256": "ce0ed2114663c467c179357f29738dfd3b9fbeeb4c66b16e94a4e4121b32e8ce",
+      "bytes": 1725331,
+      "width": 1774,
+      "height": 887,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the entire connected red-brick primary school, with its two flat-roof classroom wings and amber lit windows. Exclude the basketball court, parked cars, flags and playground. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.\n"
+    },
+    {
+      "id": "building-barn",
+      "path": "art/town/quadrants/generated/building-barn.png",
+      "sha256": "a2a3a0e6e31041f2d42c73935c89606ae0badec5848d7486dba757f6e3e04997",
+      "bytes": 2201465,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the red timber barn with blue-grey gabled metal roof and warm lit barn doors. Exclude the adjacent silver silo, windmill, trees, fencing, tractors and field. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.\n"
+    },
+    {
+      "id": "building-corner-shop",
+      "path": "art/town/quadrants/generated/building-corner-shop.png",
+      "sha256": "a85251fdf113623cc0ff7da6bd9c58cb66dbd64ad6e74b1d1615e23bad999b13",
+      "bytes": 2127101,
+      "width": 1313,
+      "height": 1198,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the large two-story red-brick corner storefront at the bottom-right end of the main shop row, with blue flat roof, large amber shop windows and red-and-white striped awning. Extract only this one complete corner building, not its neighbouring shops. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.\n"
+    },
+    {
+      "id": "building-farmhouse",
+      "path": "art/town/quadrants/generated/building-farmhouse.png",
+      "sha256": "70c2a317ba8012d103de780b0046aa34d2f81e5be5c8631342db175d1e438945",
+      "bytes": 2025018,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the cream farmhouse near the barn, dark blue gabled roof, porch, glowing windows and entrance steps. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-farm-shed",
+      "path": "art/town/quadrants/generated/building-farm-shed.png",
+      "sha256": "f12eb447c73284f791c1c1ce403f92fe71b89849b47f7ffc5e5766bc3e73573b",
+      "bytes": 2008277,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small red timber farm shed beside the farmhouse, dark roof and warm-lit opening. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-gas-shop",
+      "path": "art/town/quadrants/generated/building-gas-shop.png",
+      "sha256": "96a035dea4d5fe7a62044080e302db988d1cf558117f611eff43f5ae4328fafd",
+      "bytes": 2047637,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small red-trim gas station convenience shop next to the pump canopy, no canopy or parked cars. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-diner",
+      "path": "art/town/quadrants/generated/building-diner.png",
+      "sha256": "009e215fa849400c4881597a2dbed535ee5f410e3f21a7eff27684b53bfdc515",
+      "bytes": 2024289,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete red-trim low roadside diner with flat roof, lit large windows, entrance and roof sign, no parking lot or freestanding sign. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-drive-in-screen",
+      "path": "art/town/quadrants/generated/building-drive-in-screen.png",
+      "sha256": "a4782d097b414909288db4e31c1496fc9f4e24f14ae2468391730023e6b11908",
+      "bytes": 1898202,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete tall drive-in cinema screen with support posts, lower amber bulbs and same silhouetted monster picture. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-gas-canopy",
+      "path": "art/town/quadrants/generated/building-gas-canopy.png",
+      "sha256": "0f154f93afdb0b2110765cfed2cc6d9746fddae77abc218f72f6b54d03d1296f",
+      "bytes": 2009336,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete red-trim gas pump canopy with supporting columns and pump islands, no neighbouring shop. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-snack-bar",
+      "path": "art/town/quadrants/generated/building-snack-bar.png",
+      "sha256": "344482961dc7768aca93781e1870b2da13056b91b6dc083ad4e7ca472d751353",
+      "bytes": 1618413,
+      "width": 1774,
+      "height": 887,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one-story red-trim cinema snack bar with flat blue roof and orange windows near the drive-in exit. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-barn-v2",
+      "path": "art/town/quadrants/generated/building-barn-v2.png",
+      "sha256": "e9d68db61e80bb5b478133a2a3e9de5afe08a7db2bb918a7fb84db230bb84d06",
+      "bytes": 2114426,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: precise-object-edit. Input image 1 is a transparent barn sprite edit target. Change ONLY the background alpha: remove ALL diffuse blue/brown haze, clouds, coloured atmosphere and the large blurred ground shadow outside the building. Every pixel outside the roof, walls, attached lean-to and wooden steps must be genuinely transparent except a narrow 2-pixel anti-aliased outline. Preserve the complete barn's exact geometry, fine detail, source native resolution, facing, window lights and night shading. Do not resize, redraw, add objects or put it on a terrain island. No backdrop or checkerboard. One building only, full-resolution standalone sprite.\n"
+    },
+    {
+      "id": "building-mausoleum",
+      "path": "art/town/quadrants/generated/building-mausoleum.png",
+      "sha256": "34ee2658216ed6bd400d62a5871c93fe68db9a67aa5f7aa55a38fccb753c0593",
+      "bytes": 1092893,
+      "width": 1401,
+      "height": 1123,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small stone cemetery mausoleum with blue-grey pitched roof and warm-lit door, no cemetery wall. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-grocery",
+      "path": "art/town/quadrants/generated/building-grocery.png",
+      "sha256": "a28e7b46d21988212fc8feeef95c475ffcbcda1a3afd5f9af1f7251c8001edf7",
+      "bytes": 1481859,
+      "width": 1387,
+      "height": 1134,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one individual narrow two-story red-brick Main Street shop near the center of the row, blue flat roof, glazed shopfront and striped awning, no adjacent shops. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-shop-blue",
+      "path": "art/town/quadrants/generated/building-shop-blue.png",
+      "sha256": "487c9eff9901fdd2ce3ff1f5fd27d0ed616ec2491a134186c01000b6d6bbcdc9",
+      "bytes": 1740640,
+      "width": 1362,
+      "height": 1155,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one individual blue-grey faced narrow two-story Main Street shop, blue flat roof, warm shopfront and striped awning, no adjacent buildings. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-corner-store",
+      "path": "art/town/quadrants/generated/building-corner-store.png",
+      "sha256": "01902a5b288f45133349fb8b083597e734c91a00b84218239f5cff6ab675a8de",
+      "bytes": 1987167,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the detached little two-story cream and orange corner store above the drive-in, flat blue roof, striped awning and glowing shop windows. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-house-cottage",
+      "path": "art/town/quadrants/generated/building-house-cottage.png",
+      "sha256": "3ce419512b6f9c9488dab79c0c2f4cc9fbf106695f54e8f7ebdb51a66fd14aaf",
+      "bytes": 1986679,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one small cream single-story cottage with dark blue gabled roof and orange windows from the lower-left houses, no garage. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-house-dormer",
+      "path": "art/town/quadrants/generated/building-house-dormer.png",
+      "sha256": "39d3d453e40993aaab6c337252d7c489c98de5524cd030f452a7364b6864d598",
+      "bytes": 1872366,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one medium cream home with blue roof, two dormers, timber entrance porch and warm windows from the residential blocks. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-house-garage",
+      "path": "art/town/quadrants/generated/building-house-garage.png",
+      "sha256": "746be16ccc53b440ae8e647d36b84e81baad293c0f3f6c51aa4740a6feee6ab5",
+      "bytes": 1905577,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one cream bungalow with an attached garage and dark blue roof; include the attached garage as part of this one building. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-house-large",
+      "path": "art/town/quadrants/generated/building-house-large.png",
+      "sha256": "3cbf1e6eb0c5bd3e675fb53637a86e576a36929d1d298e23b6403c2e5df0ee07",
+      "bytes": 2131662,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the large two-story cream home near the bottom-left residences, dark hipped blue roof with dormers and chimneys, glowing windows and entrance steps. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "building-garage",
+      "path": "art/town/quadrants/generated/building-garage.png",
+      "sha256": "3ea148667d509b1fb1715488e940b6453ddbe2a1567fac03df3cfa0d45072ad2",
+      "bytes": 1950254,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one standalone cream garage with dark blue gabled roof and closed garage door from the residential blocks. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "landmark-water-tower",
+      "path": "art/town/quadrants/generated/landmark-water-tower.png",
+      "sha256": "d60b1c982f63ef42222adb42a5375fe38d7adba2fa3bedcacaa6c20c7d2f741f",
+      "bytes": 1278377,
+      "width": 1147,
+      "height": 1372,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the dark blue elevated cylindrical water tank with four supports and access ladder from the utility block, no building below. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "landmark-silo",
+      "path": "art/town/quadrants/generated/landmark-silo.png",
+      "sha256": "f30b272c584a890e9bfd70592ca01e679a0dc193fd1907d942fad326a5e88375",
+      "bytes": 2154748,
+      "width": 1024,
+      "height": 1536,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the tall silver cylindrical farm grain silo with domed top and side ladder, no barn or field. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "landmark-windmill",
+      "path": "art/town/quadrants/generated/landmark-windmill.png",
+      "sha256": "08bbf6673edb6caf3ff84e7f76ee6810997dbc18deb15f4e87bc3bf0b33137e6",
+      "bytes": 1895113,
+      "width": 1024,
+      "height": 1536,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete steel lattice farm windmill tower with circular bladed rotor and tail vane. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "landmark-gazebo",
+      "path": "art/town/quadrants/generated/landmark-gazebo.png",
+      "sha256": "f0dcbddf2ce753cf3ad161a95d904853809c8863bd9a9944b309f75e787752a6",
+      "bytes": 1688682,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the timber hexagonal gazebo with blue pitched roof and amber lighting in pond park, including raised steps. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "landmark-fountain",
+      "path": "art/town/quadrants/generated/landmark-fountain.png",
+      "sha256": "ad94995702d7ed579efe25629904bac6ca2cb7ef843bb13b9ded491003e8a300",
+      "bytes": 1633076,
+      "width": 1536,
+      "height": 1024,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small circular plaza fountain with pale central column, shallow basin and water jets. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+    },
+    {
+      "id": "ground-root",
+      "path": "art/town/quadrants/generated/ground-root.png",
+      "sha256": "abe09ddac18b60d36480c398420ec1788c8b936808125f6a8d3ff3ab71141d76",
+      "bytes": 2755518,
+      "width": 1672,
+      "height": 941,
+      "hasAlpha": false,
+      "transparentPixels": false,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: precise-object-edit. Asset: continuous GROUND ONLY layer for the supplied exact town reference, highest available resolution, preferably 3840x2160. Image 1 is the authoritative edit target. Keep the SAME full-town framing, camera and diamond silhouette, and EXACT original paved road network: every curve, intersection, crosswalk, road width, curb, driveway, sidewalk, car park stripe and path stays in its original relative position. Remove all raised objects: every building, house, roof, tree canopy and trunk, bush, parked car, fence, wall, pole, street lamp, grave marker, cinema screen, gazebo, silo, windmill and fountain. Inpaint their footprints with the surrounding appropriate terrain: yards grass, building pads concrete/paving, graveyard grass with its paths, shop pads paving, parking spaces asphalt. Leave low grass, soil, leaf litter, pumpkin field ground, flat court markings and pond water. No raised object silhouettes or baked tree/building shadows. Preserve nighttime painterly ground textures, original warm/cool terrain colours and navy empty background outside the town. Do not draw new roads, straighten curves, connect new streets, reframe or redesign. The output must be one continuous painting without chunk seams, NOT a vector diagram. Do not label anything.\n"
+    },
+    {
+      "id": "landmark-gazebo-v2",
+      "path": "art/town/quadrants/generated/landmark-gazebo-v2.png",
+      "sha256": "15e7ff435aab668cf145e14591645b9d97963d95eb8a877fc2028b161fc3e909",
+      "bytes": 1711514,
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction. Image 1 is the exact gazebo sprite reference. Return ONE gazebo as an INDIVIDUAL transparent PNG with higher native fine detail. SQUARE canvas, preferably 2048x2048 or highest available square resolution. Zoom the complete object to fill 90-95% of that square with only narrow transparent padding, no tiny object surrounded by empty space. Keep its same design, facing direction, isometric geometry and exact cool night/amber lighting. No new props, trees, ground island, multiple views or sheet. True transparent alpha background; no atmospheric haze, backdrop, checkerboard or labels. Complete silhouette including steps / basin, no clipping. This is a full-canvas production asset, not an upscaled old cell.\n"
+    },
+    {
+      "id": "landmark-fountain-v2",
+      "path": "art/town/quadrants/generated/landmark-fountain-v2.png",
+      "sha256": "4646f28b528fab4be9377c0b7025be4c413bb06b18d09f779303a05b606cc952",
+      "bytes": 1687226,
+      "width": 1254,
+      "height": 1254,
+      "hasAlpha": true,
+      "transparentPixels": true,
+      "generator": "built-in image_gen",
+      "inspected": false,
+      "registration": "unchecked",
+      "productionEligible": false,
+      "usage": "unregistered-master",
+      "prompt": "Use case: background-extraction. Image 1 is the exact fountain sprite reference. Return ONE fountain as an INDIVIDUAL transparent PNG with higher native fine detail. SQUARE canvas, preferably 2048x2048 or highest available square resolution. Zoom the complete object to fill 90-95% of that square with only narrow transparent padding, no tiny object surrounded by empty space. Keep its same design, facing direction, isometric geometry and exact cool night/amber lighting. No new props, trees, ground island, multiple views or sheet. True transparent alpha background; no atmospheric haze, backdrop, checkerboard or labels. Complete silhouette including steps / basin, no clipping. This is a full-canvas production asset, not an upscaled old cell.\n"
+    }
+  ]
+}

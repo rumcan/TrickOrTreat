@@ -1,0 +1,16 @@
+{
+  "id": "building-house-cottage",
+  "path": "art/town/quadrants/generated/building-house-cottage.png",
+  "sha256": "3ce419512b6f9c9488dab79c0c2f4cc9fbf106695f54e8f7ebdb51a66fd14aaf",
+  "bytes": 1986679,
+  "width": 1536,
+  "height": 1024,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "productionEligible": false,
+  "usage": "unregistered-master",
+  "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one small cream single-story cottage with dark blue gabled roof and orange windows from the lower-left houses, no garage. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+}

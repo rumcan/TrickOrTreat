@@ -1,0 +1,14 @@
+{
+  "id": "1_1",
+  "path": "art/town/quadrants/generated/1_1.png",
+  "sha256": "d11e75b96145c1f52e8305f8c797ccc1406f8411185af487c345dff66846d5b4",
+  "bytes": 3091653,
+  "width": 1672,
+  "height": 941,
+  "hasAlpha": false,
+  "transparentPixels": false,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "prompt": "Use case: precise-object-edit\nInput image 1 is the parent reference. Split this image into 4 equal parts with a line down the center vertical and horizontal and generate a high rez image of the top left part only. The lines are conceptual; do not draw them. Return only that exact quarter, filling the output, highest available resolution. Preserve the parent's crop edges, road crossings, object positions, camera and night lighting. Do not reframe or redesign. Input image 2, if provided, is the exact original reference crop: use it to verify boundary alignment.\n"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "building-barn",
+  "path": "art/town/quadrants/generated/building-barn.png",
+  "sha256": "a2a3a0e6e31041f2d42c73935c89606ae0badec5848d7486dba757f6e3e04997",
+  "bytes": 2201465,
+  "width": 1536,
+  "height": 1024,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the red timber barn with blue-grey gabled metal roof and warm lit barn doors. Exclude the adjacent silver silo, windmill, trees, fencing, tractors and field. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.\n"
+}

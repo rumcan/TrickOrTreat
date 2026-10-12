@@ -1,0 +1,13 @@
+{
+  "id": "drive-in-homes-atlas",
+  "path": "art/town/quadrants/generated/drive-in-homes-atlas.png",
+  "sha256": "1e9a0ddfb734b21760b67c779539dec9fd4c858f9302ef38ca3f680a0693bab4",
+  "bytes": 1454222,
+  "width": 1774,
+  "height": 887,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked"
+}

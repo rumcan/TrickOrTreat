@@ -1,0 +1,16 @@
+{
+  "id": "landmark-fountain-v2",
+  "path": "art/town/quadrants/generated/landmark-fountain-v2.png",
+  "sha256": "4646f28b528fab4be9377c0b7025be4c413bb06b18d09f779303a05b606cc952",
+  "bytes": 1687226,
+  "width": 1254,
+  "height": 1254,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "productionEligible": false,
+  "usage": "unregistered-master",
+  "prompt": "Use case: background-extraction. Image 1 is the exact fountain sprite reference. Return ONE fountain as an INDIVIDUAL transparent PNG with higher native fine detail. SQUARE canvas, preferably 2048x2048 or highest available square resolution. Zoom the complete object to fill 90-95% of that square with only narrow transparent padding, no tiny object surrounded by empty space. Keep its same design, facing direction, isometric geometry and exact cool night/amber lighting. No new props, trees, ground island, multiple views or sheet. True transparent alpha background; no atmospheric haze, backdrop, checkerboard or labels. Complete silhouette including steps / basin, no clipping. This is a full-canvas production asset, not an upscaled old cell.\n"
+}

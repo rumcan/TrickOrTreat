@@ -1,0 +1,7 @@
+Use case: background-extraction
+Asset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.
+Input image 1: visual extraction reference.
+Primary request: isolate ONLY the cream church with blue slate roof, tall steeple with glowing cross, amber arched windows, entrance porch and stone steps. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.
+Composition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.
+Lighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.
+Background: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.

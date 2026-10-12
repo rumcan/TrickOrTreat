@@ -1,0 +1,13 @@
+{
+  "id": "farm-school-atlas",
+  "path": "art/town/quadrants/generated/farm-school-atlas.png",
+  "sha256": "0589be64865e41818123ea65beb19a6dd25482c28c6b5207d156e72d8570f70f",
+  "bytes": 1581283,
+  "width": 1774,
+  "height": 887,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked"
+}

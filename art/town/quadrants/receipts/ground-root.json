@@ -1,0 +1,16 @@
+{
+  "id": "ground-root",
+  "path": "art/town/quadrants/generated/ground-root.png",
+  "sha256": "abe09ddac18b60d36480c398420ec1788c8b936808125f6a8d3ff3ab71141d76",
+  "bytes": 2755518,
+  "width": 1672,
+  "height": 941,
+  "hasAlpha": false,
+  "transparentPixels": false,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "productionEligible": false,
+  "usage": "unregistered-master",
+  "prompt": "Use case: precise-object-edit. Asset: continuous GROUND ONLY layer for the supplied exact town reference, highest available resolution, preferably 3840x2160. Image 1 is the authoritative edit target. Keep the SAME full-town framing, camera and diamond silhouette, and EXACT original paved road network: every curve, intersection, crosswalk, road width, curb, driveway, sidewalk, car park stripe and path stays in its original relative position. Remove all raised objects: every building, house, roof, tree canopy and trunk, bush, parked car, fence, wall, pole, street lamp, grave marker, cinema screen, gazebo, silo, windmill and fountain. Inpaint their footprints with the surrounding appropriate terrain: yards grass, building pads concrete/paving, graveyard grass with its paths, shop pads paving, parking spaces asphalt. Leave low grass, soil, leaf litter, pumpkin field ground, flat court markings and pond water. No raised object silhouettes or baked tree/building shadows. Preserve nighttime painterly ground textures, original warm/cool terrain colours and navy empty background outside the town. Do not draw new roads, straighten curves, connect new streets, reframe or redesign. The output must be one continuous painting without chunk seams, NOT a vector diagram. Do not label anything.\n"
+}

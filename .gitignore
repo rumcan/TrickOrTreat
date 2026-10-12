@@ -36,3 +36,5 @@ art/town/static/review/*.png
 art/town/static/ground/trace/check-[0-9].png
 art/town/static/ground/layout-render.png
 art/town/static/ground/guides/*.png
+art/town/quadrants/.ingest.lock/
+art/town/quadrants/*.tmp-*

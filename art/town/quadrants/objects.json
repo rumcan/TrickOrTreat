@@ -1,0 +1,584 @@
+{
+  "version": 1,
+  "policy": "One large object per full-resolution canvas; no mixed building sheets.",
+  "objects": [
+    {
+      "id": "building-church",
+      "ref": "art/town/quadrants/inputs/1_1_1_1.png",
+      "subject": "the cream church with blue slate roof, tall steeple with glowing cross, amber arched windows, entrance porch and stone steps",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the cream church with blue slate roof, tall steeple with glowing cross, amber arched windows, entrance porch and stone steps. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1308,
+        "height": 1202,
+        "solidBounds": {
+          "left": 250,
+          "top": 17,
+          "width": 886,
+          "height": 1173
+        },
+        "nativeLongestEdge": 1173,
+        "transparentFraction": 0.6416039526375511,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-church.webp"
+    },
+    {
+      "id": "building-school",
+      "ref": "art/town/quadrants/generated/1_1.png",
+      "subject": "the entire connected red-brick primary school, with its two flat-roof classroom wings and amber lit windows. Exclude the basketball court, parked cars, flags and playground",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the entire connected red-brick primary school, with its two flat-roof classroom wings and amber lit windows. Exclude the basketball court, parked cars, flags and playground. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1774,
+        "height": 887,
+        "solidBounds": {
+          "left": 163,
+          "top": 29,
+          "width": 1510,
+          "height": 835
+        },
+        "nativeLongestEdge": 1510,
+        "transparentFraction": 0.5002287837980398,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-school.webp"
+    },
+    {
+      "id": "building-barn",
+      "ref": "art/town/quadrants/generated/1_1.png",
+      "subject": "the red timber barn with blue-grey gabled metal roof and warm lit barn doors. Exclude the adjacent silver silo, windmill, trees, fencing, tractors and field",
+      "alphaReview": "Browser composite verified clean: preview haze was RGB data beneath zero-alpha pixels",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the red timber barn with blue-grey gabled metal roof and warm lit barn doors. Exclude the adjacent silver silo, windmill, trees, fencing, tractors and field. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 104,
+          "top": 29,
+          "width": 1333,
+          "height": 969
+        },
+        "nativeLongestEdge": 1333,
+        "transparentFraction": 0.50262451171875,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-barn.webp"
+    },
+    {
+      "id": "building-corner-shop",
+      "ref": "art/town/quadrants/generated/1_1.png",
+      "subject": "the large two-story red-brick corner storefront at the bottom-right end of the main shop row, with blue flat roof, large amber shop windows and red-and-white striped awning. Extract only this one complete corner building, not its neighbouring shops",
+      "prompt": "Use case: background-extraction\nAsset type: INDIVIDUAL high-resolution transparent PNG building sprite, NOT a sprite sheet.\nInput image 1: visual extraction reference.\nPrimary request: isolate ONLY the large two-story red-brick corner storefront at the bottom-right end of the main shop row, with blue flat roof, large amber shop windows and red-and-white striped awning. Extract only this one complete corner building, not its neighbouring shops. Faithfully preserve the reference building's geometry, facing direction, roof pitch, window arrangement, camera angle and painted materials. Complete any tiny occluded parts without redesigning.\nComposition: ONE building only, centered, filling 85-95% of a high-resolution canvas, highest available resolution, preferably 2048 pixels or larger. Entire roof, walls and steps visible with narrow transparent padding. Do not place other objects beside it. Preserve the original isometric projection: parallel ground axes descend left and right at approximately 1:2 slope, vertical walls remain vertical; no perspective camera shift.\nLighting: exact reference's cool blue night ambient shading and warm amber interior window glow, not daytime studio lighting.\nBackground: TRUE transparent alpha. Remove all surrounding terrain, lawns, roads, sidewalks, trees, bushes, fences, people and vehicles. No ground island or huge ground shadow. No labels, grid, multiple views, sheet, watermark or checkerboard. Fine painted details must be native generated detail, not an upscaled low-resolution atlas cutout.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1313,
+        "height": 1198,
+        "solidBounds": {
+          "left": 55,
+          "top": 33,
+          "width": 1202,
+          "height": 1135
+        },
+        "nativeLongestEdge": 1202,
+        "transparentFraction": 0.3423133503795994,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-corner-shop.webp"
+    },
+    {
+      "id": "building-farmhouse",
+      "ref": "art/town/quadrants/generated/1_2.png",
+      "subject": "cream farmhouse near the barn, dark blue gabled roof, porch, glowing windows and entrance steps",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the cream farmhouse near the barn, dark blue gabled roof, porch, glowing windows and entrance steps. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 178,
+          "top": 13,
+          "width": 1225,
+          "height": 979
+        },
+        "nativeLongestEdge": 1225,
+        "transparentFraction": 0.5234107971191406,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-farmhouse.webp"
+    },
+    {
+      "id": "building-farm-shed",
+      "ref": "art/town/quadrants/generated/1_2.png",
+      "subject": "small red timber farm shed beside the farmhouse, dark roof and warm-lit opening",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small red timber farm shed beside the farmhouse, dark roof and warm-lit opening. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 234,
+          "top": 38,
+          "width": 1066,
+          "height": 923
+        },
+        "nativeLongestEdge": 1066,
+        "transparentFraction": 0.5654582977294922,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-farm-shed.webp"
+    },
+    {
+      "id": "building-diner",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "complete red-trim low roadside diner with flat roof, lit large windows, entrance and roof sign, no parking lot or freestanding sign",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete red-trim low roadside diner with flat roof, lit large windows, entrance and roof sign, no parking lot or freestanding sign. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 156,
+          "top": 73,
+          "width": 1274,
+          "height": 874
+        },
+        "nativeLongestEdge": 1274,
+        "transparentFraction": 0.5534108479817709,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-diner.webp"
+    },
+    {
+      "id": "building-gas-canopy",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "complete red-trim gas pump canopy with supporting columns and pump islands, no neighbouring shop",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete red-trim gas pump canopy with supporting columns and pump islands, no neighbouring shop. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 135,
+          "top": 41,
+          "width": 1268,
+          "height": 943
+        },
+        "nativeLongestEdge": 1268,
+        "transparentFraction": 0.5647493998209635,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-gas-canopy.webp"
+    },
+    {
+      "id": "building-gas-shop",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "small red-trim gas station convenience shop next to the pump canopy, no canopy or parked cars",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small red-trim gas station convenience shop next to the pump canopy, no canopy or parked cars. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 143,
+          "top": 58,
+          "width": 1283,
+          "height": 897
+        },
+        "nativeLongestEdge": 1283,
+        "transparentFraction": 0.5136470794677734,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-gas-shop.webp"
+    },
+    {
+      "id": "building-drive-in-screen",
+      "ref": "art/town/quadrants/generated/1_3.png",
+      "subject": "complete tall drive-in cinema screen with support posts, lower amber bulbs and same silhouetted monster picture",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete tall drive-in cinema screen with support posts, lower amber bulbs and same silhouetted monster picture. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 141,
+          "top": 9,
+          "width": 1296,
+          "height": 996
+        },
+        "nativeLongestEdge": 1296,
+        "transparentFraction": 0.5401115417480469,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-drive-in-screen.webp"
+    },
+    {
+      "id": "building-snack-bar",
+      "ref": "art/town/quadrants/generated/1_3.png",
+      "subject": "one-story red-trim cinema snack bar with flat blue roof and orange windows near the drive-in exit",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one-story red-trim cinema snack bar with flat blue roof and orange windows near the drive-in exit. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1774,
+        "height": 887,
+        "solidBounds": {
+          "left": 138,
+          "top": 11,
+          "width": 1554,
+          "height": 873
+        },
+        "nativeLongestEdge": 1554,
+        "transparentFraction": 0.4369834093615788,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-snack-bar.webp"
+    },
+    {
+      "id": "building-mausoleum",
+      "ref": "art/town/quadrants/inputs/1_1_1_1.png",
+      "subject": "small stone cemetery mausoleum with blue-grey pitched roof and warm-lit door, no cemetery wall",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small stone cemetery mausoleum with blue-grey pitched roof and warm-lit door, no cemetery wall. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1401,
+        "height": 1123,
+        "solidBounds": {
+          "left": 312,
+          "top": 19,
+          "width": 872,
+          "height": 1080
+        },
+        "nativeLongestEdge": 1080,
+        "transparentFraction": 0.6581236020829798,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-mausoleum.webp"
+    },
+    {
+      "id": "building-grocery",
+      "ref": "art/town/quadrants/generated/1_1.png",
+      "subject": "one individual narrow two-story red-brick Main Street shop near the center of the row, blue flat roof, glazed shopfront and striped awning, no adjacent shops",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one individual narrow two-story red-brick Main Street shop near the center of the row, blue flat roof, glazed shopfront and striped awning, no adjacent shops. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1387,
+        "height": 1134,
+        "solidBounds": {
+          "left": 286,
+          "top": 66,
+          "width": 854,
+          "height": 1035
+        },
+        "nativeLongestEdge": 1035,
+        "transparentFraction": 0.5606780777412838,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-grocery.webp"
+    },
+    {
+      "id": "building-shop-blue",
+      "ref": "art/town/quadrants/generated/1_1.png",
+      "subject": "one individual blue-grey faced narrow two-story Main Street shop, blue flat roof, warm shopfront and striped awning, no adjacent buildings",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one individual blue-grey faced narrow two-story Main Street shop, blue flat roof, warm shopfront and striped awning, no adjacent buildings. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1362,
+        "height": 1155,
+        "solidBounds": {
+          "left": 207,
+          "top": 53,
+          "width": 1003,
+          "height": 1083
+        },
+        "nativeLongestEdge": 1083,
+        "transparentFraction": 0.4628309526987941,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-shop-blue.webp"
+    },
+    {
+      "id": "building-corner-store",
+      "ref": "art/town/quadrants/generated/1_3.png",
+      "subject": "detached little two-story cream and orange corner store above the drive-in, flat blue roof, striped awning and glowing shop windows",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the detached little two-story cream and orange corner store above the drive-in, flat blue roof, striped awning and glowing shop windows. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 278,
+          "top": 22,
+          "width": 1065,
+          "height": 944
+        },
+        "nativeLongestEdge": 1065,
+        "transparentFraction": 0.5434958140055338,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-corner-store.webp"
+    },
+    {
+      "id": "building-house-cottage",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "one small cream single-story cottage with dark blue gabled roof and orange windows from the lower-left houses, no garage",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one small cream single-story cottage with dark blue gabled roof and orange windows from the lower-left houses, no garage. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 160,
+          "top": 79,
+          "width": 1218,
+          "height": 891
+        },
+        "nativeLongestEdge": 1218,
+        "transparentFraction": 0.5356025695800781,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-house-cottage.webp"
+    },
+    {
+      "id": "building-house-dormer",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "one medium cream home with blue roof, two dormers, timber entrance porch and warm windows from the residential blocks",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one medium cream home with blue roof, two dormers, timber entrance porch and warm windows from the residential blocks. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 141,
+          "top": 44,
+          "width": 1258,
+          "height": 899
+        },
+        "nativeLongestEdge": 1258,
+        "transparentFraction": 0.49849700927734375,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-house-dormer.webp"
+    },
+    {
+      "id": "building-house-garage",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "one cream bungalow with an attached garage and dark blue roof; include the attached garage as part of this one building",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one cream bungalow with an attached garage and dark blue roof; include the attached garage as part of this one building. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 143,
+          "top": 98,
+          "width": 1319,
+          "height": 852
+        },
+        "nativeLongestEdge": 1319,
+        "transparentFraction": 0.5330155690511068,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-house-garage.webp"
+    },
+    {
+      "id": "building-house-large",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "large two-story cream home near the bottom-left residences, dark hipped blue roof with dormers and chimneys, glowing windows and entrance steps",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the large two-story cream home near the bottom-left residences, dark hipped blue roof with dormers and chimneys, glowing windows and entrance steps. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 75,
+          "top": 48,
+          "width": 1392,
+          "height": 911
+        },
+        "nativeLongestEdge": 1392,
+        "transparentFraction": 0.4561322530110677,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-house-large.webp"
+    },
+    {
+      "id": "building-garage",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "one standalone cream garage with dark blue gabled roof and closed garage door from the residential blocks",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the one standalone cream garage with dark blue gabled roof and closed garage door from the residential blocks. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1536,
+        "height": 1024,
+        "solidBounds": {
+          "left": 94,
+          "top": 63,
+          "width": 1360,
+          "height": 893
+        },
+        "nativeLongestEdge": 1360,
+        "transparentFraction": 0.5197601318359375,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/building-garage.webp"
+    },
+    {
+      "id": "landmark-water-tower",
+      "ref": "art/town/quadrants/generated/1_1.png",
+      "subject": "dark blue elevated cylindrical water tank with four supports and access ladder from the utility block, no building below",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the dark blue elevated cylindrical water tank with four supports and access ladder from the utility block, no building below. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1147,
+        "height": 1372,
+        "solidBounds": {
+          "left": 218,
+          "top": 38,
+          "width": 710,
+          "height": 1295
+        },
+        "nativeLongestEdge": 1295,
+        "transparentFraction": 0.609142623296672,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/landmark-water-tower.webp"
+    },
+    {
+      "id": "landmark-silo",
+      "ref": "art/town/quadrants/generated/1_2.png",
+      "subject": "tall silver cylindrical farm grain silo with domed top and side ladder, no barn or field",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the tall silver cylindrical farm grain silo with domed top and side ladder, no barn or field. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1024,
+        "height": 1536,
+        "solidBounds": {
+          "left": 212,
+          "top": 25,
+          "width": 605,
+          "height": 1463
+        },
+        "nativeLongestEdge": 1463,
+        "transparentFraction": 0.5099512736002604,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/landmark-silo.webp"
+    },
+    {
+      "id": "landmark-windmill",
+      "ref": "art/town/quadrants/generated/1_2.png",
+      "subject": "complete steel lattice farm windmill tower with circular bladed rotor and tail vane",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the complete steel lattice farm windmill tower with circular bladed rotor and tail vane. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1024,
+        "height": 1536,
+        "solidBounds": {
+          "left": 202,
+          "top": 15,
+          "width": 698,
+          "height": 1504
+        },
+        "nativeLongestEdge": 1504,
+        "transparentFraction": 0.7139447530110677,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/landmark-windmill.webp"
+    },
+    {
+      "id": "landmark-gazebo",
+      "master": "landmark-gazebo-v2",
+      "ref": "art/town/quadrants/generated/1_4.png",
+      "subject": "timber hexagonal gazebo with blue pitched roof and amber lighting in pond park, including raised steps",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the timber hexagonal gazebo with blue pitched roof and amber lighting in pond park, including raised steps. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1254,
+        "height": 1254,
+        "solidBounds": {
+          "left": 86,
+          "top": 8,
+          "width": 1082,
+          "height": 1231
+        },
+        "nativeLongestEdge": 1231,
+        "transparentFraction": 0.42720201257093726,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/landmark-gazebo.webp"
+    },
+    {
+      "id": "landmark-fountain",
+      "master": "landmark-fountain-v2",
+      "ref": "art/town/quadrants/generated/1_3.png",
+      "subject": "small circular plaza fountain with pale central column, shallow basin and water jets",
+      "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small circular plaza fountain with pale central column, shallow basin and water jets. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.",
+      "status": "resolution-checked",
+      "registration": "unchecked",
+      "check": {
+        "width": 1254,
+        "height": 1254,
+        "solidBounds": {
+          "left": 49,
+          "top": 13,
+          "width": 1156,
+          "height": 1235
+        },
+        "nativeLongestEdge": 1235,
+        "transparentFraction": 0.5398081800121589,
+        "resolutionPass": true,
+        "edgeClipped": false
+      },
+      "preview": "art/town/quadrants/individual/landmark-fountain.webp"
+    }
+  ]
+}

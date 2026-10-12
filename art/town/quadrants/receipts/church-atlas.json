@@ -1,0 +1,13 @@
+{
+  "id": "church-atlas",
+  "path": "art/town/quadrants/generated/church-atlas.png",
+  "sha256": "0db9f6d2d825ab76a98cdffc0703093bc6e1b008ef5422823816724e5e6da6fe",
+  "bytes": 1427647,
+  "width": 1448,
+  "height": 1086,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked"
+}

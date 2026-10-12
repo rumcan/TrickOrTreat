@@ -1,0 +1,14 @@
+{
+  "id": "building-barn-v2",
+  "path": "art/town/quadrants/generated/building-barn-v2.png",
+  "sha256": "e9d68db61e80bb5b478133a2a3e9de5afe08a7db2bb918a7fb84db230bb84d06",
+  "bytes": 2114426,
+  "width": 1536,
+  "height": 1024,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "prompt": "Use case: precise-object-edit. Input image 1 is a transparent barn sprite edit target. Change ONLY the background alpha: remove ALL diffuse blue/brown haze, clouds, coloured atmosphere and the large blurred ground shadow outside the building. Every pixel outside the roof, walls, attached lean-to and wooden steps must be genuinely transparent except a narrow 2-pixel anti-aliased outline. Preserve the complete barn's exact geometry, fine detail, source native resolution, facing, window lights and night shading. Do not resize, redraw, add objects or put it on a terrain island. No backdrop or checkerboard. One building only, full-resolution standalone sprite.\n"
+}

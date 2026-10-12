@@ -1,0 +1,13 @@
+{
+  "id": "main-street-atlas",
+  "path": "art/town/quadrants/generated/main-street-atlas.png",
+  "sha256": "85a75bb367e1f7389d76e130c5cee494687c895ef85aa46587181c9ed566649b",
+  "bytes": 1737167,
+  "width": 1774,
+  "height": 887,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked"
+}

@@ -1,0 +1,2 @@
+Use case: precise-object-edit
+Input image 1 is the parent reference. Split this image into 4 equal parts with a line down the center vertical and horizontal and generate a high rez image of the bottom right part only. The lines are conceptual; do not draw them. Return only that exact quarter, filling the output, highest available resolution. Preserve the parent's crop edges, road crossings, object positions, camera and night lighting. Do not reframe or redesign. Input image 2, if provided, is the exact original reference crop: use it to verify boundary alignment.

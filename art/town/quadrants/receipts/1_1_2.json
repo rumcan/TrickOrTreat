@@ -1,0 +1,13 @@
+{
+  "id": "1_1_2",
+  "path": "art/town/quadrants/generated/1_1_2.png",
+  "sha256": "1a54a5d8cc98f8326a4e20ce6efc3ff3afa887f8e3bef05c84be8424af55d188",
+  "bytes": 2575075,
+  "width": 1673,
+  "height": 940,
+  "hasAlpha": false,
+  "transparentPixels": false,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked"
+}

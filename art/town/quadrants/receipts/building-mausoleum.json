@@ -1,0 +1,14 @@
+{
+  "id": "building-mausoleum",
+  "path": "art/town/quadrants/generated/building-mausoleum.png",
+  "sha256": "34ee2658216ed6bd400d62a5871c93fe68db9a67aa5f7aa55a38fccb753c0593",
+  "bytes": 1092893,
+  "width": 1401,
+  "height": 1123,
+  "hasAlpha": true,
+  "transparentPixels": true,
+  "generator": "built-in image_gen",
+  "inspected": false,
+  "registration": "unchecked",
+  "prompt": "Use case: background-extraction\nAsset: ONE individual high-resolution transparent PNG game sprite, NOT a sheet.\nInput image 1 is the exact visual reference. Isolate ONLY the small stone cemetery mausoleum with blue-grey pitched roof and warm-lit door, no cemetery wall. Faithfully preserve the reference design, facing direction, materials and original isometric geometry: parallel ground axes at roughly 2:1 slope, vertical walls vertical. Do not rotate the camera or redesign.\nONE complete object fills 85-95% of its own high-resolution canvas, preferably 2048 or 3072 pixels, highest available resolution, with fine native detail. Narrow transparent padding, no cropped roofs, supports or steps. NO other objects or alternate views, grids or labels. Preserve cool blue night shading and amber illumination. Genuine transparent alpha background, no lawn, paving, roads, terrain island, people, shrubs, trees or cars; no huge ground shadow, checkerboard or watermark. Production master for this single object, not an enlarged atlas cell.\n"
+}
