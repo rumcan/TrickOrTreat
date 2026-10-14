@@ -487,6 +487,8 @@ export class Game {
   nearbyCostume: string | null = null;
   // camera (written by renderer)
   camX = 0; camY = 0; zoom = 1; vw = 1; vh = 1; shake = 0; viewR = 11;
+  /** the player's own zoom from the mouse wheel, on top of the screen-fit zoom */
+  userZoom = 1;
   input: Input;
   private eid = 1;
   private grid: Enemy[][] = [];
@@ -1202,7 +1204,9 @@ export class Game {
       p.flip = scx < 0;
     }
     // weapon swap
-    if (inp.pressed.has('q') || inp.wheel !== 0 || inp.pressed.has('1') || inp.pressed.has('2')) {
+    // mouse wheel: zoom in (up to 1.6x) or back out a little; Q, 1 and 2 swap guns
+    if (inp.wheel !== 0) this.userZoom = clamp(this.userZoom * (inp.wheel < 0 ? 1.1 : 1 / 1.1), 0.85, 1.6);
+    if (inp.pressed.has('q') || inp.pressed.has('1') || inp.pressed.has('2')) {
       let n = p.cur;
       if (inp.pressed.has('1')) n = 0;
       else if (inp.pressed.has('2')) n = 1;

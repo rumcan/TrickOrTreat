@@ -137,7 +137,7 @@ export class Renderer {
     }
     this.t += dt;
     const cv = this.canvas, ctx = this.ctx;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, settings.hq ? 3 : 2);
     this.dpr = dpr;
     const vw = cv.clientWidth, vh = cv.clientHeight;
     // also size our own layers on the first frame: a restarted run reuses a canvas that is already the right size,
@@ -159,7 +159,7 @@ export class Renderer {
     const mobile = cv.parentElement?.classList.contains('touch-game');
     // the painted town is big and detailed: show about a fifth more of it than the old tile town did
     const townOut = g.map.builtGround ? 0.8 : 1;
-    const zoom = (mobile ? clamp(Math.min(vw / 1400, vh / 850), 0.42, 0.85) : clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35)) * townOut;
+    const zoom = (mobile ? clamp(Math.min(vw / 1400, vh / 850), 0.42, 0.85) : clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35)) * townOut * g.userZoom;
     const p = g.p;
     const touchViewport = cv.parentElement?.classList.contains('touch-game');
     const hudTop = cv.parentElement?.querySelector<HTMLElement>('.hm-topbar')?.offsetHeight || (vw < 640 ? (touchViewport ? 76 : 48) : 56);
@@ -179,6 +179,7 @@ export class Renderer {
     ctx.fillStyle = '#05060c';
     ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = settings.hq ? 'high' : 'low'; // high graphics: proper filtering when art is drawn smaller
     ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * (vw / 2 - camX * zoom), dpr * (vh / 2 - camY * zoom));
 
     // view bounds in world px

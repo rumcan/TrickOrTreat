@@ -10,6 +10,7 @@ import {G} from './art/tiles';
 import type {PropSprite} from './art/props';
 import {rawCanvas} from './art/draw';
 import type {Img} from './assets';
+import {settings} from './settings';
 
 interface Box {hx:number;hy:number;dx:number;dy:number}
 interface Item {name:string;cat:string;file:string;w:number;h:number;ax:number;ay:number;boxes:Box[];kind:string;door?:boolean;doorAt?:{u:number;v:number};solid:number;big:boolean;shadow?:boolean}
@@ -33,7 +34,9 @@ export function loadBuiltTown(progress?:(p:number)=>void){
  return loading??=(async()=>{
   const r=await fetch(url('town.json'));if(!r.ok)throw Error('Missing town export');town=await r.json() as Town;
   const files=[...new Set(Object.values(town.items).map(i=>i.file))];let done=0;
-  await Promise.all([image('ground/overview.webp').then(i=>{overview=i;}),...files.map(f=>image(f).then(i=>{images.set(f,i);progress?.(++done/files.length);}))]);
+  // High graphics loads the double-resolution sprites (sprites-hd/), falling back to the normal ones
+  const pick=(f:string)=>settings.hq?image('sprites-hd/'+f.slice('sprites/'.length)).catch(()=>image(f)):image(f);
+  await Promise.all([image('ground/overview.webp').then(i=>{overview=i;}),...files.map(f=>pick(f).then(i=>{images.set(f,i);progress?.(++done/files.length);}))]);
  })();
 }
 
