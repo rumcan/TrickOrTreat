@@ -23,6 +23,8 @@ export interface PropInst {
   hp?: number; burnT?: number; boomT?: number; wreck?: boolean;
   /** scattered yard decoration (bushes, fences, pumpkins…): may be cleared to keep a front door reachable */
   decor?: boolean;
+  /** big scenery that hides the kid behind it (the renderer fades it) */
+  occludesCharacter?: boolean;
 }
 export interface Gate {
   id: number;
@@ -79,6 +81,8 @@ export interface GameMap {
   /** rescue campaign: the gazebo each friend hides at, in gate order (north, east, south, west) */
   hideouts: { x: number; y: number }[];
   start: { x: number; y: number };
+  /** the town painted in the town builder: one streamed ground picture instead of tiles */
+  builtGround?: import('./town-built').BuiltGround;
 }
 
 const OWNERS = ['Mrs. Henderson', 'Mr. Kowalski', 'Old Man Jenkins', 'The Nguyens', 'Ms. Petrova', 'Grandma Rose', 'Coach Miller', 'Dr. Alvarez', 'The Johnsons', 'Mrs. Okafor', 'Mr. Bellamy', 'Aunt Dottie'];

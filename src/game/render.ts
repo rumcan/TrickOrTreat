@@ -12,6 +12,7 @@ import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 import { AFFIX_INFO } from './enemy-affixes';
 import {arcadeStaffSheet} from './art/arcade-staff';
+import {drawBuiltGround} from './town-built';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -119,9 +120,9 @@ export class Renderer {
 
   private buildVignette(w: number, h: number) {
     const { c, ctx } = makeCanvas(w, h);
-    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.7);
+    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.55, w / 2, h / 2, Math.max(w, h) * 0.78);
     g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,8,0.75)');
+    g.addColorStop(1, 'rgba(0,0,8,0.6)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
     this.vignette = c;
@@ -156,7 +157,9 @@ export class Renderer {
       this.heroFlash = tinted(this.hero.img, '#ff3030', 1);
     }
     const mobile = cv.parentElement?.classList.contains('touch-game');
-    const zoom = mobile ? clamp(Math.min(vw / 1400, vh / 850), 0.42, 0.85) : clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35);
+    // the painted town is big and detailed: show about a fifth more of it than the old tile town did
+    const townOut = g.map.builtGround ? 0.8 : 1;
+    const zoom = (mobile ? clamp(Math.min(vw / 1400, vh / 850), 0.42, 0.85) : clamp(Math.min(vw / 1500, vh / 860), 0.62, 1.35)) * townOut;
     const p = g.p;
     const touchViewport = cv.parentElement?.classList.contains('touch-game');
     const hudTop = cv.parentElement?.querySelector<HTMLElement>('.hm-topbar')?.offsetHeight || (vw < 640 ? (touchViewport ? 76 : 48) : 56);
@@ -189,7 +192,9 @@ export class Renderer {
     const minY = clamp(Math.floor(Math.min(...corners.map((c) => c.y))), 0, MAP_H - 1), maxY = clamp(Math.ceil(Math.max(...corners.map((c) => c.y))), 0, MAP_H - 1);
     const m = g.map;
     const floorOverlays:{img:Img;x:number;y:number}[]=[];
-    for (let y = minY; y <= maxY; y++)
+    // the town painted in the town builder: one streamed picture (roads, lots, decals and shadows baked in)
+    if (m.builtGround) drawBuiltGround(ctx, m.builtGround, vx0, vy0, vx1, vy1, this.t);
+    else for (let y = minY; y <= maxY; y++)
       for (let x = minX; x <= maxX; x++) {
         const sx = isoX(x, y), sy = isoY(x, y);
         const i = y * MAP_W + x;
@@ -633,7 +638,8 @@ export class Renderer {
       ctx.restore();
     }
 
-    // fog puffs (world space, drift)
+    // fog puffs (world space, drift); the painted town stays crisp
+    if (!m.builtGround) {
     ctx.save();
     ctx.globalAlpha = 0.07;
     for (let i = 0; i < 12; i++) {
@@ -641,6 +647,22 @@ export class Renderer {
       ctx.drawImage(glow('#b8c8ff', 128), fx - 300, fy - 100, 600, 200);
     }
     ctx.restore();
+    }
+
+    // ===== night grade (painted town) =====
+    // The town was painted at early evening. Pull it into the night: a cool moonlight multiply over everything, so the
+    // warm windows, porch lights and lamp pools (added back below) are what glows.
+    if (m.builtGround) {
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+      // like a Photoshop Linear Dodge (Add) layer in blue-purple over a slightly darkened town: shadows turn violet-blue,
+      // highlights keep their warmth
+      // (an additive layer lifted the blacks into a haze: multiply keeps the darks deep and still turns them violet-blue)
+      ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = 0.66;
+      ctx.fillStyle = '#6c6fd2'; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#2a2070'; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      ctx.restore();
+    }
 
     // ===== lighting =====
     this.drawLighting(g, toS, zoom, vw, vh, camX, camY);
@@ -651,8 +673,9 @@ export class Renderer {
     for (const L of m.lights) {
       const sx = isoX(L.x, L.y), sy = isoY(L.x, L.y);
       if (!inView(sx - 300, sy - 200, sx + 300, sy + 200)) continue;
-      ctx.globalAlpha = 0.16 * L.i;
-      const rx = L.r * HW * 1.4, ry = L.r * HH * 1.4;
+      const warm = m.builtGround ? 1.9 : 1; // night: lamps and porches throw bigger, warmer pools
+      ctx.globalAlpha = 0.16 * L.i * (m.builtGround ? 1.6 : 1);
+      const rx = L.r * HW * 1.4 * warm, ry = L.r * HH * 1.4 * warm;
       ctx.drawImage(glow(L.color, 128), sx - rx, sy - ry, rx * 2, ry * 2);
     }
     // loot beams: guns on the ground shine in their rarity colour through the night (taller + wider with rarity)
@@ -1376,8 +1399,21 @@ export class Renderer {
     const k = (lc.width / vw);
     L.setTransform(1, 0, 0, 1, 0, 0);
     L.globalCompositeOperation = 'source-over';
-    L.fillStyle = `rgba(5,7,24,${(0.78 * (1 - settings.bright * 0.45)).toFixed(3)})`;
-    L.fillRect(0, 0, lc.width, lc.height);
+    const built = !!g.map.builtGround;
+    if (built) {
+      L.clearRect(0, 0, lc.width, lc.height); // a fresh night each frame: the dark must not pile up frame on frame
+      // moonlit night: the whole town keeps a cool blue dusk you can see across; real darkness only gathers at the screen
+      // edges, far from the kid; street lamps and porches cut warm pools out of it
+      L.fillStyle = `rgba(4,3,18,${(0.38 * (1 - settings.bright * 0.45)).toFixed(3)})`;
+      L.fillRect(0, 0, lc.width, lc.height);
+      const [px, py] = toS(isoX(g.p.x, g.p.y), isoY(g.p.x, g.p.y) - 20), cx = px * k, cy = py * k, R = Math.hypot(lc.width, lc.height) * 0.62;
+      const edge = L.createRadialGradient(cx, cy, R * 0.72, cx, cy, R * 1.08);
+      edge.addColorStop(0, 'rgba(3,5,20,0)'); edge.addColorStop(1, `rgba(3,5,20,${(0.42 * (1 - settings.bright * 0.45)).toFixed(3)})`);
+      L.fillStyle = edge; L.fillRect(0, 0, lc.width, lc.height);
+    } else {
+      L.fillStyle = `rgba(5,7,24,${(0.78 * (1 - settings.bright * 0.45)).toFixed(3)})`;
+      L.fillRect(0, 0, lc.width, lc.height);
+    }
     L.globalCompositeOperation = 'destination-out';
     const spr = lightSprite();
     const light = (wx: number, wy: number, r: number, i: number, lift = 0) => {
@@ -1392,14 +1428,14 @@ export class Renderer {
     for (const s of g.map.lights) {
       const fl = s.flicker ? 0.85 + Math.sin(this.t * 13 + s.x * 7) * 0.08 + Math.sin(this.t * 31 + s.y) * 0.05 : 1;
       // street lamps, porch lights and lit windows clear the dark (almost) completely, dim ones just a bit less
-      light(s.x, s.y, s.r, (0.6 + s.i * 0.45) * fl);
+      light(s.x, s.y, s.r * (built ? 1.5 : 1), (0.6 + s.i * 0.45) * fl);
     }
-    light(p.x, p.y, 3.4, 1, 20);
-    // flashlight cone
-    {
+    light(p.x, p.y, built ? 9 : 3.4, 1, 20);
+    // flashlight cone (the open night of the painted town needs none: its hard sides would cut shapes into the view)
+    if (!built) {
       const [sx, sy] = toS(isoX(p.x, p.y), isoY(p.x, p.y) - 30);
       const a = Math.atan2(isoY(p.aimX, p.aimY), isoX(p.aimX, p.aimY));
-      const R = 8.5 * HW * zoom * k;
+      const R = (built ? 12 : 8.5) * HW * zoom * k;
       const x = sx * k, y = sy * k;
       const gr = L.createRadialGradient(x, y, 0, x, y, R);
       gr.addColorStop(0, 'rgba(255,255,255,0.9)');

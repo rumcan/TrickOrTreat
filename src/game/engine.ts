@@ -1,5 +1,6 @@
 import { MAP_W, MAP_H, CR, CW, CH, screenDirToWorld, screenToWorld, isoX, isoY, rand, clamp, Elem, ELEM, RARITY } from './config';
-import { buildMap, GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
+import { GameMap, cellAt, blockedCircle, lineOfSight, PropInst, HouseInst } from './map';
+import { buildBuiltTown } from './town-built';
 import { G } from './art/tiles';
 import { buildArcadeMap } from './arcade-map';
 import {ARCADE_STAFF} from './arcade-layout';
@@ -490,6 +491,7 @@ export class Game {
   private eid = 1;
   private grid: Enemy[][] = [];
   private flow = new Int32Array(CW * CH);
+  private flowQueue = new Int32Array(CW * CH);
   private navigation = new Uint8Array(CW * CH);
   private flowT = 0;
   private flowCell = -1;
@@ -527,12 +529,12 @@ export class Game {
   private playerReviveProgress = 0;
   private winDelay = 0;
 
-  constructor(hero: number, save: Save, input: Input, campaign = false, seed = (Math.random() * 1e9) | 0) {
+  constructor(hero: number, save: Save, input: Input, campaign = false) {
     this.hero = Number.isInteger(hero) && hero >= 0 && hero < HERO_INFO.length && (hero < 3 || hasFullGame()) ? hero : 0;
     this.campaign = campaign && hasFullGame();
     this.save = save;
     this.input = input;
-    this.map = buildMap(seed, this.campaign || (!campaignOffered() && hasFullGame())); // the full game's bigger town, campaign or not
+    this.map = buildBuiltTown(); // Maple Falls as painted in the town builder: the same town on every run
     this.turrets = this.map.turrets.map((t) => ({ x: t.x, y: t.y, gym: t.gym, aimX: 0.7, aimY: 0.7, cd: 0, heat: 0, over: 0, barrel: 0, recoil: 0 }));
     for (let i = 0; i < MAP_W * MAP_H; i++) this.grid.push([]);
     this.recalcStats();
@@ -1951,7 +1953,7 @@ export class Game {
       coll[cy * CW + cx] = Number(blockedCircle(this.map, (cx + .5) / CR, (cy + .5) / CR, .3));
     }
     f.fill(1 << 30);
-    const q = new Int32Array(CW * CH);
+    const q = this.flowQueue; // reused: the town is large, a fresh 4 MB queue every 0.2 s would churn memory
     let h = 0, t = 0;
     const tur = this.turrets[this.mounted];
     if (tur) {
