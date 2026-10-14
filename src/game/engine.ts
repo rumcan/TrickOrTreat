@@ -490,6 +490,7 @@ export class Game {
   private eid = 1;
   private grid: Enemy[][] = [];
   private flow = new Int32Array(CW * CH);
+  private navigation = new Uint8Array(CW * CH);
   private flowT = 0;
   private flowCell = -1;
   private spawnAcc = 0;
@@ -619,13 +620,19 @@ export class Game {
     return (this.route = out.reverse());
   }
 
-  private freeSpot(x: number, y: number, reachable = false) {
+  private freeSpot(x: number, y: number, reachable = false, clearance = .3) {
     for (let radius = 0; radius < 8; radius += 0.5) for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
       const nx = x + Math.cos(a) * radius, ny = y + Math.sin(a) * radius;
-      if ((!reachable || this.reachable(nx, ny)) && [[0, 0], [-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].every(([dx, dy]) => cellAt(this.map, nx + dx, ny + dy) === 0)) return { x: nx, y: ny };
+      if ((!reachable || this.reachable(nx, ny)) && !blockedCircle(this.map, nx, ny, clearance)) return { x: nx, y: ny };
     }
-    // Never return the unchecked blocked request when a local search fails.
-    return { x: this.map.start.x, y: this.map.start.y };
+    // A large creature or a changed collision map can make the original start
+    // unsafe too. Search reachable clearings instead of returning it unchecked.
+    const start = this.map.start;
+    if ((!reachable || this.reachable(start.x, start.y)) && !blockedCircle(this.map, start.x, start.y, clearance)) return { ...start };
+    for (let ny = .5; ny < MAP_H; ny += .5) for (let nx = .5; nx < MAP_W; nx += .5) {
+      if ((!reachable || this.reachable(nx, ny)) && !blockedCircle(this.map, nx, ny, clearance)) return { x: nx, y: ny };
+    }
+    throw new Error('No body-clear reachable position in the current map');
   }
   private rescueSpot(x: number, y: number) {
     let best: { x: number; y: number } | null = null, distance = Infinity;
@@ -633,7 +640,7 @@ export class Game {
     for (let ny = 2.5; ny < MAP_H - 2; ny++) for (let nx = 2.5; nx < MAP_W - 2; nx++) {
       const d = Math.hypot(nx - x, ny - y);
       if (d >= distance || !this.reachable(nx, ny)) continue;
-      if (![[0, 0], [-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].every(([dx, dy]) => cellAt(this.map, nx + dx, ny + dy) === 0)) continue;
+      if (blockedCircle(this.map, nx, ny, .7)) continue;
       if (this.map.props.some(pr => !pr.removed && nx > pr.x0 - 0.8 && nx < pr.x0 + pr.fw + 0.8 && ny > pr.y0 - 0.8 && ny < pr.y0 + pr.fh + 0.8)) continue;
       best = { x: nx, y: ny }; distance = d;
     }
@@ -1939,7 +1946,10 @@ export class Game {
     if (!force && (this.flowT > 0 || pc === this.flowCell)) return;
     this.flowT = 0.2;
     this.flowCell = pc;
-    const f = this.flow, coll = this.map.coll;
+    const f = this.flow, coll = this.navigation;
+    if (force) for (let cy = 0; cy < CH; cy++) for (let cx = 0; cx < CW; cx++) {
+      coll[cy * CW + cx] = Number(blockedCircle(this.map, (cx + .5) / CR, (cy + .5) / CR, .3));
+    }
     f.fill(1 << 30);
     const q = new Int32Array(CW * CH);
     let h = 0, t = 0;
@@ -1974,7 +1984,7 @@ export class Game {
       for (let dx = -1; dx <= 1; dx++) {
         if (!dx && !dy) continue;
         const n = c + dy * CW + dx;
-        if (dx && dy && (this.map.coll[c + dx] || this.map.coll[c + dy * CW])) continue;
+        if (dx && dy && (this.navigation[c + dx] || this.navigation[c + dy * CW])) continue;
         const v = this.flow[n] + (dx && dy ? 0.4 : 0);
         if (v < best) { best = v; bx = dx; by = dy; }
       }
@@ -1984,6 +1994,7 @@ export class Game {
     return { x: (tx - x) / l, y: (ty - y) / l };
   }
   reachable(x: number, y: number) {
+    if (x < 0 || y < 0 || x >= MAP_W || y >= MAP_H) return false;
     const c = Math.floor(y * CR) * CW + Math.floor(x * CR);
     return c >= 0 && c < this.flow.length && this.flow[c] < (1 << 29);
   }
@@ -1991,6 +2002,12 @@ export class Game {
   // ---------- enemies ----------
   spawnEnemy(type: string, x: number, y: number, elite = false, forcedAffix?: EnemyAffix | null) {
     const def = EDEF[type];
+    if (!def.fly && !def.phase && !def.boss && (blockedCircle(this.map, x, y, def.r * (elite ? 1.25 : 1) * .85) || !this.reachable(x, y))) {
+      const clearance = def.r * (elite ? 1.25 : 1) * .85;
+      let spot = this.freeSpot(x, y, true, clearance);
+      if (Math.hypot(spot.x - this.p.x, spot.y - this.p.y) < 2) spot = this.freeSpot(this.p.x + 4, this.p.y, true, clearance);
+      x = spot.x; y = spot.y;
+    }
     const affix = def.boss ? null : forcedAffix === undefined ? rollAffix(this.wave) : forcedAffix;
     const fodder = this.wave > 10 && !def.boss && !def.elite && !elite && !affix;
     const scale = 1 + this.time / 60 * 0.38 + (this.endless ? 1.5 : 0);
@@ -2147,7 +2164,7 @@ export class Game {
       } else if (e.spawnT > 0) speed = 0;
       else if (d.fly || d.phase || d.boss) {
         mx = dx / dist; my = dy / dist;
-      } else if (dist < 3 && lineOfSight(this.map, e.x, e.y, p.x, p.y)) {
+      } else if (dist < 3 && lineOfSight(this.map, e.x, e.y, p.x, p.y, 1)) {
         mx = dx / dist; my = dy / dist;
       } else {
         const f = this.flowDir(e.x, e.y);
@@ -3541,7 +3558,7 @@ export class Game {
       const x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
       if (x < 1 || y < 1 || x > MAP_W - 1 || y > MAP_H - 1) continue;
       if (cellAt(this.map, x, y) !== 0) continue;
-      if (!fly && (cellAt(this.map, x - 0.3, y - 0.3) || cellAt(this.map, x + 0.3, y + 0.3) || cellAt(this.map, x - 0.3, y + 0.3) || cellAt(this.map, x + 0.3, y - 0.3))) continue;
+      if (!fly && blockedCircle(this.map, x, y, .3)) continue;
       if (!fly && !this.reachable(x, y)) continue;
       return { x, y };
     }

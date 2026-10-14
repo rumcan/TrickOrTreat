@@ -24,3 +24,7 @@ art/regen/run.*
 
 # Nightmare roster: test screenshots and contact sheets
 art/nightmare/checks/
+
+# Local test runs, rendered reviews, exports and isolated worktrees.
+/output/
+/.codex-session/

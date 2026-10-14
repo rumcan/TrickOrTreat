@@ -758,14 +758,20 @@ export function cellAt(m: GameMap, x: number, y: number) {
   return m.coll[cy * CW + cx];
 }
 export function blockedCircle(m: GameMap, x: number, y: number, r: number) {
-  return cellAt(m, x - r, y - r) > 0 || cellAt(m, x + r, y - r) > 0 || cellAt(m, x - r, y + r) > 0 || cellAt(m, x + r, y + r) > 0 || cellAt(m, x, y) > 0;
+  // Match movement's full footprint: five samples can miss thin obstacles
+  // between the centre and corners and incorrectly approve a spawn or route.
+  const x0 = Math.floor((x - r) * CR), x1 = Math.floor((x + r) * CR);
+  const y0 = Math.floor((y - r) * CR), y1 = Math.floor((y + r) * CR);
+  if (x0 < 0 || y0 < 0 || x1 >= CW || y1 >= CH) return true;
+  for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) if (m.coll[cy * CW + cx]) return true;
+  return false;
 }
-export function lineOfSight(m: GameMap, x0: number, y0: number, x1: number, y1: number) {
+export function lineOfSight(m: GameMap, x0: number, y0: number, x1: number, y1: number, solidLevel = 2) {
   const d = Math.hypot(x1 - x0, y1 - y0);
   const steps = Math.ceil(d * CR);
   for (let i = 1; i < steps; i++) {
     const t = i / steps;
-    if (cellAt(m, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) === 2) return false;
+    if (cellAt(m, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) >= solidLevel) return false;
   }
   return true;
 }
