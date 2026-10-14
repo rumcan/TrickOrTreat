@@ -24,3 +24,18 @@ art/regen/run.*
 
 # Nightmare roster: test screenshots and contact sheets
 art/nightmare/checks/
+
+# Local renders, stitched reviews, test fixtures, exports and builder working data.
+# Runtime assets belong in public/assets; keep local source material outside Git.
+/output/
+/.codex-session/
+/art/town/checks/
+/art/town/review/*.png
+/art/town/static/review/*.png
+/art/town/ground-quadrants/*depth-*.png
+/art/town/ground-quadrants/ground-full-*.png
+/art/town/ground-quadrants/registered-inputs-page-*.png
+/art/town/ground-quadrants/registered-review/*.png
+/art/town/stitch-repair/map-*.png
+/art/town/stitch-repair/*pilot*.png
+/art/town/stitch-repair/delivery-with-test-repairs.png
