@@ -1,4 +1,4 @@
-export type ExpansionState = { owned: boolean; loading: boolean; buying: boolean; bits: number | null; error: string; preview: boolean };
+export type ExpansionState = { owned: boolean; loading: boolean; buying: boolean; bits: number | null; error: string; preview: boolean; /** unlocked by playing (see ESSENCE_UNLOCK), not by buying */ earned: boolean };
 export interface ExpansionPort {
   quantity(): Promise<number>;
   price(): Promise<number | null>;
@@ -8,14 +8,17 @@ export interface ExpansionPort {
   uuid(): string;
 }
 export function createExpansionStore(port: ExpansionPort, development = false) {
-  let view: ExpansionState = { owned: false, loading: true, buying: false, bits: null, error: '', preview: false };
+  let view: ExpansionState = { owned: false, loading: true, buying: false, bits: null, error: '', preview: false, earned: false };
   let restoring: Promise<void> | null = null;
   const listeners = new Set<() => void>();
   const update = (next: Partial<ExpansionState>) => { view = { ...view, ...next }; for (const fn of listeners) fn(); };
   return {
     subscribe(fn: () => void) { listeners.add(fn); return () => { listeners.delete(fn); }; },
     snapshot: () => view,
-    hasAccess: () => view.owned || (development && view.preview),
+    hasAccess: () => view.owned || view.earned || (development && view.preview),
+    /** the full game, earned with Essence: as good as owned on this save, and nothing to buy any more */
+    grantEarned() { if (!view.earned) update({ earned: true }); },
+    revokeEarned() { if (view.earned) update({ earned: false }); },
     restore() {
       if (view.buying) return Promise.resolve();
       if (restoring) return restoring;

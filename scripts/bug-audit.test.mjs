@@ -62,7 +62,7 @@ try {
       check('companion beams respect elemental immunity', () => {
         const g = game(0, true), f = g.friends[0]; f.status = 'rescued'; g.activeFriend = f.hero; f.x = g.p.x; f.y = g.p.y; f.hurtCd = 99;
         f.weapon = makeWeapon('laser', 0); f.weapon.traits = [];
-        g.map.coll.fill(0); const e = g.spawnEnemy('zombie', g.p.x + 2, g.p.y, false, 'stormproof'); e.spawnT = 0; e.hp = e.maxHp = 1000;
+        g.map.coll.fill(0); g.computeFlow(true); const e = g.spawnEnemy('zombie', g.p.x + 2, g.p.y, false, 'stormproof'); e.spawnT = 0; e.hp = e.maxHp = 1000;
         g.rebuildGrid(); g.updateTeam(.01); require(e.hp === 1000, 'Companion lightning beam bypasses lightning immunity');
       }),
       check('guardian health and shields remain consistent', () => {
@@ -76,11 +76,11 @@ try {
         g.ebullets = [{ x: g.p.x, y: g.p.y, vx: 0, vy: 0, dmg: 999, r: .1, life: 1, color: '#fff', kind: 'orb', dead: false }];
         g.update(.01); require(g.state === 'dead' && g.housesVisited === 0, 'Dead state gets overwritten by a door reward');
       }),
-      check('boss-killing nova preserves safe shop', () => {
+      check('boss-killing nova starts the quiet, not a death', () => {
         const g = game(); g.wearCostume('pumpkin', false); g.p.hp = 1; g.p.shield = 0;
         g.boss = g.spawnEnemy('king', g.p.x + 1, g.p.y); g.boss.hp = 1; g.boss.shield = 0; g.rebuildGrid();
         g.takeDamage(999, g.boss.x, g.boss.y);
-        require(g.state === 'play' && g.bossBreak && g.p.hp > 0, 'A stale hit kills the player after the boss is cleared');
+        require(g.state === 'play' && g.calmT > 0 && g.p.hp > 0, 'A stale hit kills the player after the boss is cleared');
       }),
       check('boss clear removes queued chain reactions', () => {
         const g = game(); g.procQueue = [{ x: g.p.x, y: g.p.y, r: 1, dmg: 100, gen: 1 }];
@@ -92,18 +92,18 @@ try {
         const shield = g.p.shield; g.updateEBullets(.01); require(g.p.shield === shield, 'Destroyed projectile still damages player');
       }),
       check('fast projectiles cannot skip creatures', () => {
-        const g = game(); g.map.coll.fill(0); g.p.x = 10.25; g.p.y = 10.25; g.computeFlow(true);
+        const g = game(); g.map.coll.fill(0); g.computeFlow(true); g.p.x = 10.25; g.p.y = 10.25;
         const e = g.spawnEnemy('zombie', 11.75, 10.25, false, null); e.spawnT = 0; e.hp = e.maxHp = 1000;
         g.bullets = [bullet(10.25, 10.25, 90)]; g.rebuildGrid(); g.updateBullets(1 / 30);
         require(e.hp === 900, 'Fast shot crosses an enemy without collision');
       }),
       check('fast projectiles cannot skip solid walls', () => {
-        const g = game(); g.map.coll.fill(0); const b = bullet(10.25, 10.25, 90);
+        const g = game(); g.map.coll.fill(0); g.computeFlow(true); const b = bullet(10.25, 10.25, 90);
         g.map.coll[Math.floor(b.y * CR) * CW + Math.floor(11.25 * CR)] = 2;
         g.bullets = [b]; g.updateBullets(1 / 30); require(b.dead && b.x < 11.5, 'Fast shot tunnels through wall cell');
       }),
       check('fast shots hit creatures before a later wall', () => {
-        const g = game(); g.map.coll.fill(0); const b = bullet(10.25, 10.25, 90); g.computeFlow(true);
+        const g = game(); g.map.coll.fill(0); g.computeFlow(true); const b = bullet(10.25, 10.25, 90);
         const e = g.spawnEnemy('zombie', 11, 10.25, false, null); e.spawnT = 0; e.hp = e.maxHp = 1000;
         g.map.coll[Math.floor(b.y * CR) * CW + Math.floor(12.25 * CR)] = 2;
         g.bullets = [b]; g.rebuildGrid(); g.updateBullets(1 / 30); require(e.hp === 900, 'Later wall discards an earlier creature hit');
@@ -114,7 +114,7 @@ try {
         require(g.scrolls[id] === 1 && g.pendingLevels === 0, 'Double selection grants an extra free treat and negative pending levels');
       }),
       check('many ground pickups cannot bypass the radius nerf', () => {
-        const g = game(); g.map.coll.fill(0);
+        const g = game(); g.map.coll.fill(0); g.computeFlow(true);
         g.pickups = Array.from({ length: 501 }, () => ({ x: g.p.x + 10, y: g.p.y, z: 0, vz: 0, vx: 0, vy: 0, kind: 'xp1', value: 1, mag: false, t: 1, dead: false }));
         g.updatePickups(.01);
         require(g.pickups.every(p => !p.mag), 'Pickup overflow forces distant XP to fly to the player');

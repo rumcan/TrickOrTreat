@@ -13,9 +13,9 @@ try {
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   const splash = page.getByTestId('splash-art');
   await splash.evaluate(async img => { await img.decode(); });
-  assert.ok(await splash.evaluate(img => img.currentSrc.endsWith('/images/splash.webp')));
+  assert.ok(await splash.evaluate(img => img.currentSrc.split('?')[0].endsWith('/images/splash.webp')));
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForFunction(() => document.querySelector('[data-testid="splash-art"]').currentSrc.endsWith('/images/splash_portrait.webp'));
+  await page.waitForFunction(() => document.querySelector('[data-testid="splash-art"]').currentSrc.split('?')[0].endsWith('/images/splash_portrait.webp'));
   await splash.evaluate(async img => { await img.decode(); });
   await page.setViewportSize({ width: 1440, height: 900 });
   for (const item of Object.values(manifest.overrides)) {
@@ -25,8 +25,8 @@ try {
   assert.equal(await page.getByRole('button', { name: /Preview expansion locally/ }).count(), 0);
   assert.equal(await page.getByRole('button', { name: 'Collection', exact: true }).count(), 0, 'No art collection in production');
   assert.equal(await page.evaluate(() => typeof window.__tot), 'undefined');
-  await page.getByRole('button', { name: 'Discover the full game' }).click();
-  const showcase = page.getByRole('dialog', { name: 'HIDE & SHRIEK' });
+  await page.getByRole('button', { name: 'Support the creator' }).click();
+  const showcase = page.getByRole('dialog', { name: 'THE FULL GAME' });
   await showcase.waitFor();
   assert.equal(await showcase.getByRole('button', { name: /Purchase currently unavailable|Checking ownership/ }).isDisabled(), true);
   await showcase.getByRole('button', { name: 'Close full game showcase' }).click();
@@ -44,7 +44,7 @@ try {
     await mobile.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
     await mobile.getByRole('button', { name: 'Go trick-or-treating' }).tap();
     await mobile.getByTestId('touch-move').waitFor();
-    await mobile.getByTestId('touch-aim').waitFor();
+    assert.equal(await mobile.getByTestId('touch-aim').count(), 0, 'Movement is drag-anywhere; there is no aim stick');
     assert.equal(await mobile.evaluate(() => typeof window.__tot), 'undefined', 'Touch controls must not require development globals');
     await mobile.getByRole('button', { name: 'Map', exact: true }).tap();
     await mobile.getByRole('button', { name: 'Map', exact: true }).tap();

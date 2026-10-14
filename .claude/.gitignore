@@ -1,0 +1,5 @@
+# This folder is the working area of the coding sessions: debug scripts, test logs, screenshots, backups.
+# None of that belongs in the repository. What IS kept: the changelog sent to RUN with each release.
+*
+!.gitignore
+!changelog-*.txt

@@ -5,14 +5,14 @@
 //  · a bottom ink TAB STRIP (guns / skill / dash; the gun in hand is the "paper" tab) with a paper DRAWER
 //    that opens above it for whatever needs you right now (revive, cannon, doorstep, pickups);
 //  · NOTICES as paper slips with a 4px orange left edge.
-import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon } from 'lucide-react';
+import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon, X } from 'lucide-react';
 import { HudSnap, Game } from '../game/engine';
 import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/data';
 import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
-import { requestGameFullscreen } from './fullscreen';
+import { requestGameFullscreen, canFullscreen } from './fullscreen';
 import { Banner, Keycap } from './kit';
 import { FACES, HERO_COLORS, BannerKind } from './art';
-import RadioPill from './RadioPill';
+import RadioPill, { MusicToggle } from './RadioPill';
 import { TAG_DEFS, TAG_ORDER } from '../game/build';
 import { buttonPress } from './button-press';
 
@@ -39,7 +39,7 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
   const hero = game.hero, h = HERO_INFO[hero];
   const costume = s.costume ? COSTUME_BY_ID[s.costume] : null;
   const goals = [
-    { done: s.costumesFound >= 3, label: 'Find costumes', v: `${Math.min(s.costumesFound, 3)}/3` },
+    { done: s.costumesFound >= 1, label: 'Find your costume', v: `${Math.min(s.costumesFound, 1)}/1` },
     { done: s.doorsRung >= 5, label: 'Ring doorbells', v: `${s.doorsRung}/${Math.max(5, s.housesTotal)}` },
     { done: s.time >= 300, label: 'Survive', v: '05:00' },
   ];
@@ -80,7 +80,9 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
       <div className="hm-clock">
         <div className="hm-time">{fmtTime(s.time)}</div>
         <div className="hm-time-sub">
-          {s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
+          {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop <button type="button" className="pointer-events-auto ml-2 border border-[#ffa338] px-2 py-1 text-[#ffa338]" onClick={()=>game.skipBuyWindow()}>Skip break</button></span>
+            : s.bossFight ? <span className="text-[#ff5a6e]">Wave {Math.max(1, s.wave)} · Boss fight</span>
+            : s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
             : s.bossIn !== null ? <span>Boss in {fmtTime(s.bossIn)}</span>
               : <span>Night falls</span>}
         </div>
@@ -99,7 +101,8 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
           <button className="hm-iconbtn hm-desk hm-mobile-access" title="Your run build (I)" aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
           <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
           <button className="hm-iconbtn" title="Pause (Esc)" aria-label="Pause" {...buttonPress(() => { if (game.state === 'play') game.state = 'pause'; })}><PauseIcon size={16} /></button>
-          <button className="hm-iconbtn hm-desk hm-mobile-access" title="Fullscreen" aria-label="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={15} /></button>
+          {/* only where the host or browser can actually do it: on phones inside RUN it cannot */}
+          {canFullscreen() && <button className="hm-iconbtn hm-desk hm-mobile-access" title="Fullscreen" aria-label="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={15} /></button>}
         </div>
       </div>
       {/* the orange rule is the XP meter */}
@@ -113,7 +116,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
   const treats = Object.entries(s.scrolls).filter(([id, n]) => n > 0 && SCROLL_BY_ID[id]);
   const max = 9;
   const tags = TAG_ORDER.filter((t) => game.build.tiers[t] > 0).sort((a, b) => game.build.tiers[b] - game.build.tiers[a]).slice(0, 4);
-  const friends = game.campaign ? game.friends : [];
+  const friends = game.friends;
   return (
     <aside className="hm-rail pointer-events-auto" aria-label="Treats and synergies">
       <div className="hm-rail-title">Treats</div>
@@ -121,10 +124,10 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {treats.slice(0, max).map(([id, n]) => {
         const sc = SCROLL_BY_ID[id];
         return (
-          <div key={id} className="hm-rail-row" title={`${sc.name} ×${n}: ${sc.desc}`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }}>
+          <button type="button" key={id} className="hm-rail-row hm-rail-treat" aria-label={`${sc.name}${n > 1 ? ` ×${n}` : ''}. Click to discard.`} title={`${sc.name} ×${n}: ${sc.desc} · click to discard`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }} onClick={() => game.askDiscard(id)}>
             <span className="hm-rail-art" style={{ borderColor: RARITY_KIT[sc.rarity] }}><TreatArt id={id} /></span>
             {n > 1 && <span className="hm-rail-n">×{n}</span>}
-          </div>
+          </button>
         );
       })}
       {treats.length > max && <button className="hm-rail-row hm-rail-more" onClick={() => game.state === 'play' && (game.state = 'inventory')}>+{treats.length - max}<small>more</small></button>}
@@ -137,11 +140,11 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {friends.length > 0 && (
         <>
           <div className="hm-rail-title">Friends</div>
-          <div className="px-2 pb-2 text-xs text-white">M: rescue map · cyan + marks your friends</div>
+          {game.campaign && <div className="px-2 pb-2 text-xs text-white">M: rescue map · cyan + marks your friends</div>}
           {friends.map((f) => (
-            <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (game.activeFriend === f.hero ? 'your helper' : 'saved') : game.map.gates[f.gate].name}`}>
+            <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (f.hp > 0 ? 'fighting beside you' : 'down: revive them') : game.rescueMap.gates[f.gate].name}`}>
               <span className="hm-av h-7 w-7 !border" style={{ background: HERO_COLORS[f.hero], borderColor: f.status === 'rescued' ? '#66d2b7' : '#5f6470', opacity: f.status === 'rescued' ? 1 : 0.55 }}><img src={FACES[f.hero]} alt="" className="h-full w-full object-cover" /></span>
-              <span className="hm-rail-n" style={{ color: f.status === 'rescued' ? '#66d2b7' : '#ffffff' }}>{f.status === 'rescued' ? (game.activeFriend === f.hero ? 'help' : 'safe') : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.map.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
+              <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{(f.abductT??0)>0 ? `abducted ${Math.ceil(f.abductT!)}s` : f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil(game.friendCountdown - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.rescueMap.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
             </div>
           ))}
         </>
@@ -159,7 +162,7 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
         ws ? (
           <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} aria-pressed={i === s.cur} {...buttonPress(() => game.input.tap(String(i + 1)))} className={`hm-tab ${i === s.cur ? 'active' : ''}`} style={{ boxShadow: `inset 0 -3px 0 ${RARITY_KIT[ws.w.rarity]}` }}>
             <Keycap className="hm-key">{String(i + 1)}</Keycap>
-            <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
+            <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
             <span className="hidden min-w-0 flex-col leading-none md:flex">
               <span className="hm-tab-name">{ws.w.def.name}</span>
               <span className="hm-tab-sub">{ws.w.reloadT > 0 ? <span className="text-[#f08a2c]">Reloading…</span> : <>{ws.w.ammo} / {ws.st.mag}</>}</span>
@@ -242,11 +245,9 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
   return (
     <div className="pointer-events-none absolute inset-0 select-none font-ui text-[#f2e6c9]">
       <TopBar s={s} game={game} />
-      {s.bossBreak !== null && s.state === 'play' && <section className="boss-break-panel pointer-events-auto" aria-label="Boss defeated shopping break">
-        <div><strong>BOSS DEFEATED</strong><span>{Math.ceil(s.bossBreak)}s safe · collect your loot</span></div>
-        <button onClick={() => game.openBossShop()}>Visit upgrade shop</button><button className="boss-break-skip" onClick={() => game.skipBossBreak()}>Skip break</button>
-      </section>}
       {!s.bigMap && <Rail s={s} game={game} />}
+      <MusicToggle className="hm-music pointer-events-auto" />
+      {s.bigMap && <button type="button" className="hm-mapclose pointer-events-auto" {...buttonPress(() => { game.bigMap = false; })}><X size={16} strokeWidth={3} /> Close map</button>}
 
       {/* walkie-talkie notices: paper slips under the minimap */}
       <div className="hm-notices">
@@ -265,17 +266,17 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
           <div className="flex items-baseline justify-between gap-3">
             <span className="hm-kicker !mb-0">Boss</span>
             <span className="font-cond text-xl uppercase leading-none text-[#f2e8d4]">{s.boss.name}</span>
-            <span className="font-num text-[11px] text-[#8f8676]">{Math.max(0, Math.ceil((s.boss.hp / s.boss.max) * 100))}%</span>
+            <span className="font-num text-[11px] text-[#f2e8d4]">{s.boss.invulnerable ? 'UNSTOPPABLE' : `${Math.max(0, Math.ceil((s.boss.hp / s.boss.max) * 100))}%`}</span>
           </div>
           {s.boss.maxShield > 0 && <div className="mt-2 text-xs text-[#a7edff]">
             <div className="flex justify-between gap-3"><span>Shield {Math.ceil(s.boss.shield)} / {Math.ceil(s.boss.maxShield)}</span><span>{s.boss.shieldT > 0 ? `Recharges in ${Math.ceil(s.boss.shieldT)}s` : 'Recharging'}</span></div>
             <div data-testid="boss-shield" title="Shield absorbs damage before health" className="mt-1 h-1 bg-black/60"><div className="h-full bg-[#76ddff]" style={{ width: pct(s.boss.shield, s.boss.maxShield) }} /></div>
           </div>}
-          <div data-testid="boss-health" className="hm-progress mt-1.5 !h-2.5"><i style={{ width: pct(s.boss.hp, s.boss.max) }} /></div>
+          {s.boss.invulnerable ? <p className="mt-2 text-sm text-[#f2e8d4]">Dodge the tentacles. Survive as long as you can.</p> : <div data-testid="boss-health" className="hm-progress mt-1.5 !h-2.5"><i style={{ width: pct(s.boss.hp, s.boss.max) }} /></div>}
         </div>
       )}
 
-      {s.banner && s.bossBreak === null && s.state === 'play' && !s.bigMap && <BannerPlate text={s.banner.text} sub={s.banner.sub} kind={BANNER_KIND[s.banner.kind]} t={s.banner.t} />}
+      {s.banner && s.state === 'play' && !s.bigMap && <BannerPlate text={s.banner.text} sub={s.banner.sub} kind={BANNER_KIND[s.banner.kind]} t={s.banner.t} />}
 
       {/* bottom: drawer over the tab strip */}
       <div className="hm-dock">

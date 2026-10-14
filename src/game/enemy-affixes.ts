@@ -1,7 +1,7 @@
 import type { Elem } from './config';
 
 export type EnemyAffix = 'stormproof' | 'fireproof' | 'ectoproof' | 'ricochet' | 'armored' | 'piercing';
-export interface DamageProfile { element?: Elem | null; pierce?: number; ricochet?: boolean }
+export interface DamageProfile { element?: Elem | null; pierce?: number; ricochet?: boolean; /** a heavy gun's blast: wrecks a car or a house in one hit */ demolish?: boolean; /** a wreck's own explosion: it does not wreck what stands next to it */ noWreck?: boolean }
 export const AFFIX_INFO: Record<EnemyAffix, { name: string; color: string }> = {
   stormproof: { name: 'Stormproof', color: '#99dcff' },
   fireproof: { name: 'Fireproof', color: '#ffa975' },
@@ -27,8 +27,9 @@ export function damageDefense(affix: EnemyAffix | null, hit: DamageProfile = {})
   if (affix === 'armored' && (hit.pierce ?? 0) < 1) return { multiplier: 0.2, reason: 'Armor -80%' };
   return { multiplier: 1, reason: '' };
 }
-/** Early waves remain tough; late specials grow faster than the ordinary crowd. */
+/** Monster health per wave: x1.65 a wave to wave 10, then specials keep climbing faster than the ordinary crowd. */
+export const WAVE_HP = 1.65;
 export function enemyHealthScale(wave: number, fodder = false) {
-  if (wave <= 10) return Math.pow(1.6, wave - 1);
-  return Math.pow(1.6, 9) * (fodder ? 0.18 * Math.pow(1.06, wave - 10) : Math.pow(1.18, wave - 10));
+  if (wave <= 10) return Math.pow(WAVE_HP, wave - 1);
+  return Math.pow(WAVE_HP, 9) * (fodder ? 0.18 * Math.pow(1.08, wave - 10) : Math.pow(1.2, wave - 10));
 }

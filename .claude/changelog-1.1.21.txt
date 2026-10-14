@@ -1,0 +1,4 @@
+The first house you are sent to is now the easiest one to walk to, and a trail of green dots on the ground shows the way around buildings to its door.
+Waves and bosses now go together: while a boss is alive, no new wave starts.
+Every boss now arrives with its own kind of helpers.
+Guns left on the ground disappear after two minutes. They blink for the last ten seconds.

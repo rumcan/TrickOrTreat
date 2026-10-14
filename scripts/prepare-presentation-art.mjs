@@ -17,7 +17,7 @@ if (!thumbnailOnly) {
   await fs.copyFile(path.join(source, 'newlogo.png'), path.join(output, 'images', 'newlogo.png'));
   await prepareLogo();
   for (const name of ['splash', 'splash_portrait']) {
-    await sharp(path.join(source, `${name}.png`)).webp({ quality: 90 }).toFile(path.join(output, 'images', `${name}.webp`));
+    await sharp(path.join(source, `${name}.png`)).webp({ quality: 72, effort: 6 }).toFile(path.join(output, 'images', `${name}.webp`));
   }
   await fs.mkdir(path.join(output, 'images', 'ui'), { recursive: true });
   for (const [file, hero] of [['portrait_red_boy.png', 'tommy'], ['portrait_orange_boy.png', 'sam'], ['portrait_purple_girl.png', 'jess'], ['portrait_yellow_girl.png', 'maya'], ['portrait_blue_boy.png', 'leo']]) {

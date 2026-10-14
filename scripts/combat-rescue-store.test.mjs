@@ -6,8 +6,8 @@ try {
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
-  await page.getByRole('button', { name: 'Discover the full game' }).click();
-  const dialog = page.getByRole('dialog', { name: 'HIDE & SHRIEK' });
+  await page.getByRole('button', { name: 'Support the creator' }).click();
+  const dialog = page.getByRole('dialog', { name: 'THE FULL GAME' });
   const catalog = await page.evaluate(async () => {
     const d = await import('/src/game/data.ts');
     return [...d.WEAPONS, ...d.SCROLLS, ...d.COSTUMES, ...d.TALENTS].filter(a => a.premium).map(a => a.name).concat(d.HERO_INFO.slice(3).map(h => h.name));
@@ -21,7 +21,7 @@ try {
     await page.screenshot({ path: `art/world/checks/unlock-${size.width}.png` });
   }
   await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'detached' });
-  assert.equal(await page.getByRole('button', { name: 'Discover the full game' }).evaluate(e => e === document.activeElement), true);
+  assert.equal(await page.getByRole('button', { name: 'Support the creator' }).evaluate(e => e === document.activeElement), true);
   const result = await page.evaluate(async () => {
     const { Game } = await import('/src/game/engine.ts');
     const { expansion } = await import('/src/game/expansion.ts');
@@ -36,8 +36,8 @@ try {
     const regular = g.spawnEnemy('zombie', g.p.x + 6, g.p.y), hp = regular.maxHp;
     regular.hp *= .5;
     for (let wave = 2; wave <= 6; wave++) {
-      const oldHp = regular.maxHp, threat = g.threat(); g.time = (wave - 1) * 60; g.director(.001);
-      require(Math.abs(regular.maxHp / oldHp - 1.6) < .0001 && g.threat() > threat, 'Every wave strengthens living monsters');
+      const oldHp = regular.maxHp, threat = g.threat(); g.bossRound = wave - 1; g.director(.001); // a wave begins when the boss before it has fallen
+      require(Math.abs(regular.maxHp / oldHp - 1.65) < .0001 && g.threat() > threat, 'Every wave strengthens living monsters');
       require(Math.abs(regular.hp / regular.maxHp - .5) < .0001, 'Wave does not heal damaged monster');
     }
     const lieutenant = g.spawnEnemy('skeleton', g.p.x + 8, g.p.y, true);
@@ -89,10 +89,10 @@ try {
       const { Renderer } = await import('/src/game/render.ts');
       const renderer = new Renderer(canvas, 0);
       renderer.render(nav, 1 / 60);
-      const healthBar = rectangles.find(r => r.color === '#ff3b3b' && r.w === 60 && r.h === 6);
-      const shieldBar = rectangles.find(r => r.color === '#76ddff' && r.w === 30 && r.h === 4);
+      const healthBar = rectangles.find(r => r.color === '#ff3b3b' && r.w === 30 && r.h === 3);
+      const shieldBar = rectangles.find(r => r.color === '#76ddff' && r.w === 15 && r.h === 2);
       require(healthBar && shieldBar && shieldBar.x === healthBar.x && shieldBar.y + shieldBar.h < healthBar.y, 'Light-blue shield line is above enemy health');
-      require(rectangles.some(r => r.x === healthBar.x && r.w === 5 && r.h === 4 && r.y > healthBar.y + healthBar.h), 'Status markers do not obscure the shield');
+      require(rectangles.some(r => r.x === healthBar.x && r.w === 3 && r.h === 3 && r.y > healthBar.y + healthBar.h), 'Status markers do not obscure the shield');
       require(labels.some(t => t.includes('gate') || t.startsWith('Rescue ')), 'Screen points toward next kid');
       require(!labels.includes(String.fromCodePoint(0x1f383)), 'No bag indicator arrows');
       nav.bigMap = true; labels.length = 0; renderer.render(nav, 1 / 60);

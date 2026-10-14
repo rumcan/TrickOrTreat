@@ -1,5 +1,5 @@
 import { makeCanvas, radialGlow, ellipse, circle } from './draw';
-import { asset, Img } from '../assets';
+import { asset, sheetAsset, Img } from '../assets';
 
 const ICON_STYLE = 'Side-view toy weapon icon, transparent background, pointing RIGHT, chunky hand-painted pixel art with 2px dark outline, grip/hand pivot at pixel (16,20), 64x32 px.';
 const OL = '#120c10';
@@ -32,6 +32,20 @@ for (const [id, desc, color] of [
   ['bubblegum', 'Bubblegum Rail: pink toy railgun with a transparent bubblegum energy reservoir', '#b65f85'],
   ['acorn', 'Acorn Repeater: wooden toy repeater with an acorn hopper and green barrel', '#829150'],
 ]) ICONS[id] = { desc, draw: c => { box(c, 12, 18, 8, 11, '#503929'); box(c, 8, 9, 38, 13, color, 4); box(c, 44, 13, 15, 6, '#473c45'); circle(c, 30, 20, 8, color); } };
+
+Object.assign(ICONS, {
+  stream: { desc: 'Spectre Stream - black and brass particle thrower wand with a crackling orange tip', draw: (c) => { box(c, 13, 18, 7, 11, '#2a2a30'); box(c, 8, 11, 30, 9, '#34343c', 3); c.fillStyle = '#c9a04a'; for (let x = 24; x < 46; x += 5) c.fillRect(x, 12, 2, 7); box(c, 36, 13, 16, 5, '#8a6a2a'); circle(c, 56, 15.5, 5, 'rgba(255,154,58,0.6)'); circle(c, 56, 15.5, 2.5, '#fff0c8'); } },
+  disc: { desc: 'Grid Disc - glowing cyan light disc in a black throwing grip', draw: (c) => { box(c, 12, 16, 8, 12, '#1c2430'); circle(c, 36, 15, 13, '#0a2a3a'); c.strokeStyle = OL; c.lineWidth = 1.5; c.stroke(); c.strokeStyle = '#21d0ff'; c.lineWidth = 2.5; c.beginPath(); c.arc(36, 15, 10, 0, Math.PI * 2); c.stroke(); c.lineWidth = 1; c.beginPath(); c.arc(36, 15, 5, 0, Math.PI * 2); c.stroke(); circle(c, 36, 15, 2, '#d8f8ff'); } },
+  sabre: { desc: 'Thunder Sabre - heroic sword with a golden winged crossguard and a lightning blade', draw: (c) => { box(c, 6, 14, 12, 5, '#5a3418'); box(c, 16, 8, 5, 17, '#ffcf3a', 2); circle(c, 18.5, 16.5, 2.2, '#e8352a'); c.beginPath(); c.moveTo(21, 12); c.lineTo(56, 13); c.lineTo(62, 16.5); c.lineTo(56, 20); c.lineTo(21, 21); c.closePath(); c.fillStyle = '#eef4ff'; c.fill(); c.strokeStyle = OL; c.lineWidth = 1.5; c.stroke(); c.strokeStyle = '#ffe14a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(24, 17); c.lineTo(33, 14); c.lineTo(40, 19); c.lineTo(50, 15); c.stroke(); } },
+  glaive: { desc: 'Star Glaive - five-bladed golden throwing star', draw: (c) => { box(c, 10, 15, 14, 5, '#5a3418'); c.beginPath(); for (let k = 0; k < 10; k++) { const r = k % 2 ? 5 : 14, a = (k / 10) * Math.PI * 2 - Math.PI / 2; c.lineTo(40 + Math.cos(a) * r, 16 + Math.sin(a) * r); } c.closePath(); c.fillStyle = '#f1d8a0'; c.fill(); c.strokeStyle = OL; c.lineWidth = 1.5; c.stroke(); circle(c, 40, 16, 3, '#e8352a'); } },
+  flamer: { desc: 'Bug-Hunt Flamethrower - olive and red marine flamethrower with twin tanks', draw: (c) => { box(c, 4, 6, 18, 7, '#c8241e', 3); box(c, 4, 13, 18, 7, '#b81e1a', 3); box(c, 22, 19, 7, 10, '#2a2a2a'); box(c, 20, 9, 22, 10, '#6a7a42', 3); box(c, 40, 11, 16, 6, '#3a342e'); c.fillStyle = '#ff8a1e'; c.fillRect(27, 12, 8, 3); circle(c, 59, 14, 4, 'rgba(255,138,30,0.75)'); circle(c, 59, 14, 2, '#fff0b0'); } },
+  swarm: { desc: 'Micro-Missile Pod - boxy olive shoulder pod with a grid of launch tubes', draw: (c) => { box(c, 16, 20, 7, 10, '#2a2e22'); box(c, 8, 6, 40, 16, '#6a7a42', 3); box(c, 46, 6, 12, 16, '#4a5630', 2); for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) { circle(c, 50 + x * 5, 11 + y * 6, 2, '#1a1a14'); circle(c, 50 + x * 5, 11 + y * 6, 1, '#e8352a'); } c.fillStyle = '#ffcf3a'; c.fillRect(12, 9, 10, 2); } },
+  singularity: { desc: 'Event Horizon - gunmetal cannon holding a small black hole in bone-white claws', draw: (c) => { box(c, 14, 19, 7, 10, '#26222e'); box(c, 6, 10, 34, 11, '#3a3644', 3); circle(c, 48, 15.5, 9, 'rgba(180,77,255,0.55)'); circle(c, 48, 15.5, 5.5, '#08040c'); c.strokeStyle = '#e8e2d0'; c.lineWidth = 2; for (const s of [-1, 1]) { c.beginPath(); c.moveTo(38, 15.5 + s * 5); c.quadraticCurveTo(46, 15.5 + s * 13, 57, 15.5 + s * 5); c.stroke(); } } },
+  annihilator: { desc: 'Annihilator - huge steel shoulder rocket cannon with hazard stripes', draw: (c) => { box(c, 20, 21, 7, 9, '#2a2a2a'); box(c, 2, 7, 52, 14, '#6a7078', 3); box(c, 52, 5, 10, 18, '#4a4e56', 2); c.fillStyle = '#ffcf3a'; for (let x = 8; x < 22; x += 6) { c.beginPath(); c.moveTo(x, 8); c.lineTo(x + 3, 8); c.lineTo(x, 20); c.lineTo(x - 3, 20); c.fill(); } circle(c, 36, 20, 6, '#3a3e46'); circle(c, 36, 20, 2.5, '#ff5a14'); circle(c, 60, 14, 3, '#ff8a1e'); } },
+  incinerator: { desc: "Dragon's Breath - industrial flamethrower with twin tanks and a pilot flame", draw: (c) => { box(c, 6, 3, 9, 14, '#c8241e', 4); box(c, 15, 3, 9, 14, '#d8582a', 4); box(c, 16, 19, 7, 10, '#2a2a2a'); box(c, 8, 12, 36, 8, '#5a5e66', 3); box(c, 42, 13, 16, 6, '#2e2a28'); circle(c, 60, 16, 3.5, 'rgba(90,170,255,0.8)'); circle(c, 60, 16, 1.5, '#e8f6ff'); } },
+  lance: { desc: 'Phase Lance - long bone-white alien rifle with a split barrel and a green bolt', draw: (c) => { box(c, 12, 18, 6, 10, '#3a4a30'); box(c, 4, 12, 26, 7, '#e8e2d0', 3); box(c, 28, 10, 32, 3, '#e8e2d0', 1); box(c, 28, 18, 32, 3, '#e8e2d0', 1); circle(c, 44, 15.5, 4, 'rgba(124,255,100,0.6)'); c.fillStyle = '#c8ffb8'; c.fillRect(34, 14.5, 22, 2); } },
+  cryo: { desc: 'Cryo Ray - chrome and ice-blue freeze ray with a coolant canister', draw: (c) => { box(c, 14, 19, 7, 10, '#3a4656'); box(c, 8, 11, 32, 9, '#c8d6e2', 4); box(c, 20, 3, 12, 9, '#5ac8ff', 4); c.fillStyle = 'rgba(255,255,255,0.6)'; c.fillRect(22, 5, 3, 5); box(c, 38, 13, 16, 5, '#8fa6ba'); c.fillStyle = '#d8f6ff'; for (let x = 40; x < 54; x += 4) c.fillRect(x, 9, 2, 4); circle(c, 57, 15.5, 4, 'rgba(159,232,255,0.7)'); } },
+} satisfies Record<string, { desc: string; draw: (ctx: CanvasRenderingContext2D) => void }>);
 
 export function weaponIcon(id: string): Img {
   const d = ICONS[id];
@@ -70,6 +84,40 @@ export function pickupIcon(kind: string): Img {
     return c;
   });
 }
+
+// ---- demolition effects: 8-frame strips, drawn additively (black is transparent) ----
+export const FX_FRAMES = 8, FX_SIZE = 128;
+export interface FxSheet { img: Img; /** image pixels per frame */ cell: number }
+const fxSheets: Record<string, FxSheet> = {};
+function fxSheet(key: string, desc: string, draw: (ctx: CanvasRenderingContext2D, f: number) => void): FxSheet {
+  return (fxSheets[key] ??= (() => {
+    const e = sheetAsset({ key, file: `fx/${key}.webp`, category: 'sheet', w: FX_SIZE * FX_FRAMES, h: FX_SIZE, frameW: FX_SIZE, frameH: FX_SIZE, frames: FX_FRAMES, rows: ['play'], anchor: [FX_SIZE / 2, FX_SIZE / 2], desc, prompt: `${desc}. 8 frames left to right on pure black, each frame ${FX_SIZE}x${FX_SIZE} px.` }, () => {
+      const { c, ctx } = makeCanvas(FX_SIZE * FX_FRAMES, FX_SIZE);
+      for (let f = 0; f < FX_FRAMES; f++) { ctx.save(); ctx.translate(f * FX_SIZE, 0); ctx.beginPath(); ctx.rect(0, 0, FX_SIZE, FX_SIZE); ctx.clip(); draw(ctx, f); ctx.restore(); }
+      return c;
+    });
+    return { img: e.img, cell: FX_SIZE * e.scale };
+  })());
+}
+const blob = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number, col: string, a: number) => { ctx.globalAlpha = a; ctx.drawImage(radialGlow(64, col, 1), x - r, y - r, r * 2, r * 2); ctx.globalAlpha = 1; };
+/** a fireball that swells, breaks up and leaves smoke */
+export const explosionSheet = () => fxSheet('fx_explosion', 'Explosion animation: flash, growing fireball, break-up, smoke', (ctx, f) => {
+  const t = f / (FX_FRAMES - 1), R = 14 + 46 * Math.sin(Math.min(1, t * 1.5) * Math.PI / 2), heat = Math.max(0, 1 - t * 1.35);
+  for (let k = 0; k < 9; k++) {
+    const a = k * 2.4 + f * 0.35, d = R * (0.15 + 0.55 * ((k * 37) % 10) / 10) * (0.6 + t);
+    blob(ctx, 64 + Math.cos(a) * d, 64 + Math.sin(a) * d * 0.9 - t * 10, R * (0.75 - k * 0.04), k % 3 ? '#ff7a1a' : '#ffd23a', heat * 0.9);
+    blob(ctx, 64 + Math.cos(a + 1) * d * 1.1, 58 + Math.sin(a + 1) * d - t * 22, R * 0.6, '#5a4a44', Math.min(1, t * 1.6) * (1 - t) * 1.4);
+  }
+  blob(ctx, 64, 64, R * 0.9, '#fff6d0', Math.max(0, 1 - t * 2.4));
+});
+/** a flame that flickers on the spot: base at the bottom centre of the frame */
+export const flameSheet = () => fxSheet('fx_fire', 'Looping flame, base at the bottom centre', (ctx, f) => {
+  for (let k = 0; k < 7; k++) {
+    const up = k / 6, sway = Math.sin(f * 0.8 + k * 1.3) * (4 + up * 9);
+    blob(ctx, 64 + sway, 112 - up * 78, 30 - up * 17 + Math.sin(f * 1.7 + k) * 3, up < 0.35 ? '#ffd23a' : up < 0.7 ? '#ff8a1e' : '#e8421a', 0.85 - up * 0.3);
+  }
+  blob(ctx, 64, 108, 20, '#fff6d0', 0.7);
+});
 
 const glowCache = new Map<string, HTMLCanvasElement>();
 export function glow(color: string, size = 64) {

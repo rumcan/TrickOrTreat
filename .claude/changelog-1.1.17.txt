@@ -1,0 +1,7 @@
+A new talent constellation, the Buddy System: fifteen talents that make the friends at your side stronger.
+After a boss you now get 20 quiet seconds to find the shop. The shop no longer opens by itself.
+Guns you find now come at about your own level instead of level 1.
+Rarity colours are clearer: yellow-green, deep blue, purple and orange. Gun inscriptions use the same colours.
+Very rarely a gun carries an orange legendary inscription.
+When you pick up a gun you can compare it with either gun you carry before you swap. This also works on phones.
+Big chains of blasts are lighter on the screen and run more smoothly.

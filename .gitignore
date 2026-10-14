@@ -18,3 +18,13 @@ art/regen/layout/
 
 art/regen/log.txt
 art/regen/run.*
+
+# another session's git worktree lives inside the checkout: never track it
+.arcade-worktree/
+
+# Nightmare roster: test screenshots and contact sheets
+art/nightmare/checks/
+
+# Local test runs, rendered reviews, exports and isolated worktrees.
+/output/
+/.codex-session/

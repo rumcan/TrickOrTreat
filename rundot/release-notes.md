@@ -1,10 +1,48 @@
-# Map rescue, boss loot breaks and illustrated gun cards
+# Friends at the doorstep and properly held guns
 
-- Opened road hedges disappear; body-clearance navigation and reachable ground hordes prevent creatures getting trapped. Full-footprint spawn checks, reserved porch walkways and car placement guards make building doors approachable.
-- Missing kids have green foreground rescue arrows and green minimap markers.
-- Boss kills visibly spill all XP, coins and chests with golden trails, then offer a skippable 20-second no-spawn break. Walk to collect loot or open the upgrade shop; menus pause the safe-time countdown.
-- Thirteen new high-resolution painted gun illustrations appear in cards, prizes and the unlock catalogue. Responsive, lazy WebPs keep loading light; held guns/HUD sprites stay unchanged.
-- Mechanical slot start/tile/settlement sounds and conventional shooting, impact, reload and pickup details layer above the preserved deep effects; dash stays soft.
+- Free survival players can find a friend card in a house's three reward choices.
+  A recruited kid fights beside you and can revive you; choose your one active
+  helper and share weapons from the pause menu.
+- Kids aim with their arms extended and grip the gun in their hands. The animated
+  3D renders are optimized sprites, so the game still uses its lightweight 2D renderer.
+- Each kid has exactly one rare Epic costume of their own; other kids' costumes
+  cannot drop, be equipped or appear in their previews.
+- Costume bonuses improve doorstep rewards; uncostumed houses still offer three
+  choices. The existing painted high-resolution gun-card illustrations are retained.
+
+# Painted gun cards, open roads and a fuller town
+
+- Every gun has a high-resolution painted card. It replaces the small pixel sprite on doorstep and level-up cards,
+  weapon panels, the shop, the vending reel and the full-game showcase.
+- The hedge blockade around a district is removed when that district opens. Garden hedges stay as decoration.
+- The free town's empty corner lots are now built up: four more blocks of houses (16 new doorbells), a parking lot
+  and playground beside the school, and a pumpkin patch with a gravel lot in the south-east.
+- Every front door can be reached. About two houses per town were walled in by a back fence, bushes or a hedge and
+  could not be trick-or-treated; the town now clears the few decorations in the way.
+
+# Phone fixes: drag to move, one-screen menu, Back closes popups
+
+- Drag a finger anywhere on the play area to move. The two on-screen sticks are gone; the kid aims and fires alone.
+- The title screen fits one phone screen in portrait and landscape, with no scrolling to reach the menu buttons.
+- The browser Back gesture now closes the open popup (or pauses a run) instead of leaving the site. Every popup also
+  has a close button pinned in the corner, and tall popups no longer open scrolled past their top.
+- A tiny music mute key sits top-left in the game and on the phone menu.
+- The fullscreen button is shown only where fullscreen can work. It no longer covers "Discover the full game".
+- The open map has a real Close map button on touch screens, and a tap on the map closes it.
+
+# Tougher monsters, bounded damage, gazebo hideouts and a looping loader
+
+- The loading screen appears instantly from plain HTML with a looping bar instead of a progress bar that sat at 2%.
+  The logo and the splash for the current orientation are smaller and are fetched before any sprite.
+- Rescue campaign: every gated district now has a gazebo, and each missing friend waits beside one.
+- Damage numbers start low: guns and skills deal 40% of their old values, numbers are abbreviated (1.5K, 2.3M) and
+  at most 40 are on screen.
+- Runaway damage is gone. Overcrit layers add instead of multiplying, and Lucky Streak, Momentum, Candy Corn Combo,
+  Haunting, Inferno, Juggernaut, Bulwark and Sugar High all have ceilings. Treats stop at their maximum.
+- 40% fewer monsters, each worth 60% more XP and coins. Monsters take about 2.7x as many shots from the first minute
+  and gain 65% health a wave (was 60%); bosses have twice the health relative to the player.
+- Guns reach 40% of their old range. Tractor Beam, Laser Sword, Danger-Zone Aviators and Heat-Vision Hunter each add
+  2 m, and Maya and Leo have +50% gun range. Weapon cards show range.
 
 # Easy wins and mobile visibility
 

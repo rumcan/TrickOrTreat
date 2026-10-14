@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useBack } from './back';
 import { ChevronLeft, Download, Copy, FileJson } from 'lucide-react';
 import { allAssets, downloadAsset, manifestTemplate, AssetCategory, imgUrl } from '../game/assets';
 import { KitButton, KitTitle } from './kit';
@@ -12,6 +13,7 @@ const CATS: { id: AssetCategory; name: string; note: string }[] = [
 ];
 
 export function Atlas({ onBack }: { onBack: () => void }) {
+  useBack(onBack);
   const [cat, setCat] = useState<AssetCategory>('sheet');
   const [copied, setCopied] = useState('');
   const assets = useMemo(() => allAssets(), []);

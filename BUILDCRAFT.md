@@ -1,4 +1,4 @@
-# Buildcraft: synergy, multiplicative scaling, no hard caps
+# Buildcraft: synergy, multiplicative scaling, bounded stacks
 
 Trick or Treat is meant to be *broken* by players who find the right combination. This document is the
 theorycrafter's reference. The rules live in `src/game/build.ts` (tags, tiers, overflow), and the hooks are in
@@ -20,9 +20,10 @@ Every piece of a build carries one or more **tags**:
 
 Tags: 🎯 **Crit** · 🔥 **Fire** · ⚡ **Shock** · 🟢 **Ecto** · 💥 **Blast** · 💀 **Kill** · 🍭 **Sugar** · 🛡️ **Tank** · 👻 **Summon**
 
-## 2. Resonance tiers (uncapped)
+## 2. Resonance tiers
 
-`tier = floor(tagCount / 3)`. There is **no top tier**. Each tier compounds that tag's multiplier forever:
+`tier = floor(tagCount / 3)`. Each tier compounds that tag's multiplier. Treats stop at their listed maximum, so the
+number of tiers a run can reach is bounded by the pieces that exist:
 
 | Tag | Per tier (compounding) |
 |---|---|
@@ -40,12 +41,12 @@ Tiers 1, 2 and 3 also switch on **keystones**. Keystones are where systems start
 
 | Tag | T1 | T2 | T3 |
 |---|---|---|---|
-| Crit | **Lucky Streak**: each crit +2% crit chance for 3s, stacks never cap | **Critical Mass**: crits explode for 30% of the hit | **Snap**: each crit −0.15s skill cooldown |
+| Crit | **Lucky Streak**: each crit +2% crit chance for 3s, up to 25 stacks (+50%) | **Critical Mass**: crits explode for 30% of the hit | **Snap**: each crit −0.15s skill cooldown |
 | Fire | **Searing**: burn ticks can crit (and overcrit) | **Wildfire**: burns pass on when the host dies | **Inferno**: burns *add up* instead of keeping the strongest |
 | Shock | **Conductive**: chain jumps are real hits (elements, gun inscriptions) | **Overload**: +2 jumps; a chain hitting a burning monster detonates its remaining burn | **Storm Front**: chains fork in two at every jump |
-| Ecto | **Haunting**: every hit on an ecto'd monster adds +4% damage taken, forever | **Plague**: ecto spreads on death | **Possessed**: ecto amp also boosts burn and chain damage |
+| Ecto | **Haunting**: every hit on an ecto'd monster adds +4% damage taken, up to +100% | **Plague**: ecto spreads on death | **Possessed**: ecto amp also boosts burn and chain damage |
 | Blast | **Bigger Booms**: +35% radius | **Elemental Payload**: explosions carry the gun's burn/shock/ecto chances | **Chain Reaction**: monsters killed by an explosion explode (50%) |
-| Kill | **Momentum**: +1% damage per kill for 4s; every kill refreshes it; stacks never cap | **Scavenger**: kills refund 1 ammo | **Bloodlust**: kills −0.2s skill cooldown and dash recharge |
+| Kill | **Momentum**: +1% damage per kill for 4s; every kill refreshes it; up to 100 stacks | **Scavenger**: kills refund 1 ammo | **Bloodlust**: kills −0.2s skill cooldown and dash recharge |
 | Sugar | **Overclock**: fire rate past 12/s becomes extra projectiles | **Sugar High**: bonus move speed is also bonus damage | **Hyperactive**: every 20th shot also fires a ring of 8 |
 | Tank | **Juggernaut**: +1% damage per 5 max HP over 100 | **Spiky Costume**: attackers take 50% of your max HP | **Bulwark**: +1% damage per 5 max shield |
 | Summon | **Pack Leader**: orbit blades, ghost buddy, companion and Candy Cannon +50% | **Shared Tricks**: summon hits carry your gun's elements | **Army of Ghosts**: +2 orbit blades; ghost buddy fires twice as often |
@@ -57,10 +58,10 @@ hit = gun base
     × rarity & level            (1 + 0.15·rarity) · (1 + 0.14·(level−1))
     × inscription stat lines    Sugar-Coated, Tummy Ache, …
     × run damage                every treat/talent/kid/costume damage bonus, compounding
-    × trigger inscriptions      Trick Shot ×2 first shot, Fresh Batch, Candy Corn Combo (+3%/hit, no cap), Sixth Sense…
+    × trigger inscriptions      Trick Shot ×2 first shot, Fresh Batch, Candy Corn Combo (+3%/hit, max +120%), Sixth Sense…
     × run-wide treats           Feeling Lucky, Punk?, The Trap Is Full, Unstoppable Cyborg Stance, Danger-Zone Aviators
     × global "more"             (1 + momentum·perKill) · Juggernaut · Bulwark · Sugar High
-    × crit                      critMul ^ layers   (see overcrit)
+    × crit                      critMul · (1 + 0.5·(layers−1))   (see overcrit)
     × fire-rate overflow        when not overclocked
 then on the monster:
     × (1 + ectoAmp · ectoMore · max(1, ectoChance))   while ecto'd
@@ -70,22 +71,39 @@ then on the monster:
 Elements and procs come on top: burn (`hit × 0.45 × burnDmg × 1.25^fireTier × max(1, burnChance)`), chains, and explosions
 (×1.2^blastTier). With Conductive, Critical Mass, Chain Reaction, Wildfire and Plague, each of those can start another.
 
-## 4. Overflow: nothing caps, it spills over
+## 4. Overflow: stats spill over, stacks have ceilings
 
-* **Overcrit.** Crit chance has no ceiling. Every full 100% is a guaranteed crit layer, and the remainder is the chance of
-  one more. Each layer multiplies by crit damage *again*: 250% crit at ×3 crit damage gives 3² = ×9, or a 50% chance
-  of ×27. Damage numbers turn pink at two layers and purple at three or more.
+* **Overcrit.** Every full 100% of crit chance is a guaranteed crit layer, and the remainder is the chance of one more.
+  Layers **add**: the first is a normal crit and each further layer adds +50% of the crit multiplier, to a maximum of
+  three layers. 250% crit at ×3 crit damage gives ×4.5, or a 50% chance of ×6. Damage numbers turn pink at two layers
+  and purple at three.
 * **Element chance > 100%** makes the effect stronger: burn ×chance, extra chain jumps (2 per extra 100% shock), and
   ecto amplification ×chance.
 * **Fire rate.** A gun physically fires up to 20 shots a second (12 with Overclock). Everything past that turns into
   extra projectiles (Overclock) or damage (otherwise), so it is never wasted.
 * **Projectiles past 16** per shot fold into damage, so the game stays smooth and the power is still there.
-* **Treat stacks.** Stacking treats can be taken past their usual maximum (*overstack*), just offered less often.
-  One-off switches (max 1) stay single.
-* **Candy Corn Combo**, **Momentum**, **Lucky Streak** and **Haunting** stacks have no limit.
+* **Treat stacks** stop at their maximum. A capped stacking treat is only offered again when a bowl would otherwise
+  come up short. One-off switches (max 1) stay single.
 
-The only limits are engine safety limits on *entities*, never on power. Chain reactions resolve through a queue of up
-to 5 generations per event, 12 explosions a frame, and the rest next frame.
+### Ceilings (`src/game/build.ts`)
+
+Anything that feeds itself is linear and bounded. Before this, Lucky Streak raised crit chance without limit while each
+100% of crit chance multiplied damage by the crit multiplier *again* (`critMul ^ layers`), which is exponential: a fast,
+piercing gun reached damage like 1e21 and one-shot every boss.
+
+| Stack | Ceiling |
+|---|---|
+| Overcrit layers | 3, additive (+50% of crit damage each) |
+| Lucky Streak | 25 stacks (+50% crit chance) |
+| Momentum | 100 kill stacks |
+| Candy Corn Combo | 40 hits (+120%) |
+| Haunting | +100% damage taken |
+| Inferno | 5 burns deep |
+| Juggernaut, Bulwark, Sugar High | +100% each |
+| Chain Reaction | scales with at most ×3 run damage |
+
+Chain reactions also resolve through a queue of up to 5 generations per event, 12 explosions a frame, and the rest
+next frame. Floating damage numbers are abbreviated (`1.5K`, `2.3M`) and at most 40 are on screen at once.
 
 ## 5. Endless Night: the wall that always wins
 
@@ -105,7 +123,7 @@ At wave 30, monsters have ×86 HP. At wave 50, ×1,670. At wave 80, ×143,000. Y
 * **Overcrit Blaster.** Stack Crit (Eye of the Tiger, Crane Kick, Heat-Vision Hunter, Feeling Lucky, Punk?, Jack-o'-Grin inscriptions) until crit
   passes 100%. Lucky Streak keeps adding crit while you hit, Critical Mass turns crits into explosions, and with Blast T3
   those explosions chain. Pair it with a high fire-rate gun.
-* **Inferno Storm.** Fire + Shock with an elemental gun. Inferno stacks burns without limit, Overload detonates the
+* **Inferno Storm.** Fire + Shock with an elemental gun. Inferno stacks burns five deep, Overload detonates the
   whole stacked burn when a chain arrives, Storm Front forks the chain, and Conductive makes every jump re-apply burn.
   Add Ecto T3 (Possessed) so ecto amplifies both.
 * **Momentum Shotgun.** Kill + Sugar. Overclocked pellets clear trash, every kill adds Momentum, and Scavenger refunds

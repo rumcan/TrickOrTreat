@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useBack } from './back';
 import { Game } from '../game/engine';
 import { baseStats, COSTUME_BY_ID, HERO_INFO, SCROLL_BY_ID } from '../game/data';
 import { KitButton, KitTitle } from './kit';
@@ -8,6 +9,7 @@ import { SCROLL_TAGS } from '../game/build';
 
 /** Reads the actual applied run state, not the collection of possible drops. */
 export function RunInventory({ game, onClose }: { game: Game; onClose: () => void }) {
+  useBack(onClose);
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'effects' | 'synergies' | 'damage'>('effects');
   const tabs = [['effects', 'Collected effects'], ['synergies', 'Synergies & tiers'], ['damage', 'Damage breakdown']] as const;
@@ -62,6 +64,7 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
                 const changed = Object.keys(stacked).filter((key) => stacked[key as keyof typeof stacked] !== initial[key as keyof typeof initial]);
                 return <article key={id} className="inventory-treat kit-panel flex flex-col gap-3 p-4 xl:flex-row" style={{ borderColor: RARITY_KIT[item.rarity] }}>
                   <span className="hm-thumb h-[68px] w-[120px] shrink-0 !aspect-auto" style={{ borderColor: RARITY_KIT[item.rarity] }}><TreatArt id={id} /></span><div className="min-w-0 flex-1"><h2 className="font-cond2 text-lg font-bold" style={{ color: RARITY_KIT[item.rarity] }}>{item.name} <span className="text-[#f2e6c9]">×{count}</span></h2><p className="text-sm">{item.desc} per copy</p><TagChips tags={SCROLL_TAGS[id] ?? []} className="mt-1 !justify-start" /><p className="mt-2 text-xs text-[#9aa0a6]">{count}/{item.max} stacks{count > item.max ? ' (overstacked)' : ''} · {changed.map((key) => `${key}: ${Number(stacked[key as keyof typeof stacked].toFixed(2))}`).join(' · ')} on baseline</p></div>
+                  <button type="button" className="hm-btn ghost shrink-0 self-start !min-h-9 !px-3 !text-xs" aria-label={`Discard ${item.name}`} onClick={() => game.askDiscard(id)}>Discard</button>
                 </article>;
               })}
             </div>

@@ -1,0 +1,7 @@
+{
+  "prompt": "A triumphant short fanfare on bright synth brass with a sparkling tail, 1980s arcade win screen. No voice.",
+  "type": "sfx",
+  "durationSec": 3,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

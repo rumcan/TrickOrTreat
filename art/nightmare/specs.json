@@ -1,0 +1,1289 @@
+[
+  {
+    "id": "saucer_matron",
+    "members": [
+      "saucer_matron",
+      "saucer_matron_a",
+      "saucer_matron_b"
+    ],
+    "looks": [
+      "Tall grey alien matriarch, pear-shaped head, glossy black almond eyes, four fingers, bronze segmented space collar and a floating violet crystal, no franchise insignia",
+      "Small grey alien scout with oversized black eyes and copper wrist bands",
+      "Small horizontal silver flying saucer viewed isometrically from above, glass dome showing a grey alien pilot, emerald tractor-beam emitter underneath, copper rim and little amber running lights"
+    ],
+    "sprites": [
+      {
+        "id": "saucer_matron",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "saucer_matron_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "saucer_matron_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "iron_revenant",
+    "members": [
+      "iron_revenant",
+      "iron_revenant_a",
+      "iron_revenant_b"
+    ],
+    "looks": [
+      "Original skeletal hunter robot, exposed tungsten ribs, mismatched amber optical lenses, industrial piston legs and a rust-red shoulder plate; no human celebrity face",
+      "Small angular scrap-metal hunter robot with one amber eye",
+      "Floating triangular surveillance drone with three amber lenses"
+    ],
+    "sprites": [
+      {
+        "id": "iron_revenant",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "iron_revenant_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "iron_revenant_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "dough_colossus",
+    "members": [
+      "dough_colossus",
+      "dough_colossus_a",
+      "dough_colossus_b"
+    ],
+    "looks": [
+      "Giant sinister risen-bread dough baker, lumpy flour-white body, toasted cracked crust, plaid burgundy apron, dented baking tin helmet, wooden rolling pin; no sailor outfit or brand markings",
+      "Little living bread roll with crust claws and raisin eyes",
+      "Squat frosting-covered pastry gremlin with piping-bag arms"
+    ],
+    "sprites": [
+      {
+        "id": "dough_colossus",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "dough_colossus_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "dough_colossus_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "cruiser_bully",
+    "members": [
+      "cruiser_bully",
+      "cruiser_bully_a",
+      "cruiser_bully_b"
+    ],
+    "looks": [
+      "Original intimidating eighties town bully, square jaw, blond pompadour, burgundy letterman jacket, rolled jeans, brass knuckle gloves and swaggering posture, no actor likeness",
+      "Eighties bully henchman with slick hair, denim vest and baseball bat",
+      "Original compact glossy red eighties hot rod car viewed isometrically from above, aggressive young bully clearly visible driving, black tires, chrome bumper, no brand logos"
+    ],
+    "sprites": [
+      {
+        "id": "cruiser_bully",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "cruiser_bully_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "cruiser_bully_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "assimilation_archon",
+    "members": [
+      "assimilation_archon",
+      "assimilation_archon_a",
+      "assimilation_archon_b"
+    ],
+    "looks": [
+      "Original imposing pale hive cyborg, half-porcelain face fused with asymmetric black industrial implants, one emerald scanning lens, thick corrugated cables, dark biomechanical armor and a mechanical claw hand, no franchise insignia or actor likeness",
+      "Pale assimilated worker drone with asymmetric dark face implants, green optic and corrugated chest cables",
+      "Small black armored hive cyborg with a green targeting lens and a broad mechanical tool arm"
+    ],
+    "sprites": [
+      {
+        "id": "assimilation_archon",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "assimilation_archon_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "assimilation_archon_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "bog_sovereign",
+    "members": [
+      "bog_sovereign",
+      "bog_sovereign_a",
+      "bog_sovereign_b"
+    ],
+    "looks": [
+      "Original massive swamp creature made of gnarled wet roots, layered moss, reeds and lichen, broad amphibian mouth, asymmetrical antler branches, glowing amber eyes, mud-crusted root feet",
+      "Small swamp root creature wrapped in reeds and moss",
+      "Squat muddy amphibian covered in moss with glowing spore sacs"
+    ],
+    "sprites": [
+      {
+        "id": "bog_sovereign",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "bog_sovereign_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "bog_sovereign_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "hungry_hothouse",
+    "members": [
+      "hungry_hothouse",
+      "hungry_hothouse_a",
+      "hungry_hothouse_b"
+    ],
+    "looks": [
+      "Giant original carnivorous greenhouse plant, huge split Venus flytrap maw with jagged ivory thorns, burgundy-veined green leaves, thick curling vine stem, cracked restaurant planter and root legs, no human lips or film-specific design",
+      "Small walking Venus flytrap seedling with tiny thorn teeth",
+      "Little purple flower creature with swollen yellow spore sacs"
+    ],
+    "sprites": [
+      {
+        "id": "hungry_hothouse",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "hungry_hothouse_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "hungry_hothouse_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "gremlin_chief",
+    "members": [
+      "gremlin_chief",
+      "gremlin_chief_a",
+      "gremlin_chief_b"
+    ],
+    "looks": [
+      "Original mischievous goblin-like gremlin chief, leathery moss-green skin, enormous asymmetric bat ears, orange bristly spine crest, amber eyes, patchwork arcade employee vest and clawed toes; no exact movie markings",
+      "Little green bat-eared gremlin with orange bristles and clawed feet",
+      "Small purple-green gremlin with swollen soda cheeks"
+    ],
+    "sprites": [
+      {
+        "id": "gremlin_chief",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "gremlin_chief_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "gremlin_chief_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "playroom_butcher",
+    "members": [
+      "playroom_butcher",
+      "playroom_butcher_a",
+      "playroom_butcher_b"
+    ],
+    "looks": [
+      "Original sinister toy-doll leader, tangled copper-red hair, cracked freckled porcelain face, mismatched blue glass eyes, burnt-orange dungarees over a plum-striped shirt, oversized sewing scissors and little toy boots; no exact movie doll or brand name",
+      "Creepy cracked porcelain ballerina doll with a faded mauve tutu",
+      "Small sinister wooden nursery doll with brass joints and sharp knitting needles"
+    ],
+    "sprites": [
+      {
+        "id": "playroom_butcher",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "playroom_butcher_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "playroom_butcher_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "camp_revenant",
+    "members": [
+      "camp_revenant",
+      "camp_revenant_a",
+      "camp_revenant_b"
+    ],
+    "looks": [
+      "Original towering undead summer-camp groundskeeper, cracked ivory goalie-like mask with asymmetric copper staples and green eye slit, mossy dark work coat, heavy boots and broad rusty brush-clearing blade; no exact movie mask pattern",
+      "Waterlogged masked camp worker wrapped in reeds and a torn raincoat",
+      "Small eerie camp ranger with a patched canvas mask and pointed iron stake"
+    ],
+    "sprites": [
+      {
+        "id": "camp_revenant",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "camp_revenant_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "camp_revenant_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "midnight_caller",
+    "members": [
+      "midnight_caller",
+      "midnight_caller_a",
+      "midnight_caller_b"
+    ],
+    "looks": [
+      "Original sinister telephone stalker, drooping cracked bone mask with asymmetrical long mournful features, deep charcoal hooded raincoat, coiled red telephone cord and curved silver knife; no exact film mask",
+      "Small black hooded stalker with a narrow cracked bone mask",
+      "Floating haunted rotary telephone wrapped in charcoal smoke"
+    ],
+    "sprites": [
+      {
+        "id": "midnight_caller",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "midnight_caller_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "midnight_caller_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "lord_blackdome",
+    "members": [
+      "lord_blackdome",
+      "lord_blackdome_a",
+      "lord_blackdome_b"
+    ],
+    "looks": [
+      "Original comic space tyrant, absurdly oversized glossy black spherical helmet, tiny armoured body, opaque amber visor, burgundy-lined cape, awkward little boots, brass control buttons and glowing magenta baton; no exact movie suit, insignia or actor likeness",
+      "Small white-armoured space trooper with a round oversized helmet and amber visor",
+      "Khaki-armoured comic space guard carrying a giant brass hair comb like a polearm"
+    ],
+    "sprites": [
+      {
+        "id": "lord_blackdome",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "lord_blackdome_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "lord_blackdome_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "hollow_neighbor",
+    "members": [
+      "hollow_neighbor",
+      "hollow_neighbor_a",
+      "hollow_neighbor_b"
+    ],
+    "looks": [
+      "Original silent suburban slasher with a blank cracked grey-white plaster face, messy dark hair, dark charcoal mechanic coveralls, heavy boots and a long weathered kitchen blade, no actor likeness",
+      "Small faceless mechanic in oil-stained coveralls carrying a wrench",
+      "Blank plaster-masked lurking worker in a grey apron carrying a sharp garden tool"
+    ],
+    "sprites": [
+      {
+        "id": "hollow_neighbor",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "hollow_neighbor_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "hollow_neighbor_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "needle_magistrate",
+    "members": [
+      "needle_magistrate",
+      "needle_magistrate_a",
+      "needle_magistrate_b"
+    ],
+    "looks": [
+      "Original otherworldly puzzle torturer, cracked porcelain face with asymmetrical copper pins and surgical staples, tall barbed brass collar, midnight leather judicial coat, dangling geometric lock charms, no exact film character likeness",
+      "Little porcelain demon with crooked copper staples and a leather apron",
+      "Small hooded leather creature dragging bronze hooked chains"
+    ],
+    "sprites": [
+      {
+        "id": "needle_magistrate",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "needle_magistrate_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "needle_magistrate_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "night_brood",
+    "members": [
+      "night_brood",
+      "night_brood_a",
+      "night_brood_b"
+    ],
+    "looks": [
+      "Original biomechanical alien predator, long split armored skull crest, four violet eyes, six ribbed limbs, glossy blue-black chitin, translucent throat sacs, segmented forked tail and acid-dripping claws; no exact movie creature or franchise markings",
+      "Small six-limbed biomechanical alien with ribbed blue-black chitin and a forked tail",
+      "Pale ribbed alien larva with violet throat sacs and little chitin legs"
+    ],
+    "sprites": [
+      {
+        "id": "night_brood",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "night_brood_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "night_brood_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "cloud_leviathan",
+    "members": [
+      "cloud_leviathan",
+      "cloud_leviathan_a",
+      "cloud_leviathan_b"
+    ],
+    "looks": [
+      "Huge flying white whale, creamy ivory hide, amber eyes, long flowing pale fins, golden barnacles and cloudlike breath, haunting majestic hovering posture, entirely original fantasy sky whale",
+      "Small flying ivory whale calf with flowing pale fins and amber eyes",
+      "Floating pearl-white barnacle spirit with golden shell plates and little fins"
+    ],
+    "sprites": [
+      {
+        "id": "cloud_leviathan",
+        "fw": 320,
+        "fh": 224,
+        "anchor": [
+          160,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 225,
+        "width": 340,
+        "height": 238,
+        "row": 0
+      },
+      {
+        "id": "cloud_leviathan_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "cloud_leviathan_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "winter_caretaker",
+    "members": [
+      "winter_caretaker",
+      "winter_caretaker_a",
+      "winter_caretaker_b"
+    ],
+    "looks": [
+      "Original deranged snowbound hotel caretaker, wild brown hair, frost-covered burgundy flannel jacket, corduroy trousers, heavy wood axe, manic painted expression, no actor likeness",
+      "Haunted eighties hotel bellhop with a cracked porcelain face and dusty burgundy uniform",
+      "Floating eerie hotel maid ghost carrying a silver platter"
+    ],
+    "sprites": [
+      {
+        "id": "winter_caretaker",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "winter_caretaker_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "winter_caretaker_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "dream_stalker",
+    "members": [
+      "dream_stalker",
+      "dream_stalker_a",
+      "dream_stalker_b"
+    ],
+    "looks": [
+      "Original nightmare boiler-room stalker, cracked ember-lit face, charcoal wide-brim work hat, ragged burgundy and navy striped cardigan, one iron hook-finger gauntlet and heavy work boots, no exact actor likeness or movie costume",
+      "Small ash-grey nightmare imp with an ember face",
+      "Floating smoky furnace ghost with three hooked iron fingers"
+    ],
+    "sprites": [
+      {
+        "id": "dream_stalker",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "dream_stalker_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "dream_stalker_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "blade_marshal",
+    "members": [
+      "blade_marshal",
+      "blade_marshal_a",
+      "blade_marshal_b"
+    ],
+    "looks": [
+      "Original imposing armoured ninja warlord, angular steel helmet with swept-back blade fins, amber slit visor and steel mask, shredded plum-purple mantle, serrated forearm and shin guards, dark lamellar armour, no franchise emblems",
+      "Small masked ninja with plum wraps and serrated steel wrist guards",
+      "Masked armoured purple ninja holding a fan of iron throwing daggers"
+    ],
+    "sprites": [
+      {
+        "id": "blade_marshal",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "blade_marshal_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "blade_marshal_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "gourmet_warden",
+    "members": [
+      "gourmet_warden",
+      "gourmet_warden_a",
+      "gourmet_warden_b"
+    ],
+    "looks": [
+      "Original sinister cultured asylum doctor, silver slicked hair, pale narrow face, brass-barred leather restraint muzzle, immaculate plum waistcoat over pale linen, folded napkin and silver carving fork, no actor likeness",
+      "Eerie masked asylum orderly wearing an old cream uniform and leather gloves",
+      "Sinister little white-aproned cook with a bandaged face carrying silver carving utensils"
+    ],
+    "sprites": [
+      {
+        "id": "gourmet_warden",
+        "fw": 192,
+        "fh": 224,
+        "anchor": [
+          96,
+          212
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 22,
+        "top": 75,
+        "width": 340,
+        "height": 397,
+        "row": 0
+      },
+      {
+        "id": "gourmet_warden_a",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 1
+      },
+      {
+        "id": "gourmet_warden_b",
+        "fw": 80,
+        "fh": 104,
+        "anchor": [
+          40,
+          92
+        ],
+        "cell": 384,
+        "ch": 512,
+        "left": 34,
+        "top": 86,
+        "width": 317,
+        "height": 412,
+        "row": 2
+      }
+    ]
+  },
+  {
+    "id": "hollow_beyond",
+    "members": [
+      "hollow_beyond"
+    ],
+    "looks": [
+      "An original colossal midnight-blue otherworldly creature, immense faceless central bell body, dozens of long asymmetrical sinewy violet tentacles, amber fissures, thorny joints, storm-cloud texture; no human face, no franchise-specific silhouette"
+    ],
+    "sprites": [
+      {
+        "id": "hollow_beyond",
+        "fw": 480,
+        "fh": 400,
+        "anchor": [
+          240,
+          388
+        ],
+        "cell": 768,
+        "ch": 768,
+        "left": 22,
+        "top": 121,
+        "width": 724,
+        "height": 603,
+        "row": 0
+      }
+    ]
+  }
+]

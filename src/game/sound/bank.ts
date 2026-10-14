@@ -24,6 +24,8 @@ export interface PlayOpts {
   rate?: number;
   /** AudioContext time to start at (default now). */
   when?: number;
+  /** Play no more than this many seconds of the recording (it fades out there). */
+  max?: number;
 }
 
 /** A looping recording whose level and rate follow the game (rolling, wind, the engine, a crowd). */
@@ -34,6 +36,22 @@ export interface LoopVoice {
 
 export class SampleBank {
   private buffers = new Map<string, AudioBuffer>();
+  /**
+   * The generated layers (top-…, gun-…) come back at any level, from full scale to almost nothing, and often with a
+   * pause before the sound. Each is measured once when it is decoded: where its sound starts, and the gain that brings
+   * its peak to the same level as the others. The original recordings are left exactly as they are.
+   */
+  private shape = new Map<string, { offset: number; gain: number }>();
+  private measure(key: string, buf: AudioBuffer): void {
+    if (!/^sfx\/(top|gun)-/.test(key)) return;
+    const d = buf.getChannelData(0);
+    let peak = 0;
+    for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > peak) peak = a; }
+    if (peak < 0.003) { this.shape.set(key, { offset: 0, gain: 0 }); return; } // an empty recording stays silent rather than hissing
+    let first = 0;
+    for (let i = 0; i < d.length; i++) if (Math.abs(d[i]) > peak * 0.12) { first = i; break; }
+    this.shape.set(key, { offset: Math.max(0, first / buf.sampleRate - 0.004), gain: Math.min(16, 0.7 / peak) });
+  }
   private loading = new Set<string>();
   private failed = new Set<string>();
   private voices = 0;
@@ -54,7 +72,7 @@ export class SampleBank {
     fetch(audioUrl(dir, id))
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
       .then((data) => ctx.decodeAudioData(data))
-      .then((buf) => { this.buffers.set(key, buf); })
+      .then((buf) => { this.measure(key, buf); this.buffers.set(key, buf); })
       .catch(() => { this.failed.add(key); })
       .finally(() => { this.loading.delete(key); });
   }
@@ -69,16 +87,17 @@ export class SampleBank {
     const ctx = this.ctx(), dest = this.dest(id);
     const buf = this.buffers.get(`${dir}/${id}`);
     if (!ctx || !dest || !buf) { this.request(dir, id); return false; }
-    if (this.voices >= 8) return false;
+    if (this.voices >= 14) return false; // every effect is two recordings now: its deep original and its bright layer
     this.voices++;
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = opts.rate ?? 1;
     const g = ctx.createGain();
     const start = opts.when ?? ctx.currentTime;
-    const duration = buf.duration / src.playbackRate.value;
+    const shape = this.shape.get(`${dir}/${id}`), offset = shape?.offset ?? 0;
+    const duration = Math.min(buf.duration - offset, opts.max ?? Infinity) / src.playbackRate.value;
     const attack = id === 'click' || id === 'tick' ? 0.012 : 0.03;
-    const volume = opts.vol ?? 1;
+    const volume = (opts.vol ?? 1) * (shape?.gain ?? 1);
     g.gain.setValueAtTime(0, start);
     g.gain.linearRampToValueAtTime(volume, start + Math.min(attack, duration / 4));
     g.gain.setValueAtTime(volume, start + Math.max(attack, duration - 0.06));
@@ -93,7 +112,8 @@ export class SampleBank {
     node.connect(dest);
     src.connect(g);
     src.onended = () => { this.voices = Math.max(0, this.voices - 1); src.disconnect(); g.disconnect(); if (node !== g) node.disconnect(); };
-    src.start(opts.when ?? ctx.currentTime);
+    src.start(opts.when ?? ctx.currentTime, offset);
+    if (opts.max && opts.max < buf.duration - offset) src.stop(start + duration + 0.02);
     return true;
   }
 

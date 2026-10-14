@@ -1,0 +1,9 @@
+The shop and the candy machines now pack up and move after every boss. An orange arrow at the edge of the screen and a marker on the map point to the new spot.
+The minimap is cleaner: bags, guns and items on the ground are no longer marked.
+Eleven new guns inspired by 80s and 90s films and cartoons. Free: Spectre Stream, Grid Disc, Thunder Sabre, Star Glaive, Micro-Missile Pod and Bug-Hunt Flamethrower. Full game: Event Horizon, Annihilator, Dragon's Breath, Phase Lance and Cryo Ray.
+New in the full game: the heavy guns can wreck parked cars and bring houses down, with new animations.
+Treats have a new common tier of small stackable boosts. The old common treats are now uncommon.
+Five new full-game treats with a big upside and a real cost, such as 500 shield with 1 health.
+You can now throw away a treat you do not want: click it in the left bar and confirm.
+Twelve new talents at the far end of the constellations, six free and six in the full game. They cost a lot of Soul Candy and they are strong.
+Fixed the costume pictures in the full game showcase.

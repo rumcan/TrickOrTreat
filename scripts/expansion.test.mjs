@@ -7,7 +7,7 @@ try {
   const errors = [];
   page.on('console', message => { if (message.text().startsWith('Preview state')) console.log(message.text()); });
   page.on('pageerror', error => { errors.push(error.message); console.error('Browser:', error.message); });
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto(process.env.TOT_ARCADE_URL || 'http://127.0.0.1:5173/');
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   console.log('Title loaded; checking expansion engine');
   const results = await page.evaluate(async () => {
@@ -24,13 +24,14 @@ try {
     expansion.preview();
     console.log('Preview state', JSON.stringify(expansion.snapshot()), hasFullGame());
     const controls = input(), g = new Game(3, save(), controls, true);
-    out.intro = g.state === 'intro' && g.friends.length === 4 && !g.friends.some(f => f.hero === 3);
+    out.intro = g.state === 'intro' && g.friends.length === 3 && g.friends.every(f => f.hero < 3) && g.availableArcadeStaff.length === 1;
     out.expandedHouses = g.map.houses.length;
     g.introTime = 18; g.update(1 / 30);
     out.introEnds = g.state === 'play' && g.time === 0;
     // Open every gate through the real director; don't bypass collision.
     g.time = 245; g.p.invuln = 999;
     g.director(1 / 30);
+    if (g.boss) { g.enemies = []; g.boss = null; } // (a friend's guardian only steps out between bosses)
     g.computeFlow(true);
     out.gates = g.map.gates.every(gate => gate.opened);
     out.reachableSites = g.friends.map(f => ({ hero: f.hero, free: cellAt(g.map, f.x, f.y) === 0, reachable: g.reachable(f.x, f.y) }));
@@ -59,7 +60,7 @@ try {
     g.pickups = [{ x: second.x, y: second.y, z: 0, vz: 0, vx: 0, vy: 0, kind: 'xp2', value: 0, mag: false, t: 0, dead: false, friendOnly: true }];
     const xp = g.p.xp; g.updatePickups(0.03);
     out.playerCantTakeFriendCandy = !g.pickups[0].dead && g.p.xp === xp;
-    g.updateTeam(0.03); out.friendCandy = second.candy === 1 && g.pickups[0].dead;
+    g.updateTeam(0.03); out.friendCandy = f.candy + second.candy === 1 && g.pickups[0].dead; // any friend on the team may grab it
     g.kills = 80; g.endRun(false); const paid = g.save.soul; g.endRun(false);
     out.onceOnlyReward = g.save.soul === paid && paid > 0;
     const counts = data.HERO_INFO.length;
@@ -69,7 +70,7 @@ try {
       const candidate = new Game(hero, save(), input(), true, 1337 + run * 7919);
       if (blockedCircle(candidate.map, candidate.p.x, candidate.p.y, 0.5)) throw new Error('Unsafe player start');
       if (candidate.friends.some(friend => candidate.reachable(friend.x, friend.y))) throw new Error('Locked district can be reached before its gate opens');
-      if (candidate.friends.length !== 4 || candidate.friends.some(f => f.hero === hero)) throw new Error('Invalid rescue roster');
+      if (candidate.friends.length !== (hero<3?2:3) || candidate.friends.some(f => f.hero === hero || f.hero>=3)) throw new Error('Invalid rescue roster');
       candidate.time = 245; candidate.director(0.03); candidate.computeFlow(true);
       for (const friend of candidate.friends) if (cellAt(candidate.map, friend.x, friend.y) !== 0 || !candidate.reachable(friend.x, friend.y)) throw new Error(`Unreachable rescue: hero ${hero}, run ${run}`);
       out.mapRuns++;

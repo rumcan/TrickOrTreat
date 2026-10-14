@@ -5,7 +5,7 @@ const browser = await chromium.launch({ channel: 'msedge' });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto('http://127.0.0.1:5173/?campaign'); // the rescue board is shelved with its mode; development still shows it
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   assert.equal(await page.getByRole('button', { name: 'Open time leaderboard' }).count(), 0, 'Offline guests must not see the leaderboard');
   await page.evaluate(async () => {
@@ -57,6 +57,37 @@ try {
   await page.evaluate(() => { window.__boardCheck.profile = null; window.dispatchEvent(new Event('focus')); });
   await drawer.waitFor({ state: 'detached' });
   assert.equal(await page.getByRole('button', { name: 'Open time leaderboard' }).count(), 0, 'Logout removes both drawer and trigger');
+  // A RUN guest (not signed in) is on the board too, as Guest_ plus three letters they choose.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.evaluate(() => {
+    const state = window.__boardCheck;
+    state.profile = { id: 'anon-1', username: 'host handle', isAnonymous: true };
+    window.RundotGameAPI.leaderboard.getPagedScores = async () => ({ totalEntries: 3, entries: [
+      { profileId: 'player-2', username: 'PumpkinRunner', score: 920, rank: 1 },
+      { profileId: 'anon-2', username: 'another handle', score: 800, rank: 2, metadata: { guestTag: 'KIT' } },
+      { profileId: 'anon-1', username: 'host handle', score: 700, rank: 3, metadata: { guestTag: 'OLD' } },
+    ] });
+    window.dispatchEvent(new Event('focus'));
+  });
+  await page.getByRole('button', { name: 'Open time leaderboard' }).click();
+  await drawer.getByText('Guest_KIT', { exact: true }).waitFor();
+  const first = await drawer.locator('.records-you strong').textContent();
+  assert.match(first, /^Guest_[A-Z]{3}$/, 'A guest starts with three random letters');
+  assert.equal(await drawer.getByText('host handle').count() + await drawer.getByText('another handle').count(), 0, 'Host handles of guests are never shown');
+  const letters = drawer.getByLabel('Your 3 letters'), save = drawer.getByRole('button', { name: 'Save', exact: true });
+  await letters.fill('a1b');
+  assert.equal(await letters.inputValue(), 'AB', 'Only letters are accepted, upper-cased');
+  assert.ok(await save.isDisabled(), 'Two letters cannot be saved');
+  await letters.fill('ass'); await save.click();
+  await drawer.getByText('Those letters are not allowed. Try another three.').waitFor();
+  assert.equal(await drawer.locator('.records-you strong').textContent(), first, 'Refused letters change nothing');
+  await letters.fill('fox'); await save.click();
+  await drawer.getByText('Saved. Your next record carries the new name.').waitFor();
+  assert.equal(await drawer.locator('.records-you strong').textContent(), 'Guest_FOX');
+  await drawer.getByRole('button', { name: 'Refresh', exact: true }).click();
+  await drawer.locator('.is-you').getByText('Guest_FOX').waitFor();
+  assert.equal(await page.evaluate(async () => (await import('/src/game/leaderboard.ts')).guestTag()), 'FOX', 'The letters are remembered on this device');
+  await page.screenshot({ path: 'art/world/checks/leaderboard-guest.png' });
   assert.deepEqual(errors, []);
-  console.log('Signed-in names/times, left drawer, rank, pagination, mode switch, retry, guest/logout gates, keyboard focus and phone layout passed with mocked RUN data; no real leaderboard writes.');
+  console.log('Signed-in names/times, left drawer, rank, pagination, mode switch, retry, logout gate, guest names with chosen and refused letters, keyboard focus and phone layout passed with mocked RUN data; no real leaderboard writes.');
 } finally { await browser.close(); }

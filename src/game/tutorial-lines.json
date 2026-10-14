@@ -1,0 +1,13 @@
+{
+  "speaker": "Professor Fizz",
+  "lines": {
+    "hello": "Kid! Kid, do you read me? It's Professor Fizz, on the walkie-talkie! My monster radar is going bananas. Maple Falls needs you tonight!",
+    "treat": "First things first: candy is power! See the green dots? Follow them to that house and ring the doorbell.",
+    "bowl": "Jumping jellybeans, it worked! Pick one treat. Every treat makes you stronger.",
+    "machine": "Next: the Midnight Candy Machine. Follow the dots. Your first spin is on me!",
+    "spin": "Hit the spin button! Sometimes you win big, and sometimes you get a dud. That's science!",
+    "shop": "One more stop: the Candy Lady's stand. She will upgrade your blaster, and this one is free.",
+    "upgrade": "Press the upgrade button on your gun. Stronger blaster, fewer monsters!",
+    "bye": "That's everything I know! Ring every doorbell, spend your coins, and stay alive. Here they come. Good luck, kid! Over and out!"
+  }
+}

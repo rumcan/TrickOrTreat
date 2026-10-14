@@ -1,0 +1,855 @@
+[
+  {
+    "id": "saucer_matron",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      655,
+      1099,
+      1536
+    ],
+    "uniformScale": 0.7324955116696589
+  },
+  {
+    "id": "saucer_matron_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      655,
+      1099,
+      1536
+    ],
+    "uniformScale": 0.43636363636363634
+  },
+  {
+    "id": "saucer_matron_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      655,
+      1099,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "iron_revenant",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      636,
+      1094,
+      1536
+    ],
+    "uniformScale": 0.7195767195767195
+  },
+  {
+    "id": "iron_revenant_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      636,
+      1094,
+      1536
+    ],
+    "uniformScale": 0.3569553805774278
+  },
+  {
+    "id": "iron_revenant_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      636,
+      1094,
+      1536
+    ],
+    "uniformScale": 0.3655913978494624
+  },
+  {
+    "id": "dough_colossus",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      651,
+      1037,
+      1536
+    ],
+    "uniformScale": 0.8047337278106509
+  },
+  {
+    "id": "dough_colossus_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      651,
+      1037,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "dough_colossus_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      651,
+      1037,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "cruiser_bully",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      575,
+      1074,
+      1536
+    ],
+    "uniformScale": 0.8662420382165605
+  },
+  {
+    "id": "cruiser_bully_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      575,
+      1074,
+      1536
+    ],
+    "uniformScale": 0.39622641509433965
+  },
+  {
+    "id": "cruiser_bully_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      575,
+      1074,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "assimilation_archon",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      619,
+      1117,
+      1536
+    ],
+    "uniformScale": 0.837782340862423
+  },
+  {
+    "id": "assimilation_archon_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      619,
+      1117,
+      1536
+    ],
+    "uniformScale": 0.4067796610169492
+  },
+  {
+    "id": "assimilation_archon_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      619,
+      1117,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "bog_sovereign",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      633,
+      1137,
+      1536
+    ],
+    "uniformScale": 0.7771428571428571
+  },
+  {
+    "id": "bog_sovereign_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      633,
+      1137,
+      1536
+    ],
+    "uniformScale": 0.35517970401691334
+  },
+  {
+    "id": "bog_sovereign_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      633,
+      1137,
+      1536
+    ],
+    "uniformScale": 0.384180790960452
+  },
+  {
+    "id": "hungry_hothouse",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      609,
+      1072,
+      1536
+    ],
+    "uniformScale": 0.816
+  },
+  {
+    "id": "hungry_hothouse_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      609,
+      1072,
+      1536
+    ],
+    "uniformScale": 0.3930635838150289
+  },
+  {
+    "id": "hungry_hothouse_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      609,
+      1072,
+      1536
+    ],
+    "uniformScale": 0.40476190476190477
+  },
+  {
+    "id": "gremlin_chief",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      589,
+      1058,
+      1536
+    ],
+    "uniformScale": 0.8360655737704918
+  },
+  {
+    "id": "gremlin_chief_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      589,
+      1058,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "gremlin_chief_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      589,
+      1058,
+      1536
+    ],
+    "uniformScale": 0.38443935926773454
+  },
+  {
+    "id": "playroom_butcher",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      508,
+      1042,
+      1536
+    ],
+    "uniformScale": 0.8755364806866953
+  },
+  {
+    "id": "playroom_butcher_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      508,
+      1042,
+      1536
+    ],
+    "uniformScale": 0.32748538011695905
+  },
+  {
+    "id": "playroom_butcher_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      508,
+      1042,
+      1536
+    ],
+    "uniformScale": 0.3617021276595745
+  },
+  {
+    "id": "camp_revenant",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      546,
+      1049,
+      1536
+    ],
+    "uniformScale": 0.8063241106719368
+  },
+  {
+    "id": "camp_revenant_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      546,
+      1049,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "camp_revenant_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      546,
+      1049,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "midnight_caller",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      611,
+      1082,
+      1536
+    ],
+    "uniformScale": 0.8
+  },
+  {
+    "id": "midnight_caller_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      611,
+      1082,
+      1536
+    ],
+    "uniformScale": 0.4057971014492754
+  },
+  {
+    "id": "midnight_caller_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      611,
+      1082,
+      1536
+    ],
+    "uniformScale": 0.3953488372093023
+  },
+  {
+    "id": "lord_blackdome",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      591,
+      1045,
+      1536
+    ],
+    "uniformScale": 0.8755364806866953
+  },
+  {
+    "id": "lord_blackdome_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      591,
+      1045,
+      1536
+    ],
+    "uniformScale": 0.40875912408759124
+  },
+  {
+    "id": "lord_blackdome_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      591,
+      1045,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "hollow_neighbor",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      583,
+      1045,
+      1536
+    ],
+    "uniformScale": 0.8662420382165605
+  },
+  {
+    "id": "hollow_neighbor_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      583,
+      1045,
+      1536
+    ],
+    "uniformScale": 0.4059701492537313
+  },
+  {
+    "id": "hollow_neighbor_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      583,
+      1045,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "needle_magistrate",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      612,
+      1087,
+      1536
+    ],
+    "uniformScale": 0.7771428571428571
+  },
+  {
+    "id": "needle_magistrate_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      612,
+      1087,
+      1536
+    ],
+    "uniformScale": 0.4019138755980861
+  },
+  {
+    "id": "needle_magistrate_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      612,
+      1087,
+      1536
+    ],
+    "uniformScale": 0.3569553805774278
+  },
+  {
+    "id": "night_brood",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      607,
+      1085,
+      1536
+    ],
+    "uniformScale": 0.8111332007952287
+  },
+  {
+    "id": "night_brood_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      607,
+      1085,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "night_brood_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      607,
+      1085,
+      1536
+    ],
+    "uniformScale": 0.38636363636363635
+  },
+  {
+    "id": "cloud_leviathan",
+    "frames": 4,
+    "width": 2560,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      643,
+      1096,
+      1536
+    ],
+    "uniformScale": 0.7891682785299806
+  },
+  {
+    "id": "cloud_leviathan_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      643,
+      1096,
+      1536
+    ],
+    "uniformScale": 0.3965014577259475
+  },
+  {
+    "id": "cloud_leviathan_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      643,
+      1096,
+      1536
+    ],
+    "uniformScale": 0.44299674267100975
+  },
+  {
+    "id": "winter_caretaker",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      566,
+      1037,
+      1536
+    ],
+    "uniformScale": 0.8662420382165605
+  },
+  {
+    "id": "winter_caretaker_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      566,
+      1037,
+      1536
+    ],
+    "uniformScale": 0.39344262295081966
+  },
+  {
+    "id": "winter_caretaker_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      566,
+      1037,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "dream_stalker",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      583,
+      1038,
+      1536
+    ],
+    "uniformScale": 0.9046563192904656
+  },
+  {
+    "id": "dream_stalker_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      583,
+      1038,
+      1536
+    ],
+    "uniformScale": 0.4084084084084084
+  },
+  {
+    "id": "dream_stalker_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      583,
+      1038,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "blade_marshal",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      588,
+      1062,
+      1536
+    ],
+    "uniformScale": 0.8063241106719368
+  },
+  {
+    "id": "blade_marshal_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      588,
+      1062,
+      1536
+    ],
+    "uniformScale": 0.41075794621026895
+  },
+  {
+    "id": "blade_marshal_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      588,
+      1062,
+      1536
+    ],
+    "uniformScale": 0.3646112600536193
+  },
+  {
+    "id": "gourmet_warden",
+    "frames": 4,
+    "width": 1536,
+    "height": 448,
+    "scale": 2,
+    "cuts": [
+      0,
+      526,
+      1032,
+      1536
+    ],
+    "uniformScale": 0.8625792811839323
+  },
+  {
+    "id": "gourmet_warden_a",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      526,
+      1032,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "gourmet_warden_b",
+    "frames": 4,
+    "width": 640,
+    "height": 208,
+    "scale": 2,
+    "cuts": [
+      0,
+      526,
+      1032,
+      1536
+    ],
+    "uniformScale": 0.3541666666666667
+  },
+  {
+    "id": "hollow_beyond",
+    "frames": 4,
+    "width": 1920,
+    "height": 400,
+    "scale": 1,
+    "cuts": [
+      0,
+      769,
+      1536
+    ],
+    "uniformScale": 0.5277777777777778
+  }
+]

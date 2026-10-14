@@ -1,5 +1,7 @@
 import { makeCanvas, ellipse } from './draw';
 import { sheetAsset, Img } from '../assets';
+import { HERO_COSTUME } from '../data';
+import {nightmareSheet,NIGHTMARE_MONSTERS} from './nightmare-monsters';
 
 export interface Sheet {
   img: Img;
@@ -595,7 +597,7 @@ const COSTUME_PROMPT: Record<string, string> = {
 
 export function heroSheet(i: number, costume?: string | null): Sheet {
   const h = HEROES[i];
-  const c = costume || '';
+  const c = costume === HERO_COSTUME[i] ? costume : '';
   return buildSheet(
     c ? `hero_${h.id}_${c}` : `hero_${h.id}`,
     'characters',
@@ -903,8 +905,9 @@ const EN_DEFS: Record<string, { fw: number; fh: number; frames: number; ax: numb
 };
 
 export function enemySheet(type: string): Sheet {
+  if(!EN_DEFS[type])return nightmareSheet(type);
   const d = EN_DEFS[type];
   return buildSheet(`enemy_${type}`, 'monsters', d.desc, d.prompt, d.fw, d.fh, d.frames, ['walk/float facing camera (flip horizontally for left/right)'], [d.frames], d.ax, d.ay, (ctx, cx, fy, f) => d.draw(ctx, cx, fy, f));
 }
 
-export const ENEMY_TYPES = Object.keys(EN_DEFS);
+export const ENEMY_TYPES = [...Object.keys(EN_DEFS),...NIGHTMARE_MONSTERS.map(m=>m.id)];

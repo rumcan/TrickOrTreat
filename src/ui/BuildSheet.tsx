@@ -81,7 +81,7 @@ export function DamageMath({ game }: { game: Game }) {
   const st = weaponStats(w, s);
   const has = (id: string) => w.traits.filter((x) => x === id).length;
   const rar = (1 + w.rarity * 0.15) * (1 + (w.level - 1) * 0.14);
-  const insc = (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4);
+  const insc = (1 + has('dmg') * 0.15) * (1 + has('tummy') * 0.4) * (1 + has('fullsize') * 0.6);
   const more = game.globalMore();
   const crit = expectedCritMul(st.crit + game.streak * 0.02, st.critMul);
   const ov = rateOverflow(st.rate, st.pellets, b.ks('sugar', 1));

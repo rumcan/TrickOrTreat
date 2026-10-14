@@ -5,15 +5,15 @@ import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
 import { treatArt } from '../game/art/treats';
 import { RARITY } from '../game/config';
-import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO } from '../game/data';
-import { ART, PORTRAITS, HERO_COLORS } from './art';
+import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO, HERO_COSTUME, COSTUME_BY_ID } from '../game/data';
+import { ART, PORTRAITS, HERO_COLORS, gunArtUrl } from './art';
 import { Keycap, KitTitle } from './kit';
-import { WeaponCardArt } from './WeaponCardArt';
 
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
 export const fmtTime = (t: number) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
-export const RARITY_KIT = ['#9aa0a6', '#7cff64', '#4fb3ff', '#a46bff', '#ffc453'];
+/** rarity colours in the UI: grey, then the familiar yellow-green · deep blue · purple · orange */
+export const RARITY_KIT = ['#9aa0a6', '#1eff00', '#0070dd', '#a335ee', '#ff8000'];
 
 // ============ GLYPHS (filled icons as drawn in the kit) ============
 type G = { size?: number; className?: string };
@@ -73,7 +73,8 @@ export function HeroPreview({ hero, size = 2, walking = true, costume = null, st
         for (let y = 0; y < s.fh; y++) for (let x = 0; x < s.fw; x++) if ((x === 0 || y === 0 || x === s.fw - 1 || y === s.fh - 1) && pixels[(y * s.fw + x) * 4 + 3] > 32) clipped++;
         if (clipped < best) { best = clipped; selected = f; }
       }
-      ctx.clearRect(0, 0, c.width, c.height); ctx.scale(size, size);
+      // setTransform, not scale: the effect can run more than once and a second scale() would zoom the kid out of the frame
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, c.width, c.height); ctx.setTransform(size, 0, 0, size, 0, 0);
       blitFrame(ctx, s, s.img, 0, selected, s.ax, s.ay);
       return;
     }
@@ -116,11 +117,10 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   return (
     <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
-      {!compact && <div className="weapon-card-showcase"><WeaponCardArt id={w.def.id} /></div>}
       <div className="flex items-center gap-3">
-        {compact && <div className="flex h-14 w-20 shrink-0 items-center justify-center">
-          <img src={weaponUrl(w.def.id)} className="h-10 w-20 [image-rendering:pixelated]" style={{ filter: 'drop-shadow(0 3px 0 rgba(0,0,0,0.6))' }} alt="" />
-        </div>}
+        <div className="h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+          <GunArt id={w.def.id} />
+        </div>
         <div className="min-w-0">
           <div className="font-cond text-xl uppercase leading-tight text-[#f2e6c9]">{w.def.name}</div>
           <div className="font-cond2 text-[13px] font-semibold uppercase tracking-wide text-[#9aa0a6]">
@@ -141,6 +141,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
         />
         <Row k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
         <Row k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
+        <Row k="Range" v={`${st.range.toFixed(1)} m`} />
         <Row k="Magazine" v={st.mag} />
         <Row k="Reload" v={`${st.reload.toFixed(2)}s`} />
         {st.pierce > 0 && st.pierce < 50 && <Row k="Pierce" v={st.pierce} />}
@@ -155,7 +156,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   );
 }
 
-/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, colour-coded by tier */
+/** a gun's inscription lines, Gunfire Reborn style: tier glyph + name + effect, in the loot colour of their tier (green, blue, purple, orange) */
 export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean; big?: boolean }) {
   if (!w.traits.length) return compact ? null : <div className="mt-2 font-cond2 text-[11px] font-bold uppercase tracking-wider text-[#5f6470]">No inscriptions</div>;
   return (
@@ -215,6 +216,10 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
             <CloverIcon size={22} />
             <span className="font-ui text-[15px] font-semibold text-[#1d1d1b]">Passive: <span className="text-[#2f8a3c]">{h.passive}</span></span>
           </div>
+          {COSTUME_BY_ID[HERO_COSTUME[hero]] && <div className="flex items-center gap-3">
+            <span className="w-[22px] text-center text-lg leading-none" aria-hidden="true">{COSTUME_BY_ID[HERO_COSTUME[hero]].icon}</span>
+            <span className="font-ui text-[15px] font-semibold text-[#1d1d1b]">Own costume: <span className="text-[#7a3fc0]">{COSTUME_BY_ID[HERO_COSTUME[hero]].name}</span> <span className="font-normal text-[#5a5346]">· a rare find in bags, houses and elites</span></span>
+          </div>}
         </div>
         <div className="mt-4 flex gap-3 border border-[#b9a77c] bg-[#e2d2a6] p-2.5">
           <div className="h-14 w-14 shrink-0 self-start overflow-hidden border-2 border-[#3a2f20]"><SkillIcon hero={hero} size={52} /></div>
@@ -243,7 +248,7 @@ export function ControlsPanel({ className = '' }: { className?: string }) {
       <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
         <div className="touch-manual col-span-full mb-3 border-b border-white/20 pb-3 text-sm leading-relaxed text-white">
           <strong className="block text-[#b5f4cb]">Touch controls</strong>
-          Left thumb: move. Right thumb: aim and fire. Without manual aiming, your gun automatically targets nearby monsters. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
+          Drag a finger anywhere on the street to move. Your gun aims at the nearest monster and fires on its own. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
         </div>
       <div>
         <CtrlRow k={<><Keycap>W</Keycap><Keycap>A</Keycap><Keycap>S</Keycap><Keycap>D</Keycap></>} label="Move" />
@@ -280,6 +285,10 @@ export function InfoPanel({ className = '' }: { className?: string }) {
 }
 
 /** the 80s/90s-movie card art for a treat (procedural, or the generated PNG when one is dropped in) */
+/** the painted card art of a gun: fills its frame like TreatArt does */
+export function GunArt({ id, className = '', alt = '' }: { id: string; className?: string; alt?: string }) {
+  return <img src={gunArtUrl(id)} alt={alt} draggable={false} className={`block h-full w-full object-cover ${className}`} />;
+}
 export function TreatArt({ id, className = '' }: { id: string; className?: string }) {
   return <img src={imgUrl(treatArt(id))} alt="" draggable={false} className={`block h-full w-full object-cover ${className}`} />;
 }

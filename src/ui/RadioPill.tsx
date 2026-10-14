@@ -2,9 +2,20 @@
 // slider. It sits in the top bar of each screen. On a phone it is just the play key; a long press shows the line.
 // Its popups (volume, the phone's now-playing line) open toward whichever side of the screen has room.
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { ChevronLeft, ChevronRight, Music2, Pause, Play, SkipForward, Volume2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Music2, Pause, Play, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { radio } from '../game/sound/radio';
 import '../radio.css';
+
+/** A tiny music on/off key for places the full pill does not fit (the in-game HUD on a phone). */
+export function MusicToggle({ className = '' }: { className?: string }) {
+  const view = useSyncExternalStore((fn) => radio.subscribe(fn), () => radio.snapshot(), () => radio.snapshot());
+  const on = view.settings.enabled, label = on ? 'Mute music' : 'Unmute music';
+  return (
+    <button type="button" className={`music-toggle ${className}`} data-on={on ? '1' : '0'} aria-pressed={!on} aria-label={label} title={label} data-sound="none" onPointerDown={(e) => e.stopPropagation()} onClick={() => radio.toggle()}>
+      {on ? <Volume2 size={15} /> : <VolumeX size={15} />}
+    </button>
+  );
+}
 
 export default function RadioPill({ compact = false }: { compact?: boolean }) {
   const view = useSyncExternalStore((fn) => radio.subscribe(fn), () => radio.snapshot(), () => radio.snapshot());
@@ -48,7 +59,9 @@ export default function RadioPill({ compact = false }: { compact?: boolean }) {
         onPointerLeave={() => { if (hold.current !== null) window.clearTimeout(hold.current); }}
         onClick={() => { if (!held.current) radio.toggle(); held.current = false; }}
       >
-        {settings.enabled ? <Pause size={14} /> : <Play size={14} />}
+        {/* on a phone this key is all there is, so it reads as a music mute, not as "pause the game" */}
+        <span className="radio-ico-desk">{settings.enabled ? <Pause size={14} /> : <Play size={14} />}</span>
+        <span className="radio-ico-phone">{settings.enabled ? <Volume2 size={15} /> : <VolumeX size={15} />}</span>
         <Music2 size={12} className="radio-note" aria-hidden="true" />
       </button>
       <span className="radio-now" aria-live="polite"><span className="radio-now-text">{text}</span></span>

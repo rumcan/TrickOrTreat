@@ -17,7 +17,7 @@ try {
       const g = new Game(hero, structuredClone(save), input(), campaign, 1337);
       require(g.p.costume === null && !g.pickups.some(p => p.kind === 'costume'), 'No costume equipped or guaranteed at spawn, even with old capstone');
     }
-    require(COSTUMES.length === 10 && COSTUMES.every(c => c.rarity === 3), 'All ten costumes are Epic');
+    require(COSTUMES.length === 5 && COSTUMES.every(c => c.rarity === 3), 'One Epic costume per kid');
     for (const c of COSTUMES) { const s = baseStats(); c.apply(s); require(JSON.stringify(s) !== JSON.stringify(baseStats()), `${c.id} has real powers`); }
     const g = new Game(0, structuredClone(save), input(), false, 1337); g.state = 'play'; g.p.invuln = 999; g.wave = 15;
     const spawn = affix => { g.enemies = []; g.bullets = []; const e = g.spawnEnemy('zombie', g.p.x + 1, g.p.y, false, affix); e.hp = e.maxHp = 1000; e.spawnT = 0; e.shield = e.maxShield = 0; g.rebuildGrid(); return e; };
@@ -54,10 +54,13 @@ try {
     for (let i = 0; i < 100; i++) { const e = g.spawnEnemy('zombie', g.p.x + 2, g.p.y, false, 'stormproof'); hit(e, { element: 'shock' }); hit(e, { element: 'shock' }); }
     const reasons = g.texts.filter(t => t.kind === 'reason'); require(reasons.length === 8 && reasons.every(t => t.size === 10 && t.life <= .75 && t.z > 2), 'Defense explanations stay small, above enemies, throttled and bounded');
     // Actual Epic costume powers, not just improved descriptions.
-    g.enemies = []; g.bullets = []; g.wearCostume('witch', false); const target = g.spawnEnemy('zombie', g.p.x + 2, g.p.y, false, null); target.hp = target.maxHp = 10000; target.spawnT = 0; g.rebuildGrid(); g.p.hexT = 0; g.updateCompanions(.01);
-    require(g.bullets.filter(b => b.kind === 'hex').length === 3 && g.bullets.every(b => b.pierce >= 2), 'Witch fires three penetrating hexes');
-    g.bullets = []; g.wearCostume('skeleton', false); g.applyHit(target, 10, true, 0, 0, 0, 0, 0); require(g.bullets.length === 4 && g.bullets.every(b => b.pierce === 2), 'Skeleton fires four strong bone shards');
-    g.wearCostume('vampire', false); g.p.hp = 10; g.p.shield = 0; g.killEnemy(target); require(g.p.hp === 14 && g.p.shield === 3, 'Vampire restores health and shield');
+    g.wearCostume('witch', false); g.wearCostume('skeleton', false);
+    require(g.p.costume === null, 'Retired costumes cannot be equipped');
+    const vampire = new Game(2, structuredClone(save), input(), false, 1337);
+    vampire.state = 'play'; vampire.wearCostume('vampire', false);
+    vampire.p.hp = 10; vampire.p.shield = 0;
+    vampire.killEnemy(vampire.spawnEnemy('zombie', vampire.p.x + 2, vampire.p.y, false, null));
+    require(vampire.p.hp === 14 && vampire.p.shield === Math.min(3, vampire.stats.maxShield), 'Jess Vampire restores health and available shield');
     return { costumes: COSTUMES.length, startCases: 10, defenses: 6, boundedHints: reasons.length };
   });
   assert.deepEqual(errors, []); console.log(JSON.stringify(results));

@@ -27,7 +27,7 @@ const SPECS: Record<string, ArtSpec> = {
   fireball: { bg: 'fire', motif: 'eyes', c: '#ffb43c', prompt: 'a pair of eyes glowing with fire, a psychic girl starting fires with a stare' },
   pop: { bg: 'vhs', motif: 'robot', c: '#7fd8ff', c2: '#ffe14a', prompt: 'a cute tank-tread robot head throwing sparks after a lightning strike, malfunction' },
   gummy: { bg: 'vhs', motif: 'slime', c: '#7cff64', prompt: 'a big splash of glowing green slime dripping down, getting slimed' },
-  pepper: { bg: 'fire', motif: 'flamethrower', c: '#ff7a1a', prompt: 'a chunky sci-fi marine flamethrower spitting fire in a dark alien hive' },
+  pepper: { bg: 'fire', motif: 'canister', c: '#ff7a1a', prompt: 'a battered red sci-fi marine fuel canister with a coiled hose and a lick of fire at the valve (the fuel, not the flamethrower: that is a gun)' },
   sweater: { bg: 'space', motif: 'bolt', c: '#ffe14a', c2: '#7fd8ff', prompt: 'a lightning bolt striking a town clock tower at exactly 10:04, 1.21 jigawatts' },
   taffy: { bg: 'woods', motif: 'canister', c: '#7cff64', prompt: 'a dented canister leaking glowing green ooze in a sewer, mutagen' },
   fangs: { bg: 'woods', motif: 'fangs', c: '#ff4d6d', c2: '#fff3c4', prompt: 'a grinning pair of vampire fangs under a boardwalk moon, teen vampire gang' },
@@ -55,6 +55,26 @@ const SPECS: Record<string, ArtSpec> = {
   firstaid: { bg: 'woods', motif: 'firstaid', c: '#ff4d6d', c2: '#fff3c4', prompt: 'a scout first-aid kit by the railway tracks at dusk, four friends on a long walk' },
   friendship: { bg: 'sunset', motif: 'bracelets', c: '#ff7ad9', c2: '#2ec4b0', prompt: 'two woven friendship bracelets, a BMX gang pact' },
 };
+// pocket-size common treats (art cut from art/new/tallets_icon2.png) and the extreme full-game treats
+Object.assign(SPECS, {
+  mixtape: { bg: 'neon', motif: 'vhs', c: '#ff4d6d', c2: '#fff3c4', prompt: 'a red-striped audio cassette mixtape' },
+  masher: { bg: 'neon', motif: 'dpad', c: '#c8ccd8', c2: '#ff2ea6', prompt: 'a grey 16-bit game controller with four coloured buttons' },
+  token: { bg: 'space', motif: 'pinball', c: '#ffe14a', c2: '#ff2ea6', prompt: 'a small neon arcade cabinet' },
+  batteries: { bg: 'vhs', motif: 'canister', c: '#ffb43c', c2: '#21d0ff', prompt: 'a portable cassette player with orange foam headphones' },
+  griptape: { bg: 'neon', motif: 'sneaker', c: '#ffe14a', c2: '#ff2ea6', prompt: 'a skateboard deck with a zig-zag neon pattern and yellow wheels' },
+  skates: { bg: 'neon', motif: 'sneaker', c: '#b44dff', c2: '#ff2ea6', prompt: 'a purple roller skate with pink wheels and a lightning bolt' },
+  denim: { bg: 'woods', motif: 'visor', c: '#4f8aff', c2: '#ffe14a', prompt: 'a denim jacket covered in pins and patches' },
+  slurp: { bg: 'sunset', motif: 'eggs', c: '#2ec4b0', c2: '#ff2ea6', prompt: 'a paper soda cup with a zig-zag 90s print and a striped straw' },
+  yoyo: { bg: 'space', motif: 'ufo', c: '#ff4d6d', c2: '#ffe14a', prompt: 'a red yo-yo with a gold star, string looped beside it' },
+  lunchmoney: { bg: 'sunset', motif: 'lunchbox', c: '#4f8aff', c2: '#ffb43c', prompt: 'a metal lunchbox with a rocket-ship print' },
+  cartoons: { bg: 'vhs', motif: 'robot', c: '#7fd8ff', c2: '#c8ccd8', prompt: 'a small CRT television showing static' },
+  forcefield: { bg: 'space', motif: 'ufo', c: '#21d0ff', c2: '#fff3c4', prompt: 'a chunky 1980s sci-fi utility belt projecting a shimmering blue hexagonal energy bubble, a single tiny red heart inside the bubble' },
+  berserk: { bg: 'fire', motif: 'sword', c: '#ff4d6d', c2: '#ffb43c', prompt: 'a bare-chested barbarian silhouette roaring with a huge double-headed axe raised, broken shield at his feet, fantasy paperback cover' },
+  oneshot: { bg: 'sunset', motif: 'crane', c: '#ffe14a', c2: '#ff4d6d', prompt: 'a single gleaming golden bullet standing upright in a spotlight, an empty revolver cylinder behind it, action-movie poster' },
+  kaiju: { bg: 'fire', motif: 'tiger', c: '#7cff64', c2: '#ff7a1a', prompt: 'a giant green lizard monster towering over a tiny city skyline at night, rubber-suit monster movie, a ray gun beam hitting it' },
+  longshot: { bg: 'space', motif: 'ufo', c: '#b44dff', c2: '#21d0ff', prompt: 'a shining rainbow compact disc, a late-night radio long-distance dedication' },
+  goldfever: { bg: 'woods', motif: 'canister', c: '#ffe14a', c2: '#7cff64', prompt: 'a small golden idol on a stone pedestal in a jungle temple, a beam of light on it, a rolling boulder looming in the dark behind' },
+} satisfies Record<string, ArtSpec>);
 export const TREAT_ART_IDS = Object.keys(SPECS);
 
 const OL = '#0b0710';

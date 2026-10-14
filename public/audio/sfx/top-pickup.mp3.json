@@ -1,0 +1,7 @@
+{
+  "prompt": "A single short sweet candy pickup blip: a bright candy wrapper crinkle with a tiny rising two-note chime, cheerful and quick. Starts immediately, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 0.5,
+  "layer": "top",
+  "tool": "rundot generate sfx"
+}

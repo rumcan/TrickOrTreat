@@ -38,6 +38,19 @@ try {
   await game.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   const remoteModule = await game.evaluate(() => [...document.scripts].filter(s => s.type === 'module').map(s => s.textContent || '').sort((a, b) => b.length - a.length)[0]);
   assert.equal(digest(remoteModule), digest(localModule), 'Hosted game is byte-identical to the audited build module');
+  const heldFiles = (await fs.readdir('dist/assets/hero3d')).filter(f => f.endsWith('.webp')).sort();
+  assert.equal(heldFiles.length, 10, 'All five kids and their five own costumes have held-gun sprites');
+  const heldAssets = await game.evaluate(async files => Promise.all(files.map(async file => {
+    const response = await fetch(new URL(`assets/hero3d/${file}`, document.baseURI));
+    if (!response.ok) throw new Error(`Missing hosted held-gun sprite: ${file}`);
+    const blob = await response.blob(), bitmap = await createImageBitmap(blob);
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()))].map(v => v.toString(16).padStart(2, '0')).join('');
+    const result = { file, hash, width: bitmap.width, height: bitmap.height }; bitmap.close(); return result;
+  })), heldFiles);
+  for (const asset of heldAssets) {
+    assert.equal(asset.hash, crypto.createHash('sha256').update(await fs.readFile(`dist/assets/hero3d/${asset.file}`)).digest('hex'));
+    assert.equal(asset.width, 3136); assert.equal(asset.height, 1792);
+  }
   for (const entry of Object.values(manifest.overrides)) {
     const file = typeof entry === 'string' ? entry : entry.file;
     assert.ok([...loaded].some(path => path.endsWith(`/assets/${file}`)), `Hosted loader missed ${file}`);
@@ -45,20 +58,8 @@ try {
   assert.equal(await game.getByRole('button', { name: 'Collection', exact: true }).count(), 0);
   assert.equal(await game.getByRole('button', { name: /Preview expansion locally/ }).count(), 0);
   assert.equal(await game.evaluate(() => typeof window.__tot), 'undefined');
-  await game.getByRole('button', { name: 'Discover the full game' }).click();
-  const showcase = game.getByRole('dialog', { name: 'HIDE & SHRIEK' }); await showcase.waitFor();
-  const cards = showcase.locator('[data-weapon-card-art]');
-  assert.equal(await cards.count(), 4, 'Premium catalogue uses the new illustrated gun cards');
-  await cards.evaluateAll(async images => { await Promise.all(images.map(i => i.decode())); });
-  const cardBase = await cards.first().evaluate(img => new URL('.', img.src).href);
-  for (const id of ['pea','nerf','shotgun','roman','soaker','balloon','rocket','laser','slingshot','gloom','marshmallow','bubblegum','acorn']) for (const width of [480,960]) {
-    const file = `${id}-v1-${width}.webp`, expected = crypto.createHash('sha256').update(await fs.readFile(`dist/images/weapon-cards/${file}`)).digest('hex');
-    const actual = await game.evaluate(async url => {
-      const response = await fetch(url); if (!response.ok) throw new Error('Missing hosted card art');
-      return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await response.arrayBuffer())), b => b.toString(16).padStart(2,'0')).join('');
-    }, new URL(file, cardBase).href);
-    assert.equal(actual, expected, `Hosted gun illustration ${file} matches the reviewed artwork`);
-  }
+  await game.getByRole('button', { name: /Support the creator|Discover the full game/ }).click();
+  const showcase = game.getByRole('dialog', { name: 'THE FULL GAME' }); await showcase.waitFor();
   await showcase.getByRole('button', { name: 'Close full game showcase' }).click();
   await game.getByRole('button', { name: 'Go trick-or-treating' }).click();
   await game.getByText('Ring doorbells', { exact: true }).waitFor();

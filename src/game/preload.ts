@@ -5,10 +5,15 @@ import {
   getPrimarySchool, getDriveInScreen, getSpeakerPost, getSnackBar, getMarquee, getChurch, getVideoRental,
   getJungleGym, getSwings, getMerryGoRound, getSchoolBus, getBarn, getGazebo, getBench, getTurretSheet,
 } from './art/props';
-import { heroSheet, enemySheet, ENEMY_TYPES, HEROES, COSTUME_ART_IDS } from './art/characters';
+import { heroSheet, enemySheet, ENEMY_TYPES, HEROES } from './art/characters';
+import { HERO_COSTUME } from './data';
 import { weaponIcon, pickupIcon, treatIcon, TREAT_ICON_IDS, WEAPON_ICON_IDS, PICKUP_IDS } from './art/fx';
 import { treatArt, TREAT_ART_IDS } from './art/treats';
 import { loadOverrides } from './assets';
+import { ARCADE_ART_KINDS,getArcadeFixture,getArcadeFloor,getArcadeExitMat } from './art/arcade';
+import {CLUTTER_KINDS} from './arcade-clutter';
+import {getArcadeClutter} from './art/arcade-clutter';
+import {arcadeStaffSheet} from './art/arcade-staff';
 
 const nextFrame = () => new Promise<void>((r) => setTimeout(r, 0));
 
@@ -18,7 +23,7 @@ export function preloadAll(progress: (p: number, label: string) => void) {
   return (booting ??= boot(progress));
 }
 async function boot(progress: (p: number, label: string) => void) {
-  progress(0.02, 'Checking /assets/manifest.json for sprite files…');
+  progress(0.02, 'Unpacking the candy…');
   await loadOverrides();
   const jobs: [string, () => void][] = [];
   for (const g of [G.GRASS, G.ROAD, G.SIDEWALK, G.DIRT, G.GRAVEL, G.DARKGRASS, G.DRIVEWAY, G.FLAGSTONE, G.FIELD])
@@ -35,8 +40,11 @@ async function boot(progress: (p: number, label: string) => void) {
   for (const f of [getPrimarySchool, getDriveInScreen, getSpeakerPost, getSnackBar, getMarquee, getChurch, getVideoRental, getSwings, getMerryGoRound, getBarn, getGazebo, getBench, getTurretSheet]) jobs.push(['Preparing the expanded town', () => { f(); }]);
   jobs.push(['Opening the playground', () => { getJungleGym(0); getJungleGym(1); getSchoolBus(false); }]);
   jobs.push(['Closing the roads', () => { getGate(); getBleachers(); getGoalPosts(); getScoreboard(); }]);
+  jobs.push(['Opening the Starcade',()=>{ ARCADE_ART_KINDS.forEach(k=>getArcadeFixture(k));getArcadeFixture('wall',.15,7.5);getArcadeFloor();getArcadeExitMat();CLUTTER_KINDS.forEach(getArcadeClutter); }]);
+  jobs.push(['Staffing the concessions',()=>{arcadeStaffSheet(3);arcadeStaffSheet(4);}]);
   HEROES.forEach((_, i) => jobs.push(['Dressing kids', () => heroSheet(i)]));
-  HEROES.forEach((_, i) => COSTUME_ART_IDS.forEach((c) => jobs.push(['Sewing costumes', () => heroSheet(i, c)])));
+  // each kid only ever wears their own costume
+  HEROES.forEach((_, i) => jobs.push(['Sewing costumes', () => heroSheet(i, HERO_COSTUME[i])]));
   for (const t of ENEMY_TYPES) jobs.push(['Summoning monsters', () => enemySheet(t)]);
   jobs.push(['Loading toy guns', () => { WEAPON_ICON_IDS.forEach(weaponIcon); PICKUP_IDS.forEach(pickupIcon); }]);
   jobs.push(['Packing friend treats', () => TREAT_ICON_IDS.forEach(treatIcon)]);

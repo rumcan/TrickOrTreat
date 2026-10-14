@@ -73,9 +73,33 @@ let maxScale = 2;
 
 const base = () => (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_URL || './';
 
+const PROD = (import.meta as unknown as { env: { PROD?: boolean } }).env.PROD === true;
+const RETRY_WAITS = [300, 900, 2000];
+/**
+ * One dropped request must not cost the player the painted art for the whole session (a network blip, or a new version
+ * going live while the game loads): every art request is tried again a few times before it counts as failed.
+ * A plain "not there" in development is final, so a missing optional file does not slow the dev server down.
+ */
+async function fetchRetry(url: string): Promise<Response> {
+  let last: unknown;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const r = await fetch(url, { cache: 'no-cache' });
+      if (r.ok || (!PROD && r.status === 404)) return r;
+      last = new Error(`${r.status} ${url}`);
+    } catch (err) { last = err; }
+    if (attempt >= RETRY_WAITS.length) throw last;
+    await new Promise((done) => setTimeout(done, RETRY_WAITS[attempt]));
+  }
+}
+/** what went wrong loading the painted art: the list itself never arrived, or this many of its files did not */
+const artLoad = { manifest: true, failed: 0, total: 0 };
+/** true when the game would start (partly) in its built-in drawings because painted art failed to load */
+export function artLoadFailed() { return !artLoad.manifest || artLoad.failed > 0; }
+
 async function loadFile(file: string): Promise<FileImg> {
   const url = `${base()}assets/${file}`;
-  const r = await fetch(url, { cache: 'no-cache' });
+  const r = await fetchRetry(url);
   if (!r.ok) throw new Error(`${r.status} ${url}`);
   const blob = await r.blob();
   // dev servers answer a missing file with index.html (200), so check what actually came back
@@ -116,21 +140,25 @@ export function loadOverrides() {
 }
 async function fetchOverrides() {
   try {
-    const r = await fetch(`${base()}assets/manifest.json`, { cache: 'no-cache' });
-    if (!r.ok) return;
+    const r = await fetchRetry(`${base()}assets/manifest.json`);
+    if (!r.ok) { artLoad.manifest = !PROD; return; } // a released build always has its art list
     const m = (await r.json()) as { maxScale?: number; overrides?: Record<string, string | ManifestOpts> };
     if (m.maxScale) maxScale = Math.max(1, Math.min(4, Math.round(m.maxScale)));
+    const entries = Object.entries(m.overrides || {});
+    artLoad.total = entries.length;
     await Promise.all(
-      Object.entries(m.overrides || {}).map(async ([key, e]) => {
+      entries.map(async ([key, e]) => {
         try {
           raws.set(key, await loadRaw(key, e));
         } catch (err) {
+          if (PROD) artLoad.failed++;
           console.warn('[assets] override failed, using procedural art:', key, err);
         }
       })
     );
   } catch {
-    /* running from file:// or no manifest -> procedural only */
+    /* running from file:// or no manifest -> procedural only; in a released build that is a failed load */
+    artLoad.manifest = !PROD;
   }
 }
 

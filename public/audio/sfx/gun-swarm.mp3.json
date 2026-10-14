@@ -1,0 +1,7 @@
+{
+  "prompt": "Three missile pops in quick succession: 'pf-pf-pf'. One single short sound that starts immediately, clearly audible at a normal recording level, and then silence. Dry and close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 0.5,
+  "layer": "gun",
+  "tool": "rundot generate sfx"
+}

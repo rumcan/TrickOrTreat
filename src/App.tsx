@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Game, Input, HudSnap } from './game/engine';
+import { Game, Input, HudSnap, campaignOffered } from './game/engine';
 import { Renderer } from './game/render';
 import { preloadAll } from './game/preload';
+import { tutorialWanted } from './game/tutorial';
+import { Walkie } from './ui/Walkie';
+import { artLoadFailed } from './game/assets';
 import { loadSave, storeSave, Save } from './game/data';
 import { Hud } from './ui/Hud';
 import { LogoImg } from './ui/kit';
-import { preloadUiArt } from './ui/art';
-import { Title, CharSelect, LevelUp, Shop, Pause, EndScreen } from './ui/Menus';
+import { preloadUiArt, preloadSplash } from './ui/art';
+import { Title, CharSelect, LevelUp, Shop, Pause, EndScreen, DiscardTreat } from './ui/Menus';
 import { TalentTree } from './ui/TalentTree';
 import { Atlas } from './ui/Atlas';
 import { WeaponInspect } from './ui/Inspect';
@@ -17,14 +20,16 @@ import { gameAudio } from './game/audio';
 import { expansion, hasFullGame } from './game/expansion';
 import { HERO_INFO } from './game/data';
 import { SplashArt } from './ui/SplashArt';
-import { TouchControls, useTouchMode } from './ui/TouchControls';
+import { TouchControls, TouchMoveSurface, useTouchMode } from './ui/TouchControls';
 import { VendingMachine } from './ui/VendingMachine';
-import { requestMobileFullscreen, requestGameFullscreen } from './ui/fullscreen';
-import { Maximize } from 'lucide-react';
+import { requestMobileFullscreen } from './ui/fullscreen';
+import { useBack } from './ui/back';
+import { X } from 'lucide-react';
+import {ArcadeRecruit} from './ui/ArcadeRecruit';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
-function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign: boolean; onExit: () => void; onTalents: () => void }) {
+function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; onExit: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [snap, setSnap] = useState<HudSnap | null>(null);
@@ -37,6 +42,7 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
     const cv = canvasRef.current!;
     const input = new Input(cv);
     const game = new Game(save.hero, save, input, campaign);
+    if (tutorialWanted()) game.startTutorial(); // a first-timer's night starts with Professor Fizz on the walkie
     const renderer = new Renderer(cv, game.hero);
     gameRef.current = game;
     if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) (window as unknown as { __tot: unknown }).__tot = { game, renderer };
@@ -78,26 +84,45 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
     refresh();
   }, [refresh]);
   const restart = useCallback(() => { requestMobileFullscreen(); setRunId((n) => n + 1); }, []);
+  // Browser Back (the phone gesture) steps out of whatever is open instead of leaving the site mid-run.
+  useBack(() => {
+    const gg = gameRef.current;
+    if (!gg) return;
+    if (gg.bigMap) gg.bigMap = false;
+    else if (gg.state === 'play') gg.state = 'pause';
+    else if (gg.state === 'pause' || gg.state === 'inventory') gg.state = 'play';
+    else if (gg.state === 'shop') gg.closeShop();
+    else if (gg.state === 'vending') gg.closeVending();
+    else if (gg.state === 'inspect') gg.closeInspect();
+    else if (gg.state === 'discard') gg.answerDiscard(false);
+    else if (gg.state === 'hire') gg.closeHire();
+    refresh(); // a treat choice, the intro and the end screen have no "close": Back simply does nothing there
+  });
 
   return (
     <div className={`ingame absolute inset-0 cursor-none bg-black ${touchMode ? 'touch-game' : ''}`}>
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full game-canvas" onPointerDown={event => { if (event.pointerType === 'touch') event.preventDefault(); }} />
+      {touchMode && g && snap && <TouchMoveSurface key={runId} game={g} enabled={snap.state === 'play'} />}
       {g && snap && <Hud s={snap} game={g} />}
       {touchMode && g && snap && <TouchControls key={runId} game={g} s={snap} />}
       {g && snap?.state === 'intro' && <div className="absolute inset-0 flex items-end justify-center p-6 pb-36"><div className="kit-panel max-w-xl rounded-xl p-5 text-center text-[#f2e6c9]"><div className="font-cond text-xl text-[#ffc453]">{HERO_INFO[g.introText.hero].name}</div><p className="mt-2 text-xl">{g.introText.text}</p><button className="mt-4 min-h-11 text-sm text-white cursor-auto" onClick={() => { g.introTime = 18; }}>{touchMode ? 'Skip intro' : 'Space / Enter · skip intro'}</button></div></div>}
       {g && snap?.state === 'levelup' && <div className="cursor-auto"><LevelUp game={g} onDone={refresh} /></div>}
-      {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /></div>}
-      {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /></div>}
+      {g && snap?.state === 'discard' && <div className="cursor-auto"><DiscardTreat game={g} onDone={refresh} /></div>}
+      {g && snap?.state === 'hire' && <ArcadeRecruit game={g} onDone={refresh} />}
+      {/* phones: these two scroll, so their way out is pinned on top instead of sitting at the very bottom */}
+      {g && snap?.state === 'inspect' && <div className="cursor-auto"><WeaponInspect game={g} onDone={refresh} /><button type="button" className="modal-close modal-close--over" aria-label="Leave the gun" onClick={() => { g.closeInspect(); refresh(); }}><X size={20} strokeWidth={3} /></button></div>}
+      {g && snap?.state === 'shop' && <div className="cursor-auto"><Shop game={g} onClose={closeShop} /><button type="button" className="modal-close modal-close--over" aria-label="Leave the shop" onClick={closeShop}><X size={20} strokeWidth={3} /></button></div>}
       {g && snap?.state === 'vending' && <div className="cursor-auto"><VendingMachine game={g} onDone={refresh} /></div>}
       {g && snap?.state === 'pause' && (
         <div className="cursor-auto">
           <Pause game={g} onResume={() => { g.state = 'play'; refresh(); }} onRestart={restart} onQuit={() => { g.endRun(false); refresh(); }} />
         </div>
       )}
+      {g && snap && g.tutorial && <Walkie key={runId} game={g} state={snap.state} onChange={refresh} />}
       {g && snap?.state === 'inventory' && <div className="cursor-auto"><RunInventory game={g} onClose={() => { g.state = 'play'; refresh(); }} /></div>}
       {g && (snap?.state === 'dead' || snap?.state === 'victory') && (
         <div className="absolute inset-0 z-40 cursor-auto">
-          <EndScreen game={g} onAgain={restart} onTitle={onExit} onTalents={onTalents} onContinue={() => { g.continueEndless(); refresh(); }} />
+          <EndScreen game={g} onAgain={restart} onTitle={onExit} onContinue={() => { g.continueEndless(); refresh(); }} />
         </div>
       )}
     </div>
@@ -106,11 +131,14 @@ function GameView({ save, campaign, onExit, onTalents }: { save: Save; campaign:
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
-  const [prog, setProg] = useState({ p: 0, label: 'Waking up the dead…' });
+  const [label, setLabel] = useState('Waking up the dead…');
+  /** the painted art did not arrive: ask before starting in the built-in drawings */
+  const [artProblem, setArtProblem] = useState(false);
   const [save, setSave] = useState<Save>(() => loadSave());
   const [campaign, setCampaign] = useState(false);
   useEffect(() => { void expansion.restore(); }, []);
-  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(rescue); setScreen('game'); };
+  // Hide & Shriek is shelved (see CAMPAIGN_OPEN): whoever plays, the night starts the same way, with the tutorial or without
+  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(campaignOffered() && rescue); setScreen('game'); };
 
   useEffect(() => {
     const unlock = (event: Event) => {
@@ -125,7 +153,9 @@ export default function App() {
   useEffect(() => { radio.setScene(screen === 'game' ? 'race' : 'menu'); }, [screen]);
 
   useEffect(() => {
-    Promise.all([preloadAll((p, label) => setProg({ p, label })), preloadUiArt()]).then(() => {
+    // the loading screen's own logo and background come first; only then the sprite manifest and the rest of the UI art
+    preloadSplash().then(() => Promise.all([preloadAll((_, text) => setLabel(text)), preloadUiArt()])).then(() => {
+      if (artLoadFailed()) { setArtProblem(true); return; }
       setScreen('title');
       // ?export: lets scripts/export-art.mjs pull PNGs of the procedural art
       if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => Object.assign(window, { __totExport: m.exportArt, __totRegen: m.exportRegen }));
@@ -141,16 +171,25 @@ export default function App() {
   const toTitle = () => { reloadSave(); setScreen('title'); };
 
   if (screen === 'loading') {
+    // Same markup and classes as the static boot screen in index.html, so React taking over is invisible.
     return (
-      <div className="game-shell relative flex w-screen flex-col items-center justify-center overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
-        <SplashArt className="opacity-35" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0e0f13] via-[#0e0f13]/50 to-[#0e0f13]/80" />
-        <div className="relative flex flex-col items-center px-6">
-          <LogoImg className="kit-bob w-[min(620px,86vw)]" />
-          <div className="mt-8 h-4 w-[min(380px,80vw)] border-[1.5px] border-black bg-[#1c1e24] shadow-[0_0_0_1px_rgba(255,255,255,0.1),inset_0_2px_4px_rgba(0,0,0,0.7)]">
-            <div className="h-full origin-left bg-[#fb8016] shadow-[inset_0_-3px_0_rgba(0,0,0,0.25),inset_0_2px_0_rgba(255,255,255,0.25)]" style={{ transform: `scaleX(${prog.p})` }} />
-          </div>
-          <div className="mt-2.5 font-cond2 text-xs font-bold uppercase tracking-[0.2em] text-[#9aa0a6]">{prog.label}</div>
+      <div className="boot">
+        <SplashArt boot />
+        <div className="boot-shade" />
+        <div className="boot-body">
+          <LogoImg className="boot-logo" />
+          {artProblem ? (
+            <div className="boot-problem" role="alert">
+              <div className="boot-label">The game's artwork did not finish loading. Check your connection and try again.</div>
+              <div className="boot-problem-actions">
+                <button type="button" className="boot-btn" onClick={() => location.reload()}>Try again</button>
+                <button type="button" className="boot-btn boot-btn--quiet" onClick={() => { setArtProblem(false); setScreen('title'); }}>Play anyway</button>
+              </div>
+            </div>
+          ) : (<>
+            <div className="boot-loop" role="progressbar" aria-label="Loading"><i /></div>
+            <div className="boot-label">{label}</div>
+          </>)}
         </div>
       </div>
     );
@@ -159,12 +198,13 @@ export default function App() {
   return (
     <div className="game-shell relative w-screen overflow-hidden bg-[#0e0f13]">
       {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
-      {screen !== 'game' && <button className="menu-fullscreen" aria-label="Fullscreen" title="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={18} /></button>}
+      {/* phones: the sub-screens' own Back buttons sit below the fold, so one is pinned in the corner */}
+      {(screen === 'chars' || screen === 'talents' || screen === 'atlas') && <button type="button" className="modal-close modal-close--over" aria-label="Back to the title" onClick={toTitle}><X size={20} strokeWidth={3} /></button>}
       {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}
       {screen === 'atlas' && <Atlas onBack={toTitle} />}
-      {screen === 'game' && <GameView save={save} campaign={campaign} onExit={toTitle} onTalents={() => { reloadSave(); setScreen('talents'); }} />}
+      {screen === 'game' && <GameView save={save} campaign={campaign} onExit={toTitle} />}
     </div>
   );
 }

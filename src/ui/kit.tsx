@@ -136,7 +136,12 @@ export function Toast({ face, children }: { face: string; children: ReactNode })
 
 export function LogoImg({ className = '', small }: { className?: string; small?: boolean }) {
   const src = small ? ART.logoSm : ART.logo;
-  const [decodedSrc, setDecodedSrc] = useState<string | null>(null);
+  // Already in memory (the boot screen showed it): start visible, so React taking over never blinks the logo.
+  const [decodedSrc, setDecodedSrc] = useState<string | null>(() => {
+    const cached = new Image();
+    cached.src = src;
+    return cached.complete && cached.naturalWidth > 0 ? src : null;
+  });
   useEffect(() => {
     let active = true;
     const image = new Image();

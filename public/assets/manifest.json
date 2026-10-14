@@ -130,112 +130,8 @@
         360
       ]
     },
-    "hero_tommy_ghost": {
-      "file": "generated/world/hero_tommy_ghost-13020e79ab0581ec.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_vampire": {
-      "file": "generated/world/hero_tommy_vampire-ed10cc2b2a55c10a.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_witch": {
-      "file": "generated/world/hero_tommy_witch-808dfca255361b02.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_hero": {
-      "file": "generated/world/hero_tommy_hero-03578208baee5b50.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_skeleton": {
-      "file": "generated/world/hero_tommy_skeleton-a1785f12b824da04.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
     "hero_tommy_pumpkin": {
       "file": "generated/world/hero_tommy_pumpkin-7ab1f10467400b12.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_astronaut": {
-      "file": "generated/world/hero_tommy_astronaut-443fb8224489f288.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_dino": {
-      "file": "generated/world/hero_tommy_dino-090237b5e5443446.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_ghost": {
-      "file": "generated/world/hero_sam_ghost-f7b5d4a4098b34d8.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_vampire": {
-      "file": "generated/world/hero_sam_vampire-6ee251684b5d8bd5.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_witch": {
-      "file": "generated/world/hero_sam_witch-728b8ed6835d697d.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_hero": {
-      "file": "generated/world/hero_sam_hero-2c19d07f95eafe67.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_skeleton": {
-      "file": "generated/world/hero_sam_skeleton-36143d00d70f90a0.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_pumpkin": {
-      "file": "generated/world/hero_sam_pumpkin-a8c3a7725b1e21f9.png",
       "scale": 4,
       "anchor": [
         128,
@@ -250,72 +146,8 @@
         360
       ]
     },
-    "hero_sam_dino": {
-      "file": "generated/world/hero_sam_dino-29f0d4fc22e27819.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_ghost": {
-      "file": "generated/world/hero_jess_ghost-e4f7a96438112e8a.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
     "hero_jess_vampire": {
       "file": "generated/world/hero_jess_vampire-f906a370a6eef8ff.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_witch": {
-      "file": "generated/world/hero_jess_witch-cefb56eb8c657a19.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_hero": {
-      "file": "generated/world/hero_jess_hero-f0f1582cebd38e85.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_skeleton": {
-      "file": "generated/world/hero_jess_skeleton-6a9bff8fc22dcc33.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_pumpkin": {
-      "file": "generated/world/hero_jess_pumpkin-8a2722c8c360c7ac.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_astronaut": {
-      "file": "generated/world/hero_jess_astronaut-12dc60dd7d303b7c.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_dino": {
-      "file": "generated/world/hero_jess_dino-9d27e00619bf771e.png",
       "scale": 4,
       "anchor": [
         128,
@@ -962,62 +794,6 @@
         360
       ]
     },
-    "hero_jess_knight": {
-      "file": "generated/world/hero_jess_knight-cd2b29df903e7e75.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_jess_moth": {
-      "file": "generated/world/hero_jess_moth-1cda3df99bf48609.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_astronaut": {
-      "file": "generated/world/hero_leo_astronaut-fcd999cbc1acf4d9.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_dino": {
-      "file": "generated/world/hero_leo_dino-fa32ea30f7a7bc8d.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_ghost": {
-      "file": "generated/world/hero_leo_ghost-8ef507e4d6f2e76f.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_hero": {
-      "file": "generated/world/hero_leo_hero-adf409b72fc64292.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_knight": {
-      "file": "generated/world/hero_leo_knight-89f2112252c4127f.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
     "hero_leo_moth": {
       "file": "generated/world/hero_leo_moth-cb20cd980c6c0a3f.png",
       "scale": 4,
@@ -1026,144 +802,8 @@
         360
       ]
     },
-    "hero_leo_pumpkin": {
-      "file": "generated/world/hero_leo_pumpkin-7508726556ffdec9.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_skeleton": {
-      "file": "generated/world/hero_leo_skeleton-fbb53e2be46df0f0.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_vampire": {
-      "file": "generated/world/hero_leo_vampire-f6d0f2a0b379cb05.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_leo_witch": {
-      "file": "generated/world/hero_leo_witch-c55aadec5a055062.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_astronaut": {
-      "file": "generated/world/hero_maya_astronaut-dbdde405bb66f0cd.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_dino": {
-      "file": "generated/world/hero_maya_dino-a6ab1c7e524315f3.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_ghost": {
-      "file": "generated/world/hero_maya_ghost-24e6aa0f7caf5365.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_hero": {
-      "file": "generated/world/hero_maya_hero-f38ec0dffd44b943.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
     "hero_maya_knight": {
       "file": "generated/world/hero_maya_knight-e48e9f608822f8cb.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_moth": {
-      "file": "generated/world/hero_maya_moth-da1c4d19d031caa3.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_pumpkin": {
-      "file": "generated/world/hero_maya_pumpkin-f4504b9afe401f3d.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_skeleton": {
-      "file": "generated/world/hero_maya_skeleton-4b87c727da282464.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_vampire": {
-      "file": "generated/world/hero_maya_vampire-a70fd486b5c01fe3.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_maya_witch": {
-      "file": "generated/world/hero_maya_witch-ef7072fe53b1e328.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_knight": {
-      "file": "generated/world/hero_sam_knight-26c17868edfd65bd.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_sam_moth": {
-      "file": "generated/world/hero_sam_moth-812d3208f1a73786.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_knight": {
-      "file": "generated/world/hero_tommy_knight-240274d78245b3e1.png",
-      "scale": 4,
-      "anchor": [
-        128,
-        360
-      ]
-    },
-    "hero_tommy_moth": {
-      "file": "generated/world/hero_tommy_moth-b2dcbd2a6e3c0478.png",
       "scale": 4,
       "anchor": [
         128,
@@ -1611,7 +1251,7 @@
       ]
     },
     "treatart_pepper": {
-      "file": "generated/world/treatart_pepper-5bfc49cf6456ceb9.png",
+      "file": "treats/pepper.webp",
       "scale": 4,
       "anchor": [
         480,
@@ -1720,6 +1360,1093 @@
       "anchor": [
         380,
         400
+      ]
+    },
+    "treatart_mixtape": {
+      "file": "treats/mixtape.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_batteries": {
+      "file": "treats/batteries.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_token": {
+      "file": "treats/token.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_masher": {
+      "file": "treats/masher.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_skates": {
+      "file": "treats/skates.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_yoyo": {
+      "file": "treats/yoyo.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_cartoons": {
+      "file": "treats/cartoons.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_denim": {
+      "file": "treats/denim.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_lunchmoney": {
+      "file": "treats/lunchmoney.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_slurp": {
+      "file": "treats/slurp.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_griptape": {
+      "file": "treats/griptape.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_berserk": {
+      "file": "treats/berserk.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_forcefield": {
+      "file": "treats/forcefield.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "icon_annihilator": {
+      "file": "guns/icon_annihilator.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_cryo": {
+      "file": "guns/icon_cryo.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_disc": {
+      "file": "guns/icon_disc.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_glaive": {
+      "file": "guns/icon_glaive.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_incinerator": {
+      "file": "guns/icon_incinerator.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_lance": {
+      "file": "guns/icon_lance.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_sabre": {
+      "file": "guns/icon_sabre.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_singularity": {
+      "file": "guns/icon_singularity.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_stream": {
+      "file": "guns/icon_stream.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "icon_swarm": {
+      "file": "guns/icon_swarm.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "fx_explosion": {
+      "file": "fx/fx_explosion.webp",
+      "scale": 2
+    },
+    "fx_fire": {
+      "file": "fx/fx_fire.webp",
+      "scale": 2
+    },
+    "treatart_goldfever": {
+      "file": "treats/goldfever.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_kaiju": {
+      "file": "treats/kaiju.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "treatart_oneshot": {
+      "file": "treats/oneshot.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "icon_flamer": {
+      "file": "guns/icon_flamer.webp",
+      "scale": 4,
+      "anchor": [
+        64,
+        80
+      ]
+    },
+    "arcade_v2_cabinet_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_pinball_0.65_1.15": {
+      "file": "arcade/v2/arcade_v2_pinball_0.65_1.15.webp",
+      "scale": 2,
+      "anchor": [
+        147.2,
+        297.6
+      ]
+    },
+    "arcade_v2_airhockey_2.1_1.2": {
+      "file": "arcade/v2/arcade_v2_airhockey_2.1_1.2.webp",
+      "scale": 2,
+      "anchor": [
+        243.2,
+        221.6
+      ]
+    },
+    "arcade_v2_clutter_bigfoot": {
+      "file": "arcade/v2/arcade_v2_clutter_bigfoot.webp",
+      "scale": 2,
+      "anchor": [
+        138,
+        336.8
+      ]
+    },
+    "arcade_v2_skeeball_2.1_2.7": {
+      "file": "arcade/v2/arcade_v2_skeeball_2.1_2.7.webp",
+      "scale": 2,
+      "anchor": [
+        339.20000000000005,
+        393.6
+      ]
+    },
+    "arcade_v2_foosball_1.5_1": {
+      "file": "arcade/v2/arcade_v2_foosball_1.5_1.webp",
+      "scale": 2,
+      "anchor": [
+        192,
+        196
+      ]
+    },
+    "arcade_v2_prizes_5_1.2": {
+      "file": "arcade/v2/arcade_v2_prizes_5_1.2.webp",
+      "scale": 2,
+      "anchor": [
+        428.8,
+        510.4
+      ]
+    },
+    "arcade_v2_pizza_6_1.4": {
+      "file": "arcade/v2/arcade_v2_pizza_6_1.4.webp",
+      "scale": 2,
+      "anchor": [
+        505.6,
+        548.8
+      ]
+    },
+    "arcade_v2_booth_2.4_1.3": {
+      "file": "arcade/v2/arcade_v2_booth_2.4_1.3.webp",
+      "scale": 2,
+      "anchor": [
+        268.8,
+        258.4
+      ]
+    },
+    "arcade_v2_stage_5_2.4": {
+      "file": "arcade/v2/arcade_v2_stage_5_2.4.webp",
+      "scale": 2,
+      "anchor": [
+        505.6,
+        536.8
+      ]
+    },
+    "arcade_v2_photo_0.8_0.7": {
+      "file": "arcade/v2/arcade_v2_photo_0.8_0.7.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        288
+      ]
+    },
+    "arcade_v2_tokens_0.55_0.6": {
+      "file": "arcade/v2/arcade_v2_tokens_0.55_0.6.webp",
+      "scale": 2,
+      "anchor": [
+        105.6,
+        276.8
+      ]
+    },
+    "arcade_v2_party_3_1.8": {
+      "file": "arcade/v2/arcade_v2_party_3_1.8.webp",
+      "scale": 2,
+      "anchor": [
+        339.2,
+        393.6
+      ]
+    },
+    "arcade_v2_wall_8_0.15": {
+      "file": "arcade/v2/arcade_v2_wall_8_0.15.webp",
+      "scale": 2,
+      "anchor": [
+        553.6,
+        568.8
+      ]
+    },
+    "arcade_v2_wall_0.15_7.5": {
+      "file": "arcade/v2/arcade_v2_wall_0.15_7.5.webp",
+      "scale": 2,
+      "anchor": [
+        521.6,
+        552.8
+      ]
+    },
+    "arcade_v2_carpet": {
+      "file": "arcade/v2/arcade_v2_carpet.webp",
+      "scale": 2
+    },
+    "arcade_v2_clutter_robot": {
+      "file": "arcade/v2/arcade_v2_clutter_robot.webp",
+      "scale": 2,
+      "anchor": [
+        138,
+        336.8
+      ]
+    },
+    "arcade_v2_clutter_poster": {
+      "file": "arcade/v2/arcade_v2_clutter_poster.webp",
+      "scale": 2,
+      "anchor": [
+        106,
+        272.8
+      ]
+    },
+    "arcade_v2_clutter_jukebox": {
+      "file": "arcade/v2/arcade_v2_clutter_jukebox.webp",
+      "scale": 2,
+      "anchor": [
+        109,
+        254.4
+      ]
+    },
+    "arcade_v2_clutter_gumball": {
+      "file": "arcade/v2/arcade_v2_clutter_gumball.webp",
+      "scale": 2,
+      "anchor": [
+        71,
+        163.2
+      ]
+    },
+    "arcade_v2_clutter_vhs": {
+      "file": "arcade/v2/arcade_v2_clutter_vhs.webp",
+      "scale": 2,
+      "anchor": [
+        122,
+        174.8
+      ]
+    },
+    "arcade_v2_clutter_chair": {
+      "file": "arcade/v2/arcade_v2_clutter_chair.webp",
+      "scale": 2,
+      "anchor": [
+        90,
+        76.8
+      ]
+    },
+    "arcade_v2_clutter_plant": {
+      "file": "arcade/v2/arcade_v2_clutter_plant.webp",
+      "scale": 2,
+      "anchor": [
+        84,
+        175.6
+      ]
+    },
+    "arcade_v2_clutter_popcorn": {
+      "file": "arcade/v2/arcade_v2_clutter_popcorn.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_soda": {
+      "file": "arcade/v2/arcade_v2_clutter_soda.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_pizza_box": {
+      "file": "arcade/v2/arcade_v2_clutter_pizza_box.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_tickets": {
+      "file": "arcade/v2/arcade_v2_clutter_tickets.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_snack_pile": {
+      "file": "arcade/v2/arcade_v2_clutter_snack_pile.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_party_pile": {
+      "file": "arcade/v2/arcade_v2_clutter_party_pile.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_paper_pile": {
+      "file": "arcade/v2/arcade_v2_clutter_paper_pile.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_v2_clutter_arcade_junk": {
+      "file": "arcade/v2/arcade_v2_clutter_arcade_junk.webp",
+      "scale": 2,
+      "anchor": [
+        128,
+        64
+      ]
+    },
+    "arcade_staff_maya": {
+      "file": "arcade/staff/maya.webp",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        96,
+        224
+      ]
+    },
+    "arcade_staff_leo": {
+      "file": "arcade/staff/leo.webp",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        96,
+        224
+      ]
+    },
+    "arcade_v2_cabinet_retro_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_retro_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_cabinet_racer_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_racer_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_cabinet_back_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_back_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_cabinet_back_alt_0.55_0.75": {
+      "file": "arcade/v2/arcade_v2_cabinet_back_alt_0.55_0.75.webp",
+      "scale": 2,
+      "anchor": [
+        115.2,
+        281.6
+      ]
+    },
+    "arcade_v2_pinball_back_0.65_1.15": {
+      "file": "arcade/v2/arcade_v2_pinball_back_0.65_1.15.webp",
+      "scale": 2,
+      "anchor": [
+        147.2,
+        297.6
+      ]
+    },
+    "arcade_v2_exit_mat": {
+      "file": "arcade/v2/arcade_v2_exit_mat.webp",
+      "scale": 2
+    },
+    "treatart_longshot": {
+      "file": "treats/longshot.webp",
+      "scale": 4,
+      "anchor": [
+        480,
+        272
+      ]
+    },
+    "enemy_iron_revenant": {
+      "file": "monsters/nightmare/enemy_iron_revenant.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_iron_revenant_a": {
+      "file": "monsters/nightmare/enemy_iron_revenant_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_iron_revenant_b": {
+      "file": "monsters/nightmare/enemy_iron_revenant_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dough_colossus": {
+      "file": "monsters/nightmare/enemy_dough_colossus.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_dough_colossus_a": {
+      "file": "monsters/nightmare/enemy_dough_colossus_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dough_colossus_b": {
+      "file": "monsters/nightmare/enemy_dough_colossus_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cruiser_bully": {
+      "file": "monsters/nightmare/enemy_cruiser_bully.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_cruiser_bully_a": {
+      "file": "monsters/nightmare/enemy_cruiser_bully_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cruiser_bully_b": {
+      "file": "monsters/nightmare/enemy_cruiser_bully_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_night_brood": {
+      "file": "monsters/nightmare/enemy_night_brood.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_night_brood_a": {
+      "file": "monsters/nightmare/enemy_night_brood_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_night_brood_b": {
+      "file": "monsters/nightmare/enemy_night_brood_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cloud_leviathan": {
+      "file": "monsters/nightmare/enemy_cloud_leviathan.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        320,
+        424
+      ]
+    },
+    "enemy_cloud_leviathan_a": {
+      "file": "monsters/nightmare/enemy_cloud_leviathan_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_cloud_leviathan_b": {
+      "file": "monsters/nightmare/enemy_cloud_leviathan_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hollow_beyond": {
+      "file": "monsters/nightmare/enemy_hollow_beyond.png",
+      "scale": 1,
+      "frames": 4,
+      "anchor": [
+        240,
+        388
+      ]
+    },
+    "enemy_saucer_matron": {
+      "file": "monsters/nightmare/enemy_saucer_matron.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_saucer_matron_a": {
+      "file": "monsters/nightmare/enemy_saucer_matron_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_saucer_matron_b": {
+      "file": "monsters/nightmare/enemy_saucer_matron_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_assimilation_archon": {
+      "file": "monsters/nightmare/enemy_assimilation_archon.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_assimilation_archon_a": {
+      "file": "monsters/nightmare/enemy_assimilation_archon_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_assimilation_archon_b": {
+      "file": "monsters/nightmare/enemy_assimilation_archon_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_bog_sovereign": {
+      "file": "monsters/nightmare/enemy_bog_sovereign.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_bog_sovereign_a": {
+      "file": "monsters/nightmare/enemy_bog_sovereign_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_bog_sovereign_b": {
+      "file": "monsters/nightmare/enemy_bog_sovereign_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hungry_hothouse": {
+      "file": "monsters/nightmare/enemy_hungry_hothouse.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_hungry_hothouse_a": {
+      "file": "monsters/nightmare/enemy_hungry_hothouse_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hungry_hothouse_b": {
+      "file": "monsters/nightmare/enemy_hungry_hothouse_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gremlin_chief": {
+      "file": "monsters/nightmare/enemy_gremlin_chief.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_gremlin_chief_a": {
+      "file": "monsters/nightmare/enemy_gremlin_chief_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gremlin_chief_b": {
+      "file": "monsters/nightmare/enemy_gremlin_chief_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_playroom_butcher": {
+      "file": "monsters/nightmare/enemy_playroom_butcher.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_playroom_butcher_a": {
+      "file": "monsters/nightmare/enemy_playroom_butcher_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_playroom_butcher_b": {
+      "file": "monsters/nightmare/enemy_playroom_butcher_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_camp_revenant": {
+      "file": "monsters/nightmare/enemy_camp_revenant.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_camp_revenant_a": {
+      "file": "monsters/nightmare/enemy_camp_revenant_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_camp_revenant_b": {
+      "file": "monsters/nightmare/enemy_camp_revenant_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_midnight_caller": {
+      "file": "monsters/nightmare/enemy_midnight_caller.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_midnight_caller_a": {
+      "file": "monsters/nightmare/enemy_midnight_caller_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_midnight_caller_b": {
+      "file": "monsters/nightmare/enemy_midnight_caller_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_lord_blackdome": {
+      "file": "monsters/nightmare/enemy_lord_blackdome.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_lord_blackdome_a": {
+      "file": "monsters/nightmare/enemy_lord_blackdome_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_lord_blackdome_b": {
+      "file": "monsters/nightmare/enemy_lord_blackdome_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hollow_neighbor": {
+      "file": "monsters/nightmare/enemy_hollow_neighbor.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_hollow_neighbor_a": {
+      "file": "monsters/nightmare/enemy_hollow_neighbor_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_hollow_neighbor_b": {
+      "file": "monsters/nightmare/enemy_hollow_neighbor_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_needle_magistrate": {
+      "file": "monsters/nightmare/enemy_needle_magistrate.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_needle_magistrate_a": {
+      "file": "monsters/nightmare/enemy_needle_magistrate_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_needle_magistrate_b": {
+      "file": "monsters/nightmare/enemy_needle_magistrate_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_winter_caretaker": {
+      "file": "monsters/nightmare/enemy_winter_caretaker.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_winter_caretaker_a": {
+      "file": "monsters/nightmare/enemy_winter_caretaker_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_winter_caretaker_b": {
+      "file": "monsters/nightmare/enemy_winter_caretaker_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dream_stalker": {
+      "file": "monsters/nightmare/enemy_dream_stalker.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_dream_stalker_a": {
+      "file": "monsters/nightmare/enemy_dream_stalker_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_dream_stalker_b": {
+      "file": "monsters/nightmare/enemy_dream_stalker_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_blade_marshal": {
+      "file": "monsters/nightmare/enemy_blade_marshal.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_blade_marshal_a": {
+      "file": "monsters/nightmare/enemy_blade_marshal_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_blade_marshal_b": {
+      "file": "monsters/nightmare/enemy_blade_marshal_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gourmet_warden": {
+      "file": "monsters/nightmare/enemy_gourmet_warden.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        192,
+        424
+      ]
+    },
+    "enemy_gourmet_warden_a": {
+      "file": "monsters/nightmare/enemy_gourmet_warden_a.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
+      ]
+    },
+    "enemy_gourmet_warden_b": {
+      "file": "monsters/nightmare/enemy_gourmet_warden_b.png",
+      "scale": 2,
+      "frames": 4,
+      "anchor": [
+        80,
+        184
       ]
     }
   }

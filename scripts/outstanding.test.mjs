@@ -14,12 +14,14 @@ try {
   const pickerMid = picker.y + picker.height / 2;
   assert.ok(picker.y > logo.y + logo.height, 'Picker below logo');
   assert.ok(picker.y + picker.height < nav.y, 'Picker above bottom navigation');
-  assert.ok(Math.abs(pickerMid - ((logo.y + logo.height + nav.y) / 2)) < 45, 'Picker centered in remaining menu space');
+  // the remaining space starts under the whole header (logo, Essence counter and the 15K badge), not under the logo
+  const header = await page.getByRole('banner', { name: 'Game header' }).boundingBox();
+  assert.ok(Math.abs(pickerMid - ((header.y + header.height + nav.y) / 2)) < 45, 'Picker centered in remaining menu space');
   await page.getByRole('button', { name: /^Talents/ }).click();
   const talents = await page.evaluate(async () => (await import('/src/game/data.ts')).TALENTS.map(t => ({ name: t.name, premium: t.premium, req: t.req })));
   const premium = talents.find(t => t.premium);
   await page.locator('svg').getByText(premium.name, { exact: true }).click();
-  await page.getByText(/Full-game talent: unlock Hide & Shriek/).waitFor();
+  await page.getByText(/Full-game talent: unlock the full game/).waitFor();
   const linked = talents.find(t => !t.premium && t.req.length);
   await page.locator('svg').getByText(linked.name, { exact: true }).click();
   await page.getByText(/Unlock by buying rank 1 in any one of/).waitFor();
@@ -49,8 +51,8 @@ try {
   await inventory.getByRole('button', { name: 'Close inventory' }).click();
   await page.evaluate(async () => {
     const g = window.__tot.game;
-    const { COSTUME_BY_ID } = await import('/src/game/data.ts');
-    const id = Object.keys(COSTUME_BY_ID).find(id => id !== g.p.costume);
+    const { HERO_COSTUME } = await import('/src/game/data.ts');
+    const id = HERO_COSTUME[g.hero]; // only a kid's own costume can lie on the ground
     g.enemies = []; g.pickups = []; g.dropCostume(g.p.x + .4, g.p.y, id);
     g.state = 'play'; g.updateInteract();
   });

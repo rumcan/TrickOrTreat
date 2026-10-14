@@ -1,0 +1,1 @@
+Fixed: the game could sometimes start with plain placeholder pictures when the artwork failed to load. It now tries again by itself, and if the artwork still cannot load it tells you and offers a Try again button.

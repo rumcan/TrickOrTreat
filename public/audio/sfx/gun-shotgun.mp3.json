@@ -1,0 +1,7 @@
+{
+  "prompt": "A muffled toy cork gun 'pomp' with a faint scatter of small candies rattling. One single very short, soft, quiet sound that starts immediately and then silence. Subtle and gentle, dry, close. No motor, no engine, no buzzing, no sustained tone, no echo, no voice, no music.",
+  "type": "sfx",
+  "durationSec": 0.5,
+  "layer": "gun",
+  "tool": "rundot generate sfx"
+}
