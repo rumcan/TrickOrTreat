@@ -539,7 +539,7 @@ export const GIVE_LINES = ['Here you go, sweetie!', 'Take two, I won\'t tell!', 
 const SAVE_KEY = 'tot_survivors_save_v1';
 /** Essence earned over all runs (spent or not) above which the full game unlocks without buying it */
 export const ESSENCE_UNLOCK = 15000;
-export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number }
+export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number; /** the latest night reached by killing the Hollow Beyond: a run can start there (2 = wave 26) */ checkpoint?: number }
 /** what a save has earned in total: its own count, or (older saves) what it holds plus what its talents cost */
 export function essenceEarned(s: Save) {
   // a save that already keeps count is taken at its word: a talent refund at today's prices must not count as earning
@@ -561,7 +561,9 @@ export function loadSave(): Save {
       const rank = Math.min(tal.max, finite(s.talents?.[tal.id]));
       if (rank) talents[tal.id] = rank;
     }
-    const save: Save = { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave), earned: finite(s.earned) };
+    const save: Save = { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave), earned: finite(s.earned),
+      // saves from before the giant could fall: reaching it (all 24 bosses beaten) counts as the first checkpoint
+      checkpoint: s.checkpoint === undefined ? (finite(s.bestWave) >= 25 ? 2 : 0) : finite(s.checkpoint) };
     save.earned = essenceEarned(save);
     syncEarnedUnlock(save);
     return save;

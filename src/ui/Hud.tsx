@@ -81,8 +81,8 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
         <div className="hm-time">{fmtTime(s.time)}</div>
         <div className="hm-time-sub">
           {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop <button type="button" className="pointer-events-auto ml-2 border border-[#ffa338] px-2 py-1 text-[#ffa338]" onClick={()=>game.skipBuyWindow()}>Skip break</button></span>
-            : s.bossFight ? <span className="text-[#ff5a6e]">Wave {Math.max(1, s.wave)} · Boss fight</span>
-            : s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
+            : s.bossFight ? <span className="text-[#ff5a6e]">{s.night > 1 && `Night ${s.night} · `}Wave {Math.max(1, s.wave)} · Boss fight</span>
+            : s.wave > 0 ? <span className="text-[#ff5a6e]">{s.night > 1 && `Night ${s.night} · `}Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
             : s.bossIn !== null ? <span>Boss in {fmtTime(s.bossIn)}</span>
               : <span>Night falls</span>}
         </div>
@@ -120,7 +120,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
   return (
     <aside className="hm-rail pointer-events-auto" aria-label="Treats and synergies">
       <div className="hm-rail-title">Treats</div>
-      {!treats.length && <div className="hm-rail-empty">Level up to fill your bag</div>}
+      {!treats.length && <div className="hm-rail-empty">Ring doorbells and beat bosses to fill your bag</div>}
       {treats.slice(0, max).map(([id, n]) => {
         const sc = SCROLL_BY_ID[id];
         return (

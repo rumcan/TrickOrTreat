@@ -16,7 +16,7 @@ import { vendingCatalogue, createVendingSpin } from './vending';
 import type { VendingSpin, VendingPrize } from './vending';
 import { vendingCost } from './vending-odds';
 import { Build, rollCrit, rateOverflow, overflow, STREAK_MAX, MOMENTUM_MAX, COMBO_MAX, HAUNT_MAX, INFERNO_STACKS } from './build';
-import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange } from './progression';
+import { xpFor, BAG_LOOT, rewardRangeFor, RewardRange, rollBossRarity } from './progression';
 import { EnemyAffix, DamageProfile, rollAffix, damageDefense, enemyHealthScale } from './enemy-affixes';
 import {
   Stats, baseStats, applyTalents, Save, Weapon, makeWeapon, weaponStats, rollRarity, Scroll, rollScrolls, LOCKED_SCROLLS, makeLockedWeapon, SCROLL_BY_ID, HERO_INFO, upgradeCost, rerollInscriptions, essenceEarned, GOLD_DMG, FAR_SHOT, BulletKind, storeSave,
@@ -27,7 +27,7 @@ export interface Bubble { x: number; y: number; lift: number; text: string; life
 export interface Toast { id: number; text: string; t: number }
 export type BannerKind = 'info' | 'danger' | 'loot' | 'win';
 export interface TotState { house: HouseInst; t: number; dur: number; stage: number; lines: { at: number; who: 'kid' | 'door' | 'trick'; text: string }[] }
-export type ChoiceMode = 'level' | 'shop' | 'house';
+export type ChoiceMode = 'level' | 'shop' | 'house' | 'boss';
 
 // ================= INPUT =================
 export class Input {
@@ -133,7 +133,7 @@ export function fmtDmg(n: number) {
   return Math.max(1, Math.round(n)).toString();
 }
 
-export interface EnemyDef { hp: number; speed: number; dmg: number; r: number; xp: number; coin: number; fly?: boolean; phase?: boolean; ranged?: boolean; bomber?: boolean; elite?: boolean; boss?: boolean; invulnerable?:boolean; color: string; mass: number; anim: number }
+export interface EnemyDef { hp: number; speed: number; dmg: number; r: number; xp: number; coin: number; fly?: boolean; phase?: boolean; ranged?: boolean; bomber?: boolean; elite?: boolean; boss?: boolean; invulnerable?:boolean; /** shrugs off stuns, freezes and knockback */ unstoppable?: boolean; color: string; mass: number; anim: number }
 export const EDEF: Record<string, EnemyDef> = {
   hex: { hp: 1500, speed: 0.8, dmg: 16, r: 0.8, xp: 90, coin: 1, boss: true, color: '#b580d5', mass: 35, anim: 6 },
   alpha: { hp: 2600, speed: 1.65, dmg: 22, r: 0.85, xp: 140, coin: 1, boss: true, color: '#9cacb8', mass: 40, anim: 8 },
@@ -152,6 +152,8 @@ export const EDEF: Record<string, EnemyDef> = {
 export interface Enemy {
   affix: EnemyAffix | null; fodder: boolean; defenseHintT: number;
   shield: number; maxShield: number; shieldT: number; lieutenant: boolean;
+  /** monster rank (see RANKS): 0 a plain monster, 1 lieutenant, 2 captain and up cast spells · captain: rank 2 or more */
+  rank?: number; captain?: boolean; spellT?: number; spellN?: number;
   id: number; type: string; def: EnemyDef; x: number; y: number; hp: number; maxHp: number; r: number; anim: number; flip: boolean;
   hit: number; burnT: number; burnDps: number; burnAcc: number; ectoT: number; stunT: number; atkCd: number; kx: number; ky: number;
   /** Ecto · Haunting: extra damage taken, grows with every hit while ecto'd (up to HAUNT_MAX) */
@@ -296,6 +298,24 @@ const CAMPAIGN_BOSSES = WAVE_BOSSES;
 export const BOSS_MINIONS: Record<string, string[]> = { hex: ['witch', 'ghost'], alpha: ['bat', 'zombie'], warden: ['skeleton', 'zombie'], king: ['pumpkin', 'bat'],...ROSTER_MINIONS };
 const MINION_WORDS: Record<string, string> = { witch: 'witches', ghost: 'ghosts', bat: 'bats', zombie: 'zombies', skeleton: 'skeletons', pumpkin: 'pumpkin heads' };
 
+/**
+ * The rank ladder. Every Hollow Beyond that falls promotes the street: the ordinary monster takes the rank the
+ * special one had, and the special one is a rank higher again. Night 1: monsters and lieutenants; night 2:
+ * lieutenants and captains; night 3: captains and mayors; up to night 6 (five giants down), where it stops climbing.
+ * hp/shield/speed/hit multiply the monster's own; captains and up cast spells (`spell` hexes a cast, every `cd` s).
+ */
+export const RANKS = [
+  { name: 'monster', plural: 'monsters', hp: 1, shield: 0, speed: 1, hit: 1, spell: 0, cd: 0, color: '#ff2a2a' },
+  { name: 'lieutenant', plural: 'lieutenants', hp: 1.5, shield: 0.5, speed: 1.1, hit: 1.3, spell: 0, cd: 0, color: '#ff2a2a' },
+  { name: 'captain', plural: 'captains', hp: 2.5, shield: 0.6, speed: 1.3, hit: 1.6, spell: 3, cd: 2.9, color: '#b44dff' },
+  { name: 'mayor', plural: 'mayors', hp: 4, shield: 0.7, speed: 1.4, hit: 2, spell: 5, cd: 2.6, color: '#ffc453' },
+  { name: 'governor', plural: 'governors', hp: 6, shield: 0.8, speed: 1.5, hit: 2.4, spell: 6, cd: 2.4, color: '#3fe0d0' },
+  { name: 'president', plural: 'presidents', hp: 9, shield: 0.9, speed: 1.6, hit: 2.8, spell: 7, cd: 2.2, color: '#e8f0ff' },
+  { name: 'overlord', plural: 'overlords', hp: 13, shield: 1, speed: 1.7, hit: 3.2, spell: 8, cd: 2, color: '#ff3b6b' },
+] as const;
+/** the ladder stops after the fifth giant: night 6 and every night after it field presidents and overlords */
+export const RANK_CAP_NIGHT = 6;
+
 // ================= GAME =================
 export class Game {
   map: GameMap;
@@ -319,6 +339,10 @@ export class Game {
   time = 0;
   kills = 0;
   pendingLevels = 0;
+  /** boss prizes waiting to be picked (one per boss kill; the final giant's has more cards and better luck) */
+  bossPrizes: { n: number; luck: number }[] = [];
+  /** which night of the run this is: killing the Hollow Beyond starts the 24 waves over, with lieutenants and captains */
+  night = 1;
   choices: Scroll[] = [];
   /** trick-or-treat bowls can also hold guns (rare or better), shown after the treat cards */
   gunChoices: Weapon[] = [];
@@ -420,7 +444,18 @@ export class Game {
   /** this player has been inside the Starcade before (kept between runs): until then an arrow points at its door */
   arcadeSeen = storage.getItem(ARCADE_SEEN_KEY) === '1';
   /** closed for the night (see ARCADE_LAST_WAVE) */
-  get arcadeShut() { return this.wave > ARCADE_LAST_WAVE; }
+  get arcadeShut() { return this.night > 1 || this.wave > ARCADE_LAST_WAVE; }
+  /** waves played this run over every night (night 1 ends with the Hollow Beyond as wave 25) */
+  get totalWave() { return (this.night - 1) * 25 + this.wave; }
+  /**
+   * The wave whose health the monsters have. The second night starts about where the first one's late waves stood
+   * and climbs from there; every night after that is three waves tougher again (on top of the rank ladder).
+   */
+  /** how much harder every monster hits on this night: a quarter more after each Hollow Beyond */
+  get nightPower() { return 1 + 0.25 * (this.night - 1); }
+  /** the rank of an ordinary monster tonight (the special ones are one higher) */
+  get baseRank() { return Math.min(this.night, RANK_CAP_NIGHT) - 1; }
+  hpWave(wave = this.wave) { return this.night > 1 ? wave + 14 + (this.night - 2) * 3 : wave; }
   private arcadeShutSaid = false;
   /** Closing time: anyone still inside is put out on the street, and the sign on the door changes. */
   private closeArcade() {
@@ -1094,8 +1129,11 @@ export class Game {
       for (const q of this.toasts) q.t -= dt;
       if (this.toasts[0].t <= 0) this.toasts = this.toasts.filter((q) => q.t > 0);
     }
-    // a level-up waits for a doorbell in progress: the bowl comes first, then the level-ups, never one in the middle of the other
-    if (this.pendingLevels > 0 && this.state === 'play' && !this.tot) this.openLevelUp('level');
+    // a boss prize waits for a doorbell in progress: the bowl comes first, then the prize, never one in the middle of the other
+    if (this.bossPrizes.length && this.state === 'play' && !this.tot) {
+      const prize = this.bossPrizes.shift()!;
+      this.openLevelUp('boss', prize.n, prize.luck, rewardRangeFor('boss'));
+    }
     inp.endFrame();
   }
 
@@ -1341,12 +1379,12 @@ export class Game {
     this.state = victory ? 'victory' : 'dead';
     this.bankRewards();
     this.recordUpload = leaderboard.finish(this.recordRun, this.campaign ? 'rescue' : 'survival', this.time,
-      { hero: HERO_INFO[this.hero].name, wave: this.wave, bosses: this.bossWins, victory }, expansion.snapshot().preview);
+      { hero: HERO_INFO[this.hero].name, wave: this.totalWave, bosses: this.bossWins, victory }, expansion.snapshot().preview);
   }
   /** tally essence and bank only what hasn't been paid yet (safe to call at victory and again at the very end) */
   private bankRewards() {
     // Essence is for what the run did: nothing for walking in and out (a wave pays once it is behind you)
-    this.essence = { combat: Math.floor(this.xpCollected / 8), kills: Math.floor(this.kills / 10), survival: Math.floor(this.time / 8), bosses: this.bossWins * 100, waves: Math.max(0, this.wave - 1) * 20 };
+    this.essence = { combat: Math.floor(this.xpCollected / 8), kills: Math.floor(this.kills / 10), survival: Math.floor(this.time / 8), bosses: this.bossWins * 100, waves: Math.max(0, this.totalWave - 1) * 20 };
     this.soulEarned = Object.values(this.essence).reduce((sum, value) => sum + value, 0);
     const additional = Math.max(0, this.soulEarned - this.soulPaid);
     const had = hasFullGame();
@@ -1354,7 +1392,7 @@ export class Game {
     this.save.soul += additional;
     this.soulPaid += additional;
     this.save.best = Math.max(this.save.best, Math.floor(this.time));
-    this.save.bestWave = Math.max(this.save.bestWave ?? 0, this.wave);
+    this.save.bestWave = Math.max(this.save.bestWave ?? 0, this.totalWave);
     storeSave(this.save);
     if (!had && hasFullGame()) this.fullGameEarned = true; // this run took the save past ESSENCE_UNLOCK
   }
@@ -2014,15 +2052,22 @@ export class Game {
       if (Math.hypot(spot.x - this.p.x, spot.y - this.p.y) < 2) spot = this.freeSpot(this.p.x + 4, this.p.y, true, clearance);
       x = spot.x; y = spot.y;
     }
-    const affix = def.boss ? null : forcedAffix === undefined ? rollAffix(this.wave) : forcedAffix;
-    const fodder = this.wave > 10 && !def.boss && !def.elite && !elite && !affix;
+    const hw = this.hpWave();
+    const affix = def.boss ? null : forcedAffix === undefined ? rollAffix(hw) : forcedAffix;
+    // The rank ladder (RANKS): from the second night every monster on the street is promoted, and the specials a rank above.
+    const later = this.night > 1 && !def.boss;
+    const rank = def.boss ? 0 : this.baseRank + (elite || def.elite ? 1 : 0);
+    const R = RANKS[rank];
+    const captain = rank >= 2;
+    const lieutenant = rank >= 1;
+    const fodder = hw > 10 && !def.boss && !def.elite && !elite && !affix && !later;
     const scale = 1 + this.time / 60 * 0.38 + (this.endless ? 1.5 : 0);
-    const hp = def.invulnerable?def.hp:def.hp * (def.boss ? 1 : scale) * (elite ? 3 : 1) * enemyHealthScale(this.wave, fodder);
-    const lieutenant = !def.boss && (elite || !!def.elite);
-    const maxShield = def.invulnerable?0:hp * (def.boss ? 0.4 : lieutenant ? 0.6 : 0);
+    const rankHp = later ? R.hp : elite ? 3 : 1; // night 1 keeps its old elites (x3, 60% shield)
+    const hp = def.invulnerable?def.hp:def.hp * (def.boss ? 1 : scale) * rankHp * enemyHealthScale(hw, fodder);
+    const maxShield = def.invulnerable?0:hp * (def.boss ? (type === FINAL_BOSS ? 0.6 : 0.4) : later ? R.shield : lieutenant ? 0.6 : 0);
     const e: Enemy = {
       affix, fodder, defenseHintT: 0,
-      shield: maxShield, maxShield, shieldT: 0, lieutenant,
+      shield: maxShield, maxShield, shieldT: 0, lieutenant, rank, captain, spellT: rand(1, 2.5), spellN: 0,
       id: this.eid++, type, def, x, y, hp, maxHp: hp, r: def.r * (elite ? 1.25 : 1), anim: rand(0, 6), flip: false, hit: 0, burnT: 0, burnDps: 0, burnAcc: 0, ectoT: 0, stunT: 0,
       atkCd: 0, kx: 0, ky: 0, shootT: rand(1, 2.5), lungeT: 0, lungeX: 0, lungeY: 0, p1: 3, p2: 6, p3: 9, orbitT: 0, dead: false, elite: elite || !!def.elite, spawnT: 0.4,
     };
@@ -2103,6 +2148,7 @@ export class Game {
       if (this.decals.length > max) this.decals.splice(0, this.decals.length - max);
     }
     if (e.def.bomber) this.explode(e.x, e.y, 1.5, 16 * s.dmg, 'fire', true);
+    if (e.def.boss && e.type === FINAL_BOSS) { this.nextNight(e); return; }
     if (e.def.boss) {
       if(this.map.kind==='arcade')this.townShopMovePending=true;
       if(this.townScene)this.townScene.enemies=[];
@@ -2128,9 +2174,74 @@ export class Game {
       this.dropLootMagnet(e.x, e.y);
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `${BUY_WINDOW} quiet seconds: follow the arrow to the shop`, 'win');
+      // the reward picker belongs to the boss now (a level-up only heals): Rare or better, Epic far more often
+      this.bossPrizes.push({ n: 3 + this.stats.totChoices, luck: this.stats.luck + 4 });
+      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `Pick your prize, then ${BUY_WINDOW} quiet seconds: follow the arrow to the shop`, 'win');
       gameAudio.play('victory', 0.45);
     }
+  }
+
+  /**
+   * The Hollow Beyond is down: the night starts over at wave 1 and boss 1. Every monster is a lieutenant from now on,
+   * the old elites are spell-casting captains, and health picks up close to where the late waves left it.
+   */
+  private nextNight(e: Enemy) {
+    if(this.map.kind==='arcade')this.townShopMovePending=true;
+    if(this.townScene)this.townScene.enemies=[];
+    if(this.arcadeScene)this.arcadeScene.enemies=[];
+    this.boss = null; this.minionBoss = null;
+    this.bossWins++;
+    this.bankRewards(); // the waves count is about to start over: pay what this night earned first
+    this.night++;
+    this.save.checkpoint = Math.max(this.save.checkpoint ?? 0, this.night);
+    storeSave(this.save);
+    this.wave = 1; this.bossRound = 0; this.bossKilled = false; this.bossSpawned = false;
+    this.endless = false; this.winDelay = 0;
+    this.bossBreak = true;
+    this.relocateShops();
+    for (const creature of this.enemies) creature.dead = true;
+    this.enemies = []; this.ebullets = []; this.bullets = []; this.zones = []; this.lobs = [];
+    this.procQueue = [];
+    this.spawnAcc = 0; this.tot = null; this.interact = null;
+    this.p.coins += 1000;
+    this.p.hp = this.stats.maxHp; this.p.shield = this.stats.maxShield;
+    this.calmT = BUY_WINDOW * 2;
+    this.nextBossAt = this.time + 60 + this.calmT;
+    this.nextElite = this.time + 30 + this.calmT;
+    this.p.invuln = Math.max(this.p.invuln, 2);
+    this.hitStop = 0.4; this.shake = 20;
+    this.dropLootMagnet(e.x, e.y);
+    for (let i = 0; i < 4; i++) this.dropPickup(e.x + rand(-1.5, 1.5), e.y + rand(-1.5, 1.5), 'chest', 0);
+    for (let i = 0; i < 60; i++) this.dropPickup(e.x, e.y, 'coin', 4);
+    this.bossPrizes.push({ n: 5 + this.stats.totChoices, luck: this.stats.luck + 8 });
+    this.setBanner('THE HOLLOW BEYOND HAS FALLEN!', `Night ${this.night} begins at wave 1: ${this.rankLine}`, 'win');
+    this.toast(`Checkpoint saved: a new run can start here, at wave ${this.totalWave}.`);
+    gameAudio.play('victory');
+  }
+
+  /**
+   * Start a run at a checkpoint (see Save.checkpoint): night `night`, wave 1, with that night's monsters. The kid gets a
+   * head start so the first lieutenants are a fight, not a wall: two guns off the boss table, levels, coins, and one
+   * boss prize to pick on the first frame.
+   */
+  startAtNight(night: number) {
+    if (this.campaign || night < 2 || night > (this.save.checkpoint ?? 0)) return;
+    this.night = night;
+    this.victorious = true;
+    this.treatGuideComplete = true; this.tutorialHouse = null;
+    const p = this.p, s = this.stats;
+    p.level = 10 * (night - 1); p.xp = 0; p.xpNext = xpFor(p.level);
+    p.weapons = [makeWeapon(null, rollBossRarity(s.luck + 4, 3), this.lootLevel()), makeWeapon(null, rollBossRarity(s.luck + 4), this.lootLevel())];
+    p.cur = 0;
+    this.syncTeamWeapons();
+    p.coins += 600 * (night - 1);
+    this.bossPrizes.push({ n: 5 + s.totChoices, luck: s.luck + 8 });
+    this.setBanner(`CHECKPOINT · NIGHT ${night}`, `Wave ${this.totalWave}: ${this.rankLine}`, 'danger');
+  }
+  /** who walks the streets tonight, for the banners */
+  get rankLine() {
+    const base = RANKS[this.baseRank], top = RANKS[this.baseRank + 1];
+    return `${base.plural} on every street, ${top.plural} leading them`;
   }
 
   private updateEnemies(dt: number) {
@@ -2138,7 +2249,7 @@ export class Game {
     for (const e of this.enemies) {
       if (e.dead) continue;
       const d = e.def;
-      if(d.invulnerable){e.stunT=0;e.chill=0;e.frozenT=0;e.ectoT=0;e.kx=0;e.ky=0;}
+      if(d.invulnerable||d.unstoppable){e.stunT=0;e.chill=0;e.frozenT=0;e.ectoT=0;e.kx=0;e.ky=0;}
       e.defenseHintT = Math.max(0, e.defenseHintT - dt);
       e.shieldT = Math.max(0, e.shieldT - dt);
       if (e.shieldT === 0 && e.maxShield > 0) e.shield = Math.min(e.maxShield, e.shield + e.maxShield * (d.boss ? 0.08 : 0.2) * dt);
@@ -2163,7 +2274,7 @@ export class Game {
       let mx = 0, my = 0;
       if (e.chill) e.chill = Math.max(0, e.chill - dt * 0.2);
       if (e.frozenT) e.frozenT = Math.max(0, e.frozenT - dt);
-      let speed = d.speed * (e.ectoT > 0 ? 0.6 : 1) * (e.elite && !d.elite ? 1.1 : 1) * (1 - 0.55 * (e.chill ?? 0));
+      let speed = d.speed * (e.ectoT > 0 ? 0.6 : 1) * ((e.rank ?? 0) > 0 ? RANKS[e.rank!].speed : 1) * (1 - 0.55 * (e.chill ?? 0));
       if (e.stunT > 0) {
         e.stunT -= dt;
         speed = 0;
@@ -2209,9 +2320,27 @@ export class Game {
             e.shootT = 2.4;
             for (let k = -1; k <= 1; k++) {
               const a = Math.atan2(dy, dx) + k * 0.25;
-              this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 4.2, vy: Math.sin(a) * 4.2, r: 0.18, dmg: 9, life: 3, color: '#b2ff6a', kind: 'orb', dead: false });
+              this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 4.2, vy: Math.sin(a) * 4.2, r: 0.18, dmg: 9 * this.nightPower, life: 3, color: '#b2ff6a', kind: 'orb', dead: false });
             }
           }
+        }
+      }
+      // Captains and up cast: a fan of hexes at the kid (wider each rank), and the rank's leaders every third spell a
+      // ring of them all around. The rank and file cast less often and smaller, or a night of mayors is a bullet wall.
+      if (e.captain && speed > 0 && !(e.tractorT!>0)) {
+        const R = RANKS[e.rank!], leader = e.elite;
+        e.spellT = (e.spellT ?? 0) - dt;
+        if (e.spellT <= 0 && dist < 9 && (d.fly || d.phase || lineOfSight(this.map, e.x, e.y, p.x, p.y))) {
+          e.spellT = R.cd * (leader ? 1 : 1.6) * rand(0.85, 1.15);
+          const ring = leader && (e.spellN = (e.spellN ?? 0) + 1) % 3 === 0, aim = Math.atan2(dy, dx);
+          const dmg = 14 * (1 + this.time / 900) * this.nightPower * (0.8 + 0.1 * e.rank!);
+          const count = ring ? R.spell * 2 : leader ? R.spell : Math.max(3, R.spell - 2);
+          for (let k = 0; k < count; k++) {
+            const a = ring ? aim + k / count * Math.PI * 2 : aim + (k - (count - 1) / 2) * 0.2;
+            const v = ring ? 3.6 : 5.2;
+            this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: 0.2, dmg, life: 3, color: R.color, kind: 'orb', dead: false });
+          }
+          for (let i = 0; i < 8; i++) this.particle(e.x, e.y, 0.9, rand(-1.5, 1.5), rand(-1.5, 1.5), rand(1, 2.5), 0.5, R.color, 5, 'glow');
         }
       }
       if (d.bomber && dist < 0.85 && e.spawnT <= 0) {
@@ -2245,7 +2374,7 @@ export class Game {
       // contact
       if (dist < e.r + p.r + 0.05 + (this.mounted >= 0 && !d.fly ? TURRET.reach : 0) && e.atkCd <= 0 && e.spawnT <= 0 && e.stunT <= 0) {
         e.atkCd = 0.8;
-        this.takeDamage(d.dmg * (e.elite && !d.elite ? 1.5 : 1) * (1 + this.time / 600), e.x, e.y);
+        this.takeDamage(d.dmg * (this.night > 1 && !d.boss ? RANKS[e.rank ?? 0].hit : e.elite && !d.elite ? 1.5 : 1) * (1 + this.time / 600) * this.nightPower, e.x, e.y);
         if (this.build.ks('tank', 2)) this.damageEnemy(e, this.stats.maxHp * 0.2 * this.globalMore(), '#9fb4ff', true); // Spiky Costume
       }
     }
@@ -2285,16 +2414,29 @@ export class Game {
     }
     e.strikes = (e.strikes ?? []).filter(s=>s.t>0);
     const aim = Math.atan2(dy,dx);
-    const shot = (angle:number,speed=4,dmg=12) => this.ebullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,r:.16,dmg,life:4,color:e.def.color,kind:'orb',dead:false});
+    const shot = (angle:number,speed=4,dmg=12) => this.ebullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,r:.16,dmg:dmg*this.nightPower,life:4,color:e.def.color,kind:'orb',dead:false});
     const warn = (x:number,y:number,r:number,delay=.8,dmg=18) => {
       this.zones.push({kind:'warn',x,y,r,t:0,life:delay,dmg:0,tick:0});
-      (e.strikes ??= []).push({x,y,r,t:delay,dmg});
+      (e.strikes ??= []).push({x,y,r,t:delay,dmg:dmg*this.nightPower});
     };
     if (e.type === FINAL_BOSS) {
-      // No escorts, no fake kill condition. Dodge the three tentacle impact circles.
+      // No escorts. Tentacle slams on the kid, rings of hexes, and below half health a raking volley as well.
+      // Every hit grows with the length of the run, so it stays the hardest thing in town however strong the kid is.
+      const hurt = 1 + this.time / 1200;
       if (e.p1 <= 0) {
-        e.p1=3.2;
-        for(let i=-1;i<=1;i++) warn(this.p.x+Math.cos(aim+Math.PI/2)*i*2,this.p.y+Math.sin(aim+Math.PI/2)*i*2,1.35,1.1,30);
+        e.p1 = rage ? 2.2 : 3;
+        const n = rage ? 2 : 1;
+        for(let i=-n;i<=n;i++) warn(this.p.x+Math.cos(aim+Math.PI/2)*i*2,this.p.y+Math.sin(aim+Math.PI/2)*i*2,1.35,1.1,30*hurt);
+      }
+      if (e.p2 <= 0) {
+        e.p2 = rage ? 3.6 : 5;
+        const count = 18, turn = this.time * 0.37;
+        for (let i = 0; i < count; i++) shot(turn + i / count * Math.PI * 2, 3.4, 16 * hurt);
+        if (rage) for (let i = 0; i < count; i++) shot(turn + (i + 0.5) / count * Math.PI * 2, 2.4, 16 * hurt);
+      }
+      if (rage && e.p3 <= 0) {
+        e.p3 = 4;
+        for (let i = -3; i <= 3; i++) shot(aim + i * 0.12, 6.2, 20 * hurt);
       }
       return;
     }
@@ -2788,7 +2930,10 @@ export class Game {
             p.xp -= p.xpNext;
             p.level++;
             p.xpNext = xpFor(p.level);
-            this.pendingLevels++;
+            // A level-up no longer opens the picker (boss kills do): it puts the kid back on their feet instead.
+            p.hp = s.maxHp; p.shield = s.maxShield;
+            this.text(p.x, p.y, `LEVEL ${p.level}! HEALED`, '#7dff5a', 15);
+            gameAudio.play('revive', 0.35);
           }
         }
       }
@@ -3168,6 +3313,15 @@ export class Game {
   private rollChoices() {
     this.rollLocked();
     const n = this.choiceN, luck = this.choiceLuck;
+    if (this.choiceMode === 'boss') {
+      // A boss pays in the rarer loot: always a gun, the first one Epic or better, and never a friend card.
+      this.friendChoice = null;
+      const { min, max } = this.choiceRewardRange;
+      const guns = n <= 1 ? n : Math.max(1, Math.min(n - 1, 1 + [0, 1].filter(() => Math.random() < 0.45).length));
+      this.choices = rollScrolls(n - guns, this.scrolls, luck, min, max);
+      this.gunChoices = Array.from({ length: n - this.choices.length }, (_, i) => makeWeapon(null, rollBossRarity(luck, i === 0 ? 3 : 2), this.lootLevel()));
+      return;
+    }
     if (this.choiceMode !== 'house') {
       this.gunChoices = []; this.friendChoice = null;
       this.choices = rollScrolls(n, this.scrolls, luck);
@@ -3190,7 +3344,7 @@ export class Game {
   private rollLocked() {
     this.lockedChoice = null;
     if (hasFullGame()) return;
-    const { min, max } = this.choiceMode === 'house' ? this.choiceRewardRange : { min: 0, max: 4 };
+    const { min, max } = this.choiceMode === 'house' || this.choiceMode === 'boss' ? this.choiceRewardRange : { min: 0, max: 4 };
     const scrolls = LOCKED_SCROLLS().filter(s => s.rarity >= min && s.rarity <= max);
     const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, Math.max(min, 2), max)) : null;
     if (gun) gun.level = this.lootLevel(); // the teaser shows what the kid would really find
@@ -3240,7 +3394,7 @@ export class Game {
   /** take a gun from a trick-or-treat bowl: straight into a free slot, else inspect it and pick the slot */
   chooseGun(i: number) {
     const w = this.gunChoices[i];
-    if (this.state !== 'levelup' || !w || this.choiceMode !== 'house') return;
+    if (this.state !== 'levelup' || !w || (this.choiceMode !== 'house' && this.choiceMode !== 'boss')) return;
     gameAudio.play('unlock');
     this.input.pressed.clear();
     const p = this.p;
@@ -3415,7 +3569,7 @@ export class Game {
       this.state = 'shop';
       return;
     }
-    if (this.choiceMode === 'house') {
+    if (this.choiceMode === 'house' || this.choiceMode === 'boss') {
       this.choiceMode = 'level';
       this.state = 'play';
       this.p.invuln = 1;
@@ -3506,7 +3660,7 @@ export class Game {
     this.state = 'play';
     this.startEndless();
   }
-  /** After all 24 bosses, the final encounter is survival against an unstoppable, escort-free giant. */
+  /** After all 24 bosses comes the final encounter: an escort-free giant, far tougher than any boss but killable (see nextNight). */
   startEndless() {
     if (this.endless || this.bossRound < CAMPAIGN_BOSSES.length || this.calmT > 0) return;
     this.victorious = true;
@@ -3517,16 +3671,16 @@ export class Game {
     this.nextBossAt=this.time+10;
     this.enemies=[];this.ebullets=[];this.spawnAcc=0;
     gameAudio.play('victory');
-    this.setBanner('24 BOSSES DEFEATED', 'Something enormous is coming. You cannot kill it — survive as long as you can.', 'win');
+    this.setBanner('24 BOSSES DEFEATED', 'Something enormous is coming. Bring it down and the night starts over, harder.', 'win');
   }
-  hpScale() { return enemyHealthScale(this.wave); }
+  hpScale() { return enemyHealthScale(this.hpWave()); }
   private advanceWave() {
-    const previous = this.wave;
+    const previous = this.hpWave();
     this.wave++;
     for (const e of this.enemies) if (!e.dead && !e.def.invulnerable) {
       const oldScale = enemyHealthScale(previous, e.fodder);
-      e.fodder = this.wave > 10 && !e.def.boss && !e.elite && !e.affix;
-      const growth = enemyHealthScale(this.wave, e.fodder) / oldScale;
+      e.fodder = this.hpWave() > 10 && !e.def.boss && !e.elite && !e.affix && this.night === 1;
+      const growth = enemyHealthScale(this.hpWave(), e.fodder) / oldScale;
       e.hp *= growth; e.maxHp *= growth; e.shield *= growth; e.maxShield *= growth;
     }
   }
@@ -3536,7 +3690,7 @@ export class Game {
     const pos=this.spawnPos(true) ?? this.freeSpot(this.p.x+6,this.p.y,true);
     this.boss=this.spawnEnemy(FINAL_BOSS,pos.x,pos.y);
     this.bossMinions(0); // clears any stray enemies; this family has no minions
-    this.setBanner('THE HOLLOW BEYOND', 'UNSTOPPABLE — dodge its tentacles. Survival time is your final record.', 'danger');
+    this.setBanner('THE HOLLOW BEYOND', 'Incredibly strong, but it can fall. Dodge the tentacles and keep shooting.', 'danger');
   }
 
   /** An opened district takes its hedge blockade with it: every wall tile whose surrounding areas are all open goes. */
@@ -3613,22 +3767,23 @@ export class Game {
     if(!this.endless&&!fight&&this.wave<this.bossRound+1){
       while(this.wave<this.bossRound+1)this.advanceWave();
       if(ARCADE_OPEN&&this.wave===ARCADE_LAST_WAVE)this.toast('Last call at the Starcade: it closes for the night when this wave is over.');
-      this.setBanner(`WAVE ${this.wave} · ${BOSS_NAMES[familyForWave(this.wave)]}`, this.wave>10?'Counter their special defenses; switch weapons when needed.':'A new crew is taking over the streets.', 'danger');
+      this.setBanner(`${this.night>1?`NIGHT ${this.night} · `:''}WAVE ${this.wave} · ${BOSS_NAMES[familyForWave(this.wave)]}`, this.wave>10?'Counter their special defenses; switch weapons when needed.':'A new crew is taking over the streets.', 'danger');
     }
     const family=familyForWave(this.wave),types=BOSS_MINIONS[family];
     if(fight){this.bossMinions(dt);this.spawnAcc=0;}
-    else if(!this.endless)this.spawnAcc+=dt*(.9+Math.min(t/22,10))*SPAWN_SCALE;
+    else if(!this.endless)this.spawnAcc+=dt*(.9+Math.min(t/22,10))*SPAWN_SCALE*(this.night>1?.8:1); // later nights: fewer, all lieutenants
     while(this.spawnAcc>=1){
       this.spawnAcc--;
       if(this.enemies.filter(e=>!e.dead).length>=170)break;
       const type=types[Math.random()<.6?0:1],pos=this.spawnPos(!!EDEF[type].fly||!!EDEF[type].phase);
-      if(pos)this.spawnEnemy(type,pos.x,pos.y,Math.random()<Math.min(.12,.02+this.wave*.004));
+      const eliteOdds=this.night>1?Math.min(.06,.015+this.wave*.002):Math.min(.12,.02+this.wave*.004); // later nights: these are captains
+      if(pos)this.spawnEnemy(type,pos.x,pos.y,Math.random()<eliteOdds);
     }
     // Wave lieutenants stay in this boss's family rather than introducing unrelated werewolves.
     if(!fight&&!this.endless&&t>=this.nextElite){
-      this.nextElite=t+70;
+      this.nextElite=t+(this.night>1?45:70);
       const type=types[0],pos=this.spawnPos(!!EDEF[type].fly);
-      if(pos){this.spawnEnemy(type,pos.x,pos.y,true);this.toast(`${BOSS_NAMES[family]} has sent a shielded lieutenant.`);}
+      if(pos){this.spawnEnemy(type,pos.x,pos.y,true);this.toast(this.night>1?`${BOSS_NAMES[family]} has sent a ${RANKS[this.baseRank+1].name}: fast, and it casts spells.`:`${BOSS_NAMES[family]} has sent a shielded lieutenant.`);}
     }
     // chests
     if (t >= this.nextChest) {
@@ -3666,7 +3821,7 @@ export class Game {
       const type = CAMPAIGN_BOSSES[this.bossRound];
       this.boss = this.spawnEnemy(type, pos.x, pos.y);
       this.bossMinions(0);
-      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/24 - defeat it for ${BUY_WINDOW} quiet seconds to shop`, 'danger');
+      this.setBanner(`${BOSS_NAMES[type].toUpperCase()} RISES`, `Boss ${this.bossRound + 1}/24 - defeat it for a Rare-or-better prize and ${BUY_WINDOW} quiet seconds to shop`, 'danger');
       if (this.turrets.length && this.mounted < 0) this.toast('Get up on a jungle gym at Hollow Creek Primary — the Candy Cannon shreds bosses!');
       this.shake = 15;
     }
@@ -3717,7 +3872,7 @@ export class Game {
       dashCharges: p.dashCharges, dashMax: s.dashCharges, dashRecharge: p.dashRecharge, interact: this.interact ? this.interact.label : null, nearbyWeapon: this.nearbyWeapon,
       costume: p.costume, nearbyCostume: this.nearbyCostume, interactKind: this.interact ? this.interact.kind : null,
       calm: this.calmT,
-      wave: this.wave, waveIn: Math.max(0,this.nextBossAt-this.time), bossFight: !!this.boss && !this.boss.dead,
+      wave: this.wave, night: this.night, waveIn: Math.max(0,this.nextBossAt-this.time), bossFight: !!this.boss && !this.boss.dead,
       momentum: this.momentum, streak: this.streak, premiumPower: this.premiumPowerT,
       turret: this.mounted >= 0 ? { heat: this.turrets[this.mounted].heat, over: this.turrets[this.mounted].over } : null,
       rescue: this.rescuePrompt ? { label: this.rescuePrompt, progress: this.rescueProgress, downed: this.state === 'downed' } : null,

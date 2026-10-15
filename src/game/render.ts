@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, GUN_GROUND_TIME, LOOT_GROUND_TIME, BOSS_MAGNET_TIME, ARCADE_OPEN } from './engine';
+import { Game, Enemy, Turret, GUN_GROUND_TIME, LOOT_GROUND_TIME, BOSS_MAGNET_TIME, ARCADE_OPEN, RANKS } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -735,10 +735,10 @@ export class Renderer {
         ctx.globalAlpha = e.frozenT ? 0.7 : (e.chill ?? 0) * 0.5;
         ctx.drawImage(glow('#9fe8ff', 64), sx - 34, sy - 44, 68, 78);
       }
-      if (e.elite) {
+      if (e.elite || e.captain) {
         const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
-        ctx.globalAlpha = 0.4;
-        ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : '#ff2a2a', 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
+        ctx.globalAlpha = e.elite ? 0.4 : 0.22;
+        ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : RANKS[e.rank ?? 0].color, 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
       }
     }
     ctx.globalAlpha = 1;
@@ -935,8 +935,15 @@ export class Renderer {
         const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - enemyHover(e) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
-        ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
+        ctx.fillStyle = e.captain ? RANKS[e.rank!].color : e.elite ? '#ff3b3b' : '#e84a4a';
         ctx.fillRect(sx - w / 2, top, (w * Math.max(0, e.hp)) / e.maxHp, h);
+        if (e.elite && (e.rank ?? 0) >= 2 && !e.affix && settings.names) {
+          // a rank leader wears its title (CAPTAIN, MAYOR...)
+          ctx.font = '700 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
+          ctx.fillStyle = RANKS[e.rank!].color;
+          const labelY = top - (e.maxShield > 0 ? 19 : 5), label = RANKS[e.rank!].name.toUpperCase();
+          ctx.strokeText(label, sx, labelY); ctx.fillText(label, sx, labelY);
+        }
         if (e.affix && settings.names) {
           ctx.font = '600 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
           ctx.fillStyle = AFFIX_INFO[e.affix].color;
