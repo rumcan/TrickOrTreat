@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Tornado, Camera, Wrench, Moon } from 'lucide-react';
+import { Tornado, Camera, Wrench, Moon, Keyboard } from 'lucide-react';
 import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
@@ -7,7 +7,8 @@ import { treatArt } from '../game/art/treats';
 import { RARITY } from '../game/config';
 import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO, HERO_COSTUME, COSTUME_BY_ID } from '../game/data';
 import { ART, PORTRAITS, HERO_COLORS, gunArtUrl } from './art';
-import { Keycap, KitTitle } from './kit';
+import { Keycap, KitButton, KitTitle } from './kit';
+import { BindKeys, useKeybindVersion } from './Keybinds';
 
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
@@ -237,33 +238,43 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
 function CtrlRow({ k, label }: { k: React.ReactNode; label: string }) {
   return (
     <div className="flex items-center gap-3 py-[3px]">
-      <div className="flex w-[128px] shrink-0 gap-1">{k}</div>
+      <div className="flex w-[128px] shrink-0 flex-wrap gap-1">{k}</div>
       <span className="font-ui text-[13px] text-[#e6dcc4]">{label}</span>
     </div>
   );
 }
-/** two-column controls panel from the kit */
-export function ControlsPanel({ className = '' }: { className?: string }) {
+/**
+ * The controls sheet. Every line is read from game/keybinds, so it always shows the keys the player actually has —
+ * and `onCustomise` (when given) opens the editor where they can change them.
+ */
+export function ControlsPanel({ className = '', onCustomise }: { className?: string; onCustomise?: () => void }) {
+  useKeybindVersion();
+  const moveKeys = ['moveUp', 'moveLeft', 'moveDown', 'moveRight'] as const;
   return (
-      <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
-        <div className="touch-manual col-span-full mb-3 border-b border-white/20 pb-3 text-sm leading-relaxed text-white">
-          <strong className="block text-[#b5f4cb]">Touch controls</strong>
-          Drag a finger anywhere on the street to move. Your gun aims at the nearest monster and fires on its own. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
-        </div>
-      <div>
-        <CtrlRow k={<><Keycap>W</Keycap><Keycap>A</Keycap><Keycap>S</Keycap><Keycap>D</Keycap></>} label="Move" />
-        <CtrlRow k={<Keycap>LMB</Keycap>} label="Aim / Shoot" />
-        <CtrlRow k={<Keycap>Space</Keycap>} label="Dash (i-frames)" />
-        <CtrlRow k={<Keycap>E</Keycap>} label="Interact: Trick or Treat" />
-        <CtrlRow k={<><Keycap>Q</Keycap><Keycap>1</Keycap><Keycap>2</Keycap></>} label="Swap weapon" />
+    <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
+      <div className="touch-manual col-span-full mb-3 border-b border-white/20 pb-3 text-sm leading-relaxed text-white">
+        <strong className="block text-[#b5f4cb]">Touch controls</strong>
+        Drag a finger anywhere on the street to move. Your gun aims at the nearest monster and fires on its own. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
       </div>
       <div>
-        <CtrlRow k={<Keycap>Auto</Keycap>} label="Fires at nearest monster" />
-        <CtrlRow k={<><Keycap>RMB</Keycap><Keycap>F</Keycap></>} label="Hero skill" />
-        <CtrlRow k={<Keycap>E</Keycap>} label="Pick up / Shop" />
-        <CtrlRow k={<Keycap>Space</Keycap>} label="While at a door: flee" />
-        <CtrlRow k={<><Keycap>R</Keycap><span className="px-0.5 text-[#9aa0a6]">-</span><Keycap>Esc</Keycap></>} label="Reload - Pause" />
-        <CtrlRow k={<Keycap>M</Keycap>} label="Map" />
+        <CtrlRow k={<div className="flex gap-1">{moveKeys.map((id) => <BindKeys key={id} id={id} stack />)}</div>} label="Move" />
+        <CtrlRow k={<Keycap>LMB</Keycap>} label="Aim / shoot" />
+        <CtrlRow k={<BindKeys id="dash" />} label="Dash (i-frames) · flee a doorstep" />
+        <CtrlRow k={<BindKeys id="interact" />} label="Interact: Trick or Treat" />
+        <CtrlRow k={<><BindKeys id="cycleGun" /><BindKeys id="gun1" /><BindKeys id="gun2" /></>} label="Swap weapon" />
+        <CtrlRow k={<BindKeys id="inventory" />} label="Your run build" />
+      </div>
+      <div>
+        <CtrlRow k={<Keycap>RMB</Keycap>} label="Hero skill (hold to aim inside)" />
+        <CtrlRow k={<BindKeys id="skill" />} label="Hero skill" />
+        <CtrlRow k={<BindKeys id="reload" />} label="Reload" />
+        <CtrlRow k={<BindKeys id="map" />} label="Map" />
+        <CtrlRow k={<BindKeys id="pause" />} label="Pause" />
+        <CtrlRow k={<BindKeys id="confirm" />} label="Skip the intro / confirm" />
+      </div>
+      <div className="col-span-full mt-3 flex flex-wrap items-center gap-3 border-t border-white/15 pt-3">
+        <span className="font-ui text-[12px] text-[#9aa0a6]">Mouse: left button aims and fires, wheel zooms the street, right button is the hero skill.</span>
+        {onCustomise && <KitButton size="sm" variant="orange" icon={Keyboard} onClick={onCustomise}>Customise keys</KitButton>}
       </div>
     </div>
   );

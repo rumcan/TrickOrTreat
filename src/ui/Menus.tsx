@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Play, Users, Lollipop, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Play, Users, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize, Trophy, Sparkles, Keyboard } from 'lucide-react';
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
 import * as storage from '../game/storage';
-import { KitButton, KitTitle, Keycap, Toggle, Slider, Chip, Banner, LogoImg } from './kit';
+import { KitButton, KitTitle, Keycap, Toggle, Slider, Banner, LogoImg } from './kit';
 import { WeaponCard, CharacterCard, ControlsPanel, InfoPanel, fmtTime, RARITY_KIT, CandyIcon, ClockIcon, SkullIcon, HouseIcon, CoinIcon, TreatArt, GunArt, Inscriptions } from './common';
 import { ART, FACES, PORTRAITS, HERO_COLORS } from './art';
 import { RunInventory } from './RunInventory';
@@ -19,6 +20,8 @@ import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 import { SplashArt } from './SplashArt';
 import { LeaderboardDrawer } from './LeaderboardDrawer';
+import RadioPill, { MusicToggle } from './RadioPill';
+import { KeybindEditor } from './Keybinds';
 import { useBack } from './back';
 import { canFullscreen, requestGameFullscreen } from './fullscreen';
 
@@ -52,25 +55,57 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () 
 /** The art Atlas is strictly a development tool and is never exposed by the production menu. */
 const SHOW_ATLAS = import.meta.env.DEV;
 
+/** one rail row: icon, uppercase label, chevron — the left menu of the new key art */
+function MenuRow({ icon: Icon, label, sub, onClick, primary, disabled, className = '' }: { icon: LucideIcon; label: string; sub?: string; onClick?: () => void; primary?: boolean; disabled?: boolean; className?: string }) {
+  return (
+    <button type="button" onClick={onClick} disabled={disabled} className={`title-menu ${primary ? 'title-menu--play' : ''} ${className}`}>
+      <Icon size={18} strokeWidth={2.6} className="title-menu-ico" />
+      <span className="title-menu-text">
+        <span className="title-menu-label">{label}</span>
+        {sub && <span className="title-menu-sub">{sub}</span>}
+      </span>
+      <ChevronRight size={18} strokeWidth={3} className="title-menu-chev" aria-hidden="true" />
+    </button>
+  );
+}
+
+/** Essence / best time: a dark plate with a round medallion, as in the kit sheet */
+function StatPlate({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: 'purple' | 'orange' }) {
+  return (
+    <span className={`title-stat title-stat--${tone}`}>
+      <span className="title-stat-ico">{icon}</span>
+      <span className="title-stat-value">{value}</span>
+      <span className="title-stat-label">{label}</span>
+    </span>
+  );
+}
+
 export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
+  const [settingsTab, setSettingsTab] = useState<'game' | 'keys'>('game');
+  const [records, setRecords] = useState(false);
   const [showcase, setShowcase] = useState(false);
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const allowed = save.hero < 3 || hasFullGame();
   const hero = HERO_INFO[save.hero];
+  const kids = HERO_INFO.length;
+  const step = (by: number) => setHero((save.hero + by + kids) % kids);
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
-      <LeaderboardDrawer />
-      {/* Layout lives in index.css (.title-*): phones get one screen with no scrolling, in portrait and landscape. */}
+      {/* Night records still opens from the edge tab (and from the menu row above it) */}
+      <LeaderboardDrawer open={records} onOpenChange={setRecords} />
+      {/* Layout lives in index.css (.title-*): a left menu column on a desktop, one screen with no scrolling on a phone. */}
       <div className="title-wrap relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 sm:p-8 sm:pt-12 lg:pt-12">
         <header aria-label="Game header" className="title-head flex flex-col items-center gap-2">
-          {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
+          {/* full-game unlock lives in the top-right corner (the menu takes the left) */}
           <div className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
           <LogoImg className="title-logo w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
-            {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
+          <div className="title-stats flex flex-wrap items-center justify-center gap-2">
+            <StatPlate tone="purple" icon={<CandyIcon size={16} />} label="Essence" value={String(save.soul)} />
+            {save.best > 0 && <StatPlate tone="orange" icon={<ClockIcon size={16} />} label="Best" value={fmtTime(save.best)} />}
+            {/* phones have no menu column, so the radio rides with the counters there */}
+            <MusicToggle className="title-stat-music" />
           </div>
           {/* the free way into the full game, right under the Essence it counts; it opens the showcase, which shows the progress */}
           {!hasFullGame() && <button type="button" className="unlock-badge" onClick={() => setShowcase(true)} aria-label="Reach 15,000 Essence to unlock the full game. Limited time. See what is in it."><img src={ART.badge15k} alt="" draggable={false} className="kit-bob" /></button>}
@@ -78,48 +113,70 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
         </header>
         <div className="title-main mx-auto flex w-full max-w-4xl flex-1 flex-col">
           <div className="title-pick flex flex-1 items-center py-5">
-          <section aria-label="Character selection" className="title-panel kit-panel w-full bg-[#0e0f13]/90 p-3 sm:p-4">
+          <section aria-label="Character selection" className="title-panel kit-panel nx-leafy w-full p-3 sm:p-4">
             <h1 className="title-h1 mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
-            <div className="grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids">
+            <div className="title-cast" role="group" aria-label="Playable kids">
+              <button type="button" className="title-arrow title-arrow--prev" aria-label="Previous kid" onClick={() => step(-1)}><ChevronLeft size={20} strokeWidth={3} /></button>
               {HERO_INFO.map((kid, index) => {
                 const selected = index === save.hero, locked = index >= 3 && !hasFullGame();
-                return <button key={kid.name} aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`} aria-pressed={selected} onClick={() => setHero(index)} className="group relative min-w-0 overflow-hidden rounded border-2 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffc453]" style={{ borderColor: selected ? '#ffc453' : '#3a3d44', background: HERO_COLORS[index] }}>
-                  <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className={`title-portrait h-24 w-full object-cover object-top sm:h-44 ${selected ? '' : 'opacity-80 group-hover:opacity-100'}`} />
-                  <div className={`title-kid bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}</div>
-                  {locked && <span className="title-lock absolute inset-x-0 bottom-8 bg-black/75 py-0.5 text-[9px] uppercase tracking-wide text-[#ffc453]">Full game</span>}
-                  {selected && <span aria-hidden="true" className="absolute right-1 top-1 rounded bg-[#ffc453] px-1 text-xs font-bold text-black">✓</span>}
-                </button>;
+                return (
+                  <button
+                    key={kid.name}
+                    aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`}
+                    aria-pressed={selected}
+                    onClick={() => setHero(index)}
+                    className={`title-card group ${selected ? 'is-picked' : ''}`}
+                    style={{ ['--hero' as string]: HERO_COLORS[index] }}
+                  >
+                    <span className="title-card-art">
+                      <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className="title-portrait" />
+                      {locked && <span className="title-lock">Full game</span>}
+                    </span>
+                    {selected && <span aria-hidden="true" className="title-tick">✓</span>}
+                    <span className="title-kid">{kid.name}</span>
+                    {selected && (
+                      <span className="title-card-detail">
+                        <span className="title-card-role">{kid.title}</span>
+                        <span className="title-card-perk">{kid.passive}</span>
+                      </span>
+                    )}
+                  </button>
+                );
               })}
+              <button type="button" className="title-arrow title-arrow--next" aria-label="Next kid" onClick={() => step(1)}><ChevronRight size={20} strokeWidth={3} /></button>
             </div>
             <div className="title-go mt-3 flex flex-wrap items-center justify-between gap-3">
-              <div aria-live="polite" className="min-w-0 flex-1">
+              <div aria-live="polite" className="title-brief min-w-0 flex-1">
                 <div className="font-cond text-xl">{hero.name} <span className="text-sm text-[#9aa0a6]">· {hero.title}</span></div>
                 <p className="title-passive mt-1 text-xs text-[#e6dcc4]">{hero.passive} · {hero.skill} ({hero.cd}s)</p>
                 <p className="mt-1 hidden text-xs text-[#9aa0a6] sm:block">{hero.skillDesc}</p>
-                {!allowed && <p className="mt-1 text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
               </div>
+              {!allowed && <p className="title-locked-note w-full text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
               <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-play w-full sm:w-auto">Go trick-or-treating</KitButton>
             </div>
           </section>
           </div>
-          <nav className="title-nav flex shrink-0 flex-wrap items-center justify-center gap-2">
-            <KitButton size="sm" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
-            <KitButton size="sm" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
-            {SHOW_ATLAS && <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>}
-            <KitButton size="sm" variant="dark" icon={Gamepad2} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
-            <KitButton size="sm" variant="dark" icon={Gear} iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
+          <nav className="title-nav" aria-label="Main menu">
+            <MenuRow icon={Play} label="Play" sub="start the night" primary disabled={!allowed} onClick={onPlay} />
+            <MenuRow icon={Trophy} label="Night records" sub="the longest nights" onClick={() => setRecords(true)} />
+            <MenuRow icon={Sparkles} label={`Talents (${save.soul})`} sub="spend essence" onClick={onTalents} />
+            <MenuRow icon={Users} label="Character details" sub="stats and skills" onClick={onChars} />
+            {SHOW_ATLAS && <MenuRow icon={Backpack} label="Collection" sub="art atlas" onClick={onAtlas} />}
+            <MenuRow icon={Gamepad2} label="How to play" sub="controls and tricks" onClick={() => setModal('howto')} />
+            <MenuRow icon={Gear} label="Settings" sub="sound · keys · gore" onClick={() => { setSettingsTab('game'); setModal('settings'); }} />
             {/* only where it can work; never floating over other buttons */}
-            {canFullscreen() && <KitButton size="sm" variant="dark" icon={Maximize} iconColor="#f4e6c4" className="title-fullscreen" onClick={() => requestGameFullscreen(true)}>Fullscreen</KitButton>}
+            {canFullscreen() && <MenuRow icon={Maximize} label="Fullscreen" className="title-fullscreen" onClick={() => requestGameFullscreen(true)} />}
+            <div className="title-rail-radio"><RadioPill compact /></div>
           </nav>
         </div>
       </div>
-      {modal === 'settings' && <SettingsModal onClose={() => setModal('none')} />}
-      {modal === 'howto' && <HowToModal onClose={() => setModal('none')} />}
+      {modal === 'settings' && <SettingsModal tab={settingsTab} onClose={() => setModal('none')} />}
+      {modal === 'howto' && <HowToModal onClose={() => setModal('none')} onCustomise={() => { setSettingsTab('keys'); setModal('settings'); }} />}
     </div>
   );
 }
 
-function HowToModal({ onClose }: { onClose: () => void }) {
+function HowToModal({ onClose, onCustomise }: { onClose: () => void; onCustomise?: () => void }) {
   useEffect(() => {
     const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', h);
@@ -129,7 +186,7 @@ function HowToModal({ onClose }: { onClose: () => void }) {
     <Modal onClose={onClose}>
       <div className="kit-pop w-full max-w-3xl space-y-3">
         <InfoPanel />
-        <ControlsPanel />
+        <ControlsPanel onCustomise={onCustomise} />
         <div className="kit-panel px-4 py-3 font-ui text-[14px] leading-relaxed text-[#e6dcc4]">
           Ring doorbells for candy and treats, but you're stuck on the porch while you wait, and the doorbell draws the horde. Wear a costume for better treats.
           Each kid has one costume of their own: a rare Epic drop, never starting gear. After wave 10, some enemies gain elemental immunities or defensive wards. Mix damage types; aim directly against ricochet wards and use piercing 2+ against sealed shells. Ordinary mobs remain plentiful.
@@ -192,7 +249,30 @@ export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setH
 }
 
 // ================= SETTINGS =================
-export function SettingsModal({ onClose }: { onClose: () => void }) {
+/** Settings › Keys: the sheet the pause menu opens as well. */
+export function ControlsSettings({ className = '' }: { className?: string }) {
+  return (
+    <div className={className}>
+      <ControlsPanel />
+      <KeybindEditor className="mt-5" />
+    </div>
+  );
+}
+
+/** the pill switch from the kit sheet: an orange track with the label inside */
+function SettingsTabs({ tab, onChange }: { tab: 'game' | 'keys'; onChange: (t: 'game' | 'keys') => void }) {
+  const tabs = [{ id: 'game' as const, label: 'Game & sound' }, { id: 'keys' as const, label: 'Controls & keys' }];
+  return (
+    <div role="tablist" aria-label="Settings sections" className="settings-tabs">
+      {tabs.map((t) => (
+        <button key={t.id} type="button" role="tab" id={`settings-tab-${t.id}`} aria-selected={tab === t.id} aria-controls={`settings-panel-${t.id}`} className="settings-tab" onClick={() => onChange(t.id)}>{t.label}</button>
+      ))}
+    </div>
+  );
+}
+
+export function SettingsModal({ onClose, tab: firstTab = 'game' }: { onClose: () => void; tab?: 'game' | 'keys' }) {
+  const [tab, setTab] = useState<'game' | 'keys'>(firstTab);
   const [, force] = useState(0);
   const [armed, setArmed] = useState(false);
   const set = (fn: () => void) => { fn(); saveSettings(); force((n) => n + 1); };
@@ -203,23 +283,34 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   }, [onClose]);
   return (
     <Modal onClose={onClose}>
-      <div className="kit-panel kit-pop w-full max-w-md p-5 sm:p-6">
-        <div className="flex items-center justify-between">
-          <KitTitle className="text-4xl">Settings</KitTitle>
-          <button onClick={onClose} aria-label="Close" className="text-[#9aa0a6] hover:text-[#fb8016]"><X size={24} /></button>
+      <div className="kit-panel kit-pop w-full max-w-md p-5 sm:max-w-2xl sm:p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="paper-kicker">Maple Falls · options</div>
+            <h2 className="kit-word text-5xl sm:text-6xl">Settings</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="shrink-0 text-[#9aa0a6] hover:text-[#fb8016]"><X size={24} /></button>
         </div>
-        <div className="mt-5 space-y-4">
-          <SettingRow label="Screen shake" desc="Camera kick on hits & explosions"><Slider icon={Vibrate} label="Screen shake" value={settings.shake} onChange={(v) => set(() => (settings.shake = v))} /></SettingRow>
-          <SettingRow label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
-          <SettingRow label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
-          <SettingRow label="Monster names" desc="Labels above monsters with a special power"><Toggle label="Monster names" on={settings.names} onChange={(v) => set(() => (settings.names = v))} /></SettingRow>
-          <SettingRow label="Tutorial" desc="Professor Fizz's walkie-talkie lesson on your next run"><Toggle label="Tutorial on the next run" on={!tutorialSeen()} onChange={(v) => { if (v) forgetTutorial(); else rememberTutorial('never'); force((n) => n + 1); }} /></SettingRow>
-          <SettingRow label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
-          <SettingRow label="High graphics" desc="Sharper art and screen for strong PCs (applies on the next run)"><Toggle label="High graphics" on={settings.hq} onChange={(v) => set(() => (settings.hq = v))} /></SettingRow>
-          <SettingRow label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="rounded border border-[#4a4d55] bg-[#13151b] p-2 text-[#f2e6c9]"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
-          <SettingRow label="Sound effects" desc="Blaster pops, pickups and monster hits"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
-          <SettingRow label="Mute audio" desc="Silences effects and the radio"><Toggle label="Mute all audio" on={settings.muted} onChange={(v) => { gameAudio.setMuted(v); force((n) => n + 1); }} /></SettingRow>
-        </div>
+        <SettingsTabs tab={tab} onChange={setTab} />
+        {tab === 'game' ? (
+          <div id="settings-panel-game" role="tabpanel" aria-labelledby="settings-tab-game" className="settings-body mt-5 space-y-4">
+            <SettingRow label="Screen shake" desc="Camera kick on hits & explosions"><Slider icon={Vibrate} label="Screen shake" value={settings.shake} onChange={(v) => set(() => (settings.shake = v))} /></SettingRow>
+            <SettingRow label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
+            <SettingRow label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
+            <SettingRow label="Monster names" desc="Labels above monsters with a special power"><Toggle label="Monster names" on={settings.names} onChange={(v) => set(() => (settings.names = v))} /></SettingRow>
+            <SettingRow label="Tutorial" desc="Professor Fizz's walkie-talkie lesson on your next run"><Toggle label="Tutorial on the next run" on={!tutorialSeen()} onChange={(v) => { if (v) forgetTutorial(); else rememberTutorial('never'); force((n) => n + 1); }} /></SettingRow>
+            <SettingRow label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
+            <SettingRow label="High graphics" desc="Sharper art and screen for strong PCs (applies on the next run)"><Toggle label="High graphics" on={settings.hq} onChange={(v) => set(() => (settings.hq = v))} /></SettingRow>
+            <SettingRow label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="settings-select"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
+            <SettingRow label="Sound effects" desc="Blaster pops, pickups and monster hits"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
+            <SettingRow label="Mute audio" desc="Silences effects and the radio"><Toggle label="Mute all audio" on={settings.muted} onChange={(v) => { gameAudio.setMuted(v); force((n) => n + 1); }} /></SettingRow>
+          </div>
+        ) : (
+          <div id="settings-panel-keys" role="tabpanel" aria-labelledby="settings-tab-keys" className="settings-body mt-5">
+            <p className="settings-note"><Keyboard size={14} className="inline align-[-2px]" /> Click a key, then press the one you want. Everything here is used by the game the moment you set it, and it is remembered on this device.</p>
+            <ControlsSettings />
+          </div>
+        )}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
           <KitButton
             variant="red" size="sm" icon={RotateCw}
@@ -235,7 +326,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 }
 function SettingRow({ label, desc, children }: { label: string; desc: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+    <div className="settings-row flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <div>
         <div className="font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{label}</div>
         <div className="text-[12px] text-[#9aa0a6]">{desc}</div>
@@ -248,7 +339,7 @@ function SettingRow({ label, desc, children }: { label: string; desc: string; ch
 // ================= PAUSE =================
 export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onResume: () => void; onRestart: () => void; onQuit: () => void }) {
   const cur = game.p.weapons[game.p.cur];
-  const [panel, setPanel] = useState<'none' | 'settings' | 'controls' | 'inventory' | 'team'>('none');
+  const [panel, setPanel] = useState<'none' | 'settings' | 'controls' | 'keys' | 'inventory' | 'team'>('none');
   const [, setHover] = useState(0);
   const items = [
     { label: 'Resume', sub: 'back to the night', on: onResume },
@@ -274,6 +365,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
                   <span className="hm-menu-n">{String(k + 1).padStart(2, '0')}</span>
                   <span className="hm-menu-label">{it.label}</span>
                   <span className="hm-menu-sub">{it.sub}</span>
+                  <ChevronRight size={18} strokeWidth={3} className="hm-menu-chev" aria-hidden="true" />
                 </button>
               </li>
             ))}
@@ -292,13 +384,14 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
               </div>
             </div>
           )}
-          {panel === 'controls' && <ControlsPanel className="kit-pop mt-4 w-full" />}
+          {panel === 'controls' && <ControlsPanel className="kit-pop mt-4 w-full" onCustomise={() => setPanel('keys')} />}
         </div>
         <aside className="flex min-w-0 flex-col gap-4">
           {cur ? <WeaponCard w={cur} stats={game.stats} title="In hand" compact className="!w-full shrink-0" /> : <div className="text-sm text-[#8f8676]">No weapon equipped</div>}
         </aside>
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
+      {panel === 'keys' && <Modal onClose={() => setPanel('controls')}><div className="kit-panel kit-pop w-full max-w-2xl p-5 sm:p-6 text-[#f2e6c9]"><div className="paper-kicker">Paused · {HERO_INFO[game.hero].name}</div><h2 className="kit-word text-5xl">Controls</h2><p className="settings-note mt-2">Click a key, then press the one you want. Your keys apply straight away and are remembered on this device.</p><KeybindEditor className="mt-4" /><div className="mt-4 flex justify-end gap-2"><KitButton variant="dark" onClick={() => setPanel('controls')}>Back to controls</KitButton><KitButton variant="cream" onClick={() => setPanel('none')}>Done</KitButton></div></div></Modal>}
       {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
       {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? ((f.abductT ?? 0) > 0 ? `· abducted ${Math.ceil(f.abductT!)}s` : f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.rescueMap.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
     </div>

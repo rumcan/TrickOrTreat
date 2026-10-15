@@ -6,9 +6,16 @@ import type { BoardEntry, BoardMode, BoardRank } from '../game/leaderboard-servi
 import { fmtTime } from './common';
 import { campaignOffered } from '../game/engine';
 
-export function LeaderboardDrawer() {
+/**
+ * Night records. Left alone it renders its own edge tab; a caller can instead drive it (`open` / `onOpenChange`),
+ * which is what the title's menu row does.
+ */
+export function LeaderboardDrawer({ open: openProp, onOpenChange, showTrigger = true }: { open?: boolean; onOpenChange?: (open: boolean) => void; showTrigger?: boolean } = {}) {
   const [profile, setProfile] = useState(leaderboard.profile);
-  const [open, setOpen] = useState(false);
+  const [ownOpen, setOwnOpen] = useState(false);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : ownOpen;
+  const setOpen = (next: boolean) => { if (controlled) onOpenChange?.(next); else setOwnOpen(next); };
   const [mode, setMode] = useState<BoardMode>('survival');
   const [rows, setRows] = useState<BoardEntry[]>([]);
   const [rank, setRank] = useState<BoardRank | null>(null);
@@ -47,6 +54,8 @@ export function LeaderboardDrawer() {
     if (open && profile) { closeRef.current?.focus(); void load(); }
     return () => { generation.current++; };
   }, [open, mode, profile?.id]);
+  // asked for from the menu with no RUN session (or offline): say so instead of doing nothing
+  const unavailable = controlled && open && !profile;
   useEffect(() => {
     if (!open) return;
     const keys = (event: KeyboardEvent) => {
@@ -60,12 +69,24 @@ export function LeaderboardDrawer() {
     window.addEventListener('keydown', keys);
     return () => window.removeEventListener('keydown', keys);
   }, [open]);
-  if (!profile) return null;
+  if (!profile) {
+    if (!unavailable) return null;
+    return (
+      <div className="records-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
+        <aside className="records-drawer" role="dialog" aria-modal="true" aria-label="Time leaderboard">
+          <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2 className="kit-word"><Trophy size={26} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
+          <p className="records-intro">The longest nights. The bravest kids. Your best survival time, ranked against every RUN player.</p>
+          <div className="records-you"><span>Not signed in to RUN</span><span>Night records are kept on RUN, so they need a RUN session. Play offline and your own best time still waits for you on the title screen.</span></div>
+          <footer><button className="hm-btn ghost" onClick={close}>Close</button></footer>
+        </aside>
+      </div>
+    );
+  }
   return <>
-    <button ref={triggerRef} className="records-trigger" aria-label="Open time leaderboard" aria-expanded={open} aria-controls="time-records" onClick={() => setOpen(true)}><Trophy size={20} /><span>Night records</span><ChevronRight size={16} /></button>
+    {showTrigger && <button ref={triggerRef} className="records-trigger" aria-label="Open time leaderboard" aria-expanded={open} aria-controls="time-records" onClick={() => setOpen(true)}><Trophy size={20} /><span>Night records</span><ChevronRight size={16} /></button>}
     {open && <div className="records-backdrop" onPointerDown={event => { if (event.target === event.currentTarget) close(); }}>
       <aside id="time-records" className="records-drawer" role="dialog" aria-modal="true" aria-label="Time leaderboard">
-        <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2><Trophy size={28} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
+        <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2 className="kit-word"><Trophy size={26} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
         <p className="records-intro">The longest nights. The bravest kids. Your best survival time, ranked against every RUN player.</p>
         {/* one board for now (the rescue campaign is shelved): no tabs to choose between, and more room for records */}
         {campaignOffered() && <div className="records-tabs" role="group" aria-label="Leaderboard mode">{(['survival', 'rescue'] as const).map(m => <button key={m} aria-pressed={m === mode} onClick={() => setMode(m)}>{m === 'survival' ? 'Neighbourhood' : 'Rescue campaign'}</button>)}</div>}

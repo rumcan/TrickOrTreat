@@ -11,6 +11,7 @@ import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/dat
 import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
 import { requestGameFullscreen, canFullscreen } from './fullscreen';
 import { Banner, Keycap } from './kit';
+import { bindHint, useKeybindVersion } from './Keybinds';
 import { FACES, HERO_COLORS, BannerKind } from './art';
 import RadioPill, { MusicToggle } from './RadioPill';
 import { TAG_DEFS, TAG_ORDER } from '../game/build';
@@ -98,9 +99,9 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
         </div>
         <div className="hidden xl:block"><RadioPill compact /></div>
         <div className="flex gap-1.5 pl-2">
-          <button className="hm-iconbtn hm-desk hm-mobile-access" title="Your run build (I)" aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
-          <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
-          <button className="hm-iconbtn" title="Pause (Esc)" aria-label="Pause" {...buttonPress(() => { if (game.state === 'play') game.state = 'pause'; })}><PauseIcon size={16} /></button>
+          <button className="hm-iconbtn hm-desk hm-mobile-access" title={`Your run build (${bindHint('inventory', true)})`} aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
+          <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title={`Map (${bindHint('map', true)})`} aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
+          <button className="hm-iconbtn" title={`Pause (${bindHint('pause', true)})`} aria-label="Pause" {...buttonPress(() => { if (game.state === 'play') game.state = 'pause'; })}><PauseIcon size={16} /></button>
           {/* only where the host or browser can actually do it: on phones inside RUN it cannot */}
           {canFullscreen() && <button className="hm-iconbtn hm-desk hm-mobile-access" title="Fullscreen" aria-label="Fullscreen" onClick={() => requestGameFullscreen(true)}><Maximize size={15} /></button>}
         </div>
@@ -156,12 +157,15 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
 // ───────────────────────── bottom tab strip + drawer ─────────────────────────
 function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
   const skillReady = s.skillCd <= 0;
+  // the small keycaps show the player's own keys (Settings › Controls)
+  useKeybindVersion();
+  const slotKeys = [bindHint('gun1'), bindHint('gun2')];
   return (
     <nav className="hm-tabs" aria-label="Weapons and abilities">
       {s.weapons.map((ws, i) =>
         ws ? (
           <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} aria-pressed={i === s.cur} {...buttonPress(() => game.input.tap(String(i + 1)))} className={`hm-tab ${i === s.cur ? 'active' : ''}`} style={{ boxShadow: `inset 0 -3px 0 ${RARITY_KIT[ws.w.rarity]}` }}>
-            <Keycap className="hm-key">{String(i + 1)}</Keycap>
+            <Keycap className="hm-key">{slotKeys[i] ?? String(i + 1)}</Keycap>
             <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
             <span className="hidden min-w-0 flex-col leading-none md:flex">
               <span className="hm-tab-name">{ws.w.def.name}</span>
@@ -171,11 +175,11 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
             {ws.w.reloadT > 0 && <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[#e8700f]" style={{ transform: `scaleX(${1 - ws.w.reloadT / ws.st.reload})` }} />}
           </button>
         ) : (
-          <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} disabled className="hm-tab empty"><Keycap className="hm-key">{String(i + 1)}</Keycap><span className="hm-tab-sub">Empty</span></button>
+          <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} disabled className="hm-tab empty"><Keycap className="hm-key">{slotKeys[i] ?? String(i + 1)}</Keycap><span className="hm-tab-sub">Empty</span></button>
         )
       )}
       <button type="button" className={`hm-tab hm-tab-ability ${skillReady ? 'ready' : ''}`} aria-label="Hero skill" disabled={!skillReady} {...buttonPress(() => game.input.tap('f'))}>
-        <Keycap className="hm-key">F</Keycap>
+        <Keycap className="hm-key">{bindHint('skill', true)}</Keycap>
         <SkillIcon hero={hero} size={26} />
         <span className="hidden flex-col leading-none md:flex">
           <span className="hm-tab-name">{HERO_INFO[hero].skill}</span>
@@ -184,7 +188,7 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
         {!skillReady && <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[#5f6470]" style={{ transform: `scaleX(${1 - s.skillCd / s.skillMax})` }} />}
       </button>
       <button type="button" className="hm-tab hm-tab-ability" aria-label="Dash ability" disabled={s.dashCharges <= 0 && !s.tot} {...buttonPress(() => game.input.tap(' '))}>
-        <Keycap className="hm-key">Spc</Keycap>
+        <Keycap className="hm-key">{bindHint('dash', true)}</Keycap>
         <Wind size={20} className="text-[#28aed5]" strokeWidth={2.4} />
         <span className="flex gap-1">
           {Array.from({ length: s.dashMax }).map((_, i) => <span key={i} className="h-2 w-3" style={{ background: i < s.dashCharges ? '#28aed5' : '#2a3437' }} />)}
@@ -196,13 +200,14 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
 
 /** whatever needs you right now, as a paper drawer over the tab strip (one at a time) */
 function Drawer({ s }: { s: HudSnap }) {
+  useKeybindVersion();
   let body: React.ReactNode = null;
   if (s.rescue) {
     body = (
       <>
         <div className="hm-kicker" style={{ color: '#c9a8ff' }}>{s.rescue.downed ? 'You are down' : 'A friend needs you'}</div>
         <div className="flex items-center gap-3">
-          {!s.rescue.downed && <Keycap>E</Keycap>}
+          {!s.rescue.downed && <Keycap>{bindHint('interact', true)}</Keycap>}
           <div className="hm-drawer-main">{s.rescue.label}</div>
         </div>
         {s.rescue.progress >= 0 && <div className="hm-progress mt-2"><i style={{ width: `${s.rescue.progress * 100}%`, background: '#b58bff' }} /></div>}
@@ -214,7 +219,7 @@ function Drawer({ s }: { s: HudSnap }) {
       <>
         <div className="flex items-baseline justify-between"><div className="hm-kicker">Candy Cannon</div><div className={`hm-kicker ${s.turret.over > 0 ? '!text-[#ff5a3a]' : '!text-[#8f8676]'}`}>{s.turret.over > 0 ? 'Overheated!' : 'Heat'}</div></div>
         <div className="hm-progress"><i style={{ width: `${s.turret.heat * 100}%`, background: s.turret.over > 0 ? '#ff5a3a' : '#e8700f' }} /></div>
-        <div className="hm-drawer-note flex items-center gap-2"><Keycap className="!h-5 !text-[11px]">E</Keycap> climb down · hold the mouse to aim · it fires at the nearest monster on its own</div>
+        <div className="hm-drawer-note flex items-center gap-2"><Keycap className="!h-5 !text-[11px]">{bindHint('interact', true)}</Keycap> climb down · hold the mouse to aim · it fires at the nearest monster on its own</div>
       </>
     );
   } else if (s.tot) {
@@ -222,13 +227,13 @@ function Drawer({ s }: { s: HudSnap }) {
       <>
         <div className="hm-kicker flex items-center gap-1.5"><DoorOpen size={14} /> On {s.tot.owner}'s doorstep</div>
         <div className="hm-progress"><i style={{ width: `${(s.tot.t / s.tot.dur) * 100}%` }} /></div>
-        <div className="hm-drawer-note !text-[#ff7a6e]">Vulnerable: you can't move or shoot · <Keycap className="!h-5 !text-[11px]">Space</Keycap> to flee</div>
+        <div className="hm-drawer-note !text-[#ff7a6e]">Vulnerable: you can't move or shoot · <Keycap className="!h-5 !text-[11px]">{bindHint('dash')}</Keycap> to flee</div>
       </>
     );
   } else if (s.interact && !s.nearbyWeapon && !s.nearbyCostume) {
     body = (
       <div className="flex items-center gap-3">
-        <Keycap>E</Keycap>
+        <Keycap>{bindHint('interact', true)}</Keycap>
         <div className="hm-drawer-main">{s.interact}</div>
       </div>
     );
@@ -239,6 +244,7 @@ function Drawer({ s }: { s: HudSnap }) {
 
 // ───────────────────────── HUD ─────────────────────────
 export function Hud({ s, game }: { s: HudSnap; game: Game }) {
+  useKeybindVersion();
   const hero = game.hero;
   const cur = s.weapons[s.cur];
   const friend = FACES[hero === 2 ? 0 : 2]; // the other kid on the walkie-talkie
@@ -300,7 +306,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             </div>
           )}
           <div className="hm-slip flex items-center gap-2.5 !py-2">
-            <Keycap>E</Keycap>
+            <Keycap>{bindHint('interact', true)}</Keycap>
             <span className="truncate font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e8d4]">{s.interact}</span>
           </div>
         </div>

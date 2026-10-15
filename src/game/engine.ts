@@ -6,6 +6,7 @@ import { buildArcadeMap } from './arcade-map';
 import {ARCADE_STAFF} from './arcade-layout';
 import {NEW_MONSTERS,FINAL_MONSTER,FINAL_BOSS,WAVE_BOSSES,ROSTER_NAMES,ROSTER_MINIONS,BOSS_ATTACKS,familyForWave} from './boss-roster';
 import { settings } from './settings';
+import { translateKey, subscribeKeybinds } from './keybind-store';
 import { gameAudio } from './audio';
 import { expansion, hasFullGame } from './expansion';
 import * as storage from './storage';
@@ -31,11 +32,14 @@ export type ChoiceMode = 'level' | 'shop' | 'house';
 
 // ================= INPUT =================
 export class Input {
+  /** canonical action tokens currently held (see game/keybinds.ts) — never raw key names */
   keys = new Set<string>();
   pressed = new Set<string>();
   mx = 0; my = 0; mdown = false; rdown = false; rpressed = false; wheel = 0; mouseActive = false;
   touchMoveX = 0; touchMoveY = 0; touchAimX = 0; touchAimY = 0; touchFiring = false; touchActive = false;
   private el: HTMLElement;
+  /** the physical keys currently down; `keys` is derived from them through the player's bindings */
+  private down = new Set<string>();
   constructor(el: HTMLElement) {
     this.el = el;
     window.addEventListener('keydown', this.kd);
@@ -47,15 +51,29 @@ export class Input {
     document.addEventListener('visibilitychange', this.visibility);
     el.addEventListener('wheel', this.wh, { passive: true });
     el.addEventListener('contextmenu', this.cm);
+    // rebinding mid-run (Settings › Controls, opened from the pause menu) must not leave a key stuck down
+    this.unsubscribe = subscribeKeybinds(this.reset);
   }
+  private unsubscribe: () => void;
   kd = (e: KeyboardEvent) => {
     if (e.key !== 'Escape' && e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     const k = e.key.toLowerCase();
-    if (!this.keys.has(k)) this.pressed.add(k);
-    this.keys.add(k);
-    if ([' ', 'tab'].includes(k)) e.preventDefault();
+    if (this.down.has(k)) return; // held: the browser's auto-repeat is not a new press
+    this.down.add(k);
+    const tokens = translateKey(k);
+    for (const token of tokens) {
+      if (!this.keys.has(token)) this.pressed.add(token);
+      this.keys.add(token);
+    }
+    if (tokens.includes(' ') || tokens.includes('tab')) e.preventDefault();
   };
-  ku = (e: KeyboardEvent) => this.keys.delete(e.key.toLowerCase());
+  ku = (e: KeyboardEvent) => { this.down.delete(e.key.toLowerCase()); this.rebuild(); };
+  /** `keys` mirrors every held key, mapped through the current bindings */
+  private rebuild() {
+    const keys = new Set<string>();
+    for (const k of this.down) for (const token of translateKey(k)) keys.add(token);
+    this.keys = keys;
+  }
   mm = (e: MouseEvent) => {
     const r = this.el.getBoundingClientRect();
     this.mx = e.clientX - r.left;
@@ -87,6 +105,7 @@ export class Input {
     this.touchFiring = false;
   };
   reset = () => {
+    this.down.clear();
     this.keys.clear(); this.pressed.clear();
     this.mdown = false; this.rdown = false; this.rpressed = false; this.wheel = 0;
     this.clearTouch();
@@ -98,6 +117,7 @@ export class Input {
     this.wheel = 0;
   }
   destroy() {
+    this.unsubscribe();
     window.removeEventListener('keydown', this.kd);
     window.removeEventListener('keyup', this.ku);
     this.el.removeEventListener('mousemove', this.mm);
@@ -1027,7 +1047,7 @@ export class Game {
       return;
     }
     if (inp.pressed.has('i') && (this.state === 'play' || this.state === 'inventory')) this.state = this.state === 'inventory' ? 'play' : 'inventory';
-    if (inp.pressed.has('escape') || inp.pressed.has('p')) {
+    if (inp.pressed.has('escape')) {
       if (this.state === 'play') this.state = 'pause';
       else if (this.state === 'pause' || this.state === 'inventory') this.state = 'play';
       else if (this.state === 'hire') this.closeHire();
@@ -1044,7 +1064,7 @@ export class Game {
     const dt = Math.min(dtRaw, 1 / 30);
     if (!this.tutorial?.holding) this.time += dt; // the night waits for the tutorial
     this.premiumPowerT = Math.max(0, this.premiumPowerT - dt);
-    if (inp.pressed.has('m') || inp.pressed.has('tab')) this.bigMap = !this.bigMap;
+    if (inp.pressed.has('m')) this.bigMap = !this.bigMap;
     const downed = this.state === 'downed';
     const bk = `${this.weapon?.uid ?? 0}|${this.scrollOrder.length}|${this.p.costume}`;
     if (bk !== this.buildKey) { this.buildKey = bk; this.recalcStats(); }
@@ -1127,10 +1147,10 @@ export class Game {
   private updatePlayer(dt: number) {
     const p = this.p, inp = this.input, s = this.stats;
     let sx = inp.touchMoveX ?? 0, sy = inp.touchMoveY ?? 0;
-    if (inp.keys.has('w') || inp.keys.has('arrowup')) sy -= 1;
-    if (inp.keys.has('s') || inp.keys.has('arrowdown')) sy += 1;
-    if (inp.keys.has('a') || inp.keys.has('arrowleft')) sx -= 1;
-    if (inp.keys.has('d') || inp.keys.has('arrowright')) sx += 1;
+    if (inp.keys.has('w')) sy -= 1;
+    if (inp.keys.has('s')) sy += 1;
+    if (inp.keys.has('a')) sx -= 1;
+    if (inp.keys.has('d')) sx += 1;
     if (this.tot) {
       // frozen at the door: no moving, no dashing (Space = flee & cancel)
       p.moving = false;
@@ -1141,7 +1161,7 @@ export class Game {
       p.recoil = Math.max(0, p.recoil - dt * 8);
       p.shieldT += dt;
       if (p.shieldT > s.shieldDelay && p.shield < s.maxShield) p.shield = Math.min(s.maxShield, p.shield + s.maxShield * (p.costume === 'astronaut' ? 0.8 : 0.4) * dt);
-      if (inp.pressed.has(' ') || inp.pressed.has('shift')) this.cancelTot(true);
+      if (inp.pressed.has(' ')) this.cancelTot(true);
       return;
     }
     p.moving = !!(sx || sy);
@@ -1158,7 +1178,7 @@ export class Game {
       p.dashCharges++;
       p.dashRecharge = 0;
     }
-    if ((inp.pressed.has(' ') || inp.pressed.has('shift')) && p.dashCharges > 0 && p.dashT <= 0) {
+    if (inp.pressed.has(' ') && p.dashCharges > 0 && p.dashT <= 0) {
       p.dashCharges--;
       p.dashRecharge = 0;
       p.dashT = 0.2;
@@ -1247,7 +1267,7 @@ export class Game {
     if (p.shieldT > s.shieldDelay && p.shield < s.maxShield) p.shield = Math.min(s.maxShield, p.shield + s.maxShield * 0.4 * dt);
     p.dashRecharge += dt;
     if (p.dashCharges < s.dashCharges && p.dashRecharge >= 2.2) { p.dashCharges++; p.dashRecharge = 0; }
-    if (inp.pressed.has(' ') || inp.pressed.has('shift')) { this.dismount(); return; }
+    if (inp.pressed.has(' ')) { this.dismount(); return; }
     // aim: mouse while held, otherwise the nearest monster in range
     const manual = inp.mdown || inp.touchFiring;
     let target: Enemy | null = null;

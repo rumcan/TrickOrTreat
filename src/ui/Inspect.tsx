@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Game } from '../game/engine';
 import { RARITY } from '../game/config';
 import { KitButton, Keycap } from './kit';
+import { bindHint } from './Keybinds';
 import { WeaponCard, RARITY_KIT } from './common';
 import { TagChips } from './BuildSheet';
 import { INSC_TAGS, Tag } from '../game/build';
@@ -99,7 +100,7 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
               </KitButton>
             );
           })}
-          <KitButton size="sm" variant="dark" onClick={leave} className="shrink-0"><span className="mr-1 hidden sm:inline-flex"><Keycap className="!h-5 !text-[11px]">E</Keycap></span>{game.prizeGun ? 'Back to the prizes' : 'Leave it'}</KitButton>
+          <KitButton size="sm" variant="dark" onClick={leave} className="shrink-0"><span className="mr-1 hidden sm:inline-flex"><Keycap className="!h-5 !text-[11px]">{bindHint('interact', true)}</Keycap></span>{game.prizeGun ? 'Back to the prizes' : 'Leave it'}</KitButton>
           <p className="basis-full text-[12px] text-[#8f8676]">{game.prizeGun ? 'Not worth a swap? Go back and take another prize: nothing is lost. ' : ''}Swapping drops your old gun on the ground. Monsters are frozen while you read.<span className="hidden md:inline"> Tab switches the gun you compare with.</span></p>
         </div>
       </div>

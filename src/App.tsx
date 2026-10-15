@@ -197,7 +197,8 @@ export default function App() {
 
   return (
     <div className="game-shell relative w-screen overflow-hidden bg-[#0e0f13]">
-      {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
+      {/* the title screen carries its own radio (menu column on a desktop, beside the counters on a phone) */}
+      {screen !== 'game' && screen !== 'title' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
       {/* phones: the sub-screens' own Back buttons sit below the fold, so one is pinned in the corner */}
       {(screen === 'chars' || screen === 'talents' || screen === 'atlas') && <button type="button" className="modal-close modal-close--over" aria-label="Back to the title" onClick={toTitle}><X size={20} strokeWidth={3} /></button>}
       {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}

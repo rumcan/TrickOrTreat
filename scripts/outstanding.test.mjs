@@ -10,13 +10,21 @@ try {
   await page.getByRole('button', { name: 'Go trick-or-treating' }).waitFor({ timeout: 120000 });
   const logo = await page.locator('img[src*="newlogo"]').boundingBox();
   const picker = await page.getByRole('region', { name: 'Character selection' }).boundingBox();
-  const nav = await page.getByRole('button', { name: 'Character details' }).locator('..').boundingBox();
+  // the menu is the left column of the sheet, so the kids are picked beside it, never over it
+  const rail = await page.getByRole('navigation', { name: 'Main menu' }).boundingBox();
+  const nav = await page.getByRole('button', { name: 'Character details' }).boundingBox();
+  const wrap = await page.locator('.title-wrap').boundingBox();
   const pickerMid = picker.y + picker.height / 2;
   assert.ok(picker.y > logo.y + logo.height, 'Picker below logo');
-  assert.ok(picker.y + picker.height < nav.y, 'Picker above bottom navigation');
+  assert.ok(rail.x + rail.width <= picker.x + 1, 'Menu column sits left of the character panel');
+  assert.ok(nav.x + nav.width <= rail.x + rail.width + 1, 'Menu rows stay inside the column');
+  assert.ok(nav.y >= rail.y && nav.y + nav.height <= rail.y + rail.height + 1, 'Menu rows stay inside the column');
   // the remaining space starts under the whole header (logo, Essence counter and the 15K badge), not under the logo
   const header = await page.getByRole('banner', { name: 'Game header' }).boundingBox();
-  assert.ok(Math.abs(pickerMid - ((header.y + header.height + nav.y) / 2)) < 45, 'Picker centered in remaining menu space');
+  assert.ok(Math.abs(pickerMid - ((header.y + header.height + wrap.y + wrap.height) / 2)) < 90, 'Picker centered in remaining menu space');
+  // the CTA sits with the carousel it belongs to
+  const cta = await page.getByRole('button', { name: 'Go trick-or-treating' }).boundingBox();
+  assert.ok(cta.x >= rail.x + rail.width, 'The big CTA belongs to the carousel, not the rail');
   await page.getByRole('button', { name: /^Talents/ }).click();
   const talents = await page.evaluate(async () => (await import('/src/game/data.ts')).TALENTS.map(t => ({ name: t.name, premium: t.premium, req: t.req })));
   const premium = talents.find(t => t.premium);
