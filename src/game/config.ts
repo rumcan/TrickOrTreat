@@ -4,8 +4,9 @@ export const TW = 128;
 export const TH = 64;
 export const HW = TW / 2;
 export const HH = TH / 2;
-export const MAP_W = 94;
-export const MAP_H = 94;
+/** big enough for the painted town (268 tiles of 2 m); the arcade uses a corner of it */
+export const MAP_W = 268;
+export const MAP_H = 268;
 /** collision cells per tile (2 => each cell is half a tile) */
 export const CR = 4;
 export const CW = MAP_W * CR;

@@ -10,6 +10,7 @@ import { HERO_COSTUME } from './data';
 import { weaponIcon, pickupIcon, treatIcon, TREAT_ICON_IDS, WEAPON_ICON_IDS, PICKUP_IDS } from './art/fx';
 import { treatArt, TREAT_ART_IDS } from './art/treats';
 import { loadOverrides } from './assets';
+import { loadBuiltTown } from './town-built';
 import { ARCADE_ART_KINDS,getArcadeFixture,getArcadeFloor,getArcadeExitMat } from './art/arcade';
 import {CLUTTER_KINDS} from './arcade-clutter';
 import {getArcadeClutter} from './art/arcade-clutter';
@@ -25,6 +26,8 @@ export function preloadAll(progress: (p: number, label: string) => void) {
 async function boot(progress: (p: number, label: string) => void) {
   progress(0.02, 'Unpacking the candy…');
   await loadOverrides();
+  progress(.03,'Opening Maple Falls…');
+  await loadBuiltTown();
   const jobs: [string, () => void][] = [];
   for (const g of [G.GRASS, G.ROAD, G.SIDEWALK, G.DIRT, G.GRAVEL, G.DARKGRASS, G.DRIVEWAY, G.FLAGSTONE, G.FIELD])
     for (let v = 0; v < TILE_VARIANTS(g); v++) jobs.push(['Painting ground tiles', () => getTile(g, v)]);
