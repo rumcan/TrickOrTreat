@@ -14,6 +14,7 @@ export interface RewardRange { min: number; max: number; label: string }
 export function rewardRangeFor(kind: string): RewardRange {
   if (kind === 'boss') return { min: 2, max: 4, label: 'Rare / Epic / Legendary' };
   if (kind === 'house') return { min: 0, max: 2, label: 'Common / Uncommon / Rare' };
+  if (kind === 'boss') return { min: 2, max: 4, label: 'Rare / Epic / Legendary' };
   if (['school', 'church', 'barn', 'crypt'].includes(kind)) return { min: 2, max: 4, label: 'Rare / Epic / Legendary' };
   return { min: 2, max: 3, label: 'Rare / Epic' };
 }

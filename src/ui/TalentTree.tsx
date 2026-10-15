@@ -102,8 +102,8 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
             { b: 3, x: 1335, y: 325 },
           ].map(({ b, x, y }) => (
             <g key={b} textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 6, strokeLinejoin: 'round' }}>
-              <text x={x} y={y} fill={TALENT_COLORS[b]} fontSize="34" style={{ fontFamily: 'Anton, Impact, sans-serif', letterSpacing: 2 }}>{TALENT_BRANCHES[b].toUpperCase()}</text>
-              <text x={x} y={y + 22} fill="#fff0da" fontSize="13" fontWeight="700" style={{ fontFamily: '"Barlow Condensed", sans-serif', letterSpacing: 4, strokeWidth: 4 }}>{TALENT_BRANCH_SUB[b].toUpperCase()} · {spent(b)} PTS</text>
+              <text x={x} y={y} fill={TALENT_COLORS[b]} fontSize="34" style={{ fontFamily: '"Bebas Neue", "Anton", Impact, sans-serif', letterSpacing: 3 }}>{TALENT_BRANCHES[b].toUpperCase()}</text>
+              <text x={x} y={y + 22} fill="#fff0da" fontSize="13" fontWeight="700" style={{ fontFamily: '"Teko", "Barlow Condensed", sans-serif', letterSpacing: 5, strokeWidth: 4 }}>{TALENT_BRANCH_SUB[b].toUpperCase()} · {spent(b)} PTS</text>
             </g>
           ))}
 
@@ -181,7 +181,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
                   return <circle key={k} cx={t.x + Math.cos(a) * (R + 11)} cy={t.y + Math.sin(a) * (R + 11)} r="4.4" fill={k < l ? c : '#07060d'} stroke={st === 'locked' ? '#5b5670' : c} strokeWidth="1.8" />;
                 })}
                 {t.endless && l > t.max && <text x={t.x} y={t.y + R + 31} textAnchor="middle" fill="#ffc94d" fontSize="15" fontWeight="800" style={{ fontFamily: '"Barlow Condensed", sans-serif', paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>+{l - t.max}</text>}
-                <text x={t.x} y={t.y - R - 11} textAnchor="middle" fill={st === 'locked' ? '#a39fb5' : '#ffffff'} fontSize="13" fontWeight="700" style={{ fontFamily: '"Barlow Condensed", sans-serif', letterSpacing: 0.6, paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>{t.name}{t.endless ? ' ∞' : ''}</text>
+                <text x={t.x} y={t.y - R - 11} textAnchor="middle" fill={st === 'locked' ? '#a39fb5' : '#ffffff'} fontSize="13" fontWeight="700" style={{ fontFamily: '"Teko", "Barlow Condensed", sans-serif', letterSpacing: 1.2, paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>{t.name}{t.endless ? ' ∞' : ''}</text>
               </g>
             );
           })}
@@ -259,7 +259,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           )}
         </section>
 
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="talent-branches">
           {TALENT_BRANCHES.map((b, i) => (
             <div key={b} className="paper-card !px-1 !py-2.5 text-center" style={{ borderTop: `4px solid ${TALENT_COLORS[i]}` }}>
               <div className="label" style={{ color: TALENT_COLORS[i] }}>{b}</div>

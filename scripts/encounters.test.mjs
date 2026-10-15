@@ -20,7 +20,13 @@ try {
       if (g.boss?.type !== type) throw new Error(`Wrong boss: ${g.boss?.type}, expected ${type}`);
       g.spawnEnemy('zombie', g.p.x + 2, g.p.y); g.ebullets.push({ x: g.p.x, y: g.p.y, dead: false });
       const kills = g.kills; g.killEnemy(g.boss);
-      if (g.enemies.length || g.ebullets.length || g.bullets.length || g.state !== 'play' || !g.bossBreak || g.calmT !== 20 || g.kills !== kills + 1) throw new Error(`Boss did not safely clear the encounter (${JSON.stringify({ enemies: g.enemies.length, eb: g.ebullets.length, b: g.bullets.length, state: g.state, brk: g.bossBreak, calm: g.calmT, kills: g.kills - kills })})`);
+      if (g.enemies.length || g.ebullets.length || g.bullets.length || g.state !== 'levelup' || !g.bossBreak || g.calmT !== 20 || g.kills !== kills + 1) throw new Error(`Boss did not safely clear the encounter (${JSON.stringify({ enemies: g.enemies.length, eb: g.ebullets.length, b: g.bullets.length, state: g.state, brk: g.bossBreak, calm: g.calmT, kills: g.kills - kills })})`);
+      // the kill opens the reward window: Rare / Epic / Legendary cards, and play resumes once one is taken
+      if (g.choiceMode !== 'boss' || !g.choices.length || g.choiceRewardRange.max !== 4) {
+        throw new Error(`A boss must offer the high-roll reward window (${JSON.stringify({ mode: g.choiceMode, n: g.choices.length, range: g.choiceRewardRange })})`);
+      }
+      g.choose(g.choices[0].id);
+      if (g.state !== 'play') throw new Error('Taking the boss reward must put the kid back on the street');
       for (let k = 0; k < 20; k++) g.update(0.03); // past the hit-stop of the kill
       if (g.enemies.length || g.bossBreak || !(g.calmT > 19 && g.calmT < 20)) throw new Error('The quiet after a boss must run with an empty street');
       const level = g.p.weapons[0].level; g.shopUpgrade(0); if (g.p.weapons[0].level !== level + 1) throw new Error('Cannot upgrade after boss');
