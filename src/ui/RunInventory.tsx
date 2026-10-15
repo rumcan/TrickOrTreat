@@ -55,7 +55,7 @@ export function RunInventory({ game, onClose }: { game: Game; onClose: () => voi
               <input aria-label="Search collected treats" placeholder="Search effects or treats…" value={search} onChange={(e) => setSearch(e.target.value)} className="min-w-0 flex-1 rounded border border-[#3a3d44] bg-[#13151b] px-3 py-2" />
               <select aria-label="Sort collected treats" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="rounded border border-[#3a3d44] bg-[#13151b] px-2"><option value="picked">Picked up</option><option value="rarity">Rarity</option><option value="name">Name</option></select>
             </div>
-            {!entries.length && <div className="kit-panel p-8 text-center"><KitTitle className="text-2xl">Your bag is waiting</KitTitle><p className="mt-2 text-[#9aa0a6]">Collect treats from level-ups, chests and doorbells. Every applied effect will appear here.</p></div>}
+            {!entries.length && <div className="kit-panel p-8 text-center"><KitTitle className="text-2xl">Your bag is waiting</KitTitle><p className="mt-2 text-[#9aa0a6]">Collect treats from doorbells, bosses and chests. Every applied effect will appear here.</p></div>}
             {!!entries.length && !visible.length && <p>No collected treats match that search.</p>}
             <div className="grid gap-3 sm:grid-cols-2">
               {visible.map(([id, count]) => {

@@ -81,8 +81,8 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
         <div className="hm-time">{fmtTime(s.time)}</div>
         <div className="hm-time-sub">
           {s.calm > 0 ? <span className="text-[#7fe0a8]">All quiet · {Math.ceil(s.calm)}s · find the shop <button type="button" className="pointer-events-auto ml-2 border border-[#ffa338] px-2 py-1 text-[#ffa338]" onClick={()=>game.skipBuyWindow()}>Skip break</button></span>
-            : s.bossFight ? <span className="text-[#ff5a6e]">Wave {Math.max(1, s.wave)} · Boss fight</span>
-            : s.wave > 0 ? <span className="text-[#ff5a6e]">Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
+            : s.bossFight ? <span className="text-[#ff5a6e]">{s.night > 1 && `Night ${s.night} · `}Wave {Math.max(1, s.wave)} · Boss fight</span>
+            : s.wave > 0 ? <span className="text-[#ff5a6e]">{s.night > 1 && `Night ${s.night} · `}Wave {s.wave} · {Math.ceil(s.waveIn)}s{s.bossIn !== null && ` · Boss ${fmtTime(s.bossIn)}`}</span>
             : s.bossIn !== null ? <span>Boss in {fmtTime(s.bossIn)}</span>
               : <span>Night falls</span>}
         </div>
@@ -120,7 +120,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
   return (
     <aside className="hm-rail pointer-events-auto" aria-label="Treats and synergies">
       <div className="hm-rail-title">Treats</div>
-      {!treats.length && <div className="hm-rail-empty">Level up to fill your bag</div>}
+      {!treats.length && <div className="hm-rail-empty">Ring doorbells and beat bosses to fill your bag</div>}
       {treats.slice(0, max).map(([id, n]) => {
         const sc = SCROLL_BY_ID[id];
         return (
@@ -286,7 +286,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
 
       {/* nearby gun / costume: comparison on the right, the E slip under it */}
       {s.interact && !s.turret && (s.nearbyWeapon || s.nearbyCostume) && (
-        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`hm-nearby absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[96px] left-1/2 -translate-x-1/2 items-center sm:bottom-[104px]'}`}>
+        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`hm-nearby absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-[208px] w-[min(240px,calc(50vw-40px))] items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[96px] left-1/2 -translate-x-1/2 items-center sm:bottom-[104px]'}`}>
           {s.nearbyCostume && (
             <div className="hidden items-end gap-2 md:flex">
               {s.costume && <div className="opacity-70"><CostumeCard id={s.costume} hero={hero} title="Wearing" /></div>}
@@ -294,7 +294,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             </div>
           )}
           {s.nearbyWeapon && (
-            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-440px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-end">
+            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-370px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-start">{/* top-aligned: a taller card (long inscriptions) runs off the bottom, where the box scrolls, never off the unreachable top */}
               {cur && <div className="opacity-75"><WeaponCard w={cur.w} stats={game.stats} title="Equipped" compact /></div>}
               <div className="order-first xl:order-last"><WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact /></div>
             </div>

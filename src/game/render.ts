@@ -1,5 +1,5 @@
 import { TW, HW, HH, MAP_W, MAP_H, isoX, isoY, screenToWorld, clamp, RARITY, ELEM } from './config';
-import { Game, Enemy, Turret, GUN_GROUND_TIME, LOOT_GROUND_TIME, BOSS_MAGNET_TIME, ARCADE_OPEN } from './engine';
+import { Game, Enemy, Turret, GUN_GROUND_TIME, LOOT_GROUND_TIME, BOSS_MAGNET_TIME, ARCADE_OPEN, RANKS } from './engine';
 import { getTurretSheet, GYM_DECK_Z, TURRET_DIRS } from './art/props';
 import { PropInst, GameMap } from './map';
 import { heroSheet, enemySheet, blitFrame, Sheet, ENEMY_TYPES, HEROES } from './art/characters';
@@ -12,7 +12,7 @@ import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 import { AFFIX_INFO } from './enemy-affixes';
 import {arcadeStaffSheet} from './art/arcade-staff';
-import {drawBuiltGround,applyNight} from './town-built';
+import {drawBuiltGround,applyNight,NightLight} from './town-built';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -657,7 +657,17 @@ export class Renderer {
     if (night) {
       // the town builder's night: moonlight everywhere, the painted colour back inside every light and round the kid
       const pk = g.p, k = dpr * zoom, sxw = (x: number, y: number) => (isoX(x, y) - camX) * k + this.canvas.width / 2, syw = (x: number, y: number) => (isoY(x, y) - camY) * k + this.canvas.height / 2;
-      const nl: { sx: number; sy: number; rx: number; ry: number; i: number; torch?: boolean }[] = m.lights.map(L => ({ sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i: L.flicker ? L.i * (0.88 + Math.sin(this.t * 11 + L.x * 7) * 0.08) : L.i }));
+      const nl: NightLight[] = m.lights.map(L => {
+        const i = L.flicker ? L.i * (0.88 + Math.sin(this.t * 11 + L.x * 7) * 0.08) : L.i;
+        if (L.quad) { // a four-sided light from the town builder (any shape its handles made), with a soft edge
+          const q = L.quad, quad = q.map(([u, v]) => [sxw(L.x + u, L.y + v), syw(L.x + u, L.y + v)] as [number, number]);
+          // the soft edge reaches half the shape's narrowest width in
+          let inner = Infinity;
+          for (let n = 0; n < 4; n++) { const a = q[n], b = q[(n + 1) % 4], ex = b[0] - a[0], ey = b[1] - a[1], l = Math.hypot(ex, ey) || 1; let far = 0; for (const p of q) far = Math.max(far, Math.abs((p[0] - a[0]) * ey - (p[1] - a[1]) * ex) / l); inner = Math.min(inner, far / 2); }
+          return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: 0, ry: 0, i, tint: L.tint, quad, blur: night.feather * Math.max(0.125, inner) * HW * 1.414 * k * 0.5 };
+        }
+        return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i, tint: L.tint };
+      });
       for (const pr of m.props) { if (!pr.glows || pr.removed || pr.wreck) continue; const ax = isoX(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2), ay = isoY(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2);
         if (ax < camX - this.canvas.width / k / 2 - 400 || ax > camX + this.canvas.width / k / 2 + 400 || ay < camY - this.canvas.height / k / 2 - 300 || ay > camY + this.canvas.height / k / 2 + 600) continue;
         const fa = pr.fade ?? 1; for (const gl of pr.glows) nl.push({ sx: (ax + gl.x - camX) * k + this.canvas.width / 2, sy: (ay + gl.y - camY) * k + this.canvas.height / 2, rx: gl.r * k, ry: gl.r * k, i: night.glowStrength * fa }); }
@@ -735,10 +745,10 @@ export class Renderer {
         ctx.globalAlpha = e.frozenT ? 0.7 : (e.chill ?? 0) * 0.5;
         ctx.drawImage(glow('#9fe8ff', 64), sx - 34, sy - 44, 68, 78);
       }
-      if (e.elite) {
+      if (e.elite || e.captain) {
         const sx = isoX(e.x, e.y), sy = isoY(e.x, e.y);
-        ctx.globalAlpha = 0.4;
-        ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : '#ff2a2a', 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
+        ctx.globalAlpha = e.elite ? 0.4 : 0.22;
+        ctx.drawImage(glow(e.def.boss ? '#ff8a1e' : RANKS[e.rank ?? 0].color, 64), sx - 60 * e.r * 2, sy - 30 * e.r * 2, 120 * e.r * 2, 60 * e.r * 2);
       }
     }
     ctx.globalAlpha = 1;
@@ -935,8 +945,15 @@ export class Renderer {
         const top = sy - this.en[e.type].s.ay * (e.elite && !e.def.elite ? 1.25 : 1) - enemyHover(e) - 6;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(sx - w / 2 - 1, top - 1, w + 2, h + 2);
-        ctx.fillStyle = e.elite ? '#ff3b3b' : '#e84a4a';
+        ctx.fillStyle = e.captain ? RANKS[e.rank!].color : e.elite ? '#ff3b3b' : '#e84a4a';
         ctx.fillRect(sx - w / 2, top, (w * Math.max(0, e.hp)) / e.maxHp, h);
+        if (e.elite && (e.rank ?? 0) >= 2 && !e.affix && settings.names) {
+          // a rank leader wears its title (CAPTAIN, MAYOR...)
+          ctx.font = '700 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
+          ctx.fillStyle = RANKS[e.rank!].color;
+          const labelY = top - (e.maxShield > 0 ? 19 : 5), label = RANKS[e.rank!].name.toUpperCase();
+          ctx.strokeText(label, sx, labelY); ctx.fillText(label, sx, labelY);
+        }
         if (e.affix && settings.names) {
           ctx.font = '600 10px system-ui'; ctx.textAlign = 'center'; ctx.strokeStyle = '#081018'; ctx.lineWidth = 3;
           ctx.fillStyle = AFFIX_INFO[e.affix].color;

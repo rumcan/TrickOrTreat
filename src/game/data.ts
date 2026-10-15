@@ -415,8 +415,15 @@ export interface Talent {
   /** unlock requires at least 1 rank in ANY of these (empty = connected to the root) */
   req: string[];
   capstone?: boolean;
+  /** keeps ranking up past `max` for ever (see talentCost): the grind stars, all plain stat boosts */
+  endless?: boolean;
 }
 
+/** what each endless rank past mastery costs on top of the last one (x1.9, nearly double): pouring everything into one
+ *  star climbs steeply, so a grind spreads out; it is never closed */
+export const ENDLESS_STEP = 1.9;
+/** a sane ceiling for a saved rank (nobody grinds this far; it only guards a corrupt save) */
+export const RANK_LIMIT = 10000;
 export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts', 'Buddy System'];
 export const TALENT_BRANCH_SUB = ['Offense', 'Defense', 'Utility', 'Partner'];
 /** saturated neon, one per branch: they sit on a busy painted night sky */
@@ -428,19 +435,23 @@ export const TALENT_ROOT = { x: 500, y: 450 };
  */
 export function talentCost(t: Talent, level: number) {
   const far = Math.max(0, Math.hypot(t.x - TALENT_ROOT.x, t.y - TALENT_ROOT.y) - 150) / 500;
-  return Math.round(t.cost(level) * (1 + far) / 5) * 5;
+  // past mastery an endless star keeps its last price and adds ENDLESS_STEP a rank
+  const base = t.endless && level >= t.max ? t.cost(t.max - 1) * Math.pow(ENDLESS_STEP, level - t.max + 1) : t.cost(level);
+  return Math.round(base * (1 + far) / 5) * 5;
 }
+/** the most ranks a talent can hold */
+export function talentCap(t: Talent) { return t.endless ? RANK_LIMIT : t.max; }
 export const TALENTS: Talent[] = [
   // ---- Mischief (upper-left) ----
-  { id: 'sharp', branch: 0, x: 385, y: 370, req: [], name: 'Sharp Teeth', icon: '🦷', max: 5, cost: (l) => 15 + l * 15, desc: '+5% damage per rank', apply: (s, l) => (s.dmg *= 1 + 0.05 * l) },
+  { id: 'sharp', endless: true, branch: 0, x: 385, y: 370, req: [], name: 'Sharp Teeth', icon: '🦷', max: 5, cost: (l) => 15 + l * 15, desc: '+5% damage per rank', apply: (s, l) => (s.dmg *= 1 + 0.05 * l) },
   { id: 'trigger', branch: 0, x: 255, y: 330, req: ['sharp'], name: 'Trigger Finger', icon: '👉', max: 3, cost: (l) => 25 + l * 20, desc: '+5% fire rate per rank', apply: (s, l) => (s.rate *= 1 + 0.05 * l) },
   { id: 'lucky', branch: 0, x: 360, y: 240, req: ['sharp'], name: 'Lucky Socks', icon: '🧦', max: 3, cost: (l) => 25 + l * 20, desc: '+3% crit chance per rank', apply: (s, l) => (s.crit += 0.03 * l) },
-  { id: 'grin', branch: 0, x: 215, y: 195, req: ['trigger', 'lucky'], name: 'Wicked Grin', icon: '😈', max: 3, cost: (l) => 40 + l * 25, desc: '+15% crit damage per rank', apply: (s, l) => (s.critDmg += 0.15 * l) },
+  { id: 'grin', endless: true, branch: 0, x: 215, y: 195, req: ['trigger', 'lucky'], name: 'Wicked Grin', icon: '😈', max: 3, cost: (l) => 40 + l * 25, desc: '+15% crit damage per rank', apply: (s, l) => (s.critDmg += 0.15 * l) },
   { id: 'hot', branch: 0, x: 420, y: 130, req: ['lucky'], name: 'Hot Sauce Lunch', icon: '🌮', max: 1, cost: () => 90, desc: 'Start every run with +10% Burn chance', apply: (s, l) => (s.burn += 0.1 * l) },
   { id: 'prankster', branch: 0, x: 250, y: 70, req: ['grin', 'hot'], capstone: true, name: 'Prankster King', icon: '👑', max: 1, cost: () => 260, desc: 'CAPSTONE · All weapons fire +1 projectile', apply: (s, l) => (s.pellets += l) },
   // ---- Costume (upper-right) ----
-  { id: 'thick', branch: 1, x: 615, y: 370, req: [], name: 'Thick Costume', icon: '🧥', max: 5, cost: (l) => 15 + l * 15, desc: '+10 max HP per rank', apply: (s, l) => (s.maxHp += 10 * l) },
-  { id: 'pads', branch: 1, x: 745, y: 330, req: ['thick'], name: 'Knee Pads', icon: '🦵', max: 3, cost: (l) => 25 + l * 20, desc: '+10 max shield per rank', apply: (s, l) => (s.maxShield += 10 * l) },
+  { id: 'thick', endless: true, branch: 1, x: 615, y: 370, req: [], name: 'Thick Costume', icon: '🧥', max: 5, cost: (l) => 15 + l * 15, desc: '+10 max HP per rank', apply: (s, l) => (s.maxHp += 10 * l) },
+  { id: 'pads', endless: true, branch: 1, x: 745, y: 330, req: ['thick'], name: 'Knee Pads', icon: '🦵', max: 3, cost: (l) => 25 + l * 20, desc: '+10 max shield per rank', apply: (s, l) => (s.maxShield += 10 * l) },
   { id: 'recover', branch: 1, x: 640, y: 240, req: ['thick'], name: 'Quick Recovery', icon: '💨', max: 3, cost: (l) => 25 + l * 20, desc: 'Shield recharges 15% sooner per rank', apply: (s, l) => (s.shieldDelay *= 1 - 0.15 * l) },
   { id: 'hardhat', branch: 1, x: 785, y: 195, req: ['pads', 'recover'], name: 'Hard Hat', icon: '⛑️', max: 3, cost: (l) => 40 + l * 25, desc: 'Take 5% less damage per rank', apply: (s, l) => (s.armor = 1 - (1 - s.armor) * (1 - 0.05 * l)) },
   { id: 'second', branch: 1, x: 580, y: 130, req: ['recover'], name: 'Second Wind', icon: '❤️‍🔥', max: 1, cost: () => 150, desc: 'Revive once per run with 50% HP', apply: (s, l) => (s.revive += l) },
@@ -448,7 +459,7 @@ export const TALENTS: Talent[] = [
   // ---- Street Smarts (bottom) ----
   { id: 'shoes', branch: 2, x: 500, y: 570, req: [], name: 'New Sneakers', icon: '👟', max: 3, cost: (l) => 20 + l * 15, desc: '+4% move speed per rank', apply: (s, l) => (s.move *= 1 + 0.04 * l) },
   { id: 'pockets', branch: 2, x: 370, y: 625, req: ['shoes'], name: 'Deep Pockets', icon: '👖', max: 3, cost: (l) => 20 + l * 15, desc: '+15% pickup radius per rank', apply: (s, l) => (s.magnet *= 1 + 0.15 * l) },
-  { id: 'allowance', branch: 2, x: 630, y: 625, req: ['shoes'], name: 'Allowance', icon: '💵', max: 3, cost: (l) => 20 + l * 20, desc: '+30 starting coins per rank', apply: (s, l) => (s.startCoins += 30 * l) },
+  { id: 'allowance', endless: true, branch: 2, x: 630, y: 625, req: ['shoes'], name: 'Allowance', icon: '💵', max: 3, cost: (l) => 20 + l * 20, desc: '+30 starting coins per rank', apply: (s, l) => (s.startCoins += 30 * l) },
   { id: 'sweet', branch: 2, x: 500, y: 690, req: ['shoes'], name: 'Sweet Talker', icon: '🗣️', max: 3, cost: (l) => 30 + l * 20, desc: 'Trick-or-treating is 12% faster per rank', apply: (s, l) => (s.totSpeed *= 1 - 0.12 * l) },
   { id: 'dash', branch: 2, x: 265, y: 720, req: ['pockets'], name: 'Extra Dash', icon: '⚡', max: 1, cost: () => 110, desc: '+1 dash charge', apply: (s, l) => (s.dashCharges += l) },
   { id: 'find', branch: 2, x: 360, y: 795, req: ['pockets'], name: 'Garage Sale Find', icon: '🔧', max: 2, cost: (l) => 80 + l * 80, desc: 'Starting weapon +1 rarity per rank', apply: (s, l) => (s.startRarity += l) },
@@ -456,26 +467,26 @@ export const TALENTS: Talent[] = [
   { id: 'legend', branch: 2, x: 500, y: 830, req: ['sweet'], capstone: true, name: 'Neighbourhood Legend', icon: '🏡', max: 1, cost: () => 220, desc: 'CAPSTONE · Every house offers +1 extra treat choice', apply: (s, l) => (s.totChoices += l) },
 ];
 TALENTS.push(
-  { id: 'heavy', premium: true, branch: 0, x: 95, y: 325, req: ['trigger'], name: 'Heavy Treats', icon: '🍫', max: 4, cost: (l) => 60 + l * 40, desc: '+8% damage per rank', apply: (s, l) => (s.dmg *= 1 + l * 0.08) },
+  { id: 'heavy', endless: true, premium: true, branch: 0, x: 95, y: 325, req: ['trigger'], name: 'Heavy Treats', icon: '🍫', max: 4, cost: (l) => 60 + l * 40, desc: '+8% damage per rank', apply: (s, l) => (s.dmg *= 1 + l * 0.08) },
   { id: 'sharpshot', premium: true, branch: 0, x: 65, y: 200, req: ['heavy'], name: 'Secret Aim', icon: '🎯', max: 3, cost: (l) => 80 + l * 45, desc: '+5% crit chance per rank', apply: (s, l) => (s.crit += l * 0.05) },
   { id: 'bestfriends', premium: true, branch: 0, x: 80, y: 80, req: ['sharpshot'], capstone: true, name: 'Partners in Mischief', icon: '🤝', max: 3, cost: (l) => 130 + l * 60, desc: '+20% companion damage per rank', apply: (s, l) => (s.companionDmg *= 1 + l * 0.2) },
-  { id: 'stitched', premium: true, branch: 1, x: 905, y: 325, req: ['pads'], name: 'Double Stitched', icon: '🧵', max: 4, cost: (l) => 60 + l * 40, desc: '+15 HP and shield per rank', apply: (s, l) => { s.maxHp += l * 15; s.maxShield += l * 15; } },
+  { id: 'stitched', endless: true, premium: true, branch: 1, x: 905, y: 325, req: ['pads'], name: 'Double Stitched', icon: '🧵', max: 4, cost: (l) => 60 + l * 40, desc: '+15 HP and shield per rank', apply: (s, l) => { s.maxHp += l * 15; s.maxShield += l * 15; } },
   { id: 'fieldmedic', premium: true, branch: 1, x: 935, y: 200, req: ['stitched'], name: 'Field Medic', icon: '🩹', max: 3, cost: (l) => 80 + l * 45, desc: '+20% revive speed per rank', apply: (s, l) => (s.reviveSpeed *= 1 + l * 0.2) },
   { id: 'guardians', premium: true, branch: 1, x: 920, y: 80, req: ['fieldmedic'], capstone: true, name: 'Watch Each Other', icon: '🛡️', max: 3, cost: (l) => 130 + l * 60, desc: 'Companion takes 10% less damage per rank', apply: (s, l) => (s.companionArmor = 1 - (1 - s.companionArmor) * (1 - l * 0.1)) },
-  { id: 'studygroup', premium: true, branch: 2, x: 150, y: 600, req: ['pockets'], name: 'Study Group', icon: '📚', max: 4, cost: (l) => 60 + l * 40, desc: '+10% run XP per rank', apply: (s, l) => (s.xpGain *= 1 + l * 0.1) },
-  { id: 'paperroute', premium: true, branch: 2, x: 100, y: 745, req: ['studygroup'], name: 'Paper Route', icon: '🗞️', max: 3, cost: (l) => 80 + l * 45, desc: '+20% coin gain per rank', apply: (s, l) => (s.coinGain *= 1 + l * 0.2) },
+  { id: 'studygroup', endless: true, premium: true, branch: 2, x: 150, y: 600, req: ['pockets'], name: 'Study Group', icon: '📚', max: 4, cost: (l) => 60 + l * 40, desc: '+10% run XP per rank', apply: (s, l) => (s.xpGain *= 1 + l * 0.1) },
+  { id: 'paperroute', endless: true, premium: true, branch: 2, x: 100, y: 745, req: ['studygroup'], name: 'Paper Route', icon: '🗞️', max: 3, cost: (l) => 80 + l * 45, desc: '+20% coin gain per rank', apply: (s, l) => (s.coinGain *= 1 + l * 0.2) },
   { id: 'seeker', premium: true, branch: 2, x: 85, y: 855, req: ['paperroute'], capstone: true, name: 'Master Seeker', icon: '🔦', max: 3, cost: (l) => 130 + l * 60, desc: '+15% pickup radius and 4% move speed per rank', apply: (s, l) => { s.magnet *= 1 + l * 0.15; s.move *= 1 + l * 0.04; } },
 );
 // ---- beyond the capstones: two more stars at the end of every arm (free arm and full-game arm of each branch). They
 // cost several runs of Essence and are meant to be felt: whoever gets this far has earned it. ----
 TALENTS.push(
   // Mischief
-  { id: 'boombox', branch: 0, x: 335, y: -45, req: ['prankster'], name: 'Boombox Bass', icon: '📻', max: 3, cost: (l) => 180 + l * 90, desc: '+10% damage and +5% fire rate per rank', apply: (s, l) => { s.dmg *= 1 + 0.1 * l; s.rate *= 1 + 0.05 * l; } },
+  { id: 'boombox', endless: true, branch: 0, x: 335, y: -45, req: ['prankster'], name: 'Boombox Bass', icon: '📻', max: 3, cost: (l) => 180 + l * 90, desc: '+10% damage per rank, and +5% fire rate for each of the first 3', apply: (s, l) => { s.dmg *= 1 + 0.1 * l; s.rate *= 1 + 0.05 * Math.min(3, l); } },
   { id: 'rewind', branch: 0, x: 245, y: -165, req: ['boombox'], capstone: true, name: 'Be Kind, Rewind', icon: '📼', max: 1, cost: () => 700, desc: 'FINALE · All weapons fire +1 more projectile, and every shot passes through +1 monster', apply: (s, l) => { s.pellets += l; s.pierce += l; } },
   { id: 'flash', premium: true, branch: 0, x: 55, y: -50, req: ['bestfriends'], name: 'Flash Photo', icon: '📸', max: 3, cost: (l) => 220 + l * 100, desc: '+8% crit chance per rank', apply: (s, l) => (s.crit += 0.08 * l) },
   { id: 'rockstar', premium: true, branch: 0, x: 100, y: -170, req: ['flash'], capstone: true, name: 'Rock Star', icon: '🎤', max: 1, cost: () => 800, desc: 'FINALE · +100% crit damage and +50% companion damage', apply: (s, l) => { s.critDmg += l; s.companionDmg *= 1 + 0.5 * l; } },
   // Costume
-  { id: 'lava', branch: 1, x: 665, y: -45, req: ['master'], name: 'Lava Lamp Glow', icon: '🫧', max: 3, cost: (l) => 180 + l * 90, desc: '+25 max HP and +20 max shield per rank', apply: (s, l) => { s.maxHp += 25 * l; s.maxShield += 20 * l; } },
+  { id: 'lava', endless: true, branch: 1, x: 665, y: -45, req: ['master'], name: 'Lava Lamp Glow', icon: '🫧', max: 3, cost: (l) => 180 + l * 90, desc: '+25 max HP and +20 max shield per rank', apply: (s, l) => { s.maxHp += 25 * l; s.maxShield += 20 * l; } },
   { id: 'slinky', branch: 1, x: 755, y: -165, req: ['lava'], capstone: true, name: 'Bounce Back', icon: '🌈', max: 1, cost: () => 700, desc: 'FINALE · +1 revive every run, and take 15% less damage', apply: (s, l) => { s.revive += l; s.armor = 1 - (1 - s.armor) * (1 - 0.15 * l); } },
   { id: 'shades', premium: true, branch: 1, x: 945, y: -50, req: ['guardians'], name: 'Too Cool to Hit', icon: '🕶️', max: 3, cost: (l) => 220 + l * 100, desc: '+7% dodge per rank', apply: (s, l) => (s.dodge += 0.07 * l) },
   { id: 'pet', premium: true, branch: 1, x: 900, y: -170, req: ['shades'], capstone: true, name: 'Pocket Pet', icon: '🥚', max: 1, cost: () => 800, desc: 'FINALE · +100 max shield, the shield recharges 40% sooner, and your companion takes 25% less damage', apply: (s, l) => { s.maxShield += 100 * l; s.shieldDelay *= 1 - 0.4 * l; s.companionArmor = 1 - (1 - s.companionArmor) * (1 - 0.25 * l); } },
@@ -487,13 +498,13 @@ TALENTS.push(
 );
 // ---- Buddy System (right): a whole constellation for the friends at your side. Nothing here changes your own kid. ----
 TALENTS.push(
-  { id: 'buddy', branch: 3, x: 705, y: 515, req: [], name: 'Fist Bump', icon: '🤜', max: 5, cost: (l) => 15 + l * 15, desc: 'Friends deal +8% damage per rank', apply: (s, l) => (s.companionDmg *= 1 + 0.08 * l) },
-  { id: 'snacks', branch: 3, x: 840, y: 455, req: ['buddy'], name: 'Shared Snacks', icon: '🍫', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends have +25 max HP per rank', apply: (s, l) => (s.mateHp += 25 * l) },
+  { id: 'buddy', endless: true, branch: 3, x: 705, y: 515, req: [], name: 'Fist Bump', icon: '🤜', max: 5, cost: (l) => 15 + l * 15, desc: 'Friends deal +8% damage per rank', apply: (s, l) => (s.companionDmg *= 1 + 0.08 * l) },
+  { id: 'snacks', endless: true, branch: 3, x: 840, y: 455, req: ['buddy'], name: 'Shared Snacks', icon: '🍫', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends have +25 max HP per rank', apply: (s, l) => (s.mateHp += 25 * l) },
   { id: 'walkie', branch: 3, x: 840, y: 600, req: ['buddy'], name: 'Walkie Check', icon: '📻', max: 3, cost: (l) => 25 + l * 20, desc: 'Friends fire 8% faster per rank', apply: (s, l) => (s.mateRate *= 1 + 0.08 * l) },
   { id: 'backup', branch: 3, x: 975, y: 525, req: ['snacks', 'walkie'], name: 'Got Your Back', icon: '🛡️', max: 3, cost: (l) => 40 + l * 25, desc: 'Friends take 8% less damage per rank', apply: (s, l) => (s.companionArmor = 1 - (1 - s.companionArmor) * (1 - 0.08 * l)) },
   { id: 'sleepover', branch: 3, x: 965, y: 685, req: ['walkie'], name: 'Sleepover Plans', icon: '🛏️', max: 1, cost: () => 150, desc: 'A friend is at your side from the start of every survival night', apply: (s, l) => (s.mateStart += l) },
   { id: 'bff', branch: 3, x: 1115, y: 525, req: ['backup'], capstone: true, name: 'Best Friends Forever', icon: '💞', max: 1, cost: () => 260, desc: 'CAPSTONE · A friend who goes down gets back up on their own after 12 seconds', apply: (s, l) => { if (l) s.mateUp = 12; } },
-  { id: 'stickers', branch: 3, x: 1250, y: 455, req: ['bff'], name: 'Sticker Swap', icon: '🎒', max: 3, cost: (l) => 180 + l * 90, desc: 'Friends deal +12% damage and have +15 max HP per rank', apply: (s, l) => { s.companionDmg *= 1 + 0.12 * l; s.mateHp += 15 * l; } },
+  { id: 'stickers', endless: true, branch: 3, x: 1250, y: 455, req: ['bff'], name: 'Sticker Swap', icon: '🎒', max: 3, cost: (l) => 180 + l * 90, desc: 'Friends deal +12% damage and have +15 max HP per rank', apply: (s, l) => { s.companionDmg *= 1 + 0.12 * l; s.mateHp += 15 * l; } },
   { id: 'double', branch: 3, x: 1390, y: 520, req: ['stickers'], capstone: true, name: 'Double Team', icon: '🔫', max: 1, cost: () => 700, desc: 'FINALE · Every friend fires +1 projectile', apply: (s, l) => (s.matePellets += l) },
   { id: 'borrow', premium: true, branch: 3, x: 1100, y: 680, req: ['backup'], name: 'Hand-Me-Down Blaster', icon: '🎁', max: 2, cost: (l) => 80 + l * 80, desc: 'Friends bring a gun one rarity better per rank', apply: (s, l) => (s.mateGun += l) },
   { id: 'sharpeye', premium: true, branch: 3, x: 1235, y: 620, req: ['borrow'], name: 'Eagle-Eyed Pals', icon: '🔭', max: 3, cost: (l) => 80 + l * 45, desc: 'Friends land critical hits for double damage: +10% chance per rank', apply: (s, l) => (s.mateCrit += 0.1 * l) },
@@ -539,7 +550,7 @@ export const GIVE_LINES = ['Here you go, sweetie!', 'Take two, I won\'t tell!', 
 const SAVE_KEY = 'tot_survivors_save_v1';
 /** Essence earned over all runs (spent or not) above which the full game unlocks without buying it */
 export const ESSENCE_UNLOCK = 15000;
-export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number }
+export interface Save { soul: number; talents: Record<string, number>; best: number; hero: number; bestWave?: number; /** Essence ever earned: spending it on talents does not lower this */ earned?: number; /** the latest night reached by killing the Hollow Beyond: a run can start there (2 = wave 26) */ checkpoint?: number }
 /** what a save has earned in total: its own count, or (older saves) what it holds plus what its talents cost */
 export function essenceEarned(s: Save) {
   // a save that already keeps count is taken at its word: a talent refund at today's prices must not count as earning
@@ -558,10 +569,12 @@ export function loadSave(): Save {
     const finite = (v: unknown) => typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
     const talents: Record<string, number> = {};
     for (const tal of TALENTS) {
-      const rank = Math.min(tal.max, finite(s.talents?.[tal.id]));
+      const rank = Math.min(talentCap(tal), finite(s.talents?.[tal.id]));
       if (rank) talents[tal.id] = rank;
     }
-    const save: Save = { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave), earned: finite(s.earned) };
+    const save: Save = { soul: finite(s.soul), talents, best: finite(s.best), hero: Math.min(4, finite(s.hero)), bestWave: finite(s.bestWave), earned: finite(s.earned),
+      // saves from before the giant could fall: reaching it (all 24 bosses beaten) counts as the first checkpoint
+      checkpoint: s.checkpoint === undefined ? (finite(s.bestWave) >= 25 ? 2 : 0) : finite(s.checkpoint) };
     save.earned = essenceEarned(save);
     syncEarnedUnlock(save);
     return save;
@@ -576,7 +589,7 @@ export function storeSave(s: Save) {
 }
 
 export function applyTalents(s: Stats, t: Record<string, number>) {
-  for (const tal of TALENTS) if (t[tal.id] && (!tal.premium || hasFullGame())) tal.apply(s, Math.min(tal.max, Math.max(0, t[tal.id])));
+  for (const tal of TALENTS) if (t[tal.id] && (!tal.premium || hasFullGame())) tal.apply(s, Math.min(talentCap(tal), Math.max(0, t[tal.id])));
 }
 
 // ================= HEROES (skills) =================

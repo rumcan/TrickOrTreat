@@ -166,7 +166,7 @@ export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean
         if (!tr) return null;
         const st = INSC_STYLE[tr.tier];
         return (
-          <div key={i} className={`${big ? 'border-l-[3px] pl-2.5 text-[13px]' : 'text-[11px]'} leading-snug`} style={{ borderColor: st.color }}>
+          <div key={i} className={`${big ? 'border-l-[3px] pl-2.5 text-[13px]' : compact ? 'line-clamp-2 text-[11px]' : 'text-[11px]'} leading-snug`} style={{ borderColor: st.color }} title={compact ? `${tr.name}: ${tr.desc}` : undefined}>
             <span className="font-bold" style={{ color: st.color }}>{st.glyph} {tr.name}</span>
             {big && <span className="ml-1.5 font-cond2 text-[10px] font-bold uppercase tracking-widest text-[#6c7280]">{st.label}</span>}
             {big ? <div className="text-[#d8cfbb]">{tr.desc}</div> : <span className="text-[#9aa0a6]"> {tr.desc}</span>}

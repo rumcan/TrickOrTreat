@@ -50,11 +50,23 @@ try{
    g.startEndless();fail(g.endless&&g.wave===25,'Wave25 must be the survival finale');
    g.time=g.nextBossAt;g.updateEndless(.01);g.director(10);
    const final=g.boss;fail(final?.type===FINAL_BOSS&&g.enemies.length===1,'Final giant must have absolutely no escorts');
-   const hp=final.hp,kills=g.kills;g.damageEnemy(final,1e30,'#fff',true);g.killEnemy(final);
-   fail(!final.dead&&final.hp===hp&&g.kills===kills&&final.shield===0,'Final giant must be invulnerable with finite health and no fake shield');
+   const last=rounds[rounds.length-1];
+   fail(final.maxHp>=last.hp*4&&final.maxShield>0,'Final giant must be far tougher than the last boss');
    final.p1=0;g.bossAI(final,.01,3,3,4);
    fail(final.strikes.length===3,'Final tentacle attacks must be telegraphed');
-   fail(g.snapshot().boss.invulnerable&&g.snapshot().bossIn===null,'HUD must explain final survival encounter');
+   fail(!g.snapshot().boss.invulnerable&&g.snapshot().bossIn===null,'HUD must show the final giant health');
+   const before=final.hp;g.damageEnemy(final,1000,'#fff',true);fail(final.hp+final.shield<before+final.maxShield,'Final giant must take damage');
+   g.prizes0=g.bossPrizes.length;g.killEnemy(final);g.bossBreak=false;
+   fail(final.dead&&g.night===2&&g.wave===1&&g.bossRound===0&&!g.endless&&!g.bossKilled&&!g.boss,'Killing the final giant must start the waves over');
+   fail(g.bossPrizes.length===g.prizes0+1,'The final giant must leave a prize');
+   const lt=g.spawnEnemy(NEW_BOSS_FAMILIES[0].id+'_a',g.p.x+5,g.p.y),cp=g.spawnEnemy(NEW_BOSS_FAMILIES[0].id+'_a',g.p.x+5,g.p.y,true);
+   fail(lt.rank===1&&lt.maxShield>0&&!lt.captain,'Night 2 monsters must be lieutenants');
+   fail(cp.rank===2&&cp.captain&&cp.maxHp>lt.maxHp,'Night 2 elites must be captains');
+   g.enemies=[];g.ebullets=[];cp.spellT=0;cp.spawnT=0;cp.x=g.p.x+3;cp.y=g.p.y;g.enemies=[cp];g.updateEnemies(.01);
+   fail(g.ebullets.length>=3,'Captains must cast spells');
+   const ladder=[];for(const n of [3,4,5,6,9]){g.night=n;ladder.push([g.spawnEnemy(NEW_BOSS_FAMILIES[0].id+'_a',g.p.x+5,g.p.y).rank,g.spawnEnemy(NEW_BOSS_FAMILIES[0].id+'_a',g.p.x+5,g.p.y,true).rank]);}
+   fail(JSON.stringify(ladder)==='[[2,3],[3,4],[4,5],[5,6],[5,6]]','Every giant must promote the ranks, up to the fifth: '+JSON.stringify(ladder));
+   g.night=2;g.enemies=[];g.ebullets=[];
    runs.push({campaign,rounds});
   }
   const g=make(true),friend=g.friends[0];
@@ -77,5 +89,5 @@ try{
  assert.equal(result.runs.length,2);
  assert.ok(result.abduction&&result.carCharge);
  assert.deepEqual(errors,[]);
- console.log('24 unique waves × free/campaign; 40 themed minion types; capped escorts; all boss attacks; 20s skippable shopping; unstoppable solo finale; 30s saucer abduction and driven-car charge: PASS');
+ console.log('24 unique waves × free/campaign; 40 themed minion types; capped escorts; all boss attacks; 20s skippable shopping; killable solo finale that starts night 2 with lieutenants and spell-casting captains; 30s saucer abduction and driven-car charge: PASS');
 }finally{await browser.close();}

@@ -52,7 +52,7 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () 
 /** The art Atlas is strictly a development tool and is never exposed by the production menu. */
 const SHOW_ATLAS = import.meta.env.DEV;
 
-export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void }) {
+export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars, onCheckpoint }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void; onCheckpoint?: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
   const [showcase, setShowcase] = useState(false);
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
@@ -98,7 +98,10 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
                 <p className="mt-1 hidden text-xs text-[#9aa0a6] sm:block">{hero.skillDesc}</p>
                 {!allowed && <p className="mt-1 text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
               </div>
-              <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-play w-full sm:w-auto">Go trick-or-treating</KitButton>
+              <div className="flex w-full flex-col-reverse items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
+                {onCheckpoint && (save.checkpoint ?? 0) >= 2 && <KitButton size="sm" variant="dark" disabled={!allowed} onClick={onCheckpoint} className="w-full sm:w-auto" aria-label={`Checkpoint: start at wave ${(save.checkpoint! - 1) * 25 + 1}, night ${save.checkpoint}`}>Checkpoint · wave {(save.checkpoint! - 1) * 25 + 1}</KitButton>}
+                <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-play w-full sm:w-auto">Go trick-or-treating</KitButton>
+              </div>
             </div>
           </section>
           </div>
@@ -403,11 +406,11 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
     return () => window.removeEventListener('keydown', h);
   });
   const mode = game.choiceMode;
-  const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : 'Level up!';
+  const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : mode === 'boss' ? (game.time < 1 ? 'Checkpoint kit' : 'Boss down!') : 'Level up!';
   const houseNote = mode === 'house' ? ` · ${game.choiceRewardRange.label}: a treat or a gun` : '';
   const kicker = mode === 'house'
     ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: better treats' : 'choose one reward'}${houseNote}`
-    : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;
+    : mode === 'shop' ? "The Candy Lady's mystery bag" : mode === 'boss' ? `Boss prize · ${game.choiceRewardRange.label} · Epic guns far more often · choose one` : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;
   const friend = mode === 'house' ? game.friendChoice : null;
   const n = game.choices.length + game.gunChoices.length + (friend === null ? 0 : 1);
   const locked = game.lockedChoice;
@@ -583,13 +586,13 @@ export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; 
   const win = game.state === 'victory';
   // The night always ends at the talent constellations: spend what was earned, then play again or leave from there.
   if (panel === 'talents') return <TalentTree save={game.save} onBack={onTitle} backLabel="Main menu" onAgain={onAgain} earned={game.soulEarned} />;
-  const rows: [string, number][] = [['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses], ...(game.wave ? [[`Endless waves (${game.wave})`, game.essence.waves] as [string, number]] : [])];
+  const rows: [string, number][] = [['Collected XP converted', game.essence.combat], ['Monsters defeated', game.essence.kills], ['Time survived', game.essence.survival], [`Bosses defeated (${game.bossWins})`, game.essence.bosses], ...(game.wave ? [[`Waves (${game.totalWave})`, game.essence.waves] as [string, number]] : [])];
   return (
     <div className="end-screen">
       <div className="end-column">
         <img src={ART.kitLogo} alt="" draggable={false} className="mx-auto mb-3 w-[min(260px,62vw)]" />
         {win || game.victorious
-          ? <Banner kind="mission" title={game.victorious ? `Wave ${game.wave}` : 'Mission complete'} sub={game.victorious ? `Night beaten · endless best ${game.save.bestWave ?? game.wave}${(game.save.bestWave ?? 0) <= game.wave ? ' · new record!' : ''}` : 'The Pumpkin King has been smashed'} size="lg" className="kit-pop" />
+          ? <Banner kind="mission" title={game.victorious ? (game.night > 1 ? `Night ${game.night} · Wave ${game.wave}` : `Wave ${game.wave}`) : 'Mission complete'} sub={game.victorious ? `Night beaten · best ${game.save.bestWave ?? game.totalWave} waves${(game.save.bestWave ?? 0) <= game.totalWave ? ' · new record!' : ''}` : 'The Pumpkin King has been smashed'} size="lg" className="kit-pop" />
           : <img src={ART.youDied} alt="You died. The monsters got you this time." width={1240} height={239} draggable={false} className="end-plate kit-pop" />}
         <section className="end-panel">
           <div className="paper-kicker">Tonight's run</div>
