@@ -48,7 +48,9 @@ export interface Barrier {
   under: number[];
   cleared: boolean;
 }
-export interface LightSrc { x: number; y: number; r: number; color: string; i: number; flicker: number }
+export interface LightSrc { x: number; y: number; r: number; color: string; i: number; flicker: number;
+  /** a custom colour picked in the town builder (washes the pool in it at night) · a four-sided light: its corners as offsets from x,y (tiles) */
+  tint?: string; quad?: [number, number][] }
 export interface HouseInst {
   prop: PropInst;
   door: { x: number; y: number };

@@ -29,7 +29,7 @@ import {ArcadeRecruit} from './ui/ArcadeRecruit';
 
 type Screen = 'loading' | 'title' | 'chars' | 'talents' | 'atlas' | 'game';
 
-function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; onExit: () => void }) {
+function GameView({ save, campaign, night, onExit }: { save: Save; campaign: boolean; night: number; onExit: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [snap, setSnap] = useState<HudSnap | null>(null);
@@ -42,7 +42,8 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
     const cv = canvasRef.current!;
     const input = new Input(cv);
     const game = new Game(save.hero, save, input, campaign);
-    if (tutorialWanted()) game.startTutorial(); // a first-timer's night starts with Professor Fizz on the walkie
+    if (night > 1) game.startAtNight(night); // a checkpoint: that night's harder monsters from wave 1
+    else if (tutorialWanted()) game.startTutorial(); // a first-timer's night starts with Professor Fizz on the walkie
     const renderer = new Renderer(cv, game.hero);
     gameRef.current = game;
     if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) (window as unknown as { __tot: unknown }).__tot = { game, renderer };
@@ -74,7 +75,7 @@ function GameView({ save, campaign, onExit }: { save: Save; campaign: boolean; o
       cancelAnimationFrame(raf);
       input.destroy();
     };
-  }, [runId, save, campaign]);
+  }, [runId, save, campaign, night]);
 
   const g = gameRef.current;
   const refresh = useCallback(() => setTick((n) => n + 1), []);
@@ -136,9 +137,11 @@ export default function App() {
   const [artProblem, setArtProblem] = useState(false);
   const [save, setSave] = useState<Save>(() => loadSave());
   const [campaign, setCampaign] = useState(false);
+  /** 1 for a normal run; a checkpoint night (see Save.checkpoint) to start there */
+  const [night, setNight] = useState(1);
   useEffect(() => { void expansion.restore(); }, []);
   // Hide & Shriek is shelved (see CAMPAIGN_OPEN): whoever plays, the night starts the same way, with the tutorial or without
-  const start = (rescue: boolean) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(campaignOffered() && rescue); setScreen('game'); };
+  const start = (rescue: boolean, from = 1) => { if (rescue && !hasFullGame()) return; requestMobileFullscreen(); if (save.hero >= 3 && !hasFullGame()) setSave({ ...save, hero: 0 }); setCampaign(campaignOffered() && rescue); setNight(campaignOffered() && rescue ? 1 : from); setScreen('game'); };
 
   useEffect(() => {
     const unlock = (event: Event) => {
@@ -200,11 +203,11 @@ export default function App() {
       {screen !== 'game' && <header className="absolute left-3 top-3 z-50 sm:left-5 sm:top-4"><RadioPill compact /></header>}
       {/* phones: the sub-screens' own Back buttons sit below the fold, so one is pinned in the corner */}
       {(screen === 'chars' || screen === 'talents' || screen === 'atlas') && <button type="button" className="modal-close modal-close--over" aria-label="Back to the title" onClick={toTitle}><X size={20} strokeWidth={3} /></button>}
-      {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} />}
+      {screen === 'title' && <Title save={save} setHero={setHero} onPlay={() => start(hasFullGame())} onCampaign={() => start(true)} onTalents={() => setScreen('talents')} onAtlas={() => setScreen('atlas')} onChars={() => setScreen('chars')} onCheckpoint={() => start(false, save.checkpoint ?? 1)} />}
       {screen === 'chars' && <CharSelect save={save} setHero={setHero} onBack={toTitle} onPlay={() => start(hasFullGame())} />}
       {screen === 'talents' && <TalentTree save={save} onBack={toTitle} />}
       {screen === 'atlas' && <Atlas onBack={toTitle} />}
-      {screen === 'game' && <GameView save={save} campaign={campaign} onExit={toTitle} />}
+      {screen === 'game' && <GameView save={save} campaign={campaign} night={night} onExit={toTitle} />}
     </div>
   );
 }

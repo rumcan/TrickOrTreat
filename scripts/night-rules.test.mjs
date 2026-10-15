@@ -27,11 +27,11 @@ try {
     // ---- nothing for walking in and out ----
     { const g = make(); g.endRun(false); out.quit = { earned: g.soulEarned, soul: g.save.soul }; }
 
-    // ---- a level-up waits for the doorbell ----
+    // ---- a boss prize waits for the doorbell ----
     {
       const g = make(), h = g.tutorialHouse; h.trick = false;
       g.startTot(h);
-      g.pendingLevels = 2; g.p.level += 2;
+      g.bossPrizes = [{ n: 3, luck: 0 }, { n: 3, luck: 0 }];
       const seen = [];
       for (let i = 0; i < 30 * 8 && seen.length < 4; i++) {
         g.update(1 / 30);
@@ -144,7 +144,7 @@ try {
     return out;
   });
   assert.deepEqual(engine.quit, { earned: 0, soul: 0 }, 'Starting a run and leaving it earns no Essence');
-  assert.deepEqual(engine.order.slice(0, 3), ['house', 'level', 'level'], `A level-up waits for the doorbell: the bowl comes first, then the level-ups (${engine.order})`);
+  assert.deepEqual(engine.order.slice(0, 3), ['house', 'boss', 'boss'], `A boss prize waits for the doorbell: the bowl comes first, then the prizes (${engine.order})`);
   assert.deepEqual(engine.revive.lost, { inTeam: false, list: [1], offer: [1], cost: 120 }, 'A friend nobody reached is out for the night, and the shop offers to bring them back');
   assert.equal(engine.revive.broke, false, 'Not without the coins');
   assert.deepEqual(engine.revive.back, { inTeam: true, full: true, near: true, coins: 380, lostLeft: 0, next: 180, gun: true }, 'The shop brings the friend back beside the kid at full health; the next one costs more');

@@ -16,7 +16,7 @@ interface Box {hx:number;hy:number;dx:number;dy:number}
 interface Item {glows?:{x:number;y:number;r:number}[];name:string;cat:string;file:string;w:number;h:number;ax:number;ay:number;boxes:Box[];kind:string;door?:boolean;doorAt?:{u:number;v:number};solid:number;big:boolean;shadow?:boolean}
 interface Town {frame:{X0:number;Y0:number;map:number;gx0:number;gy0:number;tile:number;cols:number;rows:number;width:number;height:number;overviewScale:number};
  ids:string[];items:Record<string,Item>;props:[number,number,number,number,number,number,number][];ground:string;outside:string;
- night?:Night;lights?:[number,number,number,number,string][]}
+ night?:Night;lights?:[number,number,number,number,string,string?,([number,number][]|0)?][]}
 export interface GroundTile {x:number;y:number;w:number;h:number;url:string;img:Img|null;loading:boolean;used:number}
 export interface Night {tint:string;strength:number;desat:number;dark:number;feather:number;warmth:number;torch:number;glowSize:number;glowStrength:number}
 export interface BuiltGround {tiles:GroundTile[];overview:Img;overviewRect:{x:number;y:number;w:number;h:number};night:Night|null}
@@ -100,7 +100,7 @@ function build():GameMap{
   if(kind==='gazebo')gazebos.push(p);
  }
  // the night lights set in the town builder (lamps, porches, windows, pumpkins...); each door owns its nearest one
- if(T.lights){for(const [x,y,r,i,type] of T.lights)lights.push({x,y,r,i,color:type==='neon'?'#ff7ad9':type==='pumpkin'||type==='fire'?'#ff8a2a':'#ffbe5c',flicker:type==='pumpkin'||type==='lantern'||type==='fire'?1:0});
+ if(T.lights){for(const [x,y,r,i,type,tint,sq] of T.lights)lights.push({x,y,r,i,color:tint||(type==='neon'?'#ff7ad9':type==='pumpkin'||type==='fire'?'#ff8a2a':'#ffbe5c'),flicker:type==='pumpkin'||type==='lantern'||type==='fire'?1:0,...(tint?{tint}:{}),...(Array.isArray(sq)&&sq.length===4?{quad:sq}:{})});
   for(const h of houses){let best:LightSrc|null=null,d=3;for(const l of lights){const q=Math.hypot(l.x-h.door.x,l.y-h.door.y);if(q<d){d=q;best=l;}}
    if(!best){best={x:h.door.x,y:h.door.y-.2,r:2.5,color:'#ffbe5c',i:.9,flicker:0};lights.push(best);}h.light=best;h.lightI=best.i;}}
  // keep every door, shop counter and cannon deck usable: a decoration standing on it gives way
@@ -192,15 +192,22 @@ export function drawBuiltGround(ctx:CanvasRenderingContext2D,gr:BuiltGround,vx0:
 const OWNERS=['Mrs. Henderson','Mr. Kowalski','Old Man Jenkins','The Nguyens','Ms. Petrova','Grandma Rose','Coach Miller','Dr. Alvarez','The Johnsons','Mrs. Okafor','Mr. Bellamy','The Pruitts','Mrs. Abbott','The Bakers','Mr. Ruiz'];
 
 /** The town builder's night (scripts/town-builder/app/night-light.js applyNight): moonlight over the finished frame,
- *  the painted colour back inside every light and the kid's torch. lights: {sx,sy,rx,ry,i} in canvas pixels; cone:
- *  the torch beam (apex, angle, length in canvas pixels). */
+ *  the painted colour back inside every light and the kid's torch. lights: {sx,sy,rx,ry,i} in canvas pixels, or a
+ *  square light's 4 corners (quad) with a soft edge (blur, px); tint washes a light in a picked colour. cone: the torch
+ *  beam (apex, angle, length in canvas pixels). */
+export interface NightLight {sx:number;sy:number;rx:number;ry:number;i:number;torch?:boolean;tint?:string;quad?:[number,number][];blur?:number}
+const tints=new Map<string,HTMLCanvasElement>();
+function tintDisc(color:string){let c=tints.get(color);if(c)return c;const N=128;c=rawCanvas(N,N);const g=c.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2);
+ gr.addColorStop(0,color);gr.addColorStop(.6,color+'80');gr.addColorStop(1,color+'00');g.fillStyle=gr;g.fillRect(0,0,N,N);tints.set(color,c);return c;}
+function quadPath(g:CanvasRenderingContext2D,q:[number,number][]){g.beginPath();g.moveTo(q[0][0],q[0][1]);for(let k=1;k<q.length;k++)g.lineTo(q[k][0],q[k][1]);g.closePath();}
+function quadOff(q:[number,number][],W:number,H:number){return q.every(p=>p[0]<0)||q.every(p=>p[1]<0)||q.every(p=>p[0]>W)||q.every(p=>p[1]>H);}
 const scratch:{orig?:HTMLCanvasElement;mask?:HTMLCanvasElement}={},discs=new Map<number,HTMLCanvasElement>();let warm:HTMLCanvasElement|null=null;
 function disc(feather:number){const key=Math.round(feather*100);let c=discs.get(key);if(c)return c;const N=256;c=rawCanvas(N,N);const g=c.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2),f=Math.min(.98,Math.max(.02,feather));
  gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1-f,'rgba(255,255,255,1)');for(let k=1;k<=8;k++){const t=k/8;gr.addColorStop(1-f+f*t,`rgba(255,255,255,${(1-t*t*(3-2*t)).toFixed(3)})`);}
  g.fillStyle=gr;g.fillRect(0,0,N,N);discs.set(key,c);return c;}
 function warmDisc(){if(warm)return warm;const N=128;warm=rawCanvas(N,N);const g=warm.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2);
  gr.addColorStop(0,'rgba(255,170,70,1)');gr.addColorStop(.6,'rgba(255,150,60,.5)');gr.addColorStop(1,'rgba(255,140,50,0)');g.fillStyle=gr;g.fillRect(0,0,N,N);return warm;}
-export function applyNight(ctx:CanvasRenderingContext2D,night:Night,lights:{sx:number;sy:number;rx:number;ry:number;i:number;torch?:boolean}[],cone:{x:number;y:number;a:number;len:number}|null){
+export function applyNight(ctx:CanvasRenderingContext2D,night:Night,lights:NightLight[],cone:{x:number;y:number;a:number;len:number}|null){
  const W=ctx.canvas.width,H=ctx.canvas.height;
  for(const k of ['orig','mask'] as const){let c=scratch[k];if(!c)c=scratch[k]=rawCanvas(W,H);if(c.width!==W||c.height!==H){c.width=W;c.height=H;}}
  const orig=scratch.orig!,mask=scratch.mask!,o=orig.getContext('2d')!;o.globalCompositeOperation='copy';o.drawImage(ctx.canvas,0,0);o.globalCompositeOperation='source-over';
@@ -209,12 +216,17 @@ export function applyNight(ctx:CanvasRenderingContext2D,night:Night,lights:{sx:n
  ctx.globalCompositeOperation='multiply';ctx.globalAlpha=night.strength;ctx.fillStyle=night.tint;ctx.fillRect(0,0,W,H);
  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=night.dark;ctx.fillStyle='#03030c';ctx.fillRect(0,0,W,H);
  const m=mask.getContext('2d')!,d=disc(night.feather);m.globalCompositeOperation='source-over';m.globalAlpha=1;m.clearRect(0,0,W,H);m.globalCompositeOperation='lighter';
- for(const l of lights){if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;m.globalAlpha=Math.min(1,l.i);m.drawImage(d,l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}
+ for(const l of lights){if(l.quad){if(quadOff(l.quad,W,H))continue;m.globalAlpha=Math.min(1,l.i);m.filter=`blur(${Math.max(.5,l.blur||0).toFixed(1)}px)`;m.fillStyle='#fff';quadPath(m,l.quad);m.fill();m.filter='none';continue;}
+  if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;m.globalAlpha=Math.min(1,l.i);m.drawImage(d,l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}
  if(cone){const gr=m.createRadialGradient(cone.x,cone.y,0,cone.x,cone.y,cone.len);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.55,'rgba(255,255,255,.7)');gr.addColorStop(1,'rgba(255,255,255,0)');
   m.globalAlpha=1;m.fillStyle=gr;m.beginPath();m.moveTo(cone.x,cone.y);m.arc(cone.x,cone.y,cone.len,cone.a-.42,cone.a+.42);m.closePath();m.fill();}
  m.globalAlpha=1;m.globalCompositeOperation='source-in';m.drawImage(orig,0,0);
  ctx.globalAlpha=1;ctx.drawImage(mask,0,0);
- if(night.warmth>0){ctx.globalCompositeOperation='soft-light';const w=warmDisc();
-  for(const l of lights){if(l.torch||l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;ctx.globalAlpha=Math.min(1,night.warmth*l.i);ctx.drawImage(w,l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}}
+ // a little warmth in the pools, or the light's own picked colour
+ for(const op of ['soft-light','screen'] as const){ctx.globalCompositeOperation=op;
+  for(const l of lights){if(l.torch||(!l.tint&&(op==='screen'||!(night.warmth>0))))continue;
+   ctx.globalAlpha=Math.min(1,l.tint?(op==='screen'?.22:.4+night.warmth*.5)*l.i:night.warmth*l.i);
+   if(l.quad){if(quadOff(l.quad,W,H))continue;ctx.filter=`blur(${Math.max(.5,l.blur||0).toFixed(1)}px)`;ctx.fillStyle=l.tint||'#ff9a40';quadPath(ctx,l.quad);ctx.fill();ctx.filter='none';continue;}
+   if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;ctx.drawImage(l.tint?tintDisc(l.tint):warmDisc(),l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}}
  ctx.restore();
 }
