@@ -228,7 +228,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
             </div>
           </div>
           <p className="mt-3 text-[15px] font-semibold leading-snug text-[#f2e8d4]">{focus.desc}</p>
-          {focus.endless && <p className="mt-1.5 font-cond2 text-[13px] font-bold uppercase tracking-[0.08em] text-[#ffc94d]">Endless · keeps ranking up past {focus.max}, each rank 12% dearer</p>}
+          {focus.endless && <p className="mt-1.5 font-cond2 text-[13px] font-bold uppercase tracking-[0.08em] text-[#ffc94d]">Endless · keeps ranking up past {focus.max}, each extra rank nearly double the last</p>}
           <div className="mt-3 flex items-center gap-1.5">
             {Array.from({ length: focus.max }).map((_, k) => (
               <div key={k} className="talent-rank h-2.5 flex-1" style={{ background: k < fl ? fc : '#0f1518', borderColor: k < fl ? fc : undefined }} />

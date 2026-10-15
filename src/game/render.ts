@@ -12,7 +12,7 @@ import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 import { AFFIX_INFO } from './enemy-affixes';
 import {arcadeStaffSheet} from './art/arcade-staff';
-import {drawBuiltGround,applyNight} from './town-built';
+import {drawBuiltGround,applyNight,NightLight} from './town-built';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -657,7 +657,17 @@ export class Renderer {
     if (night) {
       // the town builder's night: moonlight everywhere, the painted colour back inside every light and round the kid
       const pk = g.p, k = dpr * zoom, sxw = (x: number, y: number) => (isoX(x, y) - camX) * k + this.canvas.width / 2, syw = (x: number, y: number) => (isoY(x, y) - camY) * k + this.canvas.height / 2;
-      const nl: { sx: number; sy: number; rx: number; ry: number; i: number; torch?: boolean }[] = m.lights.map(L => ({ sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i: L.flicker ? L.i * (0.88 + Math.sin(this.t * 11 + L.x * 7) * 0.08) : L.i }));
+      const nl: NightLight[] = m.lights.map(L => {
+        const i = L.flicker ? L.i * (0.88 + Math.sin(this.t * 11 + L.x * 7) * 0.08) : L.i;
+        if (L.quad) { // a four-sided light from the town builder (any shape its handles made), with a soft edge
+          const q = L.quad, quad = q.map(([u, v]) => [sxw(L.x + u, L.y + v), syw(L.x + u, L.y + v)] as [number, number]);
+          // the soft edge reaches half the shape's narrowest width in
+          let inner = Infinity;
+          for (let n = 0; n < 4; n++) { const a = q[n], b = q[(n + 1) % 4], ex = b[0] - a[0], ey = b[1] - a[1], l = Math.hypot(ex, ey) || 1; let far = 0; for (const p of q) far = Math.max(far, Math.abs((p[0] - a[0]) * ey - (p[1] - a[1]) * ex) / l); inner = Math.min(inner, far / 2); }
+          return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: 0, ry: 0, i, tint: L.tint, quad, blur: night.feather * Math.max(0.125, inner) * HW * 1.414 * k * 0.5 };
+        }
+        return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i, tint: L.tint };
+      });
       for (const pr of m.props) { if (!pr.glows || pr.removed || pr.wreck) continue; const ax = isoX(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2), ay = isoY(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2);
         if (ax < camX - this.canvas.width / k / 2 - 400 || ax > camX + this.canvas.width / k / 2 + 400 || ay < camY - this.canvas.height / k / 2 - 300 || ay > camY + this.canvas.height / k / 2 + 600) continue;
         const fa = pr.fade ?? 1; for (const gl of pr.glows) nl.push({ sx: (ax + gl.x - camX) * k + this.canvas.width / 2, sy: (ay + gl.y - camY) * k + this.canvas.height / 2, rx: gl.r * k, ry: gl.r * k, i: night.glowStrength * fa }); }

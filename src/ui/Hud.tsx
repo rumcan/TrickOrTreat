@@ -286,7 +286,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
 
       {/* nearby gun / costume: comparison on the right, the E slip under it */}
       {s.interact && !s.turret && (s.nearbyWeapon || s.nearbyCostume) && (
-        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`hm-nearby absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-1/2 w-[min(240px,calc(50vw-40px))] -translate-y-1/2 items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[96px] left-1/2 -translate-x-1/2 items-center sm:bottom-[104px]'}`}>
+        <div role={s.nearbyWeapon ? 'region' : undefined} aria-label={s.nearbyWeapon ? 'Nearby weapon comparison' : undefined} className={`hm-nearby absolute flex flex-col gap-2 ${s.nearbyWeapon ? 'right-3 top-[208px] w-[min(240px,calc(50vw-40px))] items-stretch md:right-[18px] md:w-auto md:max-w-[calc(50vw-40px)]' : 'bottom-[96px] left-1/2 -translate-x-1/2 items-center sm:bottom-[104px]'}`}>
           {s.nearbyCostume && (
             <div className="hidden items-end gap-2 md:flex">
               {s.costume && <div className="opacity-70"><CostumeCard id={s.costume} hero={hero} title="Wearing" /></div>}
@@ -294,7 +294,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             </div>
           )}
           {s.nearbyWeapon && (
-            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-440px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-end">
+            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-370px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-start">{/* top-aligned: a taller card (long inscriptions) runs off the bottom, where the box scrolls, never off the unreachable top */}
               {cur && <div className="opacity-75"><WeaponCard w={cur.w} stats={game.stats} title="Equipped" compact /></div>}
               <div className="order-first xl:order-last"><WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact /></div>
             </div>

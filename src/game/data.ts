@@ -419,8 +419,9 @@ export interface Talent {
   endless?: boolean;
 }
 
-/** what each endless rank past mastery costs on top of the last one (+12%): slower and slower, never closed */
-export const ENDLESS_STEP = 1.12;
+/** what each endless rank past mastery costs on top of the last one (x1.9, nearly double): pouring everything into one
+ *  star climbs steeply, so a grind spreads out; it is never closed */
+export const ENDLESS_STEP = 1.9;
 /** a sane ceiling for a saved rank (nobody grinds this far; it only guards a corrupt save) */
 export const RANK_LIMIT = 10000;
 export const TALENT_BRANCHES = ['Mischief', 'Costume', 'Street Smarts', 'Buddy System'];
