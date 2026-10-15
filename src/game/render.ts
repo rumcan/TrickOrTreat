@@ -664,9 +664,9 @@ export class Renderer {
           // the soft edge reaches half the shape's narrowest width in
           let inner = Infinity;
           for (let n = 0; n < 4; n++) { const a = q[n], b = q[(n + 1) % 4], ex = b[0] - a[0], ey = b[1] - a[1], l = Math.hypot(ex, ey) || 1; let far = 0; for (const p of q) far = Math.max(far, Math.abs((p[0] - a[0]) * ey - (p[1] - a[1]) * ex) / l); inner = Math.min(inner, far / 2); }
-          return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: 0, ry: 0, i, tint: L.tint, quad, blur: night.feather * Math.max(0.125, inner) * HW * 1.414 * k * 0.5 };
+          return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: 0, ry: 0, i, tint: L.tint, quad, blur: (L.soft ?? night.feather) * Math.max(0.125, inner) * HW * 1.414 * k * 0.5 };
         }
-        return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i, tint: L.tint };
+        return { sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i, tint: L.tint, feather: L.soft };
       });
       for (const pr of m.props) { if (!pr.glows || pr.removed || pr.wreck) continue; const ax = isoX(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2), ay = isoY(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2);
         if (ax < camX - this.canvas.width / k / 2 - 400 || ax > camX + this.canvas.width / k / 2 + 400 || ay < camY - this.canvas.height / k / 2 - 300 || ay > camY + this.canvas.height / k / 2 + 600) continue;
