@@ -33,7 +33,8 @@ const DRAG_RADIUS = 56;
  * Movement on a phone: put a finger down anywhere on the play area and drag. Where it lands is the centre of an
  * invisible stick; the kid aims and fires on their own. A SECOND finger anywhere on the play area takes over the aim:
  * the kid shoots toward that finger for as long as it is held, exactly like holding the mouse button there. There is
- * nothing to see for it. Sits under the HUD, so buttons keep working.
+ * nothing to see for it. Two fingers spreading apart or pinching together right after the second one lands zoom the view
+ * instead (the kid stops while you zoom). Sits under the HUD, so buttons keep working.
  */
 export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boolean }) {
   const input = game.input;
@@ -43,6 +44,10 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
   // a quick touch that never became a drag is a tap: it does what the Interact button does
   const press = useRef({ x: 0, y: 0, at: 0, moved: 0 });
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null);
+  /** where each finger is, and the pinch in progress (null = none; 'maybe' = second finger just landed) */
+  const fingers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<null | { state: 'maybe' | 'zoom'; d0: number; z0: number; at: number }>(null);
+  const spread = () => { const [a, b] = [...fingers.current.values()]; return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0; };
   const stopAim = () => { if (aimer.current !== null) { aimer.current = null; input.mdown = false; } };
   const reset = () => { pointer.current = null; input.setTouchMove(0, 0); setStick(null); stopAim(); };
   /** the second finger is the mouse: where it is, is where the kid shoots */
@@ -69,6 +74,16 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
   useEffect(() => { if (!enabled) reset(); }, [enabled]);
   if (!enabled) return null;
   const move = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (fingers.current.has(event.pointerId)) fingers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const p = pinch.current;
+    if (p && fingers.current.size >= 2) {
+      const d = spread();
+      // the fingers moving apart or together soon after the second one lands is a pinch, not aiming
+      if (p.state === 'maybe' && Math.abs(d - p.d0) > 28 && performance.now() - p.at < 450) {
+        p.state = 'zoom'; p.d0 = d; p.z0 = game.userZoom; stopAim(); input.setTouchMove(0, 0); setStick(null);
+      }
+      if (p.state === 'zoom') { event.preventDefault(); game.userZoom = Math.max(0.85, Math.min(1.6, p.z0 * d / (p.d0 || 1))); return; }
+    }
     if (aimer.current === event.pointerId) { event.preventDefault(); aimAt(event); return; }
     if (pointer.current !== event.pointerId) return;
     event.preventDefault();
@@ -87,6 +102,15 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
     setStick({ ...origin.current, dx: dx * scale * 0.5, dy: dy * scale * 0.5 }); // the knob stays inside its small ring
   };
   const end = (event: ReactPointerEvent<HTMLDivElement>) => {
+    fingers.current.delete(event.pointerId);
+    if (pinch.current?.state === 'zoom') {
+      // a finished pinch never turns into a tap, a drag or a shot: start fresh once the fingers are off
+      if (fingers.current.size === 0) pinch.current = null;
+      if (pointer.current === event.pointerId) pointer.current = null;
+      if (aimer.current === event.pointerId) aimer.current = null;
+      input.setTouchMove(0, 0); setStick(null); return;
+    }
+    if (fingers.current.size < 2) pinch.current = null;
     if (aimer.current === event.pointerId) { stopAim(); return; }
     if (pointer.current !== event.pointerId) return;
     // New players tap the door, the bag or the gun itself, not a button at the bottom of the screen. When something
@@ -102,6 +126,8 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
         // a second finger while the first one steers: aim and fire toward it
         if (aimer.current !== null || event.pointerType === 'mouse') return;
         event.preventDefault();
+        fingers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        pinch.current = { state: 'maybe', d0: spread(), z0: game.userZoom, at: performance.now() };
         aimer.current = event.pointerId;
         event.currentTarget.setPointerCapture(event.pointerId);
         press.current.moved = 99; // two fingers down is never a tap
@@ -111,6 +137,7 @@ export function TouchMoveSurface({ game, enabled }: { game: Game; enabled: boole
       event.preventDefault();
       if (game.bigMap) { game.bigMap = false; return; } // a tap on the open map puts it away
       pointer.current = event.pointerId;
+      fingers.current.clear(); fingers.current.set(event.pointerId, { x: event.clientX, y: event.clientY }); pinch.current = null;
       press.current = { x: event.clientX, y: event.clientY, at: performance.now(), moved: 0 };
       origin.current = { x: event.clientX, y: event.clientY };
       event.currentTarget.setPointerCapture(event.pointerId);
