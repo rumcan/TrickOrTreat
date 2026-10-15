@@ -42,8 +42,12 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
   });
   if (!found) return null;
   const rc = RARITY_KIT[found.rarity];
+  // the gun's name as a brush wordmark: cream stem, orange painted tail (art/concept/gun-inspect.webp)
+  const nameWords = found.def.name.split(' ');
+  const nameHead = nameWords.slice(0, -1).join(' ');
+  const nameTail = nameWords[nameWords.length - 1];
   const mine = game.p.weapons[slot];
-  const tab = (on: boolean, color?: string) => `min-w-0 flex-1 border-2 px-2.5 py-1.5 text-left transition-colors ${on ? 'bg-[#10161a]' : 'border-[#3a4046] bg-transparent opacity-70 hover:opacity-100'}` + (on && !color ? ' border-[#f08019]' : '');
+  const tab = (on: boolean, color?: string) => `wx-tab min-w-0 flex-1 ${on ? 'is-on' : ''}` + (on && !color ? ' is-accent' : '');
   /** the tab strip: your two slots, and on a phone the find as well (there it is the only way to see each card) */
   const tabs = (phone: boolean) => (
     <div role="tablist" aria-label={phone ? 'Guns to look at' : 'Compare with one of your guns'} className={`${phone ? 'flex md:hidden' : 'hidden md:flex'} gap-1.5`}>
@@ -66,22 +70,23 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
   );
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center overflow-y-auto bg-[rgba(2,5,7,0.72)] p-3 backdrop-blur-[3px]" role="dialog" aria-label="Inspect weapon">
-      <div className="paper-panel paper-panel--rule kit-pop m-auto w-full max-w-[900px] shrink-0 !p-4 sm:!p-6" style={{ borderTopColor: found.rarity ? rc : undefined }}>
-        <div className="paper-kicker">{game.prizeGun ? 'Doorstep prize · compare before you choose' : 'Found on the ground · game paused'}</div>
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="paper-title !text-[clamp(26px,4vw,40px)]">{found.def.name}</h2>
-          <span className="font-cond2 text-sm font-bold uppercase tracking-[0.16em]" style={{ color: found.rarity ? rc : '#c9bda6' }}>{RARITY[found.rarity].name} · Lv {found.level}</span>
-        </div>
-        <span className="paper-rule" />
-        {gunTags(found).length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2"><span className="paper-kicker !mb-0">Synergy tags while in hand</span><TagChips tags={gunTags(found)} className="!justify-start" /></div>}
-        <div className="mt-4">{tabs(true)}</div>
+      <div className="wx-panel kit-pop m-auto w-full max-w-[980px] shrink-0" style={{ ['--acc' as string]: rc }}>
+        <header className="wx-head">
+          <div className="lvl-kicker">{game.prizeGun ? 'Doorstep prize · compare before you choose' : 'Found on the ground · game paused'}</div>
+          <div className="wx-head-row">
+            <h2 className="wx-title" aria-label={found.def.name}><span>{nameHead}</span> <em>{nameTail}</em></h2>
+            <span className="wx-rarity">{RARITY[found.rarity].name} · Lv {found.level}</span>
+          </div>
+        </header>
+        {gunTags(found).length > 0 && <div className="wx-tagrow"><span className="wx-taglabel">Synergy tags while in hand</span><TagChips tags={gunTags(found)} className="!justify-start" /></div>}
+        <div className="mt-3">{tabs(true)}</div>
         <div className="mt-3 grid gap-4 md:mt-0 md:grid-cols-2 md:items-start">
           <section className={view === 'found' ? '' : 'hidden md:block'} aria-label="The gun on the ground">
-            <div className="paper-kicker hidden md:block">{game.prizeGun ? 'The prize' : 'On the ground'}</div>
+            <div className="wx-plate hidden md:inline-flex">{game.prizeGun ? 'The prize' : 'On the ground'}</div>
             <WeaponCard w={found} stats={game.stats} compare={mine} bigInsc className="!w-full" />
           </section>
           <section className={view === 'mine' ? '' : 'hidden md:block'} aria-label={`Your gun in slot ${slot + 1}`}>
-            <div className="paper-kicker hidden md:block">Compare with your gun</div>
+            <div className="wx-plate hidden md:inline-flex">Compare with your gun</div>
             {tabs(false)}
             <div className="md:mt-2">
               {mine
@@ -91,17 +96,17 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
           </section>
         </div>
         {/* the choice stays in reach while the cards scroll on a small screen */}
-        <div className="sticky bottom-0 z-10 -mx-4 mt-4 flex flex-wrap items-center gap-2 border-t border-[#3a4046] px-4 pt-3 pb-1 sm:-mx-6 sm:px-6" style={{ background: 'var(--pp-paper-bg)' }}>
+        <div className="wx-foot">
           {[0, 1].map((i) => {
             const w = game.p.weapons[i];
             return (
-              <KitButton key={i} size="sm" variant={i === slot ? 'orange' : 'dark'} onClick={() => take(i)} className="min-w-0 flex-1" title={w ? `${w.def.name} is dropped on the ground` : 'The slot is empty: nothing is dropped'}>
+              <KitButton key={i} size="sm" variant={i === slot ? 'orange' : 'cream'} onClick={() => take(i)} className="wx-act min-w-0 flex-1" title={w ? `${w.def.name} is dropped on the ground` : 'The slot is empty: nothing is dropped'}>
                 <span className="mr-1 hidden sm:inline-flex"><Keycap className="!h-5 !min-w-5 !text-[11px]">{i + 1}</Keycap></span>{w ? 'Swap' : 'Equip'}<span className="hidden sm:inline">&nbsp;{w ? 'for' : 'in'}</span>&nbsp;slot {i + 1}
               </KitButton>
             );
           })}
-          <KitButton size="sm" variant="dark" onClick={leave} className="shrink-0"><span className="mr-1 hidden sm:inline-flex"><Keycap className="!h-5 !text-[11px]">{bindHint('interact', true)}</Keycap></span>{game.prizeGun ? 'Back to the prizes' : 'Leave it'}</KitButton>
-          <p className="basis-full text-[12px] text-[#8f8676]">{game.prizeGun ? 'Not worth a swap? Go back and take another prize: nothing is lost. ' : ''}Swapping drops your old gun on the ground. Monsters are frozen while you read.<span className="hidden md:inline"> Tab switches the gun you compare with.</span></p>
+          <KitButton size="sm" variant="cream" onClick={leave} className="wx-act wx-act--leave shrink-0"><span className="mr-1 hidden sm:inline-flex"><Keycap className="!h-5 !text-[11px]">{bindHint('interact', true)}</Keycap></span>{game.prizeGun ? 'Back to the prizes' : 'Leave it'}</KitButton>
+          <p className="wx-note basis-full text-[12px] text-[#8f8676]">{game.prizeGun ? 'Not worth a swap? Go back and take another prize: nothing is lost. ' : ''}Swapping drops your old gun on the ground. Monsters are frozen while you read.<span className="hidden md:inline"> Tab switches the gun you compare with.</span></p>
         </div>
       </div>
     </div>

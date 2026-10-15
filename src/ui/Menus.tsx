@@ -113,7 +113,7 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
         </header>
         <div className="title-main mx-auto flex w-full max-w-4xl flex-1 flex-col">
           <div className="title-pick flex flex-1 items-center py-5">
-          <section aria-label="Character selection" className="title-panel kit-panel nx-leafy w-full p-3 sm:p-4">
+          <section aria-label="Character selection" className="title-panel kit-panel nx-leafy nx-bracket w-full p-3 sm:p-4">
             <h1 className="title-h1 mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
             <div className="title-cast" role="group" aria-label="Playable kids">
               <button type="button" className="title-arrow title-arrow--prev" aria-label="Previous kid" onClick={() => step(-1)}><ChevronLeft size={20} strokeWidth={3} /></button>
@@ -185,6 +185,11 @@ function HowToModal({ onClose, onCustomise }: { onClose: () => void; onCustomise
   return (
     <Modal onClose={onClose}>
       <div className="kit-pop w-full max-w-3xl space-y-3">
+        <header className="kit-panel nx-bracket w-full px-5 py-4">
+          <div className="paper-kicker">Maple Falls · your first night</div>
+          <h2 className="kit-word text-5xl sm:text-6xl">How to play</h2>
+          <span className="nx-divider" />
+        </header>
         <InfoPanel />
         <ControlsPanel onCustomise={onCustomise} />
         <div className="kit-panel px-4 py-3 font-ui text-[14px] leading-relaxed text-[#e6dcc4]">
@@ -353,7 +358,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
   const treats = Object.entries(game.scrolls).filter(([id, n]) => n > 0 && SCROLL_BY_ID[id]);
   return (
     <div className="hm-backdrop">
-      <div className="hm-modal hm-pause kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="hm-modal hm-pause nx-bracket nx-bracket--red kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
         <div className="hm-pause-main min-w-0">
           <div className="paper-kicker">Paused · {fmtTime(game.time)} · {HERO_INFO[game.hero].name}</div>
           <h2 className="hm-modal-title">Take a breather</h2>
@@ -505,34 +510,41 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const n = game.choices.length + game.gunChoices.length + (friend === null ? 0 : 1);
   const locked = game.lockedChoice;
   const cards = n + (locked ? 1 : 0);
+  // "Level up!" is drawn as a brush wordmark: cream first word, orange painted second (art/concept/level-up.webp)
+  const titleWords = title.split(' ');
+  const titleHead = titleWords.slice(0, -1).join(' ');
+  const titleTail = titleWords[titleWords.length - 1];
   return (
     <div className="hm-backdrop">
-      <div className="hm-modal kit-pop">
-        <div className="paper-kicker">{kicker}</div>
-        <h2 className="hm-modal-title">{title}</h2>
-        <span className="hm-rule" />
+      <div className="hm-modal hm-modal--lvl nx-leafy kit-pop">
+        <header className="lvl-head">
+          <div className="lvl-kicker">{kicker}</div>
+          <h2 className="lvl-title" aria-label={title}><span>{titleHead}</span> <em>{titleTail}</em></h2>
+        </header>
         {mode === 'house' && game.treatGuideNotice && <aside role="note" aria-label="Trick-or-treat guide" className="mt-4 rounded-lg border border-[#69cf91]/60 bg-[#102a23] px-4 py-3 text-sm leading-relaxed text-[#f0fff4]">
           <strong className="block text-[#a4f5ba]">The best loot is behind a door.</strong>
           Trick-or-treat at houses and other buildings across town to find treats and guns. Houses offer Common–Rare loot; other venues offer Rare–Epic, and major buildings can offer Legendary rewards.
         </aside>}
-        <div className={`mt-6 grid grid-cols-1 gap-5 ${cards >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : cards === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
+        <div className={`lvl-grid mt-5 grid grid-cols-1 gap-4 ${cards >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : cards === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
           {game.choices.map((c, i) => {
             const rc = RARITY_KIT[c.rarity], owned = game.scrolls[c.id] || 0;
             return (
-              <button key={c.id + i} onClick={() => pick(c.id)} className="hm-pick" style={{ ['--acc' as string]: rc }}>
+              <button key={c.id + i} onClick={() => pick(c.id)} className="hm-pick lvl-card" style={{ ['--acc' as string]: rc }}>
                 <div className="hm-pick-art">
                   <TreatArt id={c.id} />
-                  <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
+                  <span className="lvl-num">{i + 1}</span>
                   <span className="hm-stamp">{RARITY_NAMES[c.rarity]} treat</span>
                 </div>
-                <div className="flex flex-1 flex-col p-3.5">
+                <div className="lvl-body flex flex-1 flex-col">
                   <div className="hm-pick-name">{c.name}</div>
                   {c.quote && <div className="hm-pick-quote">“{c.quote}”</div>}
-                  <div className="hm-label mt-3">Effect</div>
-                  <div className="hm-pick-desc">{c.desc}</div>
-                  <TagChips tags={SCROLL_TAGS[c.id] ?? []} build={game.build} className="mt-2.5 !justify-start" />
-                  <div className="mt-auto flex items-baseline justify-between pt-3">
-                    <span className="hm-label !text-[#8f8676]">{owned >= c.max ? 'Overstack' : 'Owned'}</span>
+                  <div className="lvl-effect">
+                    <span className="hm-label">Effect</span>
+                    <div className="hm-pick-desc">{c.desc}</div>
+                  </div>
+                  <TagChips tags={SCROLL_TAGS[c.id] ?? []} build={game.build} className="lvl-tags !justify-start" />
+                  <div className="lvl-owned mt-auto flex items-baseline justify-between">
+                    <span className="lvl-owned-k">{owned >= c.max ? 'Overstack' : 'Owned'}</span>
                     <span className={`font-num text-[12px] ${owned >= c.max ? 'text-[#ff7ad9]' : 'text-[#c9bda6]'}`}>{owned >= c.max ? `${owned} · no cap` : `${owned}/${c.max}`}</span>
                   </div>
                 </div>
@@ -543,20 +555,22 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
             const rc = RARITY_KIT[w.rarity], i = game.choices.length + j;
             const st = weaponStats(w, game.stats);
             return (
-              <button key={w.uid} onClick={() => pickGun(j)} className="hm-pick" style={{ ['--acc' as string]: rc }} aria-label={`Take ${w.def.name}`}>
+              <button key={w.uid} onClick={() => pickGun(j)} className="hm-pick lvl-card" style={{ ['--acc' as string]: rc }} aria-label={`Take ${w.def.name}`}>
                 <div className="hm-pick-art hm-pick-gun" style={{ ['--glow' as string]: rc }}>
                   <GunArt id={w.def.id} />
-                  <span className="kit-key absolute left-2 top-2 !rounded-none">{i + 1}</span>
+                  <span className="lvl-num">{i + 1}</span>
                   <span className="hm-stamp">{RARITY_NAMES[w.rarity]} gun · Lv {w.level}</span>
                 </div>
-                <div className="flex flex-1 flex-col p-3.5">
+                <div className="lvl-body flex flex-1 flex-col">
                   <div className="hm-pick-name">{w.def.name}</div>
                   <div className="hm-pick-quote">{w.def.desc}</div>
-                  <div className="hm-label mt-3">Firepower</div>
-                  <div className="hm-pick-desc font-num">Level {w.level} · {weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
+                  <div className="lvl-effect">
+                    <span className="hm-label">Firepower</span>
+                    <div className="hm-pick-desc font-num">Level {w.level} · {weaponDps(w, game.stats)} DPS · {st.mag} mag · {st.rate.toFixed(1)}/s</div>
+                  </div>
                   <Inscriptions w={w} compact />
-                  <div className="mt-auto flex items-baseline justify-between pt-3">
-                    <span className="hm-label !text-[#8f8676]">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Compare'}</span>
+                  <div className="lvl-owned mt-auto flex items-baseline justify-between">
+                    <span className="lvl-owned-k">{game.p.weapons.some((x) => !x) ? 'Free slot' : 'Compare'}</span>
                     <span className="font-num text-[12px] text-[#c9bda6]">{game.p.weapons.some((x) => !x) ? 'goes straight in' : 'compare first, you can come back'}</span>
                   </div>
                 </div>
@@ -564,19 +578,21 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
             );
           })}
           {friend !== null && (
-            <button onClick={pickFriend} className="hm-pick hm-pick-friend" style={{ ['--acc' as string]: HERO_COLORS[friend] }} aria-label={`Let ${HERO_INFO[friend].name} join you`}>
+            <button onClick={pickFriend} className="hm-pick lvl-card hm-pick-friend" style={{ ['--acc' as string]: HERO_COLORS[friend] }} aria-label={`Let ${HERO_INFO[friend].name} join you`}>
               <div className="hm-pick-art" style={{ background: HERO_COLORS[friend] }}>
                 <img src={PORTRAITS[friend]} alt="" draggable={false} className="block h-full w-full object-cover object-[50%_18%]" />
-                <span className="kit-key absolute left-2 top-2 !rounded-none">{n}</span>
+                <span className="lvl-num">{n}</span>
                 <span className="hm-stamp">Friend</span>
               </div>
-              <div className="flex flex-1 flex-col p-3.5">
+              <div className="lvl-body flex flex-1 flex-col">
                 <div className="hm-pick-name">{HERO_INFO[friend].name} wants to come along</div>
                 <div className="hm-pick-quote">“{HERO_INFO[friend].title}. Safer together, right?”</div>
-                <div className="hm-label mt-3">Companion</div>
-                <div className="hm-pick-desc">Fights beside you with a Foam Blaster and helps you up once a minute if you fall.</div>
-                <div className="mt-auto flex items-baseline justify-between pt-3">
-                  <span className="hm-label !text-[#8f8676]">Joins now</span>
+                <div className="lvl-effect">
+                  <span className="hm-label">Companion</span>
+                  <div className="hm-pick-desc">Fights beside you with a Foam Blaster and helps you up once a minute if you fall.</div>
+                </div>
+                <div className="lvl-owned mt-auto flex items-baseline justify-between">
+                  <span className="lvl-owned-k">Joins now</span>
                   <span className="font-num text-[12px] text-[#c9bda6]">{game.friends.some(f => f.status === 'rescued') ? 'one more helper' : 'your first helper'}</span>
                 </div>
               </div>
@@ -584,10 +600,14 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
           )}
           {locked && <LockedPick scroll={locked.scroll} weapon={locked.weapon} game={game} onTaken={() => { force((n) => n + 1); onDone(); }} />}
         </div>
-        <div className="hm-foot">
-          <span className="text-[13px] text-[#8f8676]">Press <Keycap className="!h-5 !rounded-none !text-[11px]">1</Keycap>–<Keycap className="!h-5 !rounded-none !text-[11px]">{n}</Keycap> · treats stack up to their maximum</span>
-          <button className="hm-btn ghost" disabled={game.rerolls <= 0} onClick={() => { game.reroll(); force((k) => k + 1); }}>Reroll ({game.rerolls})</button>
-        </div>
+        <footer className="lvl-bar">
+          <span className="lvl-bar-hint">
+            Press <Keycap className="lvl-key">1</Keycap><span aria-hidden="true">–</span><Keycap className="lvl-key">{n}</Keycap> · treats stack up to their maximum
+          </span>
+          <button className="hm-btn lvl-reroll" disabled={game.rerolls <= 0} onClick={() => { game.reroll(); force((k) => k + 1); }}>
+            <RotateCw size={18} strokeWidth={3} aria-hidden="true" /> Reroll ({game.rerolls})
+          </button>
+        </footer>
       </div>
     </div>
   );

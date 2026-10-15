@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Tornado, Camera, Wrench, Moon, Keyboard } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Tornado, Camera, Wrench, Moon, Keyboard, Skull, Sparkles, Rows3, Crosshair, Timer, ArrowUpRight, CornerDownRight, Bomb, Flame, Zap, Leaf, AlignJustify } from 'lucide-react';
 import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
@@ -109,14 +110,14 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   const rc = RARITY_KIT[w.rarity];
   const dps = weaponDps(w, stats);
   const cdps = compare ? weaponDps(compare, stats) : null;
-  const Row = ({ k, v }: { k: string; v: React.ReactNode }) => (
-    <div className="flex items-center justify-between border-b border-[#2a2d33] py-[5px] last:border-0">
-      <span className="font-ui text-[13px] text-[#e6dcc4]">{k}</span>
-      <span className="font-ui text-[13px] font-bold text-white">{v}</span>
+  const Row = ({ k, v, icon: Icon }: { k: string; v: React.ReactNode; icon?: LucideIcon }) => (
+    <div className="wx-stat">
+      <span className="wx-stat-k">{Icon && <Icon size={13} strokeWidth={2.4} className="shrink-0" aria-hidden="true" />}{k}</span>
+      <span className="wx-stat-v">{v}</span>
     </div>
   );
   return (
-    <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+    <div className={`kit-panel wx-card relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ ['--acc' as string]: rc, borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
       <div className="flex items-center gap-3">
         <div className="h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
@@ -132,6 +133,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
       {!compact && <p className="mt-2 text-[12px] italic leading-snug text-[#9aa0a6]">{w.def.desc}</p>}
       <div className="mt-2.5 rounded-[6px] border border-[#3a3d44] bg-black/30 px-3 py-0.5">
         <Row
+          icon={Skull}
           k="DPS"
           v={
             <span>
@@ -140,17 +142,17 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
             </span>
           }
         />
-        <Row k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
-        <Row k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
-        <Row k="Range" v={`${st.range.toFixed(1)} m`} />
-        <Row k="Magazine" v={st.mag} />
-        <Row k="Reload" v={`${st.reload.toFixed(2)}s`} />
-        {st.pierce > 0 && st.pierce < 50 && <Row k="Pierce" v={st.pierce} />}
-        {st.bounce > 0 && <Row k="Ricochet" v={st.bounce} />}
-        {w.def.explode > 0 && <Row k="Explosion" v={`${w.def.explode.toFixed(1)} tiles`} />}
-        {st.fire > 0 && <Row k="Burn" v={<span className="text-[#fb8016]">{Math.round(st.fire * 100)}%</span>} />}
-        {st.shock > 0 && <Row k="Shock" v={<span className="text-[#7fd8ff]">{Math.round(st.shock * 100)}%</span>} />}
-        {st.ecto > 0 && <Row k="Ecto" v={<span className="text-[#7cff64]">{Math.round(st.ecto * 100)}%</span>} />}
+        <Row icon={Sparkles} k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
+        <Row icon={Rows3} k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
+        <Row icon={Crosshair} k="Range" v={`${st.range.toFixed(1)} m`} />
+        <Row icon={AlignJustify} k="Magazine" v={st.mag} />
+        <Row icon={Timer} k="Reload" v={`${st.reload.toFixed(2)}s`} />
+        {st.pierce > 0 && st.pierce < 50 && <Row icon={ArrowUpRight} k="Pierce" v={st.pierce} />}
+        {st.bounce > 0 && <Row icon={CornerDownRight} k="Ricochet" v={st.bounce} />}
+        {w.def.explode > 0 && <Row icon={Bomb} k="Explosion" v={`${w.def.explode.toFixed(1)} tiles`} />}
+        {st.fire > 0 && <Row icon={Flame} k="Burn" v={<span className="text-[#fb8016]">{Math.round(st.fire * 100)}%</span>} />}
+        {st.shock > 0 && <Row icon={Zap} k="Shock" v={<span className="text-[#7fd8ff]">{Math.round(st.shock * 100)}%</span>} />}
+        {st.ecto > 0 && <Row icon={Leaf} k="Ecto" v={<span className="text-[#7cff64]">{Math.round(st.ecto * 100)}%</span>} />}
       </div>
       <Inscriptions w={w} compact={compact} big={bigInsc} />
     </div>
