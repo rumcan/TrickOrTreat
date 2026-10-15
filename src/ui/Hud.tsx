@@ -1,22 +1,18 @@
-// The in-game HUD, built on HexMatch's in-game skeleton (theme-poster-hud.css) in dark paper:
-//  · an ink TOP BAR with a 3px orange rule (here the rule doubles as the XP meter): kid chip, goal chips,
-//    the clock, resource chips split by hairlines, square icon buttons and the radio;
-//  · an ink LEFT RAIL with an orange letter-spaced heading: treats, synergies, friends;
-//  · a bottom ink TAB STRIP (guns / skill / dash; the gun in hand is the "paper" tab) with a paper DRAWER
-//    that opens above it for whatever needs you right now (revive, cannon, doorstep, pickups);
-//  · NOTICES as paper slips with a 4px orange left edge.
-import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon, X } from 'lucide-react';
+// The live run HUD: charcoal panels, ember frames and rarity-coloured equipment.
+import { DoorOpen, Map as MapIcon, Pause as PauseIcon, Maximize, Wind, Backpack, Check as CheckIcon, Star, X } from 'lucide-react';
 import { HudSnap, Game } from '../game/engine';
 import { HERO_INFO, SCROLL_BY_ID, weaponTitle, COSTUME_BY_ID } from '../game/data';
-import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkullIcon, CoinIcon, SkillIcon, WeaponCard, TreatArt } from './common';
+import { weaponUrl, fmtTime, HeroPreview, RARITY_KIT, SkillIcon, WeaponCard, TreatArt } from './common';
 import { requestGameFullscreen, canFullscreen } from './fullscreen';
 import { Banner, Keycap } from './kit';
 import { FACES, HERO_COLORS, BannerKind } from './art';
 import RadioPill, { MusicToggle } from './RadioPill';
 import { TAG_DEFS, TAG_ORDER } from '../game/build';
 import { buttonPress } from './button-press';
+import './hud-redesign.css';
 
 const BANNER_KIND: Record<string, BannerKind> = { info: 'tot', danger: 'died', loot: 'weapon', win: 'mission' };
+const HUD_IMAGE = `${import.meta.env.BASE_URL}images/redesign/`;
 const pct = (v: number, m: number) => `${Math.max(0, Math.min(1, v / Math.max(1, m))) * 100}%`;
 
 function CostumeCard({ id, hero, title }: { id: string; hero: number; title: string }) {
@@ -46,7 +42,7 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
   return (
     <header className="hm-topbar pointer-events-auto" aria-label="Run status">
       {/* kid */}
-      <div className="flex min-w-0 items-center gap-2.5">
+      <div className="hm-kid flex min-w-0 items-center gap-2.5">
         <div className="relative shrink-0">
           <div className="hm-av h-[38px] w-[38px] sm:h-[42px] sm:w-[42px]" style={{ background: HERO_COLORS[hero] }}>
             <img src={FACES[hero]} alt="" draggable={false} className="h-full w-full object-cover" />
@@ -66,10 +62,10 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
       </div>
 
       {/* goals */}
-      <div className="hidden items-center gap-1.5 lg:flex">
+      <div className="hm-goals hidden items-center gap-1.5 lg:flex">
         {goals.map((g) => (
           <span key={g.label} className={`hm-goal ${g.done ? 'done' : ''}`}>
-            {g.done ? <CheckIcon size={13} strokeWidth={3} /> : <span className="text-[#f08a2c]">★</span>}
+            {g.done ? <CheckIcon size={15} strokeWidth={3} /> : <Star size={17} fill="currentColor" className="hm-goal-star" />}
             <span>{g.label}</span>
             <span className="hm-goal-v">{g.v}</span>
           </span>
@@ -89,14 +85,14 @@ function TopBar({ s, game }: { s: HudSnap; game: Game }) {
       </div>
 
       {/* resources + buttons */}
-      <div className="ml-auto flex items-center">
+      <div className="hm-tools ml-auto flex items-center">
         <div className="hm-chips">
-          <span className="hm-chip" title="Monsters"><SkullIcon size={17} /><b>{s.kills}</b></span>
-          <span className="hm-chip money" title="Coins"><CoinIcon size={17} /><b>{s.coins}</b></span>
+          <span className="hm-chip" title="Monsters"><img src={`${HUD_IMAGE}hud-skull.webp`} alt="" draggable={false} /><b>{s.kills}</b></span>
+          <span className="hm-chip money" title="Coins"><img src={`${HUD_IMAGE}hud-coin.webp`} alt="" draggable={false} /><b>{s.coins}</b></span>
           {s.momentum > 0 && <span className="hm-chip hot" title="Kill · Momentum stacks">💀<b>{s.momentum}</b></span>}
           {s.streak > 0 && <span className="hm-chip hot" title="Crit · Lucky Streak stacks">🎯<b>{s.streak}</b></span>}
         </div>
-        <div className="hidden xl:block"><RadioPill compact /></div>
+        <div className="hm-radio hidden xl:block"><RadioPill compact /></div>
         <div className="flex gap-1.5 pl-2">
           <button className="hm-iconbtn hm-desk hm-mobile-access" title="Your run build (I)" aria-label="Your run build" {...buttonPress(() => { if (game.state === 'play') game.state = 'inventory'; })}><Backpack size={16} /></button>
           <button className={`hm-iconbtn hm-desk hm-mobile-access ${s.bigMap ? 'on' : ''}`} title="Map (M)" aria-label="Map" {...buttonPress(() => { game.bigMap = !game.bigMap; })}><MapIcon size={16} /></button>
@@ -124,7 +120,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {treats.slice(0, max).map(([id, n]) => {
         const sc = SCROLL_BY_ID[id];
         return (
-          <button type="button" key={id} className="hm-rail-row hm-rail-treat" aria-label={`${sc.name}${n > 1 ? ` ×${n}` : ''}. Click to discard.`} title={`${sc.name} ×${n}: ${sc.desc} · click to discard`} style={{ boxShadow: `inset 3px 0 0 ${RARITY_KIT[sc.rarity]}` }} onClick={() => game.askDiscard(id)}>
+          <button type="button" key={id} className="hm-rail-row hm-rail-treat" data-rarity={sc.rarity} aria-label={`${sc.name}${n > 1 ? ` ×${n}` : ''}. Click to discard.`} title={`${sc.name} ×${n}: ${sc.desc} · click to discard`} style={{ '--hm-rarity': RARITY_KIT[sc.rarity] } as React.CSSProperties} onClick={() => game.askDiscard(id)}>
             <span className="hm-rail-art" style={{ borderColor: RARITY_KIT[sc.rarity] }}><TreatArt id={id} /></span>
             {n > 1 && <span className="hm-rail-n">×{n}</span>}
           </button>
@@ -134,7 +130,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
       {tags.length > 0 && (
         <>
           <div className="hm-rail-title">Synergy</div>
-          {tags.map((t) => <div key={t} className="hm-rail-row" title={`${TAG_DEFS[t].name} tier ${game.build.tiers[t]}`}><span className="hm-rail-tag" style={{ color: TAG_DEFS[t].color }}>{TAG_DEFS[t].name}</span><span className="hm-rail-n">T{game.build.tiers[t]}</span></div>)}
+          {tags.map((t) => <div key={t} className="hm-rail-row hm-rail-synergy" title={`${TAG_DEFS[t].name} tier ${game.build.tiers[t]}`}><span className="hm-rail-tag" style={{ color: TAG_DEFS[t].color }}>{TAG_DEFS[t].name}</span><span className="hm-rail-n">T{game.build.tiers[t]}</span></div>)}
         </>
       )}
       {friends.length > 0 && (
@@ -142,7 +138,7 @@ function Rail({ s, game }: { s: HudSnap; game: Game }) {
           <div className="hm-rail-title">Friends</div>
           {game.campaign && <div className="px-2 pb-2 text-xs text-white">M: rescue map · cyan + marks your friends</div>}
           {friends.map((f) => (
-            <div key={f.hero} className="hm-rail-row" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (f.hp > 0 ? 'fighting beside you' : 'down: revive them') : game.rescueMap.gates[f.gate].name}`}>
+            <div key={f.hero} className="hm-rail-row hm-rail-friend" title={`${HERO_INFO[f.hero].name} · ${f.status === 'rescued' ? (f.hp > 0 ? 'fighting beside you' : 'down: revive them') : game.rescueMap.gates[f.gate].name}`}>
               <span className="hm-av h-7 w-7 !border" style={{ background: HERO_COLORS[f.hero], borderColor: f.status === 'rescued' ? '#66d2b7' : '#5f6470', opacity: f.status === 'rescued' ? 1 : 0.55 }}><img src={FACES[f.hero]} alt="" className="h-full w-full object-cover" /></span>
               <span className="hm-rail-n" style={{ color: f.status !== 'rescued' ? '#ffffff' : f.hp > 0 ? '#66d2b7' : '#ff6a8a' }}>{(f.abductT??0)>0 ? `abducted ${Math.ceil(f.abductT!)}s` : f.status === 'rescued' ? (f.hp > 0 ? 'help' : `down ${Math.max(0, Math.ceil(game.friendCountdown - (f.downT ?? 0)))}s`) : `${HERO_INFO[f.hero].name} · ${f.status === 'locked' ? `${Math.max(0, Math.ceil(game.rescueMap.gates[f.gate].openAt - game.time))}s` : 'rescue'}`}</span>
             </div>
@@ -160,7 +156,7 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
     <nav className="hm-tabs" aria-label="Weapons and abilities">
       {s.weapons.map((ws, i) =>
         ws ? (
-          <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} aria-pressed={i === s.cur} {...buttonPress(() => game.input.tap(String(i + 1)))} className={`hm-tab ${i === s.cur ? 'active' : ''}`} style={{ boxShadow: `inset 0 -3px 0 ${RARITY_KIT[ws.w.rarity]}` }}>
+          <button type="button" key={i} aria-label={`Equip weapon slot ${i + 1}`} aria-pressed={i === s.cur} data-rarity={ws.w.rarity} {...buttonPress(() => game.input.tap(String(i + 1)))} className={`hm-tab hm-tab-weapon ${i === s.cur ? 'active' : ''}`} style={{ '--hm-rarity': RARITY_KIT[ws.w.rarity] } as React.CSSProperties}>
             <Keycap className="hm-key">{String(i + 1)}</Keycap>
             <img src={weaponUrl(ws.w.def.id)} className="h-7 w-14 shrink-0" style={{ filter: 'drop-shadow(0 2px 0 rgba(0,0,0,0.6))' }} alt={weaponTitle(ws.w)} />
             <span className="hidden min-w-0 flex-col leading-none md:flex">
@@ -168,6 +164,7 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
               <span className="hm-tab-sub">{ws.w.reloadT > 0 ? <span className="text-[#f08a2c]">Reloading…</span> : <>{ws.w.ammo} / {ws.st.mag}</>}</span>
             </span>
             <span className="hm-tab-sub md:hidden">{ws.w.reloadT > 0 ? 'R…' : ws.w.ammo}</span>
+            <span className="hm-ammo-meter" aria-hidden="true"><i style={{ width: pct(ws.w.ammo, ws.st.mag) }} /></span>
             {ws.w.reloadT > 0 && <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[#e8700f]" style={{ transform: `scaleX(${1 - ws.w.reloadT / ws.st.reload})` }} />}
           </button>
         ) : (
@@ -184,7 +181,7 @@ function Tabs({ s, hero, game }: { s: HudSnap; hero: number; game: Game }) {
         {!skillReady && <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[#5f6470]" style={{ transform: `scaleX(${1 - s.skillCd / s.skillMax})` }} />}
       </button>
       <button type="button" className="hm-tab hm-tab-ability" aria-label="Dash ability" disabled={s.dashCharges <= 0 && !s.tot} {...buttonPress(() => game.input.tap(' '))}>
-        <Keycap className="hm-key">Spc</Keycap>
+        <Keycap className="hm-key">Space</Keycap>
         <Wind size={20} className="text-[#28aed5]" strokeWidth={2.4} />
         <span className="flex gap-1">
           {Array.from({ length: s.dashMax }).map((_, i) => <span key={i} className="h-2 w-3" style={{ background: i < s.dashCharges ? '#28aed5' : '#2a3437' }} />)}
@@ -243,7 +240,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
   const cur = s.weapons[s.cur];
   const friend = FACES[hero === 2 ? 0 : 2]; // the other kid on the walkie-talkie
   return (
-    <div className="pointer-events-none absolute inset-0 select-none font-ui text-[#f2e6c9]">
+    <div className="hm-hud pointer-events-none absolute inset-0 select-none font-ui text-[#f2e6c9]">
       <TopBar s={s} game={game} />
       {!s.bigMap && <Rail s={s} game={game} />}
       <MusicToggle className="hm-music pointer-events-auto" />
@@ -294,9 +291,9 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
             </div>
           )}
           {s.nearbyWeapon && (
-            <div className="pointer-events-auto hidden max-h-[max(160px,calc(100dvh-440px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-end">
-              {cur && <div className="opacity-75"><WeaponCard w={cur.w} stats={game.stats} title="Equipped" compact /></div>}
-              <div className="order-first xl:order-last"><WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact /></div>
+            <div className="hm-weapon-comparison pointer-events-auto hidden max-h-[max(160px,calc(100dvh-440px))] flex-col gap-3 overflow-y-auto overscroll-contain p-1 pt-4 md:flex xl:flex-row xl:items-end">
+              {cur && <div className="hm-equipped" data-rarity={cur.w.rarity} style={{ '--hm-rarity': RARITY_KIT[cur.w.rarity] } as React.CSSProperties}><WeaponCard w={cur.w} stats={game.stats} title="Equipped" compact className="hm-weapon-card" /></div>}
+              <div className="order-first xl:order-last" data-rarity={s.nearbyWeapon.rarity} style={{ '--hm-rarity': RARITY_KIT[s.nearbyWeapon.rarity] } as React.CSSProperties}><WeaponCard w={s.nearbyWeapon} stats={game.stats} compare={cur?.w} title="On the ground" compact className="hm-weapon-card" /></div>
             </div>
           )}
           <div className="hm-slip flex items-center gap-2.5 !py-2">
@@ -311,7 +308,7 @@ export function Hud({ s, game }: { s: HudSnap; game: Game }) {
 
 function BannerPlate({ text, sub, kind, t }: { text: string; sub: string; kind: BannerKind; t: number }) {
   return (
-    <div className="kit-flicker absolute left-1/2 top-[22%] w-[min(620px,94vw)]" style={{ opacity: Math.min(1, t * 1.5), transform: `translateX(-50%) scale(${t > 3.2 ? 1 + (t - 3.2) * 1.2 : 1})` }}>
+    <div className="hm-banner kit-flicker absolute left-1/2 top-[22%] w-[min(620px,94vw)]" style={{ opacity: Math.min(1, t * 1.5), transform: `translateX(-50%) scale(${t > 3.2 ? 1 + (t - 3.2) * 1.2 : 1})` }}>
       <Banner kind={kind} title={text} sub={sub} size="md" />
     </div>
   );

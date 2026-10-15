@@ -1,0 +1,283 @@
+/* Layout from the supplied 1672 × 941 Maple Falls designs. */
+.redesign-title .title-wrap { display:block; padding:0; overflow:hidden; }
+.redesign-title .title-head { position:absolute; inset:4.5% 23% auto; gap:6px; }
+.redesign-title .title-logo { width:min(620px,44vw); max-height:25vh; object-fit:contain; }
+.redesign-title .title-resources { gap:10px; }
+.redesign-title .title-resources .kit-chip { min-height:38px; padding:7px 18px; border:1px solid #a66f30; border-radius:7px; background:#080b0eee; gap:12px; color:#fff4dd; }
+.title-resources b { font:700 17px 'Barlow Condensed',sans-serif; letter-spacing:.07em; }
+.title-resources small { font:600 12px 'Barlow Condensed',sans-serif; text-transform:uppercase; }
+.title-resources .title-essence svg { color:#ed2cfa; filter:drop-shadow(0 0 4px #b300de); }
+.title-resources .kit-chip:last-child svg { color:#ff9507; }
+.redesign-title .title-unlock { position:fixed; top:16px; right:18px; }
+.title-unlock-note { display:flex; align-items:center; gap:5px; padding:4px 10px; color:#ffc469; font:600 11px 'Barlow Condensed',sans-serif; letter-spacing:.035em; background:#090b108c; border-radius:4px; cursor:pointer; }
+.redesign-title .title-main { display:contents; }
+.redesign-title .title-nav { position:absolute; top:12.5%; left:2.4%; display:flex; flex-direction:column; grid-auto-flow:row; grid-auto-columns:auto; align-items:stretch; width:15.2%; max-width:260px; gap:5px; }
+.redesign-title .title-nav .kit-btn { position:relative; flex-direction:row; justify-content:flex-start; width:100%; min-height:46px; height:5vh; padding:0 16px; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:clamp(13px,1vw,18px); letter-spacing:.04em; gap:17px; white-space:nowrap; }
+.redesign-title .title-nav .kit-btn svg { width:21px; height:21px; color:#fff0ce!important; }
+.redesign-title .title-nav-play { background:linear-gradient(110deg,#5d2406e8,#1d130dee); color:#ffba54; border-color:#ffae33; box-shadow:0 0 3px #ffb434,inset 0 0 15px #f56b0528,0 0 18px #ff71002a; font:400 clamp(18px,1.3vw,24px) var(--font-menu); }
+.redesign-title .title-nav-play::after { content:'›'; margin-left:auto; font:32px/1 'Barlow Condensed',sans-serif; }
+.redesign-title .title-nav .records-trigger--embedded { position:relative; inset:auto; max-width:none; border-left-width:1px; box-shadow:0 2px 7px #0008; background-color:#080a0eeb; }
+.records-trigger--embedded > svg:last-child { margin-left:auto; width:15px!important; }
+.redesign-title .title-pick { position:absolute; left:23.2%; bottom:9.2%; width:52.2%; padding:0; display:block; }
+.redesign-title .title-panel { position:relative; padding:18px 18px 16px; border:1px solid #5d5247; border-radius:11px; background:linear-gradient(120deg,#0c0c0ce8,#090a0deb); box-shadow:0 8px 25px #0009,inset 0 0 2px #d9a66c33; }
+.redesign-title .title-cards { align-items:end; gap:13px; }
+.redesign-title .title-character { overflow:visible; border:1px solid #62605a!important; border-radius:4px; height:auto; background:#0b0c10!important; transition:transform .16s,border-color .16s; box-shadow:0 0 0 2px #08090c; }
+.redesign-title .title-character:hover { border-color:var(--hero-color)!important; transform:translateY(-5px); }
+.redesign-title .title-character .title-portrait { display:block; width:100%; height:18.2vh; max-height:210px; border-radius:3px 3px 0 0; object-fit:cover; object-position:center 18%; opacity:1; }
+.redesign-title .title-character .title-kid { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:36px; padding:5px 2px; color:#fff4e3; font:700 clamp(15px,1.15vw,21px)/1.15 'Barlow Condensed',sans-serif; }
+.redesign-title .title-character.is-selected { z-index:1; border:2px solid #ff9d32!important; box-shadow:0 0 5px #ffad39,0 0 19px #ff6a05aa,inset 0 0 10px #ff650033; margin-top:-40px; }
+.redesign-title .title-character.is-selected .title-portrait { height:21vh; max-height:245px; }
+.redesign-title .title-character.is-selected .title-kid { min-height:57px; font-size:24px; }
+.title-kid small { display:block; padding-top:4px; color:#ffc264; font:600 14px/1 'Barlow Condensed',sans-serif; }
+.redesign-title .title-lock { bottom:36px; background:#080a0fbd; font-size:10px; }
+.redesign-title .title-go { position:relative; display:grid; grid-template-columns:28% 1fr; align-items:start; gap:15px; margin-top:13px; }
+.redesign-title .title-go p { font-family:'Barlow Condensed',sans-serif; font-size:13px; line-height:1.4; }
+.redesign-title .title-go .title-passive { margin:0; color:#ffbf69; font-weight:600; }
+.redesign-title .title-play { justify-self:center; width:77%; min-height:76px; height:8vh; max-height:84px; padding:10px 20px; font-size:clamp(20px,1.7vw,31px); }
+.redesign-title .title-play svg { width:30px; height:30px; }
+.title-carousel { position:absolute; top:40%; display:grid; place-items:center; width:35px; height:64px; border:1px solid #694c2b; border-radius:5px; background:#090b0edb; color:#d18b36; cursor:pointer; z-index:0; }
+.title-carousel-prev { left:-35px; }
+.title-carousel-next { right:-35px; }
+.title-carousel:hover { color:#ffd17c; border-color:#ff8a19; }
+.redesign-title .title-nav .kit-btn:has(svg.lucide-backpack) { font-size:11px; min-height:25px; height:25px; order:9; opacity:.7; }
+
+/* Settings: compact horizontal rows, explicit labels, and a full-width action footer. */
+.redesign-settings { position:relative; max-width:775px; padding:24px 38px 28px; }
+.redesign-settings > div:first-child { position:relative; justify-content:center; min-height:104px; }
+.redesign-settings .settings-title { text-align:center; font:400 clamp(52px,6vw,94px)/1 var(--font-horror); letter-spacing:-.05em; transform:rotate(-3deg); color:#ff8709!important; text-shadow:2px 4px #6d1200,0 0 20px #ff4d0030; }
+.redesign-settings > div:first-child > button { position:absolute; right:-16px; top:-8px; display:grid; place-items:center; width:46px; height:46px; border:1px solid #ff9b19; border-radius:6px; color:#ffb342; background:#0c0b0b; box-shadow:0 0 7px #ff650065; }
+.redesign-settings > .space-y-4 { margin-top:0; }
+.redesign-settings .settings-row { position:relative; display:grid; grid-template-columns:42px minmax(0,1fr) auto; column-gap:20px; row-gap:7px; min-height:61px; margin:0; padding:9px 0; border-top:1px solid #96877445; }
+.settings-row-icon { display:flex; justify-content:center; color:#ff9a18; }
+.settings-row-icon svg { width:31px; height:31px; stroke-width:1.9; filter:drop-shadow(0 0 5px #ff77002a); }
+.settings-row:nth-child(2) .settings-row-icon { color:#ffd269; }
+.settings-row:nth-child(4) .settings-row-icon { color:#dc2ff6; }
+.settings-row:has(select) .settings-row-icon { color:#6ef13a; }
+.settings-row:last-child .settings-row-icon { color:#ff3636; }
+.redesign-settings .settings-row-label > div:first-child { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; line-height:1.1; color:#ffe9c7; }
+.redesign-settings .settings-row-label > div:last-child { margin-top:4px; font-size:14px; font-family:'Barlow Condensed',sans-serif; line-height:1.2; color:#b0b0b8; }
+.redesign-settings .kit-range { width:210px; }
+.redesign-settings select { min-width:178px; height:44px; padding:7px 12px; border:1px solid #ffa71b; border-radius:5px; background:#090b0c; color:#ffe8c2; font:600 17px 'Barlow Condensed',sans-serif; box-shadow:0 0 8px #ff6a0040; }
+.redesign-settings > div:last-child { display:grid; grid-template-columns:1fr 1fr; gap:36px; padding-top:14px; margin-top:8px; }
+.redesign-settings > div:last-child .kit-btn { height:65px; font-size:24px; padding:7px 20px; }
+
+/* Pause composition matches the wide two-column reference. */
+.hm-modal.hm-pause { width:min(1156px,calc(100vw - 48px)); padding:35px 34px 30px 42px; gap:30px; grid-template-columns:minmax(0,1.75fr) minmax(280px,1fr); overflow:visible; }
+.hm-pause .paper-kicker { font:600 17px 'Barlow Condensed',sans-serif; letter-spacing:.2em; margin-bottom:5px; color:#ff8e1b; }
+.hm-pause .hm-modal-title { font-size:clamp(45px,5.4vw,89px); white-space:nowrap; letter-spacing:-.065em; }
+.hm-modal-title em { font-style:normal; color:#ff7a08; }
+.hm-pause .hm-rule { width:130px; height:5px; margin-top:15px; transform:rotate(-3deg); }
+.hm-pause-main > ol { margin-top:26px; }
+.hm-pause .hm-menu-row { min-height:56px; padding:12px 16px; gap:16px; grid-template-columns:24px auto 1fr; align-items:center; border:1px solid #72665566; border-radius:4px; }
+.hm-pause .hm-menu-n { color:#ff8a15; font-size:21px; }
+.hm-pause .hm-menu-label { display:flex; align-items:center; gap:10px; font:400 clamp(18px,1.5vw,26px)/1.1 'Anton',sans-serif; letter-spacing:0; }
+.hm-pause .hm-menu-sub { font:500 17px 'Barlow Condensed',sans-serif; color:#b4a38e; white-space:nowrap; }
+.hm-pause .hm-menu-row-primary { position:relative; border-color:#ffad29; box-shadow:0 0 3px #ff9b05,0 0 17px #ff720077; margin-bottom:5px; background:linear-gradient(100deg,#e66e0517,#0000); }
+.hm-pause .hm-menu-row-primary .hm-menu-label { position:relative; margin:-11px 0 -11px -5px; padding:14px 40px 14px 19px; min-height:51px; color:#090900; background:linear-gradient(100deg,#ffc440 0,#ff8500 78%,#ff800000 100%); }
+.hm-pause > aside { padding-top:14px; }
+.hm-pause .hm-pause-treats { max-height:100px; min-height:60px; padding-top:9px; margin-top:10px; }
+.hm-pause .hm-pause-treats h3 { font-size:11px; }
+.hm-pause .hm-pause-grid { max-height:52px; grid-template-columns:repeat(10,minmax(0,1fr)); }
+.hm-pause > aside .kit-panel { padding:16px; }
+
+/* Reward composition keeps all offers real; extra offers flow to the next row. */
+.hm-modal.redesign-rewards { width:min(1240px,calc(100vw - 48px)); padding:32px 42px 24px; }
+.redesign-rewards .paper-kicker { margin-bottom:4px; color:#ff9c20; font-size:17px; }
+.redesign-rewards > .hm-modal-title { font-size:clamp(48px,7vw,105px); letter-spacing:-.05em; }
+.redesign-rewards > .hm-rule { margin-top:15px; width:150px; transform:rotate(-3deg); }
+.redesign-rewards > .grid { margin-top:27px; gap:22px; }
+.redesign-rewards .hm-pick { min-height:465px; }
+.redesign-rewards .hm-pick-art { min-height:210px; aspect-ratio:1.65; background-color:transparent; border-bottom:0; }
+.redesign-rewards .hm-pick-art > img { object-fit:contain; }
+.redesign-rewards .hm-stamp { top:10px; right:10px; padding:4px 10px; font-size:16px; }
+.redesign-rewards .hm-pick-art > .kit-key { left:13px; top:13px; min-width:34px; height:34px; font-size:22px; }
+.redesign-rewards .hm-pick > div:last-child { padding:13px 26px 20px; }
+.redesign-rewards .hm-pick-name { font:400 clamp(21px,2.05vw,33px)/1.2 var(--font-horror); letter-spacing:-.04em; }
+.redesign-rewards .hm-pick-quote { margin:13px 0 9px; font:italic 500 17px/1.3 'Barlow Condensed',sans-serif; color:#d6cdb9; }
+.redesign-rewards .hm-label { font-size:15px; color:#ff9615; }
+.redesign-rewards .hm-pick-desc { font:700 25px/1.2 'Barlow Condensed',sans-serif; color:#fff1d6; }
+.redesign-rewards .hm-pick > div:last-child > div:last-child { margin-top:12px; padding-top:12px; border-top:1px solid #ba9e6e25; }
+.redesign-rewards .hm-foot { margin-top:25px; padding-top:17px; border-top-color:#cd5c1670; }
+.redesign-rewards .hm-foot > span { font:500 19px 'Barlow Condensed',sans-serif; }
+.redesign-rewards .hm-foot > .hm-btn { min-height:63px; min-width:240px; font-size:26px; }
+
+@media (max-width:1100px) and (min-width:701px) {
+  .redesign-title .title-nav { width:20%; left:2%; }
+  .redesign-title .title-pick { left:25%; width:68%; bottom:8%; }
+  .redesign-title .title-head { inset:6% 10% auto 27%; }
+  .redesign-title .title-logo { width:min(520px,55vw); }
+  .redesign-title .title-play { width:95%; min-height:58px; font-size:22px; }
+  .hm-modal.hm-pause { padding:24px; gap:22px; }
+  .hm-pause .hm-menu-sub { font-size:13px; }
+  .hm-pause .hm-menu-row { padding:12px 9px; gap:9px; }
+}
+@media (max-height:780px) and (min-width:701px) {
+  .redesign-title .title-pick { bottom:6%; }
+  .redesign-title .title-character .title-portrait { height:20vh; }
+  .redesign-title .title-character.is-selected .title-portrait { height:24vh; }
+  .redesign-title .title-play { min-height:56px; }
+  .redesign-settings { max-width:680px; padding:12px 28px 18px; }
+  .redesign-settings > div:first-child { min-height:75px; }
+  .redesign-settings .settings-title { font-size:66px; }
+  .redesign-settings .settings-row { min-height:49px; padding:6px 0; }
+  .redesign-settings .settings-row-label > div:last-child { font-size:12px; }
+  .redesign-settings > div:last-child .kit-btn { height:50px; font-size:21px; }
+  .hm-pause .hm-menu-row { min-height:47px; padding-top:9px; padding-bottom:9px; }
+  .hm-pause .hm-modal-title { font-size:clamp(35px,5.4vw,75px); }
+  .hm-modal.redesign-rewards { padding:23px 30px 20px; }
+  .redesign-rewards .hm-pick { min-height:380px; }
+  .redesign-rewards .hm-pick-art { min-height:170px; }
+  .redesign-rewards .hm-pick-desc { font-size:21px; }
+}
+@media (max-width:700px) {
+  .redesign-title .title-wrap { display:flex; flex-direction:column; justify-content:space-between; overflow-y:auto; padding:50px 15px 14px; gap:15px; }
+  .redesign-title .title-head { position:relative; inset:auto; gap:6px; }
+  .redesign-title .title-logo { width:min(370px,78vw); max-height:21dvh; }
+  .redesign-title .title-resources .kit-chip { min-height:31px; padding:6px 10px; }
+  .title-resources b { font-size:14px; }
+  .title-unlock-note { font-size:10px; }
+  .redesign-title .title-main { display:flex; flex-direction:column; gap:12px; }
+  .redesign-title .title-pick { position:relative; inset:auto; width:100%; padding:16px 0 0; }
+  .redesign-title .title-panel { padding:9px; }
+  .redesign-title .title-cards { gap:5px; }
+  .redesign-title .title-character .title-portrait { height:clamp(90px,17dvh,155px); }
+  .redesign-title .title-character.is-selected .title-portrait { height:clamp(110px,20dvh,175px); }
+  .redesign-title .title-character .title-kid { min-height:30px; font-size:15px; }
+  .redesign-title .title-character.is-selected .title-kid { min-height:43px; font-size:18px; }
+  .title-kid small { font-size:8px; }
+  .redesign-title .title-character.is-selected { margin-top:-16px; }
+  .redesign-title .title-go { display:flex; flex-direction:column; gap:9px; margin-top:11px; }
+  .redesign-title .title-go > div { width:100%; }
+  .redesign-title .title-go p { font-size:12px; }
+  .redesign-title .title-play { width:100%; height:55px; min-height:55px; font-size:23px; }
+  .title-carousel { display:none; }
+  .redesign-title .title-nav { position:relative; inset:auto; width:100%; max-width:none; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .redesign-title .title-nav .kit-btn { height:42px; min-height:42px; padding:0 10px; gap:8px; font-size:13px; }
+  .redesign-title .title-nav-play { display:none!important; }
+  .redesign-title .title-nav .kit-btn span { white-space:nowrap; }
+  .redesign-title .title-nav .kit-btn:has(svg.lucide-backpack) { display:none; }
+  .redesign-settings { max-width:100%; padding:15px 14px 20px; }
+  .redesign-settings > div:first-child { min-height:72px; }
+  .redesign-settings .settings-title { font-size:54px; }
+  .redesign-settings > div:first-child > button { right:0; top:0; width:35px; height:35px; }
+  .redesign-settings .settings-row { grid-template-columns:25px minmax(0,1fr) auto; gap:9px; min-height:65px; }
+  .redesign-settings .settings-row-label > div:first-child { font-size:15px; }
+  .redesign-settings .settings-row-label > div:last-child { font-size:11px; max-width:155px; }
+  .settings-row-icon svg { width:24px; height:24px; }
+  .redesign-settings .kit-range { width:95px; }
+  .redesign-settings .settings-row > div:last-child { gap:4px; }
+  .redesign-settings .settings-row > div:last-child > svg { width:15px; }
+  .redesign-settings select { min-width:110px; max-width:115px; font-size:13px; padding:5px; }
+  .redesign-settings > div:last-child { gap:12px; }
+  .redesign-settings > div:last-child .kit-btn { min-width:0; height:50px; padding:5px; font-size:17px; }
+  .redesign-settings > div:last-child .kit-btn svg { width:17px; }
+  .hm-modal.hm-pause { width:100%; padding:22px 17px; display:flex; flex-direction:column; gap:15px; }
+  .hm-pause .hm-modal-title { font-size:clamp(31px,7.8vw,53px); }
+  .hm-pause .paper-kicker { font-size:12px; }
+  .hm-pause-main > ol { margin-top:15px; }
+  .hm-pause .hm-menu-row { min-height:49px; padding:9px; grid-template-columns:23px 1fr; gap:10px; }
+  .hm-pause .hm-menu-label { font-size:19px; }
+  .hm-pause .hm-menu-sub { display:none; }
+  .hm-pause .hm-menu-row-primary .hm-menu-label { min-height:45px; padding:13px 15px; }
+  .hm-pause > aside { display:none; }
+  .hm-modal.redesign-rewards { width:100%; padding:24px 17px 18px; }
+  .redesign-rewards .paper-kicker { font-size:12px; }
+  .redesign-rewards > .hm-modal-title { font-size:58px; }
+  .redesign-rewards > .grid { gap:13px; margin-top:20px; }
+  .redesign-rewards .hm-pick { min-height:160px; }
+  .redesign-rewards .hm-pick-art { min-height:150px; }
+  .redesign-rewards .hm-pick > div:last-child { padding:14px 12px; }
+  .redesign-rewards .hm-pick-name { font-size:20px; }
+  .redesign-rewards .hm-pick-desc { font-size:17px; }
+  .redesign-rewards .hm-label { font-size:11px; }
+  .redesign-rewards .hm-stamp { top:auto; bottom:9px; padding:3px 4px; font-size:9px; }
+  .redesign-rewards .hm-foot > span { font-size:14px; }
+  .redesign-rewards .hm-foot > .hm-btn { width:100%; min-height:50px; font-size:21px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .redesign-title .title-wrap { display:block; padding:0; }
+  .redesign-title .title-head { position:absolute; inset:9% 72% auto 2%; }
+  .redesign-title .title-logo { width:100%; max-height:24dvh; }
+  .redesign-title .title-resources { gap:4px; }
+  .redesign-title .title-resources .kit-chip { padding:4px 7px; min-height:26px; gap:6px; }
+  .redesign-title .title-resources small { font-size:9px; }
+  .title-unlock-note { display:none; }
+  .redesign-title .title-pick { position:absolute; inset:auto 3% 5% 31%; width:auto; }
+  .redesign-title .title-character .title-portrait { height:33dvh; }
+  .redesign-title .title-character.is-selected .title-portrait { height:38dvh; }
+  .redesign-title .title-character .title-kid { font-size:14px; min-height:25px; }
+  .redesign-title .title-character.is-selected .title-kid { font-size:16px; min-height:36px; }
+  .redesign-title .title-go { gap:6px; margin-top:8px; }
+  .redesign-title .title-play { height:44px; min-height:44px; font-size:19px; }
+  .redesign-title .title-go p { font-size:11px; }
+  .redesign-title .title-nav { position:absolute; inset:auto auto 5% 2%; width:26%; display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+  .redesign-title .title-nav .kit-btn { height:33px; min-height:33px; padding:0 5px; font-size:10px; gap:5px; }
+  .redesign-title .title-nav .kit-btn svg { width:15px; height:15px; }
+  .redesign-title .title-nav-play { display:none; }
+}
+
+/* Native labels and repeatable edges stay sharp at every button size. */
+.game-shell:has(.redesign-title) > header { top:auto; bottom:12px; left:18px; opacity:.85; }
+.redesign-title .title-unlock > summary { display:flex; align-items:center; gap:7px; padding:7px 11px; border:1px solid #9c612b; border-radius:4px; background:#080b10bf; color:#efc284; font:600 12px 'Barlow Condensed',sans-serif; text-transform:uppercase; cursor:pointer; list-style:none; }
+.redesign-title .title-unlock > summary::-webkit-details-marker { display:none; }
+.redesign-title .title-unlock[open] > summary { margin-bottom:8px; }
+.game-shell .redesign-title .title-nav .kit-btn { color:#fff0d5; font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:600; }
+.game-shell .redesign-title .title-nav .kit-btn > * { opacity:1; }
+.game-shell .redesign-title .title-nav .kit-btn:hover { color:#ffd18a; transform:translateX(2px); }
+.game-shell .redesign-title .title-play { justify-self:center; width:min(100%,360px); height:58px; min-height:58px; max-height:58px; padding:8px 18px; font-size:23px; gap:12px; }
+.game-shell .redesign-title .title-play > * { opacity:1; }
+.game-shell .redesign-title .title-play svg { width:24px; height:24px; }
+.game-shell .redesign-title .title-panel { background:linear-gradient(120deg,#0c0c0ce8,#090a0deb); border:1px solid #5d5247; border-radius:11px; box-shadow:0 8px 25px #0009,inset 0 0 2px #d9a66c33; }
+.game-shell .hm-pause .hm-modal-title { position:relative; height:auto; min-height:120px; margin:0; font-family:var(--font-horror); font-size:clamp(54px,6.5vw,104px); color:#fff0d5; background:none; letter-spacing:-.025em; white-space:normal; }
+.game-shell .hm-pause .hm-modal-title > * { opacity:1; }
+.game-shell .hm-pause .hm-rule { visibility:hidden; height:0; margin-top:0; }
+.game-shell .hm-pause { min-height:630px; }
+.game-shell .hm-pause > aside > .weapon-card { min-height:100%; }
+.game-shell .hm-pause .weapon-card-header { min-height:94px; }
+.game-shell .hm-pause .weapon-card-art { width:45%; height:86px; }
+.game-shell .hm-pause .weapon-card-header .font-cond { font-size:27px; }
+.game-shell .hm-pause .weapon-card-header .font-cond2 { font-size:17px; }
+.game-shell .hm-pause .weapon-card-compact .weapon-stat { padding-block:7px; }
+.game-shell .hm-pause .weapon-stat > span { font-size:19px; }
+.game-shell .hm-pause .weapon-stat > span > svg { display:none; }
+.game-shell .hm-pause .hm-menu-row-primary { background:linear-gradient(100deg,#ffa91a55,transparent 50%); border:1px solid #ffab26; box-shadow:0 0 10px #ff70003d; }
+.game-shell .hm-pause .hm-menu-row-primary::before { display:none; }
+.game-shell .hm-pause .hm-menu-row-primary .hm-menu-label { color:#ffd076; background:none; }
+.game-shell .hm-pause .hm-menu-row-primary .hm-menu-label > svg { visibility:visible; }
+.game-shell .redesign-settings { border:1px solid #f58b28; border-radius:5px; background:var(--night-surface); box-shadow:0 0 3px #ffb052,0 0 15px #f86c0033,0 15px 60px #0009; isolation:isolate; }
+.game-shell .redesign-settings::before { content:''; position:absolute; inset:0; z-index:-1; border:0; border-image:none; background:var(--night-web) left top / 100px 100px no-repeat,url('/images/redesign/autumn-foliage.webp') right bottom / 100px auto no-repeat; pointer-events:none; }
+.game-shell .redesign-settings .settings-title { width:auto; max-width:90%; height:auto; margin-top:0; background:none; color:#ff951c!important; text-shadow:0 3px #5f1b06; font:400 92px/1 var(--font-horror); letter-spacing:.015em; transform:none; }
+.game-shell .redesign-settings > div:first-child { min-height:104px; }
+.game-shell .redesign-settings .settings-title::after { display:none; }
+.game-shell .redesign-settings > div:first-child > button { border:1px solid #ee911b; background:#080b10; color:#ffb64b; box-shadow:0 0 5px #ff670040; }
+.game-shell .redesign-settings > div:first-child > button > svg { opacity:1; }
+.game-shell .redesign-rewards > .hm-modal-title { height:auto; min-height:115px; margin-left:0; font:400 clamp(62px,7vw,112px)/1 var(--font-horror); background:none; color:#fff0d5; letter-spacing:-.02em; }
+.game-shell .redesign-rewards > .hm-modal-title > * { opacity:1; }
+.game-shell .redesign-rewards > .hm-modal-title:not(:has(em)) { font-family:var(--font-horror); background:none; height:auto; }
+.game-shell .redesign-rewards > .hm-rule { display:none; }
+.game-shell .redesign-rewards .hm-foot > .hm-btn { color:#100d07; background:linear-gradient(#ffbe44,#ff8b16); }
+.game-shell .redesign-rewards .hm-foot > .hm-btn::before { display:none; }
+.hm-backdrop { isolation:isolate; background:#03040970; }
+.hm-backdrop::before { content:''; position:absolute; z-index:-1; inset:0; background:url('/images/redesign/street-background.webp') center/cover no-repeat; filter:blur(4px) brightness(.8); pointer-events:none; }
+
+@media (max-width:700px) {
+  .game-shell:has(.redesign-title) > header { top:10px; bottom:auto; left:12px; }
+  .redesign-title .title-unlock { top:10px; right:12px; }
+  .redesign-title .title-unlock > summary { font-size:10px; padding:5px 7px; }
+  .game-shell .hm-pause { min-height:0; }
+  .game-shell .hm-pause .hm-modal-title { min-height:70px; font-size:clamp(38px,9vw,64px); }
+  .game-shell .redesign-settings .settings-title { font-size:64px; }
+  .game-shell .redesign-settings > div:first-child { min-height:76px; }
+  .game-shell .redesign-settings::before { background-size:75px 75px,70px auto; }
+  .game-shell .redesign-rewards > .hm-modal-title { min-height:80px; font-size:72px; }
+  .game-shell .redesign-title .title-play { width:100%; font-size:21px; height:52px; min-height:52px; max-height:52px; }
+  .game-shell .redesign-title .title-nav .kit-btn { flex-direction:row; justify-content:flex-start; min-height:44px; height:44px; padding:0 10px; gap:7px; font-size:13px; }
+  .game-shell .redesign-title .title-nav .kit-btn:not(.records-trigger)::after { right:8px; font-size:24px; }
+}
+@media (max-height:780px) and (min-width:701px) {
+  .game-shell .hm-pause { min-height:0; }
+  .game-shell .hm-pause .hm-modal-title { min-height:90px; font-size:78px; }
+  .game-shell .redesign-settings .settings-title { font-size:72px; }
+  .game-shell .redesign-settings > div:first-child { min-height:80px; }
+  .game-shell .redesign-rewards > .hm-modal-title { min-height:90px; font-size:88px; }
+}

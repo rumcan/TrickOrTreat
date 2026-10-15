@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Play, Users, Lollipop, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize } from 'lucide-react';
+import { Play, Users, Sparkles, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, BookOpen, Sun, Vibrate, Moon, Lock, Maximize, Skull, Droplet, Volume2, VolumeX, Zap, Monitor } from 'lucide-react';
+import './menu-redesign.css';
+import './reference-treatment.css';
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
@@ -29,7 +31,7 @@ function KeyArt({ dim = 0, blur }: { dim?: number; blur?: boolean }) {
   return (
     <>
       <SplashArt style={blur ? { filter: 'blur(5px) saturate(0.7)', transform: 'scale(1.05)' } : undefined} />
-      <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(14,15,19,${0.55 + dim}) 0%, rgba(14,15,19,${dim}) 38%, rgba(14,15,19,${0.15 + dim}) 62%, rgba(14,15,19,0.92) 100%)` }} />
+      <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(4,6,12,${0.08 + dim}) 0%, rgba(4,6,12,${dim}) 55%, rgba(4,6,12,${0.2 + dim}) 100%)` }} />
     </>
   );
 }
@@ -37,7 +39,7 @@ function KeyArt({ dim = 0, blur }: { dim?: number; blur?: boolean }) {
 function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) {
   useBack(() => onClose?.(), !!onClose);
   return (
-    <div className="absolute inset-0 z-50 bg-black/75">
+    <div className="redesign-modal-backdrop absolute inset-0 z-50 bg-black/55 backdrop-blur-sm" role="dialog" aria-modal="true">
       {/* margin:auto centring, so a popup taller than the phone starts at its top instead of being cut off above it */}
       <div className="modal-scroll flex h-full overflow-y-auto overscroll-contain p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
         <div className="m-auto flex w-full justify-center">{children}</div>
@@ -59,41 +61,41 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
   const allowed = save.hero < 3 || hasFullGame();
   const hero = HERO_INFO[save.hero];
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
+    <div className="redesign-title absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
-      <LeaderboardDrawer />
       {/* Layout lives in index.css (.title-*): phones get one screen with no scrolling, in portrait and landscape. */}
       <div className="title-wrap relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 sm:p-8 sm:pt-12 lg:pt-12">
         <header aria-label="Game header" className="title-head flex flex-col items-center gap-2">
           {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
-          <div className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
+          <details className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><summary><Sparkles size={15} /> Full game</summary><ExpansionUnlock compact onPlay={onCampaign} /></details>
           <LogoImg className="title-logo w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Chip icon={<CandyIcon size={16} />} className="!text-sm">{save.soul} essence</Chip>
-            {save.best > 0 && <Chip icon={<ClockIcon size={16} />} className="!text-xs">BEST {fmtTime(save.best)}</Chip>}
+          <div className="title-resources flex flex-wrap items-center justify-center gap-2">
+            <Chip icon={<CandyIcon size={20} />} className="title-essence !text-sm"><b>{save.soul}</b> <small>Essence</small></Chip>
+            <Chip icon={<ClockIcon size={20} />} className="!text-xs"><small>Best</small> <b>{fmtTime(save.best)}</b></Chip>
           </div>
           {/* the free way into the full game, right under the Essence it counts; it opens the showcase, which shows the progress */}
-          {!hasFullGame() && <button type="button" className="unlock-badge" onClick={() => setShowcase(true)} aria-label="Reach 15,000 Essence to unlock the full game. Limited time. See what is in it."><img src={ART.badge15k} alt="" draggable={false} className="kit-bob" /></button>}
+          {!hasFullGame() && <button type="button" className="title-unlock-note" onClick={() => setShowcase(true)} aria-label="Reach 15,000 Essence to unlock the full game. Limited time. See what is in it."><Sparkles size={14} /> Unlock every kid with 15,000 essence <ChevronRight size={14} /></button>}
           {showcase && <UnlockShowcase onClose={() => setShowcase(false)} onPlay={onCampaign} />}
         </header>
         <div className="title-main mx-auto flex w-full max-w-4xl flex-1 flex-col">
           <div className="title-pick flex flex-1 items-center py-5">
           <section aria-label="Character selection" className="title-panel kit-panel w-full bg-[#0e0f13]/90 p-3 sm:p-4">
-            <h1 className="title-h1 mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
-            <div className="grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids">
+            <h1 className="sr-only">Choose your kid</h1>
+            <button className="title-carousel title-carousel-prev" aria-label="Previous kid" onClick={() => setHero((save.hero + HERO_INFO.length - 1) % HERO_INFO.length)}><ChevronLeft /></button>
+            <div className="title-cards grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids" style={{ gridTemplateColumns: HERO_INFO.map((_, i) => i === save.hero ? '1.25fr' : '1fr').join(' ') }}>
               {HERO_INFO.map((kid, index) => {
                 const selected = index === save.hero, locked = index >= 3 && !hasFullGame();
-                return <button key={kid.name} aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`} aria-pressed={selected} onClick={() => setHero(index)} className="group relative min-w-0 overflow-hidden rounded border-2 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffc453]" style={{ borderColor: selected ? '#ffc453' : '#3a3d44', background: HERO_COLORS[index] }}>
+                return <button key={kid.name} aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`} aria-pressed={selected} onClick={() => setHero(index)} className={`title-character ${selected ? 'is-selected' : ''} group relative min-w-0 overflow-hidden rounded border-2 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffc453]`} style={{ '--hero-color': HERO_COLORS[index], borderColor: selected ? '#ffc453' : '#3a3d44', background: HERO_COLORS[index] } as React.CSSProperties}>
                   <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className={`title-portrait h-24 w-full object-cover object-top sm:h-44 ${selected ? '' : 'opacity-80 group-hover:opacity-100'}`} />
-                  <div className={`title-kid bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}</div>
+                  <div className={`title-kid bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}{selected && <small>{kid.title}</small>}</div>
                   {locked && <span className="title-lock absolute inset-x-0 bottom-8 bg-black/75 py-0.5 text-[9px] uppercase tracking-wide text-[#ffc453]">Full game</span>}
                   {selected && <span aria-hidden="true" className="absolute right-1 top-1 rounded bg-[#ffc453] px-1 text-xs font-bold text-black">✓</span>}
                 </button>;
               })}
             </div>
+            <button className="title-carousel title-carousel-next" aria-label="Next kid" onClick={() => setHero((save.hero + 1) % HERO_INFO.length)}><ChevronRight /></button>
             <div className="title-go mt-3 flex flex-wrap items-center justify-between gap-3">
               <div aria-live="polite" className="min-w-0 flex-1">
-                <div className="font-cond text-xl">{hero.name} <span className="text-sm text-[#9aa0a6]">· {hero.title}</span></div>
                 <p className="title-passive mt-1 text-xs text-[#e6dcc4]">{hero.passive} · {hero.skill} ({hero.cd}s)</p>
                 <p className="mt-1 hidden text-xs text-[#9aa0a6] sm:block">{hero.skillDesc}</p>
                 {!allowed && <p className="mt-1 text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
@@ -103,11 +105,13 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
           </section>
           </div>
           <nav className="title-nav flex shrink-0 flex-wrap items-center justify-center gap-2">
-            <KitButton size="sm" variant="dark" icon={Lollipop} iconColor="#ff5f9e" onClick={onTalents}>Talents ({save.soul})</KitButton>
-            <KitButton size="sm" variant="dark" icon={Users} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
+            <KitButton size="sm" icon={Play} fillIcon onClick={() => document.querySelector('.title-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })} className="title-nav-play">Play</KitButton>
+            <LeaderboardDrawer embedded />
+            <KitButton size="sm" variant="dark" icon={Sparkles} className="title-nav-talents" onClick={onTalents}>Talents</KitButton>
+            <KitButton size="sm" variant="dark" icon={Users} className="title-nav-character" iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
             {SHOW_ATLAS && <KitButton size="sm" variant="dark" icon={Backpack} iconColor="#fb8016" onClick={onAtlas}>Collection</KitButton>}
-            <KitButton size="sm" variant="dark" icon={Gamepad2} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
-            <KitButton size="sm" variant="dark" icon={Gear} iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
+            <KitButton size="sm" variant="dark" icon={BookOpen} className="title-nav-howto" iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
+            <KitButton size="sm" variant="dark" icon={Gear} className="title-nav-settings" iconColor="#f4e6c4" onClick={() => setModal('settings')}>Settings</KitButton>
             {/* only where it can work; never floating over other buttons */}
             {canFullscreen() && <KitButton size="sm" variant="dark" icon={Maximize} iconColor="#f4e6c4" className="title-fullscreen" onClick={() => requestGameFullscreen(true)}>Fullscreen</KitButton>}
           </nav>
@@ -203,21 +207,22 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   }, [onClose]);
   return (
     <Modal onClose={onClose}>
-      <div className="kit-panel kit-pop w-full max-w-md p-5 sm:p-6">
+      <div className="redesign-settings kit-panel kit-pop w-full p-5 sm:p-6">
         <div className="flex items-center justify-between">
-          <KitTitle className="text-4xl">Settings</KitTitle>
+          <KitTitle className="settings-title has-reference-heading"><img className="reference-heading" src={ART.headingSettings} alt="" aria-hidden="true" /><span className="sr-only">Settings</span></KitTitle>
           <button onClick={onClose} aria-label="Close" className="text-[#9aa0a6] hover:text-[#fb8016]"><X size={24} /></button>
         </div>
         <div className="mt-5 space-y-4">
-          <SettingRow label="Screen shake" desc="Camera kick on hits & explosions"><Slider icon={Vibrate} label="Screen shake" value={settings.shake} onChange={(v) => set(() => (settings.shake = v))} /></SettingRow>
-          <SettingRow label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
-          <SettingRow label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
-          <SettingRow label="Monster names" desc="Labels above monsters with a special power"><Toggle label="Monster names" on={settings.names} onChange={(v) => set(() => (settings.names = v))} /></SettingRow>
-          <SettingRow label="Tutorial" desc="Professor Fizz's walkie-talkie lesson on your next run"><Toggle label="Tutorial on the next run" on={!tutorialSeen()} onChange={(v) => { if (v) forgetTutorial(); else rememberTutorial('never'); force((n) => n + 1); }} /></SettingRow>
-          <SettingRow label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
-          <SettingRow label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="rounded border border-[#4a4d55] bg-[#13151b] p-2 text-[#f2e6c9]"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
-          <SettingRow label="Sound effects" desc="Blaster pops, pickups and monster hits"><Slider icon={Moon} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
-          <SettingRow label="Mute audio" desc="Silences effects and the radio"><Toggle label="Mute all audio" on={settings.muted} onChange={(v) => { gameAudio.setMuted(v); force((n) => n + 1); }} /></SettingRow>
+          <SettingRow icon={<Vibrate />} label="Screen shake" desc="Camera kick on hits & explosions"><Slider icon={Vibrate} label="Screen shake" value={settings.shake} onChange={(v) => set(() => (settings.shake = v))} /></SettingRow>
+          <SettingRow icon={<Moon fill="currentColor" />} label="Night brightness" desc="Lift the darkness a little"><Slider icon={settings.bright > 0.5 ? Sun : Moon} label="Night brightness" value={settings.bright} onChange={(v) => set(() => (settings.bright = v))} /></SettingRow>
+          <SettingRow icon={<Zap fill="currentColor" />} label="Damage numbers" desc="Floating numbers when you hit"><Toggle label="Damage numbers" on={settings.dmgText} onChange={(v) => set(() => (settings.dmgText = v))} /></SettingRow>
+          <SettingRow icon={<Skull />} label="Monster names" desc="Labels above monsters with a special power"><Toggle label="Monster names" on={settings.names} onChange={(v) => set(() => (settings.names = v))} /></SettingRow>
+          <SettingRow icon={<BookOpen />} label="Tutorial" desc="Professor Fizz's walkie-talkie lesson on your next run"><Toggle label="Tutorial on the next run" on={!tutorialSeen()} onChange={(v) => { if (v) forgetTutorial(); else rememberTutorial('never'); force((n) => n + 1); }} /></SettingRow>
+          <SettingRow icon={<Gear fill="currentColor" />} label="Low effects" desc="Fewer particles for slow machines"><Toggle label="Low effects" on={settings.lowFx} onChange={(v) => set(() => (settings.lowFx = v))} /></SettingRow>
+          <SettingRow icon={<Monitor />} label="High graphics" desc="Sharper art and screen for strong PCs (applies on the next run)"><Toggle label="High graphics" on={settings.highGraphics} onChange={(v) => set(() => (settings.highGraphics = v))} /></SettingRow>
+          <SettingRow icon={<Droplet fill="currentColor" />} label="Monster blood & gore" desc="Lightweight splatters; green by default"><select aria-label="Monster blood and gore" value={settings.gore} onChange={e => set(() => { settings.gore = e.target.value as typeof settings.gore; })} className="rounded border border-[#4a4d55] bg-[#13151b] p-2 text-[#f2e6c9]"><option value="green">Green blood</option><option value="red">Red blood</option><option value="off">Off</option></select></SettingRow>
+          <SettingRow icon={<Volume2 fill="currentColor" />} label="Sound effects" desc="Blaster pops, pickups and monster hits"><Slider icon={Volume2} label="Sound effects volume" value={settings.sfxVolume} onChange={(v) => { gameAudio.setVolume(v); force((n) => n + 1); }} /></SettingRow>
+          <SettingRow icon={<VolumeX />} label="Mute audio" desc="Silences effects and the radio"><Toggle label="Mute all audio" on={settings.muted} onChange={(v) => { gameAudio.setMuted(v); force((n) => n + 1); }} /></SettingRow>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
           <KitButton
@@ -226,16 +231,17 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           >
             {armed ? 'Click again to wipe' : 'Reset progress'}
           </KitButton>
-          <KitButton variant="cream" onClick={onClose}>Confirm</KitButton>
+          <KitButton icon={Play} fillIcon onClick={onClose}>Confirm</KitButton>
         </div>
       </div>
     </Modal>
   );
 }
-function SettingRow({ label, desc, children }: { label: string; desc: string; children: React.ReactNode }) {
+function SettingRow({ icon, label, desc, children }: { icon?: React.ReactNode; label: string; desc: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div>
+    <div className="settings-row flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <span className="settings-row-icon" aria-hidden="true">{icon}</span>
+      <div className="settings-row-label">
         <div className="font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{label}</div>
         <div className="text-[12px] text-[#9aa0a6]">{desc}</div>
       </div>
@@ -252,7 +258,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
   const items = [
     { label: 'Resume', sub: 'back to the night', on: onResume },
     { label: 'Your run build (I)', sub: 'treats · synergies · damage math', on: () => setPanel('inventory') },
-    ...(game.friends.length ? [{ label: 'Friends & shared guns', sub: 'your team and their guns', on: () => setPanel('team') }] : []),
+    { label: 'Friends & shared guns', sub: 'your team and their guns', on: () => setPanel('team') },
     { label: 'Settings', sub: 'sound · brightness · gore', on: () => setPanel('settings') },
     { label: 'Controls', sub: 'keys and mouse', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')) },
     { label: 'Restart run', sub: 'same kid, fresh night', on: onRestart },
@@ -264,14 +270,14 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
       <div className="hm-modal hm-pause kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
         <div className="hm-pause-main min-w-0">
           <div className="paper-kicker">Paused · {fmtTime(game.time)} · {HERO_INFO[game.hero].name}</div>
-          <h2 className="hm-modal-title">Take a breather</h2>
+          <h2 className="hm-modal-title has-reference-heading"><img className="reference-heading" src={ART.headingPause} alt="" aria-hidden="true" /><span className="sr-only">Take a breather</span></h2>
           <span className="hm-rule" />
           <ol className="mt-5 shrink-0">
             {items.map((it, k) => (
               <li key={it.label}>
-                <button onMouseEnter={() => setHover(k)} onClick={it.on} className="hm-menu-row">
+                <button onMouseEnter={() => setHover(k)} onClick={it.on} className={`hm-menu-row ${k === 0 ? 'hm-menu-row-primary' : ''}`}>
                   <span className="hm-menu-n">{String(k + 1).padStart(2, '0')}</span>
-                  <span className="hm-menu-label">{it.label}</span>
+                  <span className="hm-menu-label">{k === 0 && <Play size={24} fill="currentColor" />}{it.label}</span>
                   <span className="hm-menu-sub">{it.sub}</span>
                 </button>
               </li>
@@ -413,9 +419,9 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const cards = n + (locked ? 1 : 0);
   return (
     <div className="hm-backdrop">
-      <div className="hm-modal kit-pop">
+      <div className="hm-modal redesign-rewards kit-pop">
         <div className="paper-kicker">{kicker}</div>
-        <h2 className="hm-modal-title">{title}</h2>
+        <h2 className={`hm-modal-title ${title === 'Level up!' ? 'has-reference-heading' : ''}`}>{title === 'Level up!' ? <><img className="reference-heading" src={ART.headingLevelUp} alt="" aria-hidden="true" /><span className="sr-only">Level up!</span></> : title}</h2>
         <span className="hm-rule" />
         {mode === 'house' && game.treatGuideNotice && <aside role="note" aria-label="Trick-or-treat guide" className="mt-4 rounded-lg border border-[#69cf91]/60 bg-[#102a23] px-4 py-3 text-sm leading-relaxed text-[#f0fff4]">
           <strong className="block text-[#a4f5ba]">The best loot is behind a door.</strong>

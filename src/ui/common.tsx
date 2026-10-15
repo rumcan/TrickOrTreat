@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { Tornado, Camera, Wrench, Moon } from 'lucide-react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { Tornado, Camera, Wrench, Moon, Skull, Crosshair, Gauge, Ruler, List, Timer, ArrowUpRight, Repeat, Flame, Zap, Ghost } from 'lucide-react';
 import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
@@ -13,7 +13,7 @@ export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
 export const fmtTime = (t: number) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 /** rarity colours in the UI: grey, then the familiar yellow-green · deep blue · purple · orange */
-export const RARITY_KIT = ['#9aa0a6', '#1eff00', '#0070dd', '#a335ee', '#ff8000'];
+export const RARITY_KIT = ['#aaa9ac', '#48ff00', '#00b7ff', '#cb24ff', '#ff8000'];
 
 // ============ GLYPHS (filled icons as drawn in the kit) ============
 type G = { size?: number; className?: string };
@@ -32,7 +32,7 @@ export const CloverIcon = ({ size = 16, className = '' }: G) => svg(size, classN
 /** the kit check box (objectives) */
 export function Check({ on }: { on: boolean }) {
   return (
-    <span className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[3px] border-2 ${on ? 'border-black bg-[#fb8016]' : 'border-[#8a8f8c] bg-[#0b0c0f]'}`}>
+    <span className={`kit-check flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[3px] border-2 ${on ? 'is-checked border-black bg-[#fb8016]' : 'border-[#8a8f8c] bg-[#0b0c0f]'}`}>
       {on && (
         <svg width="11" height="9" viewBox="0 0 10 8" fill="none">
           <path d="M1 3.5L4 6.5L9 1" stroke="#0e0f13" strokeWidth="2.4" strokeLinecap="round" />
@@ -108,17 +108,17 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   const rc = RARITY_KIT[w.rarity];
   const dps = weaponDps(w, stats);
   const cdps = compare ? weaponDps(compare, stats) : null;
-  const Row = ({ k, v }: { k: string; v: React.ReactNode }) => (
-    <div className="flex items-center justify-between border-b border-[#2a2d33] py-[5px] last:border-0">
-      <span className="font-ui text-[13px] text-[#e6dcc4]">{k}</span>
+  const Row = ({ k, v, icon }: { k: string; v: ReactNode; icon?: ReactNode }) => (
+    <div className="weapon-stat flex items-center justify-between border-b border-[#2a2d33] py-[5px] last:border-0">
+      <span className="flex items-center gap-2 font-ui text-[13px] text-[#e6dcc4]">{icon}{k}</span>
       <span className="font-ui text-[13px] font-bold text-white">{v}</span>
     </div>
   );
   return (
-    <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+    <div className={`weapon-card kit-panel relative max-w-full ${compact ? 'weapon-card-compact w-60 p-3' : 'w-72 p-4'} ${className}`} data-rarity={w.rarity} style={{ borderColor: rc, '--rarity': rc } as CSSProperties}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
-      <div className="flex items-center gap-3">
-        <div className="h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+      <div className="weapon-card-header flex items-center gap-3">
+        <div className="weapon-card-art h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: rc }}>
           <GunArt id={w.def.id} />
         </div>
         <div className="min-w-0">
@@ -129,9 +129,10 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
         </div>
       </div>
       {!compact && <p className="mt-2 text-[12px] italic leading-snug text-[#9aa0a6]">{w.def.desc}</p>}
-      <div className="mt-2.5 rounded-[6px] border border-[#3a3d44] bg-black/30 px-3 py-0.5">
+      <div className="weapon-stats mt-2.5 rounded-[6px] border border-[#3a3d44] bg-black/30 px-3 py-0.5">
         <Row
           k="DPS"
+          icon={<Skull size={13} />}
           v={
             <span>
               {dps}
@@ -139,17 +140,17 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
             </span>
           }
         />
-        <Row k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
-        <Row k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
-        <Row k="Range" v={`${st.range.toFixed(1)} m`} />
-        <Row k="Magazine" v={st.mag} />
-        <Row k="Reload" v={`${st.reload.toFixed(2)}s`} />
-        {st.pierce > 0 && st.pierce < 50 && <Row k="Pierce" v={st.pierce} />}
-        {st.bounce > 0 && <Row k="Ricochet" v={st.bounce} />}
-        {w.def.explode > 0 && <Row k="Explosion" v={`${w.def.explode.toFixed(1)} tiles`} />}
-        {st.fire > 0 && <Row k="Burn" v={<span className="text-[#fb8016]">{Math.round(st.fire * 100)}%</span>} />}
-        {st.shock > 0 && <Row k="Shock" v={<span className="text-[#7fd8ff]">{Math.round(st.shock * 100)}%</span>} />}
-        {st.ecto > 0 && <Row k="Ecto" v={<span className="text-[#7cff64]">{Math.round(st.ecto * 100)}%</span>} />}
+        <Row k="Damage" icon={<Crosshair size={13} />} v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
+        <Row k="Fire rate" icon={<Gauge size={13} />} v={`${st.rate.toFixed(1)}/s`} />
+        <Row k="Range" icon={<Ruler size={13} />} v={`${st.range.toFixed(1)} m`} />
+        <Row k="Magazine" icon={<List size={13} />} v={st.mag} />
+        <Row k="Reload" icon={<Timer size={13} />} v={`${st.reload.toFixed(2)}s`} />
+        {st.pierce > 0 && st.pierce < 50 && <Row k="Pierce" icon={<ArrowUpRight size={13} />} v={st.pierce} />}
+        {st.bounce > 0 && <Row k="Ricochet" icon={<Repeat size={13} />} v={st.bounce} />}
+        {w.def.explode > 0 && <Row k="Explosion" icon={<Flame size={13} />} v={`${w.def.explode.toFixed(1)} tiles`} />}
+        {st.fire > 0 && <Row k="Burn" icon={<Flame size={13} className="text-[#ff8300]" />} v={<span className="text-[#ff8300]">{Math.round(st.fire * 100)}%</span>} />}
+        {st.shock > 0 && <Row k="Shock" icon={<Zap size={13} className="text-[#30dfff]" />} v={<span className="text-[#30dfff]">{Math.round(st.shock * 100)}%</span>} />}
+        {st.ecto > 0 && <Row k="Ecto" icon={<Ghost size={13} className="text-[#66ff4d]" />} v={<span className="text-[#66ff4d]">{Math.round(st.ecto * 100)}%</span>} />}
       </div>
       <Inscriptions w={w} compact={compact} big={bigInsc} />
     </div>
@@ -179,7 +180,7 @@ export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean
 
 function Arrow({ dir, onClick }: { dir: -1 | 1; onClick: () => void }) {
   return (
-    <button onClick={onClick} aria-label={dir < 0 ? 'Previous kid' : 'Next kid'} className="absolute top-1/2 z-10 -translate-y-1/2 p-1 text-[#141210] transition-transform hover:scale-110 active:scale-95" style={{ [dir < 0 ? 'left' : 'right']: -34 }}>
+    <button onClick={onClick} aria-label={dir < 0 ? 'Previous kid' : 'Next kid'} className="character-arrow absolute top-1/2 z-10 -translate-y-1/2 p-1 text-[#f8e8c8] transition-transform hover:scale-110 active:scale-95" style={{ [dir < 0 ? 'left' : 'right']: -34 }}>
       <svg width="24" height="44" viewBox="0 0 24 44"><path d={dir < 0 ? 'M22 2L2 22l20 20z' : 'M2 2l20 20L2 42z'} fill="currentColor" /></svg>
     </button>
   );
@@ -190,7 +191,7 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
   const h = HERO_INFO[hero];
   const barW = (v: number) => `${Math.min(100, (v / 200) * 100)}%`;
   return (
-    <div className="kit-paper kit-pop flex w-full max-w-[640px] flex-col gap-6 p-5 sm:flex-row sm:p-6">
+    <div className="character-details kit-paper kit-pop flex w-full max-w-[640px] flex-col gap-6 p-5 sm:flex-row sm:p-6">
       <div className="relative mx-10 shrink-0 self-center sm:mx-8">
         {onPrev && <Arrow dir={-1} onClick={onPrev} />}
         <div className="h-[260px] w-[176px] overflow-hidden border-[3px] border-[#1a1712] sm:h-[300px] sm:w-[200px]" style={{ background: HERO_COLORS[hero] }}>

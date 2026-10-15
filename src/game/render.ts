@@ -69,6 +69,7 @@ export class Renderer {
   vignette: HTMLCanvasElement | null = null;
   leaves: { x: number; y: number; vx: number; vy: number; r: number; c: string }[] = [];
   dpr = 1;
+  private readonly highGraphics = settings.highGraphics;
   t = 0;
   heroIdx: number;
   costume: string | null = null;
@@ -136,7 +137,7 @@ export class Renderer {
     }
     this.t += dt;
     const cv = this.canvas, ctx = this.ctx;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = this.highGraphics ? Math.min(2, Math.max(1.5, window.devicePixelRatio || 1)) : Math.min(window.devicePixelRatio || 1, 2);
     this.dpr = dpr;
     const vw = cv.clientWidth, vh = cv.clientHeight;
     // also size our own layers on the first frame: a restarted run reuses a canvas that is already the right size,
@@ -1252,7 +1253,7 @@ export class Renderer {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (this.minimap) {
       const big = g.bigMap;
-      const mw = big ? Math.min(vw * 0.72, vh * 1.5) : Math.min(230, vw * 0.22), sc = mw / this.minimap.width, mh = this.minimap.height * sc;
+      const mw = big ? Math.min(vw * 0.72, vh * 1.5) : Math.min(245, vw * 0.22), sc = mw / this.minimap.width, mh = this.minimap.height * sc;
       // Follow the real HUD height, including touch layout and safe-area padding.
       const top = hudTop + 3;
       const mx = big ? (vw - mw) / 2 : vw - mw - 16, my = big ? (vh - mh) / 2 : top + 16;
@@ -1261,7 +1262,7 @@ export class Renderer {
         ctx.fillStyle = 'rgba(5,6,10,0.6)';
         ctx.fillRect(0, 0, vw, vh);
       }
-      // HexMatch minimap frame: 4px ink border + 1px orange outline
+      // Ember frame: a thin bright edge and warm corner glow around the map.
       // The corner map is see-through: the fight goes on underneath it. Only the markers drawn on top stay solid.
       // The big map (M / Tab) is a screen of its own and stays opaque.
       ctx.globalAlpha = big ? 1 : 0.28;
@@ -1269,9 +1270,15 @@ export class Renderer {
       ctx.fillRect(mx - 6, my - 6, mw + 12, mh + 12);
       ctx.fillStyle = '#0d1418';
       ctx.fillRect(mx - 2, my - 2, mw + 4, mh + 4);
-      ctx.globalAlpha = big ? 1 : 0.55;
-      ctx.strokeStyle = '#ec9633'; ctx.lineWidth = 1;
+      ctx.globalAlpha = big ? 1 : 0.95;
+      ctx.shadowColor = '#ff720c'; ctx.shadowBlur = big ? 12 : 7;
+      ctx.strokeStyle = '#ff9b26'; ctx.lineWidth = 1.2;
       ctx.strokeRect(mx - 6.5, my - 6.5, mw + 13, mh + 13);
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#ffd478'; ctx.lineWidth = 1.5;
+      for (const [cx, cy, dx, dy] of [[mx - 6.5, my - 6.5, 1, 1], [mx + mw + 6.5, my - 6.5, -1, 1], [mx - 6.5, my + mh + 6.5, 1, -1], [mx + mw + 6.5, my + mh + 6.5, -1, -1]]) {
+        ctx.beginPath(); ctx.moveTo(cx, cy + dy * 6); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx * 6, cy); ctx.stroke();
+      }
       ctx.globalAlpha = big ? 1 : 0.5;
       ctx.drawImage(this.minimap, mx, my, mw, mh);
       ctx.globalAlpha = 1;

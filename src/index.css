@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./ui/fonts.css";
 
 /* ===== Trick or Treat UI kit ===== */
 @theme {
@@ -34,7 +35,7 @@ body,
 .game-canvas { touch-action: none; }
 .touch-manual { display: none; }
 body {
-  font-family: "Barlow", system-ui, sans-serif;
+  font-family: var(--font-body);
   background: #0e0f13;
   color: #f2e6c9;
   -webkit-font-smoothing: antialiased;
@@ -42,22 +43,22 @@ body {
 
 /* type */
 .font-cond {
-  font-family: "Anton", "Arial Narrow", Impact, sans-serif;
-  font-weight: 400;
+  font-family: var(--font-hud);
+  font-weight: 600;
   letter-spacing: 0.02em;
 }
 .font-cond2 {
   font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
 }
 .font-ui {
-  font-family: "Barlow", system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 .font-brush {
-  font-family: "Permanent Marker", "Comic Sans MS", cursive;
+  font-family: var(--font-horror);
   font-weight: 400;
 }
 .font-num {
-  font-family: "Roboto Mono", ui-monospace, monospace;
+  font-family: var(--font-hud);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }

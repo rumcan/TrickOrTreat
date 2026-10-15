@@ -4,13 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Trick or Treat: Last Kid Standing</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Permanent+Marker&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet" />
+    <link rel="preload" as="font" href="%BASE_URL%fonts/Anton-Regular.ttf" type="font/ttf" crossorigin />
+    <link rel="preload" as="font" href="%BASE_URL%fonts/BarlowCondensed-SemiBold.ttf" type="font/ttf" crossorigin />
     <!-- First paint: the logo and the splash for this orientation are fetched before anything else. -->
     <link rel="preload" as="image" href="%BASE_URL%images/newlogo.webp?v=4" fetchpriority="high" />
-    <link rel="preload" as="image" href="%BASE_URL%images/splash.webp?v=3" media="(orientation: landscape)" fetchpriority="high" />
-    <link rel="preload" as="image" href="%BASE_URL%images/splash_portrait.webp?v=3" media="(orientation: portrait)" fetchpriority="high" />
+    <link rel="preload" as="image" href="%BASE_URL%images/redesign/street-background.webp?v=1" fetchpriority="high" />
     <style>
       html,body{margin:0;background:#0e0f13;overflow:hidden}
       /* Boot screen: painted from plain HTML before the game script runs, then reused by the React loading screen. */
@@ -26,23 +24,43 @@
       @keyframes boot-loop{0%{transform:translateX(-105%)}100%{transform:translateX(285%)}}
       @keyframes boot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
       @media (prefers-reduced-motion:reduce){.boot-logo{animation:none}.boot-loop i{animation-duration:3.5s}}
+      /* The movie remains outside React's root so SDK startup cannot restart it. */
+      #loading-overlay{position:fixed;inset:0;z-index:300;isolation:isolate;background:#080b10}
+      .boot-film,.boot-poster{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+      .boot-film{z-index:1}
+      #loading-overlay[data-phase=holding] .boot-film{opacity:0}
+      #loading-overlay .boot-shade{z-index:2;opacity:0;transition:opacity .65s;background:linear-gradient(180deg,#03060b08,#03060b26 32%,#03060bb3)}
+      #loading-overlay[data-phase=holding] .boot-shade{opacity:1}
+      #boot-ui{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center}
+      #loading-overlay .boot-body{width:min(660px,88vw);padding:0;opacity:0;transform:translateY(15px);transition:opacity .6s,transform .6s;pointer-events:none}
+      #loading-overlay[data-phase=holding] .boot-body{opacity:1;transform:none;pointer-events:auto}
+      #loading-overlay .boot-logo{width:100%;max-width:620px;animation:none;filter:drop-shadow(0 5px 15px #000c)}
+      .boot-progress{position:relative;margin-top:24px;height:9px;width:min(380px,76vw);overflow:hidden;border:1px solid #db842e;border-radius:3px;background:#080b10d9;box-shadow:0 0 7px #ff75003b}
+      .boot-progress i{display:block;position:absolute;inset:0;background:linear-gradient(90deg,#e74c07,#ffb833);transform:scaleX(0);transform-origin:left;transition:transform .18s}
+      .boot-status{display:flex;align-items:baseline;justify-content:space-between;gap:14px;width:min(380px,76vw);margin-top:8px}
+      .boot-status .boot-label{margin:0;color:#f5dfbd;letter-spacing:.12em;font-size:11px}
+      .boot-status b{color:#ffb84e;font:600 13px 'Barlow Condensed',sans-serif}
+      .boot-skip{position:absolute;right:max(22px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));min-height:44px;padding:9px 17px;border:1px solid #d4a36580;border-radius:4px;background:#090c12b8;color:#fff0d6;font:600 15px 'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+      .boot-skip span{margin-left:12px;color:#ffb443;font-size:22px;line-height:0}
+      .boot-skip:hover,.boot-skip:focus-visible{border-color:#ffb443;outline-color:#ffe0a3;background:#21160edd}
+      #loading-overlay[data-phase=holding] .boot-skip{display:none}
+      @media (orientation:portrait){.boot-film,.boot-poster{object-fit:contain;background:#080b10}#boot-ui{align-items:flex-end;padding-bottom:max(14vh,85px);box-sizing:border-box}#loading-overlay .boot-body{width:88vw}.boot-status .boot-label{letter-spacing:.06em}}
+      @media (prefers-reduced-motion:reduce){#loading-overlay .boot-body,#loading-overlay .boot-shade,.boot-progress i{transition:none}}
     </style>
   </head>
   <body>
-    <div id="root">
-      <div class="boot">
-        <picture>
-          <source media="(orientation: portrait)" srcset="%BASE_URL%images/splash_portrait.webp?v=3" />
-          <img class="boot-bg" src="%BASE_URL%images/splash.webp?v=3" alt="" draggable="false" fetchpriority="high" onload="this.classList.add('is-ready')" />
-        </picture>
+      <div id="loading-overlay" class="boot" data-phase="holding" aria-label="Welcome to Maple Falls">
+        <img class="boot-poster" src="%BASE_URL%intro/town-reveal-last.webp" alt="" draggable="false" fetchpriority="high" />
+        <video id="boot-film" class="boot-film" data-src="%BASE_URL%intro/town-reveal.mp4" poster="%BASE_URL%intro/town-reveal-first.webp" muted playsinline preload="auto" aria-hidden="true"></video>
         <div class="boot-shade"></div>
-        <div class="boot-body">
+        <div id="boot-ui"><div id="boot-static" class="boot-body">
           <img class="boot-logo" src="%BASE_URL%images/newlogo.webp?v=4" alt="Trick or Treat — Maple Falls" width="1240" height="462" draggable="false" fetchpriority="high" style="opacity:0;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.7))" onload="this.style.opacity=1" />
-          <div class="boot-loop" role="progressbar" aria-label="Loading"><i></i></div>
-          <div class="boot-label">Waking up the dead…</div>
-        </div>
+          <div class="boot-progress" role="progressbar" aria-label="Loading Maple Falls" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+          <div class="boot-status"><span class="boot-label">Waking up Maple Falls…</span><b>0%</b></div>
+        </div><button id="boot-static-skip" type="button" class="boot-skip" data-skip-intro>Skip intro <span aria-hidden="true">›</span></button></div>
       </div>
-    </div>
+    <div id="root"></div>
+    <script src="%BASE_URL%boot-intro.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

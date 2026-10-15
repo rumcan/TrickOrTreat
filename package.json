@@ -4,6 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:redesign": "node scripts/redesign-screenshots.mjs --serve",
+    "test:redesign:mobile": "node scripts/redesign-screenshots.mjs --serve --mobile --quick",
+    "test:loading-intro": "node scripts/loading-intro.test.mjs",
+    "art:intro": "python scripts/prepare-loading-intro.py",
+    "art:redesign": "python scripts/prepare-redesign-art.py && python scripts/prepare-redesign-ui.py && node scripts/prepare-hud-redesign.mjs && python scripts/prepare-reference-frames.py",
     "test:nightmare": "node scripts/nightmare-art.test.mjs && node scripts/nightmare-roster.test.mjs",
     "art:nightmare:export": "node scripts/nightmare-art.mjs export",
     "art:nightmare:pack": "node scripts/nightmare-art.mjs pack",

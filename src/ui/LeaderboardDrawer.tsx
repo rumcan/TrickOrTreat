@@ -4,9 +4,10 @@ import { Trophy, X, RotateCw, Clock3, ChevronRight } from 'lucide-react';
 import { leaderboard, setGuestTag } from '../game/leaderboard';
 import type { BoardEntry, BoardMode, BoardRank } from '../game/leaderboard-service';
 import { fmtTime } from './common';
+import { loadSave } from '../game/data';
 import { campaignOffered } from '../game/engine';
 
-export function LeaderboardDrawer() {
+export function LeaderboardDrawer({ embedded = false }: { embedded?: boolean } = {}) {
   const [profile, setProfile] = useState(leaderboard.profile);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<BoardMode>('survival');
@@ -43,7 +44,7 @@ export function LeaderboardDrawer() {
     finally { if (ticket === generation.current) setBusy(false); }
   };
   useEffect(() => {
-    if (!profile) { setOpen(false); setRows([]); setRank(null); setCursor(null); }
+    if (!profile && !embedded) { setOpen(false); setRows([]); setRank(null); setCursor(null); }
     if (open && profile) { closeRef.current?.focus(); void load(); }
     return () => { generation.current++; };
   }, [open, mode, profile?.id]);
@@ -60,9 +61,12 @@ export function LeaderboardDrawer() {
     window.addEventListener('keydown', keys);
     return () => window.removeEventListener('keydown', keys);
   }, [open]);
-  if (!profile) return null;
+  if (!profile) return embedded ? <>
+    <button className="records-trigger records-trigger--embedded kit-btn kit-btn-dark" aria-label="Night records" aria-expanded={open} onClick={() => setOpen(true)}><Trophy size={20} /><span>Night records</span><ChevronRight size={16} /></button>
+    {open && <div className="records-backdrop" onPointerDown={event => { if (event.target === event.currentTarget) close(); }}><aside className="records-drawer" role="dialog" aria-modal="true" aria-label="Night records"><header><div><div className="paper-kicker">Your longest night</div><h2><Trophy size={28} /> Night records</h2></div><button className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header><div className="records-you"><strong>Personal best</strong><span>{fmtTime(loadSave().best)}</span></div><p className="records-intro">Play on RUN to compare your longest night with the other kids of Maple Falls.</p><button className="hm-btn" onClick={close}>Back to the night</button></aside></div>}
+  </> : null;
   return <>
-    <button ref={triggerRef} className="records-trigger" aria-label="Open time leaderboard" aria-expanded={open} aria-controls="time-records" onClick={() => setOpen(true)}><Trophy size={20} /><span>Night records</span><ChevronRight size={16} /></button>
+    <button ref={triggerRef} className={`records-trigger ${embedded ? 'records-trigger--embedded kit-btn kit-btn-dark' : ''}`} aria-label="Open time leaderboard" aria-expanded={open} aria-controls="time-records" onClick={() => setOpen(true)}><Trophy size={20} /><span>Night records</span><ChevronRight size={16} /></button>
     {open && <div className="records-backdrop" onPointerDown={event => { if (event.target === event.currentTarget) close(); }}>
       <aside id="time-records" className="records-drawer" role="dialog" aria-modal="true" aria-label="Time leaderboard">
         <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2><Trophy size={28} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>

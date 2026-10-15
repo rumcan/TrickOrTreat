@@ -6,12 +6,15 @@ const img = (p: string) => `${base}images/${p}`;
 export const FX_ART = { explosion: `${base}assets/fx/fx_explosion.webp`, fire: `${base}assets/fx/fx_fire.webp` };
 
 export const ART = {
-  keyart: img('splash.webp?v=3'),
-  keyartPortrait: img('splash_portrait.webp?v=3'),
+  keyart: img('redesign/street-background.webp?v=1'),
+  keyartPortrait: img('redesign/street-background.webp?v=1'),
   logo: img('newlogo.webp?v=4'),
   logoSm: img('newlogo_sm.webp?v=4'),
   kitLogo: img('newlogo_sm.webp?v=4'),
   pause: img('ui/pause_art.webp'),
+  headingPause: img('redesign/heading-pause.webp'),
+  headingSettings: img('redesign/heading-settings.webp'),
+  headingLevelUp: img('redesign/heading-levelup.webp'),
   youDied: img('ui/youdied.webp'),
   /** "Reach 15K Essence to unlock premium" (scripts/prepare-badge-art.mjs) */
   badge15k: img('ui/badge_15k.webp'),

@@ -1,0 +1,14 @@
+{
+  "source": "art\\intro\\town-reveal-1080p-v1.mp4",
+  "file": "intro/town-reveal.mp4",
+  "firstFrame": "intro/town-reveal-first.webp",
+  "lastFrame": "intro/town-reveal-last.webp",
+  "duration": 8.08,
+  "fps": 24.0,
+  "size": [
+    1920,
+    1080
+  ],
+  "bytes": 5311437,
+  "audio": false
+}

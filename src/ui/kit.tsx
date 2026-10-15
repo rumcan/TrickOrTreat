@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { ART, BANNER_ART, BannerKind } from './art';
+import './redesign.css';
 
 type BtnVariant = 'orange' | 'dark' | 'cream' | 'teal' | 'red';
 const BTN_SIZE = { sm: 'h-9 px-3.5 text-sm', md: 'h-11 px-5 text-base', lg: 'h-14 px-6 text-xl' };
@@ -14,7 +15,7 @@ export function KitButton({
   children: ReactNode; onClick?: () => void; disabled?: boolean; variant?: BtnVariant; size?: keyof typeof BTN_SIZE; icon?: LucideIcon; iconColor?: string; fillIcon?: boolean; className?: string; title?: string;
 }) {
   return (
-    <button onClick={onClick} disabled={disabled} title={title} className={`kit-btn kit-btn-${variant} ${BTN_SIZE[size]} ${className}`}>
+    <button onClick={onClick} disabled={disabled} title={title} aria-label={typeof children === 'string' ? children : undefined} className={`kit-btn kit-btn-${variant} ${BTN_SIZE[size]} ${className}`}>
       {Icon && <Icon size={ICON_SIZE[size]} strokeWidth={2.5} className="shrink-0" style={{ color: iconColor }} fill={fillIcon ? 'currentColor' : 'none'} />}
       <span className="whitespace-nowrap">{children}</span>
     </button>
@@ -28,7 +29,7 @@ export function Keycap({ children, className = '' }: { children: ReactNode; clas
 /** orange outlined display title ("PAUSED", "TRICK OR TREAT") */
 export function KitTitle({ children, className = '', color = '#fb8016' }: { children: ReactNode; className?: string; color?: string }) {
   return (
-    <div className={`font-cond uppercase leading-none kit-outline ${className}`} style={{ color }}>
+    <div className={`kit-title font-cond uppercase leading-none kit-outline ${className}`} style={{ color }}>
       {children}
     </div>
   );
@@ -39,9 +40,9 @@ export function Bar({ value, max, color, icon, label = true, h = 14, className =
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {icon}
-      <div className="relative flex-1 overflow-hidden border border-black bg-[#1c1e24]" style={{ height: h, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08)' }}>
+      <div className="kit-meter-track relative flex-1 overflow-hidden border border-black bg-[#1c1e24]" style={{ height: h, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08)' }}>
         {/* scaleX keeps updates on the compositor: no layout per HUD tick */}
-        <div className="absolute inset-0 origin-left transition-transform duration-150" style={{ transform: `scaleX(${k})`, background: color, boxShadow: 'inset 0 -3px 0 rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.25)' }} />
+        <div className="kit-meter-fill absolute inset-0 origin-left transition-transform duration-150" style={{ transform: `scaleX(${k})`, background: color, boxShadow: 'inset 0 -3px 0 rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.25)' }} />
         {label && (
           <div className="absolute inset-0 flex items-center justify-center font-num text-[10px] leading-none text-white" style={{ textShadow: '0 1px 2px #000, 0 0 3px #000' }}>
             {Math.ceil(Math.max(0, value))} / {Math.round(max)}
@@ -67,11 +68,10 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
       onClick={() => onChange(!on)}
       aria-pressed={on}
       aria-label={label}
-      className="relative flex h-8 w-[84px] shrink-0 items-center rounded-full border-2 bg-[#0b0c0f] shadow-[0_0_0_1px_#000]"
-      style={{ borderColor: on ? '#5ea26b' : '#b53f3d' }}
+      className={`kit-toggle relative flex h-8 w-[84px] shrink-0 items-center rounded-full border-2 bg-[#0b0c0f] ${on ? 'is-on' : 'is-off'}`}
     >
-      <span className={`absolute top-1/2 font-cond2 text-sm font-bold uppercase leading-none -translate-y-1/2 ${on ? 'left-3 text-[#cfe8c8]' : 'right-3 text-[#f2e6c9]'}`}>{on ? 'On' : 'Off'}</span>
-      <span className="absolute top-1/2 h-[22px] w-[22px] -translate-y-1/2 rounded-full transition-[left] duration-150" style={{ left: on ? 54 : 3, background: on ? '#5ea26b' : '#b53f3d', boxShadow: 'inset 0 -2px 0 rgba(0,0,0,0.25)' }} />
+      <span className={`kit-toggle-label absolute top-1/2 font-cond2 text-sm font-bold uppercase leading-none -translate-y-1/2 ${on ? 'left-3' : 'right-3'}`}>{on ? 'On' : 'Off'}</span>
+      <span className="kit-toggle-knob absolute top-1/2 -translate-y-1/2 rounded-full" />
     </button>
   );
 }
@@ -115,10 +115,10 @@ export function Banner({ kind, title, sub, size = 'md', className = '', style }:
   const chars = typeof title === 'string' ? Math.max(8, title.length) : 12;
   const fit = `min(${z.t}px, ${(100 / (0.56 * chars)).toFixed(2)}cqw)`;
   return (
-    <div className={`relative flex overflow-hidden ${className}`} style={{ height: z.h, background: b.bg, border: `2px solid ${b.border}`, boxShadow: '0 0 0 2px #000, 0 12px 30px rgba(0,0,0,0.6)', ...style }}>
+    <div className={`kit-banner kit-banner-${kind} relative flex overflow-hidden ${className}`} style={{ height: z.h, background: b.bg, border: `2px solid ${b.border}`, boxShadow: '0 0 0 2px #000, 0 12px 30px rgba(0,0,0,0.6)', ...style }}>
       <img src={BANNER_ART[kind]} alt="" draggable={false} className="h-full w-auto max-w-[42%] shrink-0 object-cover object-left" style={{ maskImage: 'linear-gradient(90deg,#000 62%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 62%,transparent)' }} />
       <div className="relative -ml-4 flex min-w-0 flex-1 flex-col justify-center pr-5" style={{ containerType: 'inline-size' }}>
-        <div className="truncate font-cond uppercase leading-[1.05] kit-outline" style={{ color: b.text, fontSize: fit }}>{title}</div>
+        <div className="kit-banner-title truncate font-cond uppercase leading-[1.05] kit-outline" style={{ color: b.text, fontSize: fit }}>{title}</div>
         {sub && <div className="truncate font-cond2 font-bold uppercase tracking-[0.12em] text-[#f2e6c9]" style={{ fontSize: z.s, textShadow: '0 1px 2px #000' }}>{sub}</div>}
       </div>
     </div>

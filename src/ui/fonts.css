@@ -1,0 +1,22 @@
+/* Bundled Google Fonts, licensed under SIL OFL. No third-party font requests. */
+@font-face { font-family:'Nosifer'; src:url('/fonts/Nosifer-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:'Bebas Neue'; src:url('/fonts/BebasNeue-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:'Teko'; src:url('/fonts/Teko-Variable.ttf') format('truetype'); font-style:normal; font-weight:300 700; font-display:swap; }
+@font-face { font-family:'Rajdhani'; src:url('/fonts/Rajdhani-Regular.ttf') format('truetype'); font-style:normal; font-weight:400 500; font-display:swap; }
+@font-face { font-family:'Rajdhani'; src:url('/fonts/Rajdhani-SemiBold.ttf') format('truetype'); font-style:normal; font-weight:600; font-display:swap; }
+@font-face { font-family:'Rajdhani'; src:url('/fonts/Rajdhani-Bold.ttf') format('truetype'); font-style:normal; font-weight:700; font-display:swap; }
+@font-face { font-family:'Orbitron'; src:url('/fonts/Orbitron-Variable.ttf') format('truetype'); font-style:normal; font-weight:400 900; font-display:swap; }
+:root {
+  --font-horror:'Nosifer',Impact,sans-serif;
+  --font-menu:'Bebas Neue','Anton',Impact,sans-serif;
+  --font-hud:'Teko','Barlow Condensed',sans-serif;
+  --font-body:'Rajdhani','Barlow',sans-serif;
+  --font-number:'Orbitron','Teko',sans-serif;
+}
+@font-face { font-family:'Anton'; src:url('/fonts/Anton-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:'Barlow'; src:url('/fonts/Barlow-Regular.ttf') format('truetype'); font-style:normal; font-weight:400 500; font-display:swap; }
+@font-face { font-family:'Barlow'; src:url('/fonts/Barlow-SemiBold.ttf') format('truetype'); font-style:normal; font-weight:600; font-display:swap; }
+@font-face { font-family:'Barlow'; src:url('/fonts/Barlow-Bold.ttf') format('truetype'); font-style:normal; font-weight:700 900; font-display:swap; }
+@font-face { font-family:'Barlow Condensed'; src:url('/fonts/BarlowCondensed-Regular.ttf') format('truetype'); font-style:normal; font-weight:400 500; font-display:swap; }
+@font-face { font-family:'Barlow Condensed'; src:url('/fonts/BarlowCondensed-SemiBold.ttf') format('truetype'); font-style:normal; font-weight:600; font-display:swap; }
+@font-face { font-family:'Barlow Condensed'; src:url('/fonts/BarlowCondensed-Bold.ttf') format('truetype'); font-style:normal; font-weight:700 900; font-display:swap; }
