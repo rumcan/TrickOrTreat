@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Tornado, Camera, Wrench, Moon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Tornado, Camera, Wrench, Moon, Keyboard, Skull, Sparkles, Rows3, Crosshair, Timer, ArrowUpRight, CornerDownRight, Bomb, Flame, Zap, Leaf, AlignJustify } from 'lucide-react';
 import { weaponIcon } from '../game/art/fx';
 import { heroSheet, blitFrame } from '../game/art/characters';
 import { imgUrl } from '../game/assets';
@@ -7,7 +8,8 @@ import { treatArt } from '../game/art/treats';
 import { RARITY } from '../game/config';
 import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_INFO, HERO_COSTUME, COSTUME_BY_ID } from '../game/data';
 import { ART, PORTRAITS, HERO_COLORS, gunArtUrl } from './art';
-import { Keycap, KitTitle } from './kit';
+import { Keycap, KitButton, KitTitle } from './kit';
+import { BindKeys, useKeybindVersion } from './Keybinds';
 
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
@@ -108,14 +110,14 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   const rc = RARITY_KIT[w.rarity];
   const dps = weaponDps(w, stats);
   const cdps = compare ? weaponDps(compare, stats) : null;
-  const Row = ({ k, v }: { k: string; v: React.ReactNode }) => (
-    <div className="flex items-center justify-between border-b border-[#2a2d33] py-[5px] last:border-0">
-      <span className="font-ui text-[13px] text-[#e6dcc4]">{k}</span>
-      <span className="font-ui text-[13px] font-bold text-white">{v}</span>
+  const Row = ({ k, v, icon: Icon }: { k: string; v: React.ReactNode; icon?: LucideIcon }) => (
+    <div className="wx-stat">
+      <span className="wx-stat-k">{Icon && <Icon size={13} strokeWidth={2.4} className="shrink-0" aria-hidden="true" />}{k}</span>
+      <span className="wx-stat-v">{v}</span>
     </div>
   );
   return (
-    <div className={`kit-panel relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+    <div className={`kit-panel wx-card relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ ['--acc' as string]: rc, borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
       <div className="flex items-center gap-3">
         <div className="h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
@@ -131,6 +133,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
       {!compact && <p className="mt-2 text-[12px] italic leading-snug text-[#9aa0a6]">{w.def.desc}</p>}
       <div className="mt-2.5 rounded-[6px] border border-[#3a3d44] bg-black/30 px-3 py-0.5">
         <Row
+          icon={Skull}
           k="DPS"
           v={
             <span>
@@ -139,17 +142,17 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
             </span>
           }
         />
-        <Row k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
-        <Row k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
-        <Row k="Range" v={`${st.range.toFixed(1)} m`} />
-        <Row k="Magazine" v={st.mag} />
-        <Row k="Reload" v={`${st.reload.toFixed(2)}s`} />
-        {st.pierce > 0 && st.pierce < 50 && <Row k="Pierce" v={st.pierce} />}
-        {st.bounce > 0 && <Row k="Ricochet" v={st.bounce} />}
-        {w.def.explode > 0 && <Row k="Explosion" v={`${w.def.explode.toFixed(1)} tiles`} />}
-        {st.fire > 0 && <Row k="Burn" v={<span className="text-[#fb8016]">{Math.round(st.fire * 100)}%</span>} />}
-        {st.shock > 0 && <Row k="Shock" v={<span className="text-[#7fd8ff]">{Math.round(st.shock * 100)}%</span>} />}
-        {st.ecto > 0 && <Row k="Ecto" v={<span className="text-[#7cff64]">{Math.round(st.ecto * 100)}%</span>} />}
+        <Row icon={Sparkles} k="Damage" v={`${Math.round(st.dmg)}${st.pellets > 1 ? ' × ' + st.pellets : ''}`} />
+        <Row icon={Rows3} k="Fire rate" v={`${st.rate.toFixed(1)}/s`} />
+        <Row icon={Crosshair} k="Range" v={`${st.range.toFixed(1)} m`} />
+        <Row icon={AlignJustify} k="Magazine" v={st.mag} />
+        <Row icon={Timer} k="Reload" v={`${st.reload.toFixed(2)}s`} />
+        {st.pierce > 0 && st.pierce < 50 && <Row icon={ArrowUpRight} k="Pierce" v={st.pierce} />}
+        {st.bounce > 0 && <Row icon={CornerDownRight} k="Ricochet" v={st.bounce} />}
+        {w.def.explode > 0 && <Row icon={Bomb} k="Explosion" v={`${w.def.explode.toFixed(1)} tiles`} />}
+        {st.fire > 0 && <Row icon={Flame} k="Burn" v={<span className="text-[#fb8016]">{Math.round(st.fire * 100)}%</span>} />}
+        {st.shock > 0 && <Row icon={Zap} k="Shock" v={<span className="text-[#7fd8ff]">{Math.round(st.shock * 100)}%</span>} />}
+        {st.ecto > 0 && <Row icon={Leaf} k="Ecto" v={<span className="text-[#7cff64]">{Math.round(st.ecto * 100)}%</span>} />}
       </div>
       <Inscriptions w={w} compact={compact} big={bigInsc} />
     </div>
@@ -237,33 +240,43 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
 function CtrlRow({ k, label }: { k: React.ReactNode; label: string }) {
   return (
     <div className="flex items-center gap-3 py-[3px]">
-      <div className="flex w-[128px] shrink-0 gap-1">{k}</div>
+      <div className="flex w-[128px] shrink-0 flex-wrap gap-1">{k}</div>
       <span className="font-ui text-[13px] text-[#e6dcc4]">{label}</span>
     </div>
   );
 }
-/** two-column controls panel from the kit */
-export function ControlsPanel({ className = '' }: { className?: string }) {
+/**
+ * The controls sheet. Every line is read from game/keybinds, so it always shows the keys the player actually has —
+ * and `onCustomise` (when given) opens the editor where they can change them.
+ */
+export function ControlsPanel({ className = '', onCustomise }: { className?: string; onCustomise?: () => void }) {
+  useKeybindVersion();
+  const moveKeys = ['moveUp', 'moveLeft', 'moveDown', 'moveRight'] as const;
   return (
-      <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
-        <div className="touch-manual col-span-full mb-3 border-b border-white/20 pb-3 text-sm leading-relaxed text-white">
-          <strong className="block text-[#b5f4cb]">Touch controls</strong>
-          Drag a finger anywhere on the street to move. Your gun aims at the nearest monster and fires on its own. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
-        </div>
-      <div>
-        <CtrlRow k={<><Keycap>W</Keycap><Keycap>A</Keycap><Keycap>S</Keycap><Keycap>D</Keycap></>} label="Move" />
-        <CtrlRow k={<Keycap>LMB</Keycap>} label="Aim / Shoot" />
-        <CtrlRow k={<Keycap>Space</Keycap>} label="Dash (i-frames)" />
-        <CtrlRow k={<Keycap>E</Keycap>} label="Interact: Trick or Treat" />
-        <CtrlRow k={<><Keycap>Q</Keycap><Keycap>1</Keycap><Keycap>2</Keycap></>} label="Swap weapon" />
+    <div className={`kit-panel grid grid-cols-1 gap-x-8 px-4 py-3 sm:grid-cols-2 ${className}`}>
+      <div className="touch-manual col-span-full mb-3 border-b border-white/20 pb-3 text-sm leading-relaxed text-white">
+        <strong className="block text-[#b5f4cb]">Touch controls</strong>
+        Drag a finger anywhere on the street to move. Your gun aims at the nearest monster and fires on its own. Tap Interact to ring doorbells, pick up loot, revive a friend or use the cannon. Tap a weapon slot to switch; use the Skill, Dash and Reload buttons. At a doorstep, Dash becomes Flee. Your build, map and pause are in the top bar.
       </div>
       <div>
-        <CtrlRow k={<Keycap>Auto</Keycap>} label="Fires at nearest monster" />
-        <CtrlRow k={<><Keycap>RMB</Keycap><Keycap>F</Keycap></>} label="Hero skill" />
-        <CtrlRow k={<Keycap>E</Keycap>} label="Pick up / Shop" />
-        <CtrlRow k={<Keycap>Space</Keycap>} label="While at a door: flee" />
-        <CtrlRow k={<><Keycap>R</Keycap><span className="px-0.5 text-[#9aa0a6]">-</span><Keycap>Esc</Keycap></>} label="Reload - Pause" />
-        <CtrlRow k={<Keycap>M</Keycap>} label="Map" />
+        <CtrlRow k={<div className="flex gap-1">{moveKeys.map((id) => <BindKeys key={id} id={id} stack />)}</div>} label="Move" />
+        <CtrlRow k={<Keycap>LMB</Keycap>} label="Aim / shoot" />
+        <CtrlRow k={<BindKeys id="dash" />} label="Dash (i-frames) · flee a doorstep" />
+        <CtrlRow k={<BindKeys id="interact" />} label="Interact: Trick or Treat" />
+        <CtrlRow k={<><BindKeys id="cycleGun" /><BindKeys id="gun1" /><BindKeys id="gun2" /></>} label="Swap weapon" />
+        <CtrlRow k={<BindKeys id="inventory" />} label="Your run build" />
+      </div>
+      <div>
+        <CtrlRow k={<Keycap>RMB</Keycap>} label="Hero skill (hold to aim inside)" />
+        <CtrlRow k={<BindKeys id="skill" />} label="Hero skill" />
+        <CtrlRow k={<BindKeys id="reload" />} label="Reload" />
+        <CtrlRow k={<BindKeys id="map" />} label="Map" />
+        <CtrlRow k={<BindKeys id="pause" />} label="Pause" />
+        <CtrlRow k={<BindKeys id="confirm" />} label="Skip the intro / confirm" />
+      </div>
+      <div className="col-span-full mt-3 flex flex-wrap items-center gap-3 border-t border-white/15 pt-3">
+        <span className="font-ui text-[12px] text-[#9aa0a6]">Mouse: left button aims and fires, wheel zooms the street, right button is the hero skill.</span>
+        {onCustomise && <KitButton size="sm" variant="orange" icon={Keyboard} onClick={onCustomise}>Customise keys</KitButton>}
       </div>
     </div>
   );

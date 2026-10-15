@@ -12,6 +12,10 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   server: {
+    // Listen on every interface, so phone-on-the-LAN and cloud preview proxies can reach the dev server.
+    host: true,
+    // Cloud previews (and anything tunnelling to a subdomain) are refused by Vite's default host check.
+    allowedHosts: ['.e2b.app', '.arena.ai', 'localhost'],
     // Offline generation inputs/outputs are not part of the running game.
     watch: { ignored: [path.resolve(__dirname, 'art').replace(/\\/g, '/') + '/**'] },
   },

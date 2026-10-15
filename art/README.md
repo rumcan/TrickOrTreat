@@ -21,6 +21,33 @@ animated PNG) and reload the game. See `ASSET_SPEC.md` for frame counts, anchors
 The key art, logo and UI kit the menus and HUD are built from. `python3 scripts/crop-ui-kit.py` cuts the portraits, banner
 art and panel illustrations in `public/images/ui/` out of these sheets.
 
+The Halloween kit the orange/black UI is built from (added with the 2026 redesign). These are references only: nothing here
+is shipped, and `crop-ui-kit.py` still reads the original `ui-kit.webp` | `key-art.webp` pair.
+
+* `title-screen.webp` — the title screen: town key art, logo, left menu column, Essence/Best chips, kid carousel, GO bar.
+* `pause-menu.webp` — "Take a breather": the paused kicker, the numbered 01–07 menu rows and the
+  In-hand weapon card (DPS · damage · fire rate · range · magazine · reload · pierce · inscriptions).
+* `ui-kit-v2.webp` — buttons in every state, numbered menu rows with chevrons, hex icon tiles, radios/toggles/sliders,
+  the tooltip plate, the pumpkin badge and the five character-card frames (Tommy, Sam, Jess, Maya, Leo + four blanks).
+* `nine-slice-atlas.webp` — the grunge panel/button/banner nine-slice pieces the `.kit-*` and `.paper-*` shells are cut from.
+* `maple-falls-iso.webp` — the isometric Maple Falls street the town is laid out from (128×64 tiles).
+* `level-up.webp` — the reward picker: the LEVEL UP brush wordmark, numbered cards with their rarity
+  banners and OWNED footers, the kill/crit plates and the Press 1-3 / REROLL bar.
+* `gun-inspect.webp` — the gun compare screen: two rarity-lit cards with the glyph stat table
+  (DPS and its ▲/▼ delta, damage, fire rate, range, magazine, reload, pierce, ricochet, burn, shock),
+  inscription bars, slot tabs and the swap/leave key plate footer.
+* `hud.webp` — the in-game street board: portrait and kid plate with HP/shield meters, objective
+  plates, the big clock over the wave line, kill/coin chips, square controls, the treats rail, the
+  minimap and the weapon dock with ammo, the skill and the dash charge pips.
+* `frames-atlas.webp` — card frames per rarity, banners, rounded buttons, the icon tiles (skull,
+  crosshair, reroll, burst, chevron, pumpkin, web, bleeding hand), leaves, splatters and rings.
+* `ui-atlas.webp` — the wider kit sheet: button and panel frames in every colour, corner brackets,
+  ornate dividers, fire wisps, segmented bars, glow rings and the full icon set.
+* Type: the sheets are built on **Bebas Neue** (display, menus, buttons), **Teko** (HUD labels and
+  section titles), **Rajdhani** (readable UI text) and **Orbitron** (numbers and timers); the game
+  loads them from Google Fonts in `index.html` and maps them to `.font-cond` / `.font-hud` /
+  `.font-ui` / `.font-num` in `src/index.css`.
+
 ## `legacy/`
 
 The previous logo, title and portrait images, kept for reference. The game no longer uses them.
