@@ -12,7 +12,7 @@ import { weaponStats, COSTUME_BY_ID, HERO_INFO } from './data';
 import { settings } from './settings';
 import { AFFIX_INFO } from './enemy-affixes';
 import {arcadeStaffSheet} from './art/arcade-staff';
-import {drawBuiltGround} from './town-built';
+import {drawBuiltGround,applyNight} from './town-built';
 
 interface Item {
   key: number; x: number; y: number; big?: PropInst; prop?: PropInst;
@@ -653,16 +653,32 @@ export class Renderer {
     // ===== night grade (painted town) =====
     // The town was painted at early evening. Pull it into the night: a cool moonlight multiply over everything, so the
     // warm windows, porch lights and lamp pools (added back below) are what glows.
-    if (m.builtGround) {
-      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-      // like a Photoshop Linear Dodge (Add) layer in blue-purple over a slightly darkened town: shadows turn violet-blue,
-      // highlights keep their warmth
-      // (an additive layer lifted the blacks into a haze: multiply keeps the darks deep and still turns them violet-blue)
-      ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = 0.66;
-      ctx.fillStyle = '#6c6fd2'; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = 0.22;
-      ctx.fillStyle = '#2a2070'; ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      ctx.restore();
+    const night = m.builtGround?.night;
+    if (night) {
+      // the town builder's night: moonlight everywhere, the painted colour back inside every light and round the kid
+      const pk = g.p, k = dpr * zoom, sxw = (x: number, y: number) => (isoX(x, y) - camX) * k + this.canvas.width / 2, syw = (x: number, y: number) => (isoY(x, y) - camY) * k + this.canvas.height / 2;
+      const nl: { sx: number; sy: number; rx: number; ry: number; i: number; torch?: boolean }[] = m.lights.map(L => ({ sx: sxw(L.x, L.y), sy: syw(L.x, L.y), rx: L.r * HW * 1.414 * k, ry: L.r * HH * 1.414 * k, i: L.flicker ? L.i * (0.88 + Math.sin(this.t * 11 + L.x * 7) * 0.08) : L.i }));
+      for (const pr of m.props) { if (!pr.glows || pr.removed || pr.wreck) continue; const ax = isoX(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2), ay = isoY(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2);
+        if (ax < camX - this.canvas.width / k / 2 - 400 || ax > camX + this.canvas.width / k / 2 + 400 || ay < camY - this.canvas.height / k / 2 - 300 || ay > camY + this.canvas.height / k / 2 + 600) continue;
+        const fa = pr.fade ?? 1; for (const gl of pr.glows) nl.push({ sx: (ax + gl.x - camX) * k + this.canvas.width / 2, sy: (ay + gl.y - camY) * k + this.canvas.height / 2, rx: gl.r * k, ry: gl.r * k, i: night.glowStrength * fa }); }
+      // guns, explosions and fire light up the town as they go: each puts the colour back where it shines
+      const fx = (x: number, y: number, r: number, i: number) => { if (i > 0.02) nl.push({ sx: sxw(x, y), sy: syw(x, y), rx: r * HW * 1.414 * k, ry: r * HH * 1.414 * k, i: Math.min(1, i) }); };
+      for (const b of g.bullets) if (b.kind === 'fire' || b.kind === 'rocket' || b.kind === 'balloon' || b.kind === 'disc' || b.kind === 'void' || b.kind === 'shell' || b.kind === 'flame' || b.kind === 'missile' || b.kind === 'glaive') fx(b.x, b.y, b.kind === 'void' ? 2.4 : 1.6, 0.8); else fx(b.x, b.y, 0.7, 0.45);
+      for (const pr of m.props) if (pr.burnT || pr.boomT !== undefined) fx(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2, Math.max(pr.fw, pr.fh) * (pr.boomT !== undefined ? 2.4 : 1.4) + 1.2, pr.boomT !== undefined ? 1 : 0.6 + Math.min(0.4, (pr.burnT ?? 0) / 10));
+      for (const z of g.zones) {
+        if (z.kind === 'boom') fx(z.x, z.y, z.r * 2.6, 1 - z.t / z.life);
+        else if (z.kind === 'fire') fx(z.x, z.y, z.r * 1.8, 0.8);
+        else if (z.kind === 'flash') fx(z.x, z.y, z.r * 1.2, 1 - z.t / z.life);
+        else if (z.kind === 'vortex' || z.kind === 'tornado') fx(z.x, z.y, z.r, 0.5);
+      }
+      for (const b of g.ebullets) fx(b.x, b.y, 0.9, 0.6);
+      for (const e of g.enemies) { if (e.burnT > 0) fx(e.x, e.y, 1.4, 0.7); if (e.def.boss) fx(e.x, e.y, 3, 0.6); }
+      for (const q of g.particles) if (q.kind === 'glow' && q.size > 10) fx(q.x, q.y, 1.1, (q.life / q.max) * 0.7);
+      for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') fx(k2.x, k2.y, 1.4, 0.7);
+      const tr = night.torch * (1 + settings.bright * 0.5);
+      nl.push({ sx: sxw(pk.x, pk.y), sy: syw(pk.x, pk.y), rx: tr * HW * 1.414 * k, ry: tr * HH * 1.414 * k, i: 1, torch: true });
+      const aim = Math.atan2(isoY(pk.aimX, pk.aimY), isoX(pk.aimX, pk.aimY));
+      applyNight(ctx, night, nl, { x: sxw(pk.x, pk.y), y: syw(pk.x, pk.y) - 20 * k, a: aim, len: tr * 1.7 * HW * k });
     }
 
     // ===== lighting =====
@@ -1405,8 +1421,7 @@ export class Renderer {
       L.clearRect(0, 0, lc.width, lc.height); // a fresh night each frame: the dark must not pile up frame on frame
       // moonlit night: the whole town keeps a cool blue dusk you can see across; real darkness only gathers at the screen
       // edges, far from the kid; street lamps and porches cut warm pools out of it
-      L.fillStyle = `rgba(4,3,18,${(0.38 * (1 - settings.bright * 0.45)).toFixed(3)})`;
-      L.fillRect(0, 0, lc.width, lc.height);
+      if (!g.map.builtGround?.night) { L.fillStyle = `rgba(4,3,18,${(0.38 * (1 - settings.bright * 0.45)).toFixed(3)})`; L.fillRect(0, 0, lc.width, lc.height); }
       const [px, py] = toS(isoX(g.p.x, g.p.y), isoY(g.p.x, g.p.y) - 20), cx = px * k, cy = py * k, R = Math.hypot(lc.width, lc.height) * 0.62;
       const edge = L.createRadialGradient(cx, cy, R * 0.72, cx, cy, R * 1.08);
       edge.addColorStop(0, 'rgba(3,5,20,0)'); edge.addColorStop(1, `rgba(3,5,20,${(0.42 * (1 - settings.bright * 0.45)).toFixed(3)})`);

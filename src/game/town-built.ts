@@ -13,11 +13,13 @@ import type {Img} from './assets';
 import {settings} from './settings';
 
 interface Box {hx:number;hy:number;dx:number;dy:number}
-interface Item {name:string;cat:string;file:string;w:number;h:number;ax:number;ay:number;boxes:Box[];kind:string;door?:boolean;doorAt?:{u:number;v:number};solid:number;big:boolean;shadow?:boolean}
+interface Item {glows?:{x:number;y:number;r:number}[];name:string;cat:string;file:string;w:number;h:number;ax:number;ay:number;boxes:Box[];kind:string;door?:boolean;doorAt?:{u:number;v:number};solid:number;big:boolean;shadow?:boolean}
 interface Town {frame:{X0:number;Y0:number;map:number;gx0:number;gy0:number;tile:number;cols:number;rows:number;width:number;height:number;overviewScale:number};
- ids:string[];items:Record<string,Item>;props:[number,number,number,number,number,number,number][];ground:string;outside:string}
+ ids:string[];items:Record<string,Item>;props:[number,number,number,number,number,number,number][];ground:string;outside:string;
+ night?:Night;lights?:[number,number,number,number,string][]}
 export interface GroundTile {x:number;y:number;w:number;h:number;url:string;img:Img|null;loading:boolean;used:number}
-export interface BuiltGround {tiles:GroundTile[];overview:Img;overviewRect:{x:number;y:number;w:number;h:number}}
+export interface Night {tint:string;strength:number;desat:number;dark:number;feather:number;warmth:number;torch:number;glowSize:number;glowStrength:number}
+export interface BuiltGround {tiles:GroundTile[];overview:Img;overviewRect:{x:number;y:number;w:number;h:number};night:Night|null}
 
 const base=()=>(import.meta as unknown as {env:{BASE_URL:string}}).env.BASE_URL||'./';
 const url=(f:string)=>base()+'assets/town-built/'+f;
@@ -84,18 +86,23 @@ function build():GameMap{
   const kind=it.kind==='decor'?'decor':it.kind==='venue'?'venue':it.kind;
   const p:PropInst={id:pid++,sp,x0,y0,fw,fh,big:it.big,kind,shadow:it.shadow?(it.big?.6:.45):0,occludesCharacter:it.big,decor:!it.big&&it.solid<2};
   props.push(p);
+  if(it.glows&&T.night)p.glows=it.glows.map(g=>({x:-sp!.ax+(fl?sp!.w-g.x*k:g.x*k),y:-sp!.ay+g.y*k,r:g.r*k*T.night!.glowSize}));
   for(const b of boxes){const inset=kind==='tree'?.05:0;mark(b.x0+inset,b.y0+inset,b.x1-inset,b.y1-inset,it.solid);}
   if(it.door){
    const door=it.doorAt?(fl?{x:x+it.doorAt.v*k/2,y:y+it.doorAt.u*k/2}:{x:x+it.doorAt.u*k/2,y:y+it.doorAt.v*k/2}):fl?{x:x1+.65,y:cy}:{x:cx,y:y1+.65};
-   const light:LightSrc={x:door.x,y:door.y-.2,r:3.2,color:'#ffbe5c',i:.9,flicker:0};lights.push(light);
+   const light:LightSrc={x:door.x,y:door.y-.2,r:3.2,color:'#ffbe5c',i:.9,flicker:0};if(!T.lights)lights.push(light);
    houses.push({prop:p,door,light,lightI:light.i,visited:false,trick:false,owner:kind==='house'?OWNERS[houses.length%OWNERS.length]:it.name});
    if(kind!=='house')pois.push({...door,name:kind==='arcade'?'The Starcade':it.name});
   }
-  if(kind==='lamp')lights.push({x:cx,y:cy,r:3.4,color:'#ffb347',i:.8,flicker:0});
+  if(kind==='lamp'&&!T.lights)lights.push({x:cx,y:cy,r:3.4,color:'#ffb347',i:.8,flicker:0});
   if(kind==='shop'||kind==='vending')shops.push({prop:p,x:cx,y:y1+.6});
   if(kind==='junglegym')turrets.push({x:cx,y:cy,gym:p});
   if(kind==='gazebo')gazebos.push(p);
  }
+ // the night lights set in the town builder (lamps, porches, windows, pumpkins...); each door owns its nearest one
+ if(T.lights){for(const [x,y,r,i,type] of T.lights)lights.push({x,y,r,i,color:type==='neon'?'#ff7ad9':type==='pumpkin'||type==='fire'?'#ff8a2a':'#ffbe5c',flicker:type==='pumpkin'||type==='lantern'||type==='fire'?1:0});
+  for(const h of houses){let best:LightSrc|null=null,d=3;for(const l of lights){const q=Math.hypot(l.x-h.door.x,l.y-h.door.y);if(q<d){d=q;best=l;}}
+   if(!best){best={x:h.door.x,y:h.door.y-.2,r:2.5,color:'#ffbe5c',i:.9,flicker:0};lights.push(best);}h.light=best;h.lightI=best.i;}}
  // keep every door, shop counter and cannon deck usable: a decoration standing on it gives way
  const clearAround=(px:number,py:number,r:number)=>{for(const p of props){if(p.big||p.removed)continue;
   if(px+r>p.x0&&px-r<p.x0+p.fw&&py+r>p.y0&&py-r<p.y0+p.fh){p.removed=true;}}};
@@ -132,7 +139,7 @@ function build():GameMap{
  const tiles:GroundTile[]=[];
  for(let ty=0;ty<F.rows;ty++)for(let tx=0;tx<F.cols;tx++){const w=Math.min(F.tile,F.width-tx*F.tile),h=Math.min(F.tile,F.height-ty*F.tile);
   tiles.push({x:tx*F.tile+F.gx0,y:ty*F.tile+F.gy0,w,h,url:url(`ground/${tx}_${ty}.webp`),img:null,loading:false,used:0});}
- const builtGround:BuiltGround={tiles,overview,overviewRect:{x:F.gx0,y:F.gy0,w:F.width,h:F.height}};
+ const builtGround:BuiltGround={tiles,overview,overviewRect:{x:F.gx0,y:F.gy0,w:F.width,h:F.height},night:T.night??null};
  return {kind:'town',name:'Maple Falls',ground,tiles:new Array(N),overlays:Array.from({length:N},()=>[]),coll,props,lights,houses,shops,gates,
   barriers:[],turrets,hideouts,pois,start,builtGround,
   bounds:{x0:1,y0:1,x1:F.map-1,y1:F.map-1}};
@@ -183,3 +190,31 @@ export function drawBuiltGround(ctx:CanvasRenderingContext2D,gr:BuiltGround,vx0:
 }
 
 const OWNERS=['Mrs. Henderson','Mr. Kowalski','Old Man Jenkins','The Nguyens','Ms. Petrova','Grandma Rose','Coach Miller','Dr. Alvarez','The Johnsons','Mrs. Okafor','Mr. Bellamy','The Pruitts','Mrs. Abbott','The Bakers','Mr. Ruiz'];
+
+/** The town builder's night (scripts/town-builder/app/night-light.js applyNight): moonlight over the finished frame,
+ *  the painted colour back inside every light and the kid's torch. lights: {sx,sy,rx,ry,i} in canvas pixels; cone:
+ *  the torch beam (apex, angle, length in canvas pixels). */
+const scratch:{orig?:HTMLCanvasElement;mask?:HTMLCanvasElement}={},discs=new Map<number,HTMLCanvasElement>();let warm:HTMLCanvasElement|null=null;
+function disc(feather:number){const key=Math.round(feather*100);let c=discs.get(key);if(c)return c;const N=256;c=rawCanvas(N,N);const g=c.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2),f=Math.min(.98,Math.max(.02,feather));
+ gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1-f,'rgba(255,255,255,1)');for(let k=1;k<=8;k++){const t=k/8;gr.addColorStop(1-f+f*t,`rgba(255,255,255,${(1-t*t*(3-2*t)).toFixed(3)})`);}
+ g.fillStyle=gr;g.fillRect(0,0,N,N);discs.set(key,c);return c;}
+function warmDisc(){if(warm)return warm;const N=128;warm=rawCanvas(N,N);const g=warm.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2);
+ gr.addColorStop(0,'rgba(255,170,70,1)');gr.addColorStop(.6,'rgba(255,150,60,.5)');gr.addColorStop(1,'rgba(255,140,50,0)');g.fillStyle=gr;g.fillRect(0,0,N,N);return warm;}
+export function applyNight(ctx:CanvasRenderingContext2D,night:Night,lights:{sx:number;sy:number;rx:number;ry:number;i:number;torch?:boolean}[],cone:{x:number;y:number;a:number;len:number}|null){
+ const W=ctx.canvas.width,H=ctx.canvas.height;
+ for(const k of ['orig','mask'] as const){let c=scratch[k];if(!c)c=scratch[k]=rawCanvas(W,H);if(c.width!==W||c.height!==H){c.width=W;c.height=H;}}
+ const orig=scratch.orig!,mask=scratch.mask!,o=orig.getContext('2d')!;o.globalCompositeOperation='copy';o.drawImage(ctx.canvas,0,0);o.globalCompositeOperation='source-over';
+ ctx.save();ctx.setTransform(1,0,0,1,0,0);
+ ctx.globalCompositeOperation='saturation';ctx.globalAlpha=night.desat;ctx.fillStyle='#808080';ctx.fillRect(0,0,W,H);
+ ctx.globalCompositeOperation='multiply';ctx.globalAlpha=night.strength;ctx.fillStyle=night.tint;ctx.fillRect(0,0,W,H);
+ ctx.globalCompositeOperation='source-over';ctx.globalAlpha=night.dark;ctx.fillStyle='#03030c';ctx.fillRect(0,0,W,H);
+ const m=mask.getContext('2d')!,d=disc(night.feather);m.globalCompositeOperation='source-over';m.globalAlpha=1;m.clearRect(0,0,W,H);m.globalCompositeOperation='lighter';
+ for(const l of lights){if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;m.globalAlpha=Math.min(1,l.i);m.drawImage(d,l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}
+ if(cone){const gr=m.createRadialGradient(cone.x,cone.y,0,cone.x,cone.y,cone.len);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.55,'rgba(255,255,255,.7)');gr.addColorStop(1,'rgba(255,255,255,0)');
+  m.globalAlpha=1;m.fillStyle=gr;m.beginPath();m.moveTo(cone.x,cone.y);m.arc(cone.x,cone.y,cone.len,cone.a-.42,cone.a+.42);m.closePath();m.fill();}
+ m.globalAlpha=1;m.globalCompositeOperation='source-in';m.drawImage(orig,0,0);
+ ctx.globalAlpha=1;ctx.drawImage(mask,0,0);
+ if(night.warmth>0){ctx.globalCompositeOperation='soft-light';const w=warmDisc();
+  for(const l of lights){if(l.torch||l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;ctx.globalAlpha=Math.min(1,night.warmth*l.i);ctx.drawImage(w,l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}}
+ ctx.restore();
+}

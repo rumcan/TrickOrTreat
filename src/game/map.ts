@@ -25,6 +25,8 @@ export interface PropInst {
   decor?: boolean;
   /** big scenery that hides the kid behind it (the renderer fades it) */
   occludesCharacter?: boolean;
+  /** lit spots painted into the art (windows, lamp heads, neon, headlights): screen offsets from the footprint centre */
+  glows?: { x: number; y: number; r: number }[];
 }
 export interface Gate {
   id: number;
