@@ -119,6 +119,8 @@ export class Input {
  * player and, like everything else, climbs x1.65 a wave.
  */
 export const SPAWN_SCALE = 0.6;
+/** every hit a monster lands (on the kid or a friend) counts this many times: monsters hit twice as hard as they used to */
+export const MOB_DAMAGE = 2;
 export const KILL_LOOT = 1.6;
 /** floating damage numbers: at most this many on screen, and never longer than four characters */
 const DMG_TEXT_MAX = 40;
@@ -883,11 +885,11 @@ export class Game {
       friend.farT = distance > 5 ? (friend.farT ?? 0) + dt : 0;
       if ((distance > 12 || friend.farT > 3) && this.state !== 'downed') { Object.assign(friend, this.freeSpot(this.p.x + 1 + slot * 0.4, this.p.y + 1, true)); friend.farT = 0; }
       for (const e of this.enemies) if (!e.dead && friend.hurtCd <= 0 && Math.hypot(e.x - friend.x, e.y - friend.y) < e.r + 0.6) {
-        friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
+        friend.hp = Math.max(0, friend.hp - e.def.dmg * this.threat() * MOB_DAMAGE * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
         if (friend === reviver) this.playerReviveProgress = 0;
       }
       for (const bullet of this.ebullets) if (!bullet.dead && Math.hypot(bullet.x - friend.x, bullet.y - friend.y) < bullet.r + friend.r && friend.hurtCd <= 0) {
-        bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
+        bullet.dead = true; friend.hp = Math.max(0, friend.hp - bullet.dmg * this.threat() * MOB_DAMAGE * (1 - this.stats.companionArmor)); friend.hurtCd = 0.8;
         if (friend === reviver) this.playerReviveProgress = 0;
       }
       if (friend.hp <= 0) { friend.downT = 0; this.toast(this.friendUpTime ? `${HERO_INFO[friend.hero].name} is down! Back up in ${this.friendUpTime} seconds, sooner with your help.` : `${HERO_INFO[friend.hero].name} is down! ${this.friendDownTime} seconds to help them up.`); gameAudio.play('hurt', 0.35); return; }
@@ -1327,7 +1329,7 @@ export class Game {
   takeDamage(dmg: number, fromX: number, fromY: number) {
     const p = this.p;
     if (p.invuln > 0 || this.state !== 'play' || this.bossBreak) return; // nothing lands in the frame the boss fell
-    dmg *= this.threat();
+    dmg *= this.threat() * MOB_DAMAGE;
     if (this.mounted >= 0) dmg *= 1 - TURRET.armor; // high ground
     if (this.ins(this.weapon, 'glasspump')) dmg *= 1.15;
     if (Math.random() < this.stats.dodge) {

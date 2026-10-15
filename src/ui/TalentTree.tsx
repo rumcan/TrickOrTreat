@@ -1,8 +1,8 @@
 import { useState, useSyncExternalStore } from 'react';
 import { useBack } from './back';
 import { expansion, hasFullGame } from '../game/expansion';
-import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, talentCost, COSTUMES } from '../game/data';
-import { ChevronLeft, RotateCcw } from 'lucide-react';
+import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, talentCost, talentCap, COSTUMES } from '../game/data';
+import { ChevronLeft, RotateCcw, ChevronsUp } from 'lucide-react';
 import { CandyIcon } from './common';
 
 type NodeState = 'maxed' | 'owned' | 'available' | 'locked';
@@ -20,7 +20,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
   const stateOf = (t: Talent): NodeState => {
     if (t.premium && !hasFullGame()) return 'locked';
     const l = ranks[t.id] || 0;
-    if (l >= t.max) return 'maxed';
+    if (l >= talentCap(t)) return 'maxed';
     if (l > 0) return 'owned';
     return talentUnlocked(t, ranks) ? 'available' : 'locked';
   };
@@ -28,15 +28,24 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
     const st = stateOf(t);
     return (st === 'available' || st === 'owned') && save.soul >= talentCost(t, ranks[t.id] || 0);
   };
-  const buy = (id: string) => {
+  const buy = (id: string, all = false) => {
     const t = TALENT_BY_ID[id];
     if (!canBuy(t)) return;
-    save.soul -= talentCost(t, ranks[id] || 0);
-    save.talents[id] = (ranks[id] || 0) + 1;
+    // "all": pour every Essence you hold into this one star, rank after rank, for as long as it can be paid for
+    do {
+      save.soul -= talentCost(t, ranks[id] || 0);
+      save.talents[id] = (ranks[id] || 0) + 1;
+    } while (all && canBuy(t));
     storeSave(save);
     setFlash(id);
     setTimeout(() => setFlash(null), 450);
     force((n) => n + 1);
+  };
+  /** how many ranks of `t` the Essence in hand would buy, all spent here */
+  const affordableRanks = (t: Talent) => {
+    let n = 0, soul = save.soul, l = ranks[t.id] || 0;
+    while (l < talentCap(t) && soul >= talentCost(t, l) && n < 10000) { soul -= talentCost(t, l); l++; n++; }
+    return n;
   };
   const refund = () => {
     let r = 0;
@@ -133,7 +142,8 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
             const active = st === 'maxed' || st === 'owned';
             const affordable = canBuy(t);
             const isSel = sel === t.id;
-            const ring = st === 'locked' ? '#5b5670' : st === 'maxed' ? '#ffc94d' : c;
+            const mastered = l >= t.max;
+            const ring = st === 'locked' ? '#5b5670' : mastered ? '#ffc94d' : c;
             const shape = (r: number) => Array.from({ length: 8 }, (_, k) => { const a = (k / 8) * Math.PI * 2 + Math.PI / 8; return `${t.x + Math.cos(a) * r},${t.y + Math.sin(a) * r}`; }).join(' ');
             return (
               <g
@@ -153,7 +163,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
                 {t.capstone
                   ? <polygon points={shape(R + 5)} fill="url(#nodeFill)" stroke={ring} strokeWidth={active ? 5 : 3.5} strokeLinejoin="round" />
                   : <circle cx={t.x} cy={t.y} r={R} fill="url(#nodeFill)" stroke={ring} strokeWidth={active ? 5 : 3.5} />}
-                {st === 'maxed' && (t.capstone
+                {mastered && (t.capstone
                   ? <polygon points={shape(R - 1)} fill="none" stroke={c} strokeWidth="2.5" strokeLinejoin="round" />
                   : <circle cx={t.x} cy={t.y} r={R - 5} fill="none" stroke={c} strokeWidth="2.5" />)}
                 {isSel && <circle cx={t.x} cy={t.y} r={R + 17} fill="none" stroke="#fff" strokeOpacity="0.85" strokeWidth="2" strokeDasharray="4 5" />}
@@ -170,7 +180,8 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
                   const a = Math.PI / 2 + (t.max === 1 ? 0 : (k / (t.max - 1) - 0.5) * span);
                   return <circle key={k} cx={t.x + Math.cos(a) * (R + 11)} cy={t.y + Math.sin(a) * (R + 11)} r="4.4" fill={k < l ? c : '#07060d'} stroke={st === 'locked' ? '#5b5670' : c} strokeWidth="1.8" />;
                 })}
-                <text x={t.x} y={t.y - R - 11} textAnchor="middle" fill={st === 'locked' ? '#a39fb5' : '#ffffff'} fontSize="13" fontWeight="700" style={{ fontFamily: '"Barlow Condensed", sans-serif', letterSpacing: 0.6, paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>{t.name}</text>
+                {t.endless && l > t.max && <text x={t.x} y={t.y + R + 31} textAnchor="middle" fill="#ffc94d" fontSize="15" fontWeight="800" style={{ fontFamily: '"Barlow Condensed", sans-serif', paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>+{l - t.max}</text>}
+                <text x={t.x} y={t.y - R - 11} textAnchor="middle" fill={st === 'locked' ? '#a39fb5' : '#ffffff'} fontSize="13" fontWeight="700" style={{ fontFamily: '"Barlow Condensed", sans-serif', letterSpacing: 0.6, paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>{t.name}{t.endless ? ' ∞' : ''}</text>
               </g>
             );
           })}
@@ -183,7 +194,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           <div className="paper-kicker">Permanent upgrades</div>
           <h2 className="paper-title !text-[34px]">Talent constellations</h2>
           <span className="paper-rule" />
-          <p className="mt-3 text-[13px] leading-snug text-[#c9bda6]">Click a star to invest Essence. Each star unlocks the stars it links to.</p>
+          <p className="mt-3 text-[13px] leading-snug text-[#c9bda6]">Click a star to invest Essence. Each star unlocks the stars it links to. Stars marked ∞ never stop ranking up: grind runs and pour everything into one if you like.</p>
         </header>
 
         {earned !== undefined && (
@@ -217,13 +228,14 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
             </div>
           </div>
           <p className="mt-3 text-[15px] font-semibold leading-snug text-[#f2e8d4]">{focus.desc}</p>
+          {focus.endless && <p className="mt-1.5 font-cond2 text-[13px] font-bold uppercase tracking-[0.08em] text-[#ffc94d]">Endless · keeps ranking up past {focus.max}, each rank 12% dearer</p>}
           <div className="mt-3 flex items-center gap-1.5">
             {Array.from({ length: focus.max }).map((_, k) => (
               <div key={k} className="talent-rank h-2.5 flex-1" style={{ background: k < fl ? fc : '#0f1518', borderColor: k < fl ? fc : undefined }} />
             ))}
           </div>
           <div className="mt-1.5 flex justify-between font-cond2 text-xs font-bold uppercase tracking-[0.14em] text-[#8f8676]">
-            <span>Rank {fl} / {focus.max}</span>
+            <span>{focus.endless && fl > focus.max ? `Rank ${fl} · ${fl - focus.max} past mastery` : `Rank ${fl} / ${focus.max}`}</span>
             {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {talentCost(focus, fl)} Essence</span>}
           </div>
           {focus.premium && !hasFullGame() && <p role="status" className="mt-3 border border-[#ffc453]/50 bg-black/30 p-3 text-sm text-white">Full-game talent: unlock the full game using the button in the main-menu header. After unlocking, the linked talent requirements below still apply.</p>}
@@ -238,8 +250,13 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           {fst !== 'locked' && fst !== 'maxed' && save.soul < talentCost(focus, fl) && <p className="mt-3 text-sm text-white">Earn {talentCost(focus, fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
           {focus.id === 'master' && <div className="mt-2 font-cond2 text-xs font-semibold text-[#c9bda6]">One costume per kid: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
           <button className="hm-btn mt-4 w-full" disabled={!canBuy(focus)} onClick={() => buy(focus.id)}>
-            {fst === 'maxed' ? 'Mastered' : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · ${talentCost(focus, fl)} Essence`}
+            {fst === 'maxed' ? 'Mastered' : focus.endless && fl >= focus.max && fst !== 'locked' ? `Rank up · ${talentCost(focus, fl)} Essence` : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · ${talentCost(focus, fl)} Essence`}
           </button>
+          {focus.endless && fst !== 'locked' && affordableRanks(focus) > 1 && (
+            <button className="hm-btn ghost mt-2 w-full" onClick={() => buy(focus.id, true)}>
+              <ChevronsUp size={17} strokeWidth={2.8} /> Spend it all here · +{affordableRanks(focus)} ranks
+            </button>
+          )}
         </section>
 
         <div className="grid grid-cols-4 gap-1.5">
