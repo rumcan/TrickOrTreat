@@ -28,7 +28,7 @@ export interface Bubble { x: number; y: number; lift: number; text: string; life
 export interface Toast { id: number; text: string; t: number }
 export type BannerKind = 'info' | 'danger' | 'loot' | 'win';
 export interface TotState { house: HouseInst; t: number; dur: number; stage: number; lines: { at: number; who: 'kid' | 'door' | 'trick'; text: string }[] }
-export type ChoiceMode = 'level' | 'shop' | 'house';
+export type ChoiceMode = 'level' | 'shop' | 'house' | 'boss';
 
 // ================= INPUT =================
 export class Input {
@@ -1115,7 +1115,8 @@ export class Game {
       if (this.toasts[0].t <= 0) this.toasts = this.toasts.filter((q) => q.t > 0);
     }
     // a level-up waits for a doorbell in progress: the bowl comes first, then the level-ups, never one in the middle of the other
-    if (this.pendingLevels > 0 && this.state === 'play' && !this.tot) this.openLevelUp('level');
+    // A level-up is not a reward any more: it raises the kid's stats and leaves the street alone. The picker opens
+    // when a boss goes down (see killEnemy), where the loot is worth stopping for.
     inp.endFrame();
   }
 
@@ -2148,8 +2149,11 @@ export class Game {
       this.dropLootMagnet(e.x, e.y);
       for (let i = 0; i < 2; i++) this.dropPickup(e.x + rand(-1, 1), e.y + rand(-1, 1), 'chest', 0);
       for (let i = 0; i < 30; i++) this.dropPickup(e.x, e.y, 'coin', 3);
-      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `${BUY_WINDOW} quiet seconds: follow the arrow to the shop`, 'win');
+      this.setBanner(`${BOSS_NAMES[e.type].toUpperCase()} DEFEATED!`, `Pick your reward: ${rewardRangeFor('boss').label}`, 'win');
       gameAudio.play('victory', 0.45);
+      // A boss is the night's reward window: three cards from the boss table (Rare / Epic / Legendary), so the long
+      // fights between them are where the run's power comes from.
+      this.openLevelUp('boss', 3 + this.stats.totChoices, this.stats.luck + 4, rewardRangeFor('boss'));
     }
   }
 
@@ -3176,7 +3180,7 @@ export class Game {
   private choiceN = 3;
   private choiceLuck = 0;
   choiceRewardRange = rewardRangeFor('house');
-  openLevelUp(mode: ChoiceMode, n = 3, luck = this.stats.luck, rewards: RewardRange = rewardRangeFor('house')) {
+  openLevelUp(mode: ChoiceMode, n = 3, luck = this.stats.luck, rewards: RewardRange = rewardRangeFor(mode)) {
     this.choiceMode = mode;
     this.choiceN = n;
     this.choiceLuck = luck;
@@ -3188,21 +3192,24 @@ export class Game {
   private rollChoices() {
     this.rollLocked();
     const n = this.choiceN, luck = this.choiceLuck;
-    if (this.choiceMode !== 'house') {
+    if (this.choiceMode === 'level' || this.choiceMode === 'shop') {
       this.gunChoices = []; this.friendChoice = null;
       this.choices = rollScrolls(n, this.scrolls, luck);
       return;
     }
+    // a boss leaves guns as readily as treats
+    const boss = this.choiceMode === 'boss';
     // Free game: now and then one of the cards is a kid who wants to come along (the rescue campaign finds its friends
     // at the gazebos instead). Only the free kids, and never one who is already with you.
     // While the rescue campaign is open, full-game players do not get them at doors: their friends are the ones they
     // find in hide and seek (far stronger) and the Starcade crew. With it shelved, everyone meets friends at doors.
-    const recruits = this.campaign || (campaignOffered() && hasFullGame()) ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
+    const recruits = boss || this.campaign || (campaignOffered() && hasFullGame()) ? [] : [0, 1, 2].filter(h => h !== this.hero && !this.friends.some(f => f.hero === h));
     this.friendChoice = recruits.length && n >= 2 && Math.random() < FRIEND_CARD_CHANCE ? recruits[Math.floor(Math.random() * recruits.length)] : null;
     const loot = n - (this.friendChoice === null ? 0 : 1);
     let guns = 0;
-    for (let i = 0; i < loot; i++) if (Math.random() < 0.4) guns++;
+    for (let i = 0; i < loot; i++) if (Math.random() < (boss ? 0.55 : 0.4)) guns++;
     guns = Math.min(guns, loot - 1); // always at least one treat on offer
+    if (boss && guns === 0) guns = 1; // a boss always leaves at least one gun to look at
     const { min, max } = this.choiceRewardRange;
     this.choices = rollScrolls(loot - guns, this.scrolls, luck, min, max);
     this.gunChoices = Array.from({ length: loot - this.choices.length }, () => makeWeapon(null, rollRarity(luck + 2, min, max), this.lootLevel()));
@@ -3210,7 +3217,8 @@ export class Game {
   private rollLocked() {
     this.lockedChoice = null;
     if (hasFullGame()) return;
-    const { min, max } = this.choiceMode === 'house' ? this.choiceRewardRange : { min: 0, max: 4 };
+    const level = this.choiceMode === 'level' || this.choiceMode === 'shop';
+    const { min, max } = level ? { min: 0, max: 4 } : this.choiceRewardRange;
     const scrolls = LOCKED_SCROLLS().filter(s => s.rarity >= min && s.rarity <= max);
     const gun = Math.random() < 0.5 ? makeLockedWeapon(rollRarity(this.choiceLuck + 2, Math.max(min, 2), max)) : null;
     if (gun) gun.level = this.lootLevel(); // the teaser shows what the kid would really find
@@ -3260,7 +3268,7 @@ export class Game {
   /** take a gun from a trick-or-treat bowl: straight into a free slot, else inspect it and pick the slot */
   chooseGun(i: number) {
     const w = this.gunChoices[i];
-    if (this.state !== 'levelup' || !w || this.choiceMode !== 'house') return;
+    if (this.state !== 'levelup' || !w || (this.choiceMode !== 'house' && this.choiceMode !== 'boss')) return;
     gameAudio.play('unlock');
     this.input.pressed.clear();
     const p = this.p;
@@ -3435,7 +3443,7 @@ export class Game {
       this.state = 'shop';
       return;
     }
-    if (this.choiceMode === 'house') {
+    if (this.choiceMode === 'house' || this.choiceMode === 'boss') {
       this.choiceMode = 'level';
       this.state = 'play';
       this.p.invuln = 1;

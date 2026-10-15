@@ -2247,3 +2247,243 @@ button.kit-tile:not(:disabled):hover {
 
 /* the talent map's selected star gets the atlas ring around it */
 .talent-svg g[style*="pointer"] circle:last-of-type { filter: drop-shadow(0 0 6px currentColor); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FRAMES & BUTTONS — the kit's shapes, as drawn in the reference sheets:
+   a 2px orange rim, a dark keyline outside it, a rounded corner, a grunge skin
+   over the plate, and a hard shadow under it. Buttons are orange gradient bars
+   with dark type; every frame lights up on hover.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --nx-r-sm: 5px;
+  --nx-r: 8px;
+  --nx-r-lg: 12px;
+  /* fractal noise: the grain every panel, card and button in the sheets carries */
+  --nx-grunge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)' opacity='0.32'/%3E%3C/svg%3E");
+  --nx-plate-grunge: var(--nx-grunge), var(--nx-plate);
+  --nx-frame: 0 0 0 2px rgba(2, 2, 4, 0.9), 0 10px 26px rgba(0, 0, 0, 0.5);
+  --nx-rim: inset 0 1px 0 rgba(255, 214, 160, 0.14);
+}
+
+/* ── panels, sheets and cards ───────────────────────────────────────────── */
+.kit-panel,
+.kit-panel-gold,
+.paper-panel,
+.paper-panel--side,
+.paper-card,
+.paper-section,
+.hm-modal,
+.hm-slip,
+.end-panel,
+.unlock-panel,
+.unlock-card,
+.hm-drawer {
+  border-width: 2px;
+  border-radius: var(--nx-r);
+  border-color: rgba(255, 122, 24, 0.55);
+  background-image: var(--nx-plate-grunge);
+  background-size: 140px 140px, 100% 100%;
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--nx-rim), var(--nx-frame);
+}
+.paper-panel--rule,
+.paper-section { border-top: 4px solid var(--nx-orange); }
+.kit-panel-gold { border-color: var(--nx-orange); box-shadow: var(--nx-rim), var(--nx-frame), 0 0 30px -12px var(--nx-orange); }
+.hm-modal { border-width: 2px; border-top-width: 4px; }
+.wx-panel, .hm-modal--lvl { border-radius: var(--nx-r-lg); }
+
+/* the title screen's own frames */
+.title-panel,
+.title-card,
+.title-menu,
+.title-stat,
+.title-brief { border-radius: var(--nx-r); }
+.title-panel {
+  border-width: 2px;
+  border-color: rgba(255, 122, 24, 0.55);
+  background-image: var(--nx-plate-grunge);
+  background-size: 140px 140px, 100% 100%;
+  background-blend-mode: overlay, normal;
+  box-shadow: var(--nx-rim), var(--nx-frame);
+}
+.title-menu {
+  border-width: 2px;
+  padding: 9px 12px;
+  box-shadow: var(--nx-rim), 0 0 0 2px rgba(2, 2, 4, 0.75), 0 4px 0 rgba(0, 0, 0, 0.4);
+}
+.title-menu:not(:disabled):hover {
+  box-shadow: var(--nx-rim), 0 0 0 2px rgba(2, 2, 4, 0.75), 0 0 24px -6px var(--nx-orange), 0 4px 0 rgba(0, 0, 0, 0.4);
+}
+/* the icon rides in its own tile, as in the sheets */
+.title-menu-ico {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  border: 1.5px solid rgba(255, 122, 24, 0.5);
+  border-radius: var(--nx-r-sm);
+  background: linear-gradient(180deg, rgba(38, 28, 18, 0.8), rgba(10, 9, 12, 0.9));
+  color: var(--nx-orange-hi);
+  box-shadow: inset 0 1px 0 rgba(255, 214, 160, 0.12);
+}
+.title-menu--play .title-menu-ico { border-color: var(--nx-orange); background: linear-gradient(180deg, rgba(255, 154, 47, 0.35), rgba(60, 24, 6, 0.9)); color: #ffd79a; }
+/* the picked kid wears a proper check box */
+.title-tick {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  border: 2px solid var(--nx-orange);
+  border-radius: 4px;
+  background: rgba(8, 7, 10, 0.9);
+  color: var(--nx-orange-hi);
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 0 14px -4px var(--nx-orange);
+}
+.title-card { border-width: 2px; border-radius: var(--nx-r); overflow: hidden; }
+.title-card.is-picked { box-shadow: 0 0 0 2px rgba(2, 2, 4, 0.8), 0 0 26px -6px var(--nx-orange); }
+
+/* ── buttons ────────────────────────────────────────────────────────────── */
+.kit-btn,
+.hm-btn,
+.lvl-reroll,
+.hm-iconbtn,
+.vending-exit,
+.records-trigger {
+  border-width: 2px;
+  border-radius: var(--nx-r-sm);
+  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  letter-spacing: 0.09em;
+  box-shadow: inset 0 1px 0 rgba(255, 235, 200, 0.35), 0 0 0 2px rgba(2, 2, 4, 0.75), 0 4px 0 rgba(0, 0, 0, 0.5);
+}
+.kit-btn { border-color: rgba(2, 2, 4, 0.9); }
+.kit-btn-orange,
+.hm-btn,
+.lvl-reroll {
+  background-image: var(--nx-grunge), linear-gradient(180deg, #ffb457 0%, #f2820f 52%, #d75c06 100%);
+  background-size: 120px 120px, 100% 100%;
+  background-blend-mode: overlay, normal;
+  border-color: #f6a24a;
+  color: #200e02;
+  text-shadow: 0 1px 0 rgba(255, 214, 160, 0.35);
+}
+.kit-btn-orange:not(:disabled):hover,
+.hm-btn:hover:not(:disabled),
+.lvl-reroll:not(:disabled):hover {
+  background-image: var(--nx-grunge), linear-gradient(180deg, #ffc472 0%, #ff9a2f 52%, #e9650a 100%);
+  filter: none;
+}
+.kit-btn-dark,
+.hm-btn.ghost {
+  background-image: var(--nx-grunge), var(--nx-plate);
+  background-size: 120px 120px, 100% 100%;
+  background-blend-mode: overlay, normal;
+  border-color: rgba(255, 122, 24, 0.55);
+  color: var(--nx-text);
+}
+.kit-btn-dark:not(:disabled):hover,
+.hm-btn.ghost:hover:not(:disabled) {
+  background-image: var(--nx-grunge), linear-gradient(180deg, rgba(255, 154, 47, 0.28), rgba(40, 20, 8, 0.9));
+  border-color: var(--nx-orange);
+  color: #fff;
+}
+.kit-btn-cream { border-color: #c79a58; }
+.kit-btn:disabled,
+.hm-btn:disabled {
+  background-image: var(--nx-plate);
+  border-color: rgba(255, 122, 24, 0.22);
+  color: #8d8474;
+  box-shadow: 0 0 0 2px rgba(2, 2, 4, 0.7);
+}
+.hm-iconbtn {
+  border-radius: var(--nx-r-sm);
+  background-image: var(--nx-grunge), var(--nx-plate);
+  background-size: 120px 120px, 100% 100%;
+  background-blend-mode: overlay, normal;
+  box-shadow: inset 0 1px 0 rgba(255, 214, 160, 0.16), 0 0 0 2px rgba(2, 2, 4, 0.65), 0 3px 0 rgba(0, 0, 0, 0.45);
+}
+.hm-iconbtn:hover, .hm-iconbtn.on { background-image: none; background-color: var(--nx-orange); }
+
+/* keycaps: small cream plates with the kit's dark keyline */
+.kit-key {
+  border-width: 1.5px;
+  border-color: #c79a58;
+  border-radius: var(--nx-r-sm);
+  background-image: linear-gradient(180deg, #fff5e2, #e6c795);
+  color: #241708;
+  box-shadow: inset 0 1px 0 #fffdf6, 0 0 0 2px rgba(2, 2, 4, 0.6), 0 2px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ── the pause list and other numbered rows ─────────────────────────────── */
+.hm-menu-n {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border: 1.5px solid rgba(255, 122, 24, 0.5);
+  border-radius: var(--nx-r-sm);
+  background: linear-gradient(180deg, rgba(38, 28, 18, 0.75), rgba(10, 9, 12, 0.9));
+  color: var(--nx-orange-hi);
+  font-family: "Orbitron", "Roboto Mono", monospace;
+  font-size: 12px;
+}
+.hm-menu-label { font-family: "Bebas Neue", "Anton", Impact, sans-serif; font-weight: 400; letter-spacing: 0.05em; }
+
+/* ── reward cards and the compare cards ─────────────────────────────────── */
+.lvl-card, .wx-card {
+  border-width: 2px;
+  border-radius: var(--nx-r);
+  box-shadow: var(--nx-rim), 0 0 0 2px rgba(2, 2, 4, 0.85), 0 0 26px -10px var(--acc), 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+.lvl-card .hm-pick-art { border-bottom-width: 2px; }
+.lvl-num { border-width: 1.5px; border-radius: var(--nx-r-sm); box-shadow: inset 0 1px 0 #fffdf6, 0 0 0 2px rgba(2, 2, 4, 0.55); }
+
+/* ── the reward picker never squashes: cards keep a floor, art keeps a ratio ── */
+.lvl-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  align-items: stretch;
+}
+.lvl-card { display: flex; flex-direction: column; min-height: 260px; }
+.lvl-card .hm-pick-art { flex: 0 0 auto; min-height: 108px; aspect-ratio: 300 / 132; }
+.lvl-card .lvl-body { flex: 1 1 auto; }
+@media (max-width: 639px) {
+  .lvl-grid { grid-template-columns: 1fr; }
+  .lvl-card { flex-direction: row; min-height: 0; }
+  .lvl-card .hm-pick-art { flex: 0 0 36%; min-height: 118px; aspect-ratio: auto; border-bottom: 0; border-right: 2px solid rgba(255, 122, 24, 0.35); }
+}
+
+/* ── the tagline under the title, as in the key art ─────────────────────── */
+.title-tagline {
+  position: absolute;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  transform: translateX(-50%) rotate(-2deg);
+  pointer-events: none;
+  display: none;
+  font-family: "Anton", "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(22px, 3.4vw, 46px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #3a0d18;
+  text-shadow: 0 2px 0 rgba(255, 90, 60, 0.25), 0 0 26px rgba(120, 10, 30, 0.6);
+}
+@media (min-width: 900px) and (min-height: 620px) { .title-tagline { display: block; } }
+
+/* the icon tiles shrink with the menu they sit in (the phone key grid and landscape bar) */
+@media (max-width: 639px) { .title-menu-ico { width: 24px; height: 24px; padding: 4px; } }
+@media (max-width: 360px) { .title-menu-ico { width: 20px; height: 20px; padding: 3px; } }
+@media (orientation: landscape) and (max-height: 520px) { .title-menu-ico { width: 18px; height: 18px; padding: 3px; } }
+
+/* the big CTA wears the kit's heavy bar: thick rim, gradient, glow, hard shadow */
+.title-play { font-size: 22px; letter-spacing: 0.08em; }
+@media (min-width: 640px) { .title-play { height: 58px; } }
+@media (min-width: 1024px) { .title-play { height: 66px; font-size: 26px; padding-inline: 34px; } }
+.title-play.kit-btn-orange,
+.title-menu--play {
+  box-shadow: inset 0 1px 0 rgba(255, 235, 200, 0.4), 0 0 0 2px rgba(2, 2, 4, 0.8), 0 5px 0 rgba(0, 0, 0, 0.55), 0 0 34px -10px rgba(255, 122, 24, 0.9);
+}
+/* keep the tagline clear of a tall cast panel */
+@media (min-width: 900px) and (min-height: 620px) { .title-tagline { display: block; } }
+@media (min-width: 900px) and (max-width: 1099px) { .title-tagline { display: none; } }

@@ -13,6 +13,7 @@ export interface RewardRange { min: number; max: number; label: string }
 /** Building tiers apply to both treats and guns, including rerolls and bonus drops. */
 export function rewardRangeFor(kind: string): RewardRange {
   if (kind === 'house') return { min: 0, max: 2, label: 'Common / Uncommon / Rare' };
+  if (kind === 'boss') return { min: 2, max: 4, label: 'Rare / Epic / Legendary' };
   if (['school', 'church', 'barn', 'crypt'].includes(kind)) return { min: 2, max: 4, label: 'Rare / Epic / Legendary' };
   return { min: 2, max: 3, label: 'Rare / Epic' };
 }

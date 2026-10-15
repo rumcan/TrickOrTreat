@@ -93,6 +93,8 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
       <KeyArt />
+      {/* the key art's own words, under the town (decorative: it never takes a tap) */}
+      <div className="title-tagline" aria-hidden="true">Same streets. Scarier nights.</div>
       {/* Night records still opens from the edge tab (and from the menu row above it) */}
       <LeaderboardDrawer open={records} onOpenChange={setRecords} />
       {/* Layout lives in index.css (.title-*): a left menu column on a desktop, one screen with no scrolling on a phone. */}
@@ -501,11 +503,13 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
     return () => window.removeEventListener('keydown', h);
   });
   const mode = game.choiceMode;
-  const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : 'Level up!';
+  const title = mode === 'shop' ? 'Pick a treat' : mode === 'house' ? 'Trick or treat!' : mode === 'boss' ? 'Boss down!' : 'Level up!';
   const houseNote = mode === 'house' ? ` · ${game.choiceRewardRange.label}: a treat or a gun` : '';
-  const kicker = mode === 'house'
+  const kicker = mode === 'boss'
+    ? `Boss defeated · ${game.choiceRewardRange.label} · the street pays up`
+    : mode === 'house'
     ? `${game.choiceGiver}'s candy bowl · ${game.p.costume ? 'costume bonus: better treats' : 'choose one reward'}${houseNote}`
-    : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level - game.pendingLevels + 1} · what do you imagine tonight?`;
+    : mode === 'shop' ? "The Candy Lady's mystery bag" : `Level ${game.p.level} · what do you imagine tonight?`;
   const friend = mode === 'house' ? game.friendChoice : null;
   const n = game.choices.length + game.gunChoices.length + (friend === null ? 0 : 1);
   const locked = game.lockedChoice;

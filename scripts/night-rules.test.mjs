@@ -27,7 +27,7 @@ try {
     // ---- nothing for walking in and out ----
     { const g = make(); g.endRun(false); out.quit = { earned: g.soulEarned, soul: g.save.soul }; }
 
-    // ---- a level-up waits for the doorbell ----
+    // ---- levelling up is silent: no picker, no queue of picks ----
     {
       const g = make(), h = g.tutorialHouse; h.trick = false;
       g.startTot(h);
@@ -144,7 +144,7 @@ try {
     return out;
   });
   assert.deepEqual(engine.quit, { earned: 0, soul: 0 }, 'Starting a run and leaving it earns no Essence');
-  assert.deepEqual(engine.order.slice(0, 3), ['house', 'level', 'level'], `A level-up waits for the doorbell: the bowl comes first, then the level-ups (${engine.order})`);
+  assert.deepEqual(engine.order, ['house'], `Only the doorbell opens a picker: levelling up does not (${engine.order})`);
   assert.deepEqual(engine.revive.lost, { inTeam: false, list: [1], offer: [1], cost: 120 }, 'A friend nobody reached is out for the night, and the shop offers to bring them back');
   assert.equal(engine.revive.broke, false, 'Not without the coins');
   assert.deepEqual(engine.revive.back, { inTeam: true, full: true, near: true, coins: 380, lostLeft: 0, next: 180, gun: true }, 'The shop brings the friend back beside the kid at full health; the next one costs more');
