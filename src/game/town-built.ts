@@ -15,7 +15,7 @@ import {settings} from './settings';
 interface Box {hx:number;hy:number;dx:number;dy:number}
 interface Item {glows?:{x:number;y:number;r:number}[];name:string;cat:string;file:string;w:number;h:number;ax:number;ay:number;boxes:Box[];kind:string;door?:boolean;doorAt?:{u:number;v:number};solid:number;big:boolean;shadow?:boolean}
 interface Town {frame:{X0:number;Y0:number;map:number;gx0:number;gy0:number;tile:number;cols:number;rows:number;width:number;height:number;overviewScale:number};
- ids:string[];items:Record<string,Item>;props:[number,number,number,number,number,number,number][];ground:string;outside:string;
+ ids:string[];items:Record<string,Item>;props:[number,number,number,number,number,number,number,(number|number[])?][];ground:string;outside:string;
  night?:Night;lights?:[number,number,number,number,string,string?,([number,number][]|0)?][]}
 export interface GroundTile {x:number;y:number;w:number;h:number;url:string;img:Img|null;loading:boolean;used:number}
 export interface Night {tint:string;strength:number;desat:number;dark:number;feather:number;warmth:number;torch:number;glowSize:number;glowStrength:number}
@@ -72,7 +72,7 @@ function build():GameMap{
 
  const props:PropInst[]=[],houses:HouseInst[]=[],lights:LightSrc[]=[],shops:GameMap['shops']=[],turrets:GameMap['turrets']=[],gazebos:PropInst[]=[],pois:NonNullable<GameMap['pois']>=[];
  let pid=1;
- for(const [ii,x,y,flip,scale] of T.props){
+ for(const [ii,x,y,flip,scale,,,noGlow] of T.props){
   const id=T.ids[ii],it=T.items[id],k=scale,fl=!!flip;
   // footprint in tiles (2 m) around the placement point; flipped art swaps the ground axes
   const boxes=it.boxes.map(b=>{const hx=(fl?b.hy:b.hx)*k/2,hy=(fl?b.hx:b.hy)*k/2,dx=(fl?b.dy:b.dx)*k/2,dy=(fl?b.dx:b.dy)*k/2;return {x0:x+dx-hx,y0:y+dy-hy,x1:x+dx+hx,y1:y+dy+hy};});
@@ -86,7 +86,8 @@ function build():GameMap{
   const kind=it.kind==='decor'?'decor':it.kind==='venue'?'venue':it.kind;
   const p:PropInst={id:pid++,sp,x0,y0,fw,fh,big:it.big,kind,shadow:it.shadow?(it.big?.6:.45):0,occludesCharacter:it.big,decor:!it.big&&it.solid<2};
   props.push(p);
-  if(it.glows&&T.night)p.glows=it.glows.map(g=>({x:-sp!.ax+(fl?sp!.w-g.x*k:g.x*k),y:-sp!.ay+g.y*k,r:g.r*k*T.night!.glowSize}));
+  // the builder can switch an object's painted glows off: all of them (1) or some, by number
+  if(it.glows&&T.night&&noGlow!==1)p.glows=it.glows.filter((_g,n)=>!(Array.isArray(noGlow)&&noGlow.includes(n))).map(g=>({x:-sp!.ax+(fl?sp!.w-g.x*k:g.x*k),y:-sp!.ay+g.y*k,r:g.r*k*T.night!.glowSize}));
   for(const b of boxes){const inset=kind==='tree'?.05:0;mark(b.x0+inset,b.y0+inset,b.x1-inset,b.y1-inset,it.solid);}
   if(it.door){
    const door=it.doorAt?(fl?{x:x+it.doorAt.v*k/2,y:y+it.doorAt.u*k/2}:{x:x+it.doorAt.u*k/2,y:y+it.doorAt.v*k/2}):fl?{x:x1+.65,y:cy}:{x:cx,y:y1+.65};
