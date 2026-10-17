@@ -3,7 +3,7 @@
 // a CANONICAL token (its `token`, which is also its first default key) and this file describes which physical keys
 // produce it. That way rebinding can never reach into gameplay code, and a key bound to nothing never reaches the
 // game at all. This module is deliberately dependency-free, so it can be unit tested outside the browser
-// (see scripts/keybinds.test.mjs); the live, saved copy lives in keybind-store.ts.
+// (see scripts/tests/keybinds.test.mjs); the live, saved copy lives in keybind-store.ts.
 
 export type BindId =
   | 'moveUp' | 'moveDown' | 'moveLeft' | 'moveRight'

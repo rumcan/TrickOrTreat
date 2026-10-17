@@ -1,0 +1,47 @@
+{
+  "key": "tile_grass_0",
+  "spec": {
+    "key": "tile_grass_0",
+    "file": "tiles/tile_grass_0.png",
+    "category": "tile",
+    "w": 128,
+    "h": 64,
+    "desc": "Short dark lawn grass at night, a few fallen autumn leaves (orange/red/yellow) (variant 1/4)",
+    "prompt": "Seamless isometric 2:1 diamond ground tile, 128x64 px, transparent outside the diamond, top-down 3/4 Diablo II / Commandos style hand-painted pixel art, Halloween night lit by cold blue moonlight, no shadows cast by objects, edges must tile seamlessly with copies of itself. Content: Short dark lawn grass at night, a few fallen autumn leaves (orange/red/yellow)."
+  },
+  "id": "c31ccd10b7892d15",
+  "rawFile": "art/world/raw/tile_grass_0-e31606c8f85719b5.png",
+  "stagedFile": "art/world/staged/tile_grass_0-c31ccd10b7892d15.png",
+  "savedPromptFile": "art/world/raw/tile_grass_0-e31606c8f85719b5.png.prompt.txt",
+  "generator": "built-in image_gen",
+  "sourceHash": "e31606c8f85719b5b04939a218f068d9ba8975a22f24d11504723d19c89a31f8",
+  "packedHash": "c31ccd10b7892d15dfd9ec767b3914b44eb2fdb0c444a5cc9efad0e081212e67",
+  "promptHash": "e0a6a688b2bd5ffda88410582140b3dd5636b328dda90648284cd7ce643ed69e",
+  "referenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6",
+  "styleHash": "c71147e4fb4b43e6a8f90647b187da186bc9aa784c8cf2ddb1e2777740cc8ba0",
+  "sourceSize": [
+    1774,
+    887
+  ],
+  "outputSize": [
+    512,
+    256
+  ],
+  "sourceAnchor": null,
+  "tileTrim": [
+    47,
+    0,
+    1727,
+    886
+  ],
+  "importedAt": "2026-10-09T09:52:22.080Z",
+  "fingerprint": "7310ab831dceb39182b46e19bafe680f236ec68c40c2a84f47f9b1c3ab55ff3d",
+  "activationFile": "art/world/activations/tile_grass_0-1791539593636.json",
+  "gameFile": "generated/world/tile_grass_0-c31ccd10b7892d15.png",
+  "prompt": "Image 1 is the EDIT TARGET. Image 2 is the Halloween STYLE reference. Change only the transparency inside the grass terrain diamond of Image 1: fill ALL gaps between blades with opaque painted dark earthy green lawn/soil, preserving the existing grass blades, leaves, texture, color palette, flat 2:1 diamond shape and canvas proportions. The diamond must form one continuous fully opaque terrain surface, NOT isolated tufts on transparency. Keep the exact diamond reaching canvas top midpoint, right midpoint, bottom midpoint and left midpoint. Preserve genuine alpha transparency ONLY OUTSIDE the diamond. No changes to the camera, scale, framing or shape; no new objects, no edge side walls, no text, no UI, no shadows. This tile is used as a solid ground surface so every interior pixel must be opaque, with no holes. Keep the original painted style and neutral moonlit exposure.\n",
+  "references": [
+    "art/reference/style-target.webp",
+    "art/world/layout/tile_grass_0.png"
+  ],
+  "styleReferenceHash": "13dffc33aab90e17e710d2dfd3c4e0b4e9db16217ab1eb1344e7fa9ad3cfd4f6"
+}

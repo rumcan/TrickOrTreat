@@ -5,7 +5,7 @@
 // feed damage...). Stats past their natural limit OVERFLOW into something else (crit > 100% = overcrit layers,
 // element chance > 100% = stronger effect, fire rate past what a gun can shoot = extra projectiles or damage),
 // but every self-feeding stack has a CEILING (see the *_MAX constants below): nothing may grow exponentially.
-// See BUILDCRAFT.md for the full math and example builds.
+// See docs/BUILDCRAFT.md for the full math and example builds.
 import type { Stats, Weapon } from './data';
 
 export type Tag = 'crit' | 'fire' | 'shock' | 'ecto' | 'blast' | 'kill' | 'sugar' | 'tank' | 'summon';

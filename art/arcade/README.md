@@ -89,7 +89,7 @@ npm run art:arcade:pack
 npm run test:arcade
 npm run test:arcade:mobile
 npm run test:arcade:staff
-node scripts/arcade-v2-preview.mjs
+node scripts/art/arcade-v2-preview.mjs
 ```
 
 Tests reject overlapping furniture, flood the room using the player's collision radius, check all destinations

@@ -160,7 +160,7 @@ export default function App() {
     preloadSplash().then(() => Promise.all([preloadAll((_, text) => setLabel(text)), preloadUiArt()])).then(() => {
       if (artLoadFailed()) { setArtProblem(true); return; }
       setScreen('title');
-      // ?export: lets scripts/export-art.mjs pull PNGs of the procedural art
+      // ?export: lets scripts/art/export-art.mjs pull PNGs of the procedural art
       if (new URLSearchParams(location.search).has('export')) import('./game/exportArt').then((m) => Object.assign(window, { __totExport: m.exportArt, __totRegen: m.exportRegen }));
     });
   }, []);

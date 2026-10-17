@@ -17,7 +17,7 @@ their original size. `src/ui/skin.css` loads the skin after the original styles.
 The supplied pause, settings and level-up lettering is rendered directly from
 the supplied artwork at one consistent aspect ratio. Dynamic typography uses
 the visual roles below. The browser's rendered font names are checked in
-`scripts/typography-layout.test.mjs`:
+`scripts/tests/typography-layout.test.mjs`:
 
 | Role | Family |
 | --- | --- |
@@ -35,7 +35,7 @@ is no longer used. Another Danger's downloadable demo is not bundled; the
 [foundry's commercial product](https://thebrandedquotes.sellfy.store/p/lez5/)
 requires a separate license, with suitable embedding rights.
 
-`scripts/prepare-reference-frames.py` cuts 128px fixed corners and clean 64px
+`scripts/art/prepare-reference-frames.py` cuts 128px fixed corners and clean 64px
 edge tiles from the supplied frames. Only those clean edge strips repeat;
 spiderwebs and leaves stay in their corners instead of being stretched or
 repeated down the panel.

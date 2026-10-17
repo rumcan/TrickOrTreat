@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 import {classify,slotsFor,makePrompt,slug,writeJson,readJson} from './plan.mjs';
-import {invocation,validate,retryDelay,runQueue,status,outputFile} from './runner.mjs';
+import {invocation,validate,retryDelay,runQueue,status,outputFile,generationId} from './runner.mjs';
 
 async function sheet(file,{opaque=false,emptyCell=-1,crossGutter=false}={}) {
   const W=512,H=512,data=Buffer.alloc(W*H*4);
@@ -94,11 +94,11 @@ test('worker saves native output, skips completed work and recovers a completed 
   for(const name of ['sheets/run','states/run','prompts/run','attempts/run','receipts/run'])await fs.mkdir(path.join(out,name),{recursive:true});
   let calls=0;
   const fake=async call=>{calls++;await sheet(call.args[call.args.indexOf('--out')+1]);return {code:0,tail:'',timedOut:false};};
-  await runQueue({out,provider:'run',gap:0,limit:1},fake);
+  await runQueue({out,provider:'run',gap:0,limit:1,slice:false},fake);
   assert.equal(calls,1);assert.equal((await status(out)).providers.run.generated,1);
-  await runQueue({out,provider:'run',gap:0,limit:1},fake);assert.equal(calls,1);
+  await runQueue({out,provider:'run',gap:0,limit:1,slice:false},fake);assert.equal(calls,1);
   await fs.unlink(path.join(out,'states/run/a.json'));
-  await runQueue({out,provider:'run',gap:0,limit:1},fake);assert.equal(calls,1);
+  await runQueue({out,provider:'run',gap:0,limit:1,slice:false},fake);assert.equal(calls,1);
   const recovered=await readJson(path.join(out,'states/run/a.json'));assert.ok(recovered.recoveredAt);
   assert.equal((await fs.stat(outputFile(out,job))).size>0,true);
 });
@@ -109,8 +109,53 @@ test('a failed attempt remains resumable; stop markers prevent generation',async
   await writeJson(path.join(out,'manifest.json'),{assets:[asset],jobs:[job],style:{file:'style.png'},gameId:'g'});
   await writeJson(path.join(out,'reference-policy.json'),{includeWorld:false});
   for(const name of ['states/run','prompts/run','attempts/run','receipts/run'])await fs.mkdir(path.join(out,name),{recursive:true});
-  await runQueue({out,provider:'run',gap:0,limit:1},async()=>({code:1,tail:'Transient service failure',timedOut:false}));
+  await runQueue({out,provider:'run',gap:0,limit:1,slice:false},async()=>({code:1,tail:'Transient service failure',timedOut:false}));
   const state=await readJson(path.join(out,'states/run/a.json'));assert.equal(state.status,'retry');assert.equal(state.attempts,1);assert.ok(state.nextAttemptAt>Date.now());
   await fs.writeFile(path.join(out,'STOP'),'stop');
-  await runQueue({out,provider:'run',gap:0},async()=>{throw Error('Should not generate');});
+  await runQueue({out,provider:'run',gap:0,slice:false},async()=>{throw Error('Should not generate');});
+});
+
+test('each downloaded RUN image is removed from RUN storage; full storage stops the worker',async t=>{
+  const out=await temp(t),assets=['a','b'].map(id=>({id,name:id,kind:'decal',slots:['a','b','c','d'],old:{file:'old.png'}}));
+  const jobs=assets.map(a=>({key:a.id,assetId:a.id,provider:'run',phase:'production',mode:'auto'}));
+  await writeJson(path.join(out,'manifest.json'),{assets,jobs,style:{file:'style.png'},gameId:'g'});
+  await writeJson(path.join(out,'reference-policy.json'),{includeWorld:false});
+  for(const name of ['sheets/run','states/run','prompts/run','attempts/run','receipts/run'])await fs.mkdir(path.join(out,name),{recursive:true});
+  const id='a62f2840-3b42-4378-a85c-681484e4ce8d';
+  assert.equal(generationId(`Downloading...\n{"generationId":"${id}","filePath":"x.png"}`),id);
+  const removed=[];
+  await runQueue({out,provider:'run',gap:0,limit:1,slice:false},async call=>{
+    if(call.args[0]==='assets') {removed.push(call.args[2]);assert.deepEqual(call.args.slice(3),['--service','imagegen','--game-id','g']);return {code:0,tail:'',timedOut:false};}
+    await sheet(call.args[call.args.indexOf('--out')+1]);return {code:0,tail:`{"generationId":"${id}"}`,timedOut:false};
+  });
+  assert.deepEqual(removed,[id]);
+  assert.deepEqual(await readJson(path.join(out,'run-pending-removals.json')),[]);
+  assert.equal((await readJson(path.join(out,'states/run/a.json'))).runGenerationId,id);
+  let requests=0;
+  await runQueue({out,provider:'run',gap:0,slice:false},async call=>{
+    if(call.args[0]==='assets') throw Error('Nothing should be waiting for removal');
+    requests++;return {code:1,tail:'[IMAGE_GEN_CREATOR_QUOTA_EXCEEDED] Creator storage is full',timedOut:false};
+  });
+  assert.equal(requests,1);
+  const b=await readJson(path.join(out,'states/run/b.json'));assert.equal(b.status,'retry');assert.equal(b.attempts,0);
+});
+
+test('slicing cuts each cell into the library next to its original and archives the sheet',async t=>{
+  const {sliceCampaign}=await import('./slice.mjs');
+  const out=await temp(t),library=path.join(out,'library'),art=path.join(out,'art');
+  for(const name of ['states/run','sheets/run',library+'/sprites',library+'/thumbs'])await fs.mkdir(path.isAbsolute(name)?name:path.join(out,name),{recursive:true});
+  const asset={id:'gen:litter',key:'gen-litter',name:'Litter',kind:'decal',category:'Decals',fw:1,fh:1,slots:['a','b','c','d']};
+  await writeJson(path.join(out,'manifest.json'),{assets:[asset]});
+  await writeJson(path.join(library,'library.json'),{items:[{id:'gen:litter',w:100,h:50,fw:1,fh:1,flat:true,category:'Decals'},{id:'other',category:'Other'}]});
+  await sheet(path.join(out,'sheets/run/gen-litter.png'));
+  await writeJson(path.join(out,'states/run/gen-litter.json'),{status:'generated',phase:'production',key:'gen-litter',assetId:'gen:litter'});
+  const done=await sliceCampaign({out,library,art});
+  assert.equal(done[0].cells,4);
+  const lib=await readJson(path.join(library,'library.json'));
+  assert.deepEqual(lib.items.map(i=>i.id),['gen:litter',...[1,2,3,4].map(n=>`variation:gen-litter:${n}`),'other']);
+  assert.equal(lib.items[1].w,100);assert.ok(lib.items[1].flat);
+  assert.ok((await fs.stat(path.join(out,'sliced/run/gen-litter.png'))).size>0);
+  await assert.rejects(fs.stat(path.join(out,'sheets/run/gen-litter.png')));
+  assert.ok((await readJson(path.join(out,'states/run/gen-litter.json'))).sliced);
+  assert.deepEqual(await sliceCampaign({out,library,art}),[]);
 });

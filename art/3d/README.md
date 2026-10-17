@@ -5,8 +5,8 @@ Jess/Vampire, Maya/Cardboard Knight, Leo/Moon Moth. Do not generate or preload
 cross-kid costume combinations.
 
 RUN-generated A-pose references and GLB masters live in each character directory.
-`node scripts/make-hero-3d.mjs <id> "<description>"` reuses an existing A-pose
-reference. `node scripts/render-hero-3d.mjs <id>` renders a walk GLB, or a rigged
+`node scripts/art/make-hero-3d.mjs <id> "<description>"` reuses an existing A-pose
+reference. `node scripts/art/render-hero-3d.mjs <id>` renders a walk GLB, or a rigged
 GLB with a local six-keyframe walk if no real animation is available.
 The pipeline preserves model and rig masters instead of deleting paid assets.
 
@@ -23,7 +23,7 @@ cardboard exports are normalized to matte materials instead of glTF's default me
 - Jess/Vampire uses local keyframes; RUN's rig export only had a bind-pose clip.
 - Maya/Knight and Leo/Moth were completed with the user-approved local Hunyuan
   service, then locally rigged with each kid's existing skeleton and walk clip.
-  `node scripts/rig-local-costume.mjs maya_knight|leo_moth` performs rig transfer,
+  `node scripts/art/rig-local-costume.mjs maya_knight|leo_moth` performs rig transfer,
   cleans tiny disconnected reconstruction islands and normalizes matte materials.
 - RUN CLI confirms 163,202 account credits, but 3D/animation jobs return
   `AI_POLICY_BUDGET_EXHAUSTED`; this is not an exhausted account balance.
@@ -32,7 +32,7 @@ cardboard exports are normalized to matte materials instead of glTF's default me
 - Painted sprites remain a fallback while a held-gun sheet loads. Decoded sheets
   use a four-entry LRU cache to avoid retaining all looks across repeated phone runs.
 
-`node scripts/render-hero-batch.mjs` renders all ten looks with two workers and
+`node scripts/art/render-hero-batch.mjs` renders all ten looks with two workers and
 merges per-look hand metadata only after all jobs finish, preventing write races.
 
 `npm run test:weapon-layout` requires all ten held-gun sprite sets. For an explicit

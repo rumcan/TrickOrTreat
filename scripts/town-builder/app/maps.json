@@ -1,0 +1,14 @@
+{
+  "maps": [
+    {
+      "id": "maple-falls",
+      "name": "Maple Falls",
+      "port": 5190
+    },
+    {
+      "id": "second-town",
+      "name": "New Town",
+      "port": 5192
+    }
+  ]
+}

@@ -524,7 +524,7 @@ export class Game {
   private hitSrc: Weapon | null = null;
   /** seconds the kid has stood still (Freeze Tag) */
   private stillT = 0;
-  // ---- buildcraft (see build.ts / BUILDCRAFT.md) ----
+  // ---- buildcraft (see build.ts / docs/BUILDCRAFT.md) ----
   build!: Build;
   private buildKey = '';
   /** Kill · Momentum stacks (+x% damage each), Crit · Lucky Streak stacks (+2% crit each) */

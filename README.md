@@ -2,6 +2,9 @@
 
 Halloween survival game with an optional Hide & Shriek rescue campaign.
 
+Repository layout and housekeeping rules (where scripts, art and generated images go) are in
+[AGENTS.md](AGENTS.md). Read it before adding files.
+
 ## Development
 
 Use Node 22.12+ (Node 24 is tested), install with `npm ci`, then
@@ -49,11 +52,12 @@ sidecars and previous overrides remain preserved in `public/assets/` and `art/`.
 
 ## Start the town builder
 
-Open PowerShell in the **main game folder**, not one of its worktrees:
+Open PowerShell in the **main game folder**, not one of its worktrees (the
+builder edits the town in that folder's `output/town-builder/`):
 
 ```powershell
 Set-Location "C:\Work Admin\PERSONAL\Repos\TrickOrTreat"
-node .codex-session/town-worktree/scripts/town-builder/server.mjs --port 5190
+node scripts/town-builder/server.mjs --port 5190
 ```
 
 Open **http://localhost:5190/**. Leave that terminal running while editing and
@@ -63,7 +67,7 @@ open the URL instead of starting another server on the same port.
 There are now two independent building spaces: **Maple Falls** at
 http://localhost:5190/ and **New Town** at http://localhost:5192/. Use the map
 selector beside the town name to switch; it saves pending edits before leaving.
-Start both local builders with `node scripts/town-maps.mjs` from the main game
+Start both local builders with `node scripts/town/town-maps.mjs` from the main game
 folder. New Town saves its layout, ground plan, lighting, bakes and exports under
 `output/town-builder/maps/second-town/`, sharing the original sprite library and
 presets. Starting it again preserves your edits. In-game travel between the towns
@@ -81,15 +85,18 @@ exporting. The working files are:
 
 | Location | Contents |
 | --- | --- |
-| `.codex-session/town-worktree/scripts/town-builder/` | Builder app, server and game exporter |
+| `scripts/town-builder/` | Builder app, server, library tools and game exporter (committed) |
+| `scripts/lib/town-scene.mjs`, `scripts/lib/town-paths.mjs` | Ground renderer and the builder's folder locations |
+| `scripts/town/roads/`, `scripts/town/materials/` | Tools that made the road and grass materials the ground renderer paints with |
 | `output/town-builder/layout.json` | Placed objects |
 | `output/town-builder/plans/maple-falls.json` | Ground plan, roads and lighting settings |
 | `output/town-builder/library/` | Object artwork and library metadata |
-| `output/town-builder/map-current.json` | Pointer to the current completed ground bake; older setups use `map/` directly |
+| `output/town-builder/map-current.json` | Pointer to the current ground bake (`map-version-*`). Each **Rebuild ground** keeps the current and previous bake and deletes older ones |
+| `art/town-ground/` | Road, sidewalk, grass and car-park materials the ground bake reads (committed) |
+| `output/town-art/` | The town's working art (raw generations, guides, sprite masters). Set `TOWN_ART` to use another folder |
 
-The builder worktree and `output/` are local, Git-ignored folders. Back them up
-along with the game: a fresh Git clone does not contain this editor setup or
-your editable town data.
+`output/` is local and Git-ignored. Back it up along with the game: a fresh Git
+clone has the builder and the ground materials, but not your editable town data.
 
 ## Update the playable game map after editing
 
@@ -111,24 +118,14 @@ your editable town data.
    ```
 
 4. Generate the playable map. Wait for the final **done** message; this can take
-   several minutes. The exporter regenerates its worktree output directory.
+   several minutes. The exporter replaces `public/assets/town-built/` in the main
+   game folder: `town.json` alongside `ground/`, `sprites/` and `sprites-hd/`.
 
    ```powershell
-   node .codex-session/town-worktree/scripts/town-builder/export-game.mjs
+   node scripts/town-builder/export-game.mjs
    ```
 
-5. Copy that output into the **main game**:
-
-   ```powershell
-   Copy-Item -LiteralPath ".codex-session/town-worktree/public/assets/town-built" -Destination "public/assets" -Recurse -Force
-   ```
-
-   The result must be `public/assets/town-built/town.json`, alongside `ground/`,
-   `sprites/` and `sprites-hd/`. Copy the whole folder so the map data and images
-   stay together. The exporter writes into the worktree; skipping this copy
-   leaves the main game using its previous map.
-
-6. Run `npm run dev:local` in another terminal (or use the existing server),
+5. Run `npm run dev:local` in another terminal (or use the existing server),
    reload http://localhost:5173/, and start a **new run**. Check the changed area,
    doors, collision, lighting and the in-game map. Existing runs keep their
    already-created map. Then build the game with `npm run build` before uploading.
@@ -157,7 +154,7 @@ existing game; there is no need to run `rundot init` again.
    operator. Installation instructions are in the
    [official CLI repository](https://github.com/series-ai/rundot-cli-releases#installation).
 
-2. If the town changed, complete the map-export and copy steps above first.
+2. If the town changed, complete the map-export steps above first.
    Build the latest game, including release asset packing:
 
    ```powershell
@@ -218,6 +215,6 @@ cancelled, failed or unverified orders never grant access.
 Private-release catalog testing may require RUN Playground. Playground
 purchases use real wallets: use the isolated mock tests for failure cases.
 
-See [EXPANSION_PLAN.md](EXPANSION_PLAN.md) for the design and completion checklist
+See [docs/EXPANSION_PLAN.md](docs/EXPANSION_PLAN.md) for the design and completion checklist
 and [art/world/README.md](art/world/README.md) for exact-reference artwork generation,
 review, packing and activation. Each generated Atlas PNG has a provenance sidecar.

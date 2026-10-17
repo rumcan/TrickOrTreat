@@ -1,6 +1,6 @@
 // ===== PNG exporter =====
 // Renders the procedural ("vector") art of the buildings, kids and monsters straight from the generators,
-// ignoring any PNG overrides, so it can be written to the repo by scripts/export-art.mjs:
+// ignoring any PNG overrides, so it can be written to the repo by scripts/art/export-art.mjs:
 //   public/assets/<file>            game-ready 1× files (exact spec size, wired up in manifest.json)
 //   art/reference/<group>/<key>.png hi-res renders to feed an image generator
 import { allAssets, Entry } from './assets';
@@ -54,7 +54,7 @@ export function exportArt(refScale = 4, sheets: 'base' | 'all' = 'base', buildin
 
 /**
  * Every asset in the Collection / Asset Atlas (all categories, overrides ignored) with its spec, AI prompt and a 1×
- * procedural render. scripts/regen-art-dump.mjs exports these for the world-art generation queue, using each
+ * procedural render. scripts/art/regen-art-dump.mjs exports these for the world-art generation queue, using each
  * render as the layout guide (exact canvas and anchor) next to the style reference. Original defaults stay 1x/all.
  */
 export function exportRegen(renderScale = 1, worldOnly = false) {

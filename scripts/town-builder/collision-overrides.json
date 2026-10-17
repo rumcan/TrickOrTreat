@@ -1,0 +1,16 @@
+{
+ "_about": "Collision footprints measured by hand on a metre grid (scripts/town-builder/measure-footprint.mjs) where the automatic base is wrong. Metres from the sprite anchor at scale 1, unflipped: u along +X, v along +Y. Each box: half sizes hx, hy and centre dx, dy. 'door' (optional) = where a visitor stands. Read by export-game.mjs and collision-audit.mjs.",
+ "town:postoffice": {"boxes":[{"hx":4.45,"hy":2.58,"dx":1.2,"dy":1.23}],"note":"base was a 1.2 m square at one window; the building is 8.9 x 5.2 m"},
+ "ref:halloween-witch-sign": {"boxes":[{"hx":0.35,"hy":0.75,"dx":0.78,"dy":0.85}],"note":"board between its two posts"},
+ "world:junglegym_0": {"boxes":[{"hx":2.15,"hy":1.75,"dx":-0.25,"dy":0.25}],"note":"deck between the four legs; slide and monkey bars stay open"},
+ "world:junglegym_1": {"boxes":[{"hx":2.15,"hy":1.75,"dx":-0.25,"dy":0.25}],"note":"same frame as junglegym_0"},
+ "world:swings": {"boxes":[{"hx":2.3,"hy":1.0,"dx":-0.35,"dy":-0.12}],"note":"between the four feet"},
+ "world:scoreboard": {"boxes":[{"hx":0.5,"hy":0.43,"dx":-0.35,"dy":-0.28}],"note":"around the two posts"},
+ "world:bench": {"boxes":[{"hx":1.0,"hy":0.74,"dx":0.05,"dy":0.09}],"note":"under the seat, between the legs"},
+ "world:gate": {"boxes":[{"hx":3.4,"hy":0.55,"dx":0.3,"dy":0.0}],"note":"the whole barricade, sawhorse to sawhorse"},
+ "gen:house-l-ranch": {"boxes":[{"hx":4.75,"hy":3.05,"dx":1.25,"dy":-0.55},{"hx":2.85,"hy":1.8,"dx":-0.65,"dy":4.3}],"door":{"u":3.7,"v":3.3},"note":"L-shaped: main block and front wing; the porch in the notch stays open"},
+ "gen:back-swingset": {"boxes":[{"hx":2.88,"hy":4.95,"dx":-4.38,"dy":-2.55},{"hx":1.55,"hy":2.2,"dx":0.05,"dy":-5.3},{"hx":0.85,"hy":1.35,"dx":5.15,"dy":-1.95}],"note":"L-shaped house back (patio in the notch open) and the swing set"},
+ "gen:back-patio-pool": {"boxes":[{"hx":4.9,"hy":3.05,"dx":-2.0,"dy":-2.45},{"hx":2.2,"hy":2.2,"dx":-1.0,"dy":5.0}],"note":"house and the above-ground pool; the patio between stays open"},
+ "world:pumpkin_0": {"boxes":[{"hx":0.3,"hy":0.3,"dx":0,"dy":0}],"note":"the pumpkin itself, not a wide ellipse"},
+ "world:pumpkin_1": {"boxes":[{"hx":0.45,"hy":0.32,"dx":-0.1,"dy":-0.25}],"note":"the two pumpkins"}
+}

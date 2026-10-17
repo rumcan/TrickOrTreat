@@ -61,7 +61,9 @@ All campaign data lives in:
 - `manifest.json`: frozen subject inventory, cell descriptions and job queue; the pre-production classification review is recorded here.
 - `references/`: exact input snapshots, with hashes and source paths in the manifest.
 - `prompts/<provider>/`: exact final prompts.
-- `sheets/codex/` and `sheets/run/`: PNG sheets for later slicing, with JSON sidecars giving native cell rectangles and slot descriptions.
+- `sheets/codex/` and `sheets/run/`: PNG sheets waiting to be sliced, with JSON sidecars giving native cell rectangles and slot descriptions.
+- `sliced/<provider>/`: sheets already cut into the town builder (kept for provenance).
+- `run-pending-removals.json`: downloaded generations still to be removed from RUN storage.
 - `states/`: resumable per-job progress, input choices, checks and errors.
 - `receipts/` and `attempts/`: provenance, native outputs from unsuccessful checks, and full CLI logs.
 - `codex.log`, `run.log`, `*-worker.json`: worker progress and heartbeat.
@@ -70,7 +72,26 @@ All campaign data lives in:
 
 The reference experiment compares matching subjects and prompts with and without the screenshot. Image sampling is nondeterministic, so this is a small qualitative comparison, not proof of a universal improvement. Review camera fit, painting style, period details, distinct variants, clipping and background leakage. The current campaign policy includes the screenshot for RUN and excludes it for Codex.
 
-No generated sheet is automatically sliced, registered, copied over an old asset, or exported into the playable game. Automated checks verify PNG format, alpha area, content in each cell, clear middle gutters and no major canvas clipping. They cannot establish correct object count, perspective, consistent car identity, artistic quality or pixel-perfect geometry. Every output keeps `visualReview: pending` for review and slicing.
+## RUN storage: remove every image after download
+
+RUN keeps every generation in the creator library, which holds 1 GB on the free plan. When it fills up, every request fails with `IMAGE_GEN_CREATOR_QUOTA_EXCEEDED` (this stopped the campaign on 2026-10-17 after about 18 sheets). The runner therefore removes each generation from RUN (`rundot assets rm <generation-id> --service imagegen`) as soon as its PNG is on disk. Removals that hit RUN's rate limit wait in `run-pending-removals.json` and are retried before the next request. If storage is still full and nothing is waiting for removal, the worker stops and says so; it does not walk the queue. Free space by hand with `rundot assets list` / `rundot assets rm` (run from the game folder for the game's assets, elsewhere for creator assets), then resume.
+
+## Slice finished sheets into the Town Builder
+
+```powershell
+node scripts/town-variations/slice.mjs --dry-run   # what would be cut
+node scripts/town-variations/slice.mjs             # cut, register, archive
+```
+
+For every generated production sheet not yet sliced, the slicer cuts each cell, trims it to its alpha bounds and:
+
+- keeps the trimmed cell in `art/town-variations/<asset>/` (committed);
+- registers it in `output/town-builder/library/library.json` as `variation:<job key>:<n>`, right after the sprite it varies, with one scale per sheet (the widest cell matches the original sprite's width, or the footprint's projected width for brand-new subjects). The library is backed up to `library/backups/` first; the owner's `layout.json` is never touched. A running builder picks the new sprites up on reload;
+- moves the sheet and its sidecar to `<campaign>/sliced/<provider>/` (git-ignored, kept for provenance).
+
+Cells that touch their cell edge are tagged `touches-cell-edge` for a closer look. Scale is a first guess: resize in the builder to match what is already placed on the map.
+
+The RUN worker runs the slicer on each production sheet as soon as it is generated (pass `--slice false` to the `run` command to skip that); `slice.mjs` on its own catches up on anything left in `sheets/`. Nothing is copied over an old asset or exported into the playable game. Automated checks verify PNG format, alpha area, content in each cell, clear middle gutters and no major canvas clipping. They cannot establish correct object count, perspective, consistent car identity, artistic quality or pixel-perfect geometry. Every output keeps `visualReview: pending` for review and slicing.
 
 Transient failures are retried up to three times; rate/quota limits up to six with cooldowns. Account authentication, exhausted credits or an unavailable image tool stop the affected provider for inspection. Other providers continue. Use `resume` after resolving the account issue. Failed jobs remain visible and are not silently marked complete.
 
