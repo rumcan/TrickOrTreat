@@ -1,0 +1,18 @@
+{
+ "expansion:cottage-rear":{"scale":1.3,"note":"rear-view houses match the owner's houses (9-12 m wide at 1.2-1.45)"},
+ "expansion:dormer-rear":{"scale":1.25,"note":"matches owner house widths"},
+ "expansion:duplex-rear":{"scale":1.25,"note":"matches owner house widths"},
+ "expansion:victorian-rear":{"scale":1.25,"note":"matches owner house widths"},
+ "expansion:ranch-rear":{"scale":1.2,"note":"matches owner house widths"},
+ "expansion:cottage-side-east":{"scale":1.3,"note":"matches owner house widths"},
+ "expansion:garage-rear":{"scale":1.35,"note":"same as the owner's brick garages (1.4)"},
+ "static:garage_timber-v2":{"scale":1.75,"note":"owner uses the v1 timber garage at 1.74-1.93"},
+ "world:house_0":{"scale":1.35,"note":"owner houses 1.2-1.45"},
+ "world:house_2":{"scale":1.4,"note":"owner houses 1.2-1.45"},
+ "world:house_5":{"scale":1.35,"note":"owner houses 1.2-1.45"},
+ "gen:house-duplex":{"scale":1.3,"note":"owner houses ~0.6 of guide"},
+ "gen:house-farmhouse-wrap":{"scale":1.35,"note":"owner houses ~0.6 of guide"},
+ "gen:house-l-ranch":{"scale":1.3,"note":"owner houses ~0.6 of guide"},
+ "gen:back-screened-porch":{"scale":1.2,"note":"owner house backs 1.0-1.3"},
+ "gen:back-patio-pool":{"scale":1.2,"note":"owner house backs 1.0-1.3"}
+}

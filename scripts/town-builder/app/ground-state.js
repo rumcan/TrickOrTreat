@@ -1,0 +1,2 @@
+export function groundState(plan){return {nx:plan.nx,ny:plan.ny,...(plan.groundShape?{groundShape:plan.groundShape}:{}),roads:[...(plan.roads||[])].sort(),lots:plan.lots||[],paving:plan.paving||[],reflections:plan.reflections||plan.lamps||[],lines:plan.lines||{}};}
+export function groundMatches(plan,baked){const visual=o=>JSON.stringify(groundState(o),(key,value)=>key==='id'?undefined:value);return !!baked&&visual(plan)===visual(baked);}

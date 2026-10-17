@@ -16,7 +16,8 @@ ignored file by file, a PowerShell cache committed); these rules stop that from 
 | `scripts/art/` | Art pipeline tools (prepare, pack, export, render, regen). |
 | `scripts/audio/` | Sound generation and measurement. |
 | `scripts/build/` | Steps of `npm run build`. |
-| `scripts/town/`, `scripts/town-variations/` | Town builder launchers and the RUN variation generator + slicer. |
+| `scripts/town-builder/` | The town builder: app, server, library/preset tools, ground bake and game exporter, with its tests. |
+| `scripts/town/`, `scripts/town-variations/` | Town builder launchers, the road and ground-material tools (`roads/`, `materials/`), and the RUN variation generator + slicer. |
 | `scripts/lib/` | Shared helpers for the scripts above. |
 | `docs/` | Design and reference docs that stay true (asset spec, buildcraft, expansion design). |
 | `release-notes/` | Player-facing notes; `release-notes/changelogs/` holds the changelog sent with each RUN deploy. |
@@ -59,8 +60,10 @@ description. Long-lived design docs go in `docs/`.
 
 - Other sessions' git worktrees sit inside this checkout (`.codex-session/`, `.arcade-worktree/`, `.built-worktree/`).
   They are ignored. Never delete one without checking `git -C <worktree> status` for uncommitted work.
-- The town builder (`.codex-session/town-worktree/scripts/town-builder/`) is not yet committed anywhere. Don't
-  delete that worktree; bring the builder into `scripts/town-builder/` on its own branch.
+- The town builder is committed in `scripts/town-builder/`. Its paths come from `scripts/lib/town-paths.mjs`: `ROOT`
+  is the repo root and the town's working art is `TOWN_ART` (default `output/town-art/`, never committed).
+- `.codex-session/town-worktree` still holds the static-town ground pipeline tools and the original town art. Don't
+  delete it until those have moved.
 - Before `git add -A`, check `git status --short` for unexpected folders or a lowercase ` m <dir>` (a worktree).
 
 ## The owner's data

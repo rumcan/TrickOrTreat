@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 210" role="img" aria-label="Erase road cells and rebuild to replace them with grass">
+<rect width="320" height="210" rx="10" fill="#10171c"/>
+<g fill="#333a43" stroke="#9aa8b2"><path d="M18 18h55v55H18zM73 18h55v55H73zM128 18h55v55h-55zM183 18h55v55h-55zM238 18h55v55h-55z"/></g>
+<path d="m86 30 28 30m0-30-28 30m55-30 28 30m0-30-28 30m55-30 28 30m0-30-28 30" stroke="#ff8278" stroke-width="4"/>
+<text x="160" y="96" text-anchor="middle" fill="#d8e6ee" font-family="system-ui" font-size="13">1. Remove the unwanted cells</text>
+<g fill="#3e6044" stroke="#759084"><path d="M73 116h55v55H73zM128 116h55v55h-55zM183 116h55v55h-55z"/></g>
+<text x="160" y="205" text-anchor="middle" fill="#d8e6ee" font-family="system-ui" font-size="12">2. Rebuild replaces them with grass</text></svg>

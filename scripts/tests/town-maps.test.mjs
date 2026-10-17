@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import sharp from 'sharp';
 import {chromium} from 'playwright-core';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),shared=path.join(ROOT,'output/town-builder');
-const builder=path.join(ROOT,'.codex-session/town-worktree/scripts/town-builder');
+const builder=path.join(ROOT,'scripts/town-builder');
 const out=path.join(ROOT,'output/town-map-tests',String(Date.now()));await fs.mkdir(out,{recursive:true});
 const digest=async file=>createHash('sha256').update(await fs.readFile(file)).digest('hex');
 const protectedFiles=['layout.json','plans/maple-falls.json','map-current.json'].map(p=>path.join(shared,p));

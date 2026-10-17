@@ -5,7 +5,7 @@ import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
-const BUILDER=path.join(ROOT,'.codex-session/town-worktree/scripts/town-builder');
+const BUILDER=path.join(ROOT,'scripts/town-builder');
 const SHARED=path.join(ROOT,'output/town-builder'),SECOND=path.join(SHARED,'maps/second-town');
 const maps=[{id:'maple-falls',name:'Maple Falls',port:5190},{id:'second-town',name:'New Town',port:5192}];
 const write=async(file,value)=>{await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,JSON.stringify(value,null,2)+'\n');};

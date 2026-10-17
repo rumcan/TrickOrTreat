@@ -1,0 +1,5157 @@
+{
+ "world:house_0": {
+  "scale": 1.35,
+  "source": "reviewed",
+  "note": "owner houses 1.2-1.45"
+ },
+ "world:house_1": {
+  "scale": 1.404,
+  "placed": [
+   1.404,
+   1.615
+  ],
+  "min": 1.404,
+  "max": 1.615,
+  "n": 2,
+  "source": "owner"
+ },
+ "world:house_2": {
+  "scale": 1.4,
+  "source": "reviewed",
+  "note": "owner houses 1.2-1.45"
+ },
+ "world:house_3": {
+  "scale": 1.287,
+  "placed": [
+   1.287,
+   1.3
+  ],
+  "min": 1.287,
+  "max": 1.3,
+  "n": 3,
+  "source": "owner"
+ },
+ "world:house_4": {
+  "scale": 1.45,
+  "placed": [
+   1.435,
+   1.45,
+   1.65
+  ],
+  "min": 1.435,
+  "max": 1.65,
+  "n": 3,
+  "source": "owner"
+ },
+ "world:house_5": {
+  "scale": 1.35,
+  "source": "reviewed",
+  "note": "owner houses 1.2-1.45"
+ },
+ "world:tree_oak_0": {
+  "scale": 1.7,
+  "placed": [
+   1.198,
+   1.395,
+   1.55,
+   1.7,
+   2.263,
+   2.5,
+   3.328
+  ],
+  "min": 1.198,
+  "max": 3.328,
+  "n": 7,
+  "source": "owner"
+ },
+ "world:tree_dead_0": {
+  "scale": 2.115,
+  "placed": [
+   1.656,
+   1.684,
+   1.7,
+   1.736,
+   1.85,
+   1.93,
+   2.115,
+   2.204,
+   3.025
+  ],
+  "min": 1.656,
+  "max": 3.025,
+  "n": 12,
+  "source": "owner"
+ },
+ "world:tree_pine_0": {
+  "scale": 2.5,
+  "placed": [
+   0.624,
+   0.678,
+   0.686,
+   0.713,
+   0.734,
+   0.752,
+   0.774,
+   0.819,
+   0.83,
+   0.844,
+   0.847,
+   0.855,
+   0.86,
+   0.864,
+   0.889,
+   0.911,
+   0.913,
+   0.928,
+   0.934,
+   0.937,
+   0.945,
+   0.95,
+   0.958,
+   0.959,
+   0.962,
+   0.967,
+   0.971,
+   1.011,
+   1.017,
+   1.024,
+   1.039,
+   1.046,
+   1.053,
+   1.1,
+   1.109,
+   1.124,
+   1.13,
+   1.138,
+   1.141,
+   1.162,
+   1.17,
+   1.171,
+   1.216,
+   1.218,
+   1.227,
+   1.234,
+   1.242,
+   1.243,
+   1.251,
+   1.266,
+   1.267,
+   1.281,
+   1.299,
+   1.3,
+   1.319,
+   1.326,
+   1.327,
+   1.336,
+   1.338,
+   1.349,
+   1.362,
+   1.377,
+   1.645,
+   1.659,
+   1.666,
+   1.7,
+   1.832,
+   1.833,
+   1.859,
+   1.949,
+   1.953,
+   2.016,
+   2.066,
+   2.088,
+   2.216,
+   2.218,
+   2.25,
+   2.5,
+   2.75,
+   2.875,
+   2.939,
+   3.025,
+   3.328,
+   3.66,
+   4.026,
+   4.429,
+   4.872
+  ],
+  "min": 0.624,
+  "max": 4.872,
+  "n": 389,
+  "source": "owner"
+ },
+ "world:bush_0": {
+  "scale": 2.5,
+  "placed": [
+   0.9,
+   0.974,
+   1,
+   1.21,
+   1.215,
+   1.283,
+   1.305,
+   1.35,
+   1.397,
+   1.557,
+   1.581,
+   1.607,
+   1.665,
+   1.708,
+   1.713,
+   1.714,
+   1.778,
+   1.791,
+   1.818,
+   1.85,
+   1.878,
+   1.884,
+   1.915,
+   1.961,
+   2.039,
+   2.045,
+   2.066,
+   2.072,
+   2.074,
+   2.115,
+   2.132,
+   2.173,
+   2.194,
+   2.202,
+   2.205,
+   2.232,
+   2.255,
+   2.273,
+   2.311,
+   2.323,
+   2.332,
+   2.379,
+   2.401,
+   2.404,
+   2.413,
+   2.5,
+   2.518,
+   2.544,
+   2.597,
+   2.65,
+   2.688,
+   2.699,
+   2.708,
+   2.784,
+   2.819,
+   2.828,
+   2.841,
+   2.897,
+   2.921,
+   2.975,
+   2.992
+  ],
+  "min": 0.9,
+  "max": 2.992,
+  "n": 100,
+  "source": "owner"
+ },
+ "world:grave_0": {
+  "scale": 0.974,
+  "placed": [
+   0.974
+  ],
+  "min": 0.974,
+  "max": 0.974,
+  "n": 9,
+  "source": "owner"
+ },
+ "world:tree_oak_1": {
+  "scale": 2.199,
+  "placed": [
+   1.7,
+   1.708,
+   2.045,
+   2.199,
+   2.489,
+   2.5,
+   2.529,
+   2.862
+  ],
+  "min": 1.7,
+  "max": 2.862,
+  "n": 10,
+  "source": "owner"
+ },
+ "world:tree_dead_1": {
+  "scale": 2.489,
+  "placed": [
+   1.305,
+   1.44,
+   1.6,
+   1.656,
+   1.7,
+   2.489,
+   2.5,
+   2.862,
+   5.335
+  ],
+  "min": 1.305,
+  "max": 5.335,
+  "n": 14,
+  "source": "owner"
+ },
+ "world:tree_pine_1": {
+  "scale": 1.493,
+  "placed": [
+   0.927,
+   1.122,
+   1.29,
+   1.293,
+   1.314,
+   1.319,
+   1.322,
+   1.329,
+   1.35,
+   1.356,
+   1.357,
+   1.361,
+   1.373,
+   1.377,
+   1.405,
+   1.475,
+   1.487,
+   1.49,
+   1.493,
+   1.5,
+   1.508,
+   1.51,
+   1.511,
+   1.519,
+   1.52,
+   1.532,
+   1.539,
+   1.549,
+   1.552,
+   1.569,
+   1.579,
+   1.584,
+   1.593,
+   1.597,
+   1.602,
+   1.603,
+   1.607,
+   1.626,
+   1.643,
+   1.673,
+   1.686,
+   1.695,
+   1.699,
+   1.7,
+   1.705,
+   1.713,
+   1.745,
+   1.751,
+   1.758,
+   1.769,
+   1.774,
+   1.775,
+   1.806,
+   1.809,
+   1.852,
+   1.857,
+   1.858,
+   1.865,
+   1.872,
+   1.905,
+   1.909,
+   1.923,
+   1.925,
+   1.987,
+   1.988,
+   1.993,
+   2.015,
+   2.016,
+   2.021,
+   2.065,
+   2.066,
+   2.077,
+   2.082,
+   2.1,
+   2.103,
+   2.106,
+   2.119,
+   2.152,
+   2.157,
+   2.184,
+   2.186,
+   2.188,
+   2.193,
+   2.205,
+   2.21,
+   2.218,
+   2.222,
+   2.234,
+   2.244,
+   2.252,
+   2.259,
+   2.264,
+   2.272,
+   2.274,
+   2.282,
+   2.296,
+   2.316,
+   2.319,
+   2.321,
+   2.352,
+   2.354,
+   2.358,
+   2.367,
+   2.383,
+   2.384,
+   2.403,
+   2.427,
+   2.442,
+   2.451,
+   2.472,
+   2.473,
+   2.499,
+   2.513,
+   2.528,
+   2.531,
+   2.544,
+   2.566,
+   2.59,
+   2.592,
+   2.602,
+   2.654,
+   2.658,
+   2.661,
+   2.668,
+   2.828,
+   2.849,
+   2.859,
+   3.024,
+   3.238
+  ],
+  "min": 0.927,
+  "max": 3.238,
+  "n": 169,
+  "source": "owner"
+ },
+ "world:bush_1": {
+  "scale": 2.5,
+  "placed": [
+   0.744,
+   0.752,
+   0.753,
+   0.759,
+   0.798,
+   0.799,
+   0.8,
+   0.809,
+   0.819,
+   0.82,
+   0.826,
+   0.829,
+   0.847,
+   0.851,
+   0.857,
+   0.858,
+   0.861,
+   0.864,
+   0.87,
+   0.872,
+   0.888,
+   0.89,
+   0.894,
+   0.9,
+   0.902,
+   0.904,
+   0.907,
+   0.974,
+   1,
+   1.125,
+   1.25,
+   1.305,
+   1.564,
+   1.644,
+   1.649,
+   1.665,
+   1.672,
+   1.679,
+   1.683,
+   1.755,
+   1.76,
+   1.805,
+   1.815,
+   1.85,
+   1.857,
+   1.917,
+   1.924,
+   1.927,
+   2.376,
+   2.5,
+   2.875
+  ],
+  "min": 0.744,
+  "max": 2.875,
+  "n": 99,
+  "source": "owner"
+ },
+ "world:grave_1": {
+  "scale": 0.974,
+  "placed": [
+   0.974
+  ],
+  "min": 0.974,
+  "max": 0.974,
+  "n": 9,
+  "source": "owner"
+ },
+ "world:tree_oak_2": {
+  "scale": 1.95,
+  "placed": [
+   1.035,
+   1.15,
+   1.7,
+   1.755,
+   1.95,
+   2.186,
+   2.334,
+   2.489,
+   2.602
+  ],
+  "min": 1.035,
+  "max": 2.602,
+  "n": 9,
+  "source": "owner"
+ },
+ "world:tree_dead_2": {
+  "scale": 1.7,
+  "placed": [
+   1.656,
+   1.7,
+   1.787
+  ],
+  "min": 1.656,
+  "max": 1.787,
+  "n": 11,
+  "source": "owner"
+ },
+ "world:tree_pine_2": {
+  "scale": 3.012,
+  "placed": [
+   0.837,
+   0.93,
+   1.035,
+   1.15,
+   1.7,
+   1.728,
+   1.894,
+   2.066,
+   2.178,
+   2.263,
+   2.367,
+   2.403,
+   2.489,
+   2.738,
+   2.75,
+   3.012,
+   3.025,
+   3.327,
+   3.644
+  ],
+  "min": 0.837,
+  "max": 3.644,
+  "n": 64,
+  "source": "owner"
+ },
+ "world:bush_2": {
+  "scale": 1.569,
+  "placed": [
+   0.9,
+   0.974,
+   0.99,
+   1,
+   1.035,
+   1.15,
+   1.198,
+   1.201,
+   1.207,
+   1.21,
+   1.22,
+   1.225,
+   1.229,
+   1.25,
+   1.263,
+   1.306,
+   1.355,
+   1.365,
+   1.366,
+   1.37,
+   1.371,
+   1.394,
+   1.395,
+   1.436,
+   1.569,
+   1.595,
+   1.626,
+   1.715,
+   1.727,
+   1.754,
+   1.804,
+   1.834,
+   1.95,
+   1.972,
+   2.076,
+   2.099,
+   2.5,
+   2.506,
+   2.557,
+   2.594,
+   2.616,
+   2.644,
+   2.724,
+   2.731
+  ],
+  "min": 0.9,
+  "max": 2.731,
+  "n": 109,
+  "source": "owner"
+ },
+ "world:grave_2": {
+  "scale": 0.974,
+  "placed": [
+   0.974
+  ],
+  "min": 0.974,
+  "max": 0.974,
+  "n": 10,
+  "source": "owner"
+ },
+ "world:hedge": {
+  "scale": 0.9,
+  "placed": [
+   0.81,
+   0.9,
+   0.909,
+   0.99,
+   1,
+   1.1,
+   1.45
+  ],
+  "min": 0.81,
+  "max": 1.45,
+  "n": 166,
+  "source": "owner"
+ },
+ "world:fence_picket_x": {
+  "scale": 1.395,
+  "placed": [
+   1.395,
+   1.55
+  ],
+  "min": 1.395,
+  "max": 1.55,
+  "n": 4,
+  "source": "owner"
+ },
+ "world:fence_picket_y": {
+  "scale": 2.123,
+  "placed": [
+   2.123
+  ],
+  "min": 2.123,
+  "max": 2.123,
+  "n": 22,
+  "source": "owner"
+ },
+ "world:fence_iron_x": {
+  "scale": 0.974,
+  "placed": [
+   0.974,
+   1.427
+  ],
+  "min": 0.974,
+  "max": 1.427,
+  "n": 14,
+  "source": "owner"
+ },
+ "world:fence_iron_y": {
+  "scale": 1.1,
+  "placed": [
+   0.974,
+   0.99,
+   1.1,
+   1.179
+  ],
+  "min": 0.974,
+  "max": 1.179,
+  "n": 86,
+  "source": "owner"
+ },
+ "world:pumpkin_0": {
+  "scale": 2.228,
+  "placed": [
+   0.9,
+   1,
+   1.169,
+   1.344,
+   2.228,
+   2.5,
+   2.812
+  ],
+  "min": 0.9,
+  "max": 2.812,
+  "n": 11,
+  "source": "owner"
+ },
+ "world:pumpkin_1": {
+  "scale": 2.475,
+  "placed": [
+   0.982,
+   1.09,
+   1.17,
+   1.3,
+   1.397,
+   1.575,
+   1.75,
+   1.782,
+   2.049,
+   2.156,
+   2.475
+  ],
+  "min": 0.982,
+  "max": 2.475,
+  "n": 14,
+  "source": "owner"
+ },
+ "world:crypt": {
+  "scale": 1.331,
+  "placed": [
+   1.331
+  ],
+  "min": 1.331,
+  "max": 1.331,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:streetlamp": {
+  "scale": 0.978,
+  "placed": [
+   0.75,
+   0.9,
+   0.939,
+   0.945,
+   0.978,
+   0.98,
+   1,
+   1.25
+  ],
+  "min": 0.75,
+  "max": 1.25,
+  "n": 69,
+  "source": "owner"
+ },
+ "world:mailbox": {
+  "scale": 0.9,
+  "placed": [
+   0.897,
+   0.9,
+   1,
+   1.035,
+   1.252
+  ],
+  "min": 0.897,
+  "max": 1.252,
+  "n": 8,
+  "source": "owner"
+ },
+ "world:trashcan": {
+  "scale": 1.035,
+  "placed": [
+   0.945,
+   0.99,
+   1.035,
+   1.15,
+   1.17,
+   1.19,
+   1.309,
+   1.445,
+   1.584
+  ],
+  "min": 0.945,
+  "max": 1.584,
+  "n": 13,
+  "source": "owner"
+ },
+ "world:hydrant": {
+  "scale": 1.755,
+  "placed": [
+   1.101,
+   1.589,
+   1.612,
+   1.755,
+   1.883,
+   1.95,
+   2.018
+  ],
+  "min": 1.101,
+  "max": 2.018,
+  "n": 17,
+  "source": "owner"
+ },
+ "world:candy_stand": {
+  "scale": 1.125,
+  "placed": [
+   1.125
+  ],
+  "min": 1.125,
+  "max": 1.125,
+  "n": 3,
+  "source": "owner"
+ },
+ "world:vending": {
+  "scale": 0.99,
+  "placed": [
+   0.99,
+   1,
+   1.17,
+   1.198
+  ],
+  "min": 0.99,
+  "max": 1.198,
+  "n": 5,
+  "source": "owner"
+ },
+ "world:scarecrow": {
+  "scale": 1.072,
+  "placed": [
+   0.615,
+   0.68,
+   1.072,
+   1.45
+  ],
+  "min": 0.615,
+  "max": 1.45,
+  "n": 5,
+  "source": "owner"
+ },
+ "world:car_0": {
+  "scale": 1.371,
+  "placed": [
+   1.21,
+   1.318,
+   1.371
+  ],
+  "min": 1.21,
+  "max": 1.371,
+  "n": 4,
+  "source": "owner"
+ },
+ "world:car_1": {
+  "scale": 1.25,
+  "placed": [
+   1.21,
+   1.25,
+   1.375,
+   1.435
+  ],
+  "min": 1.21,
+  "max": 1.435,
+  "n": 6,
+  "source": "owner"
+ },
+ "world:car_2": {
+  "scale": 1.3,
+  "placed": [
+   1.21,
+   1.3,
+   1.305,
+   1.501,
+   1.579,
+   1.669
+  ],
+  "min": 1.21,
+  "max": 1.669,
+  "n": 7,
+  "source": "owner"
+ },
+ "world:car_3": {
+  "scale": 1.375,
+  "placed": [
+   1.21,
+   1.375,
+   1.611
+  ],
+  "min": 1.21,
+  "max": 1.611,
+  "n": 4,
+  "source": "owner"
+ },
+ "world:school": {
+  "scale": 2.209,
+  "placed": [
+   2.209
+  ],
+  "min": 2.209,
+  "max": 2.209,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:arcade": {
+  "scale": 1.832,
+  "placed": [
+   1.832
+  ],
+  "min": 1.832,
+  "max": 1.832,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:diner": {
+  "scale": 1.544,
+  "placed": [
+   1.544,
+   1.564
+  ],
+  "min": 1.544,
+  "max": 1.564,
+  "n": 2,
+  "source": "owner"
+ },
+ "world:video": {
+  "scale": 1.691,
+  "source": "estimate: guideScale 1.86 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "world:watertower": {
+  "scale": 1.76,
+  "placed": [
+   1.76,
+   1.936
+  ],
+  "min": 1.76,
+  "max": 1.936,
+  "n": 2,
+  "source": "owner"
+ },
+ "world:gate": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:bleachers": {
+  "scale": 1.909,
+  "placed": [
+   1.909
+  ],
+  "min": 1.909,
+  "max": 1.909,
+  "n": 5,
+  "source": "owner"
+ },
+ "world:goalposts": {
+  "scale": 2.144,
+  "placed": [
+   2.144
+  ],
+  "min": 2.144,
+  "max": 2.144,
+  "n": 2,
+  "source": "owner"
+ },
+ "world:scoreboard": {
+  "scale": 1,
+  "placed": [
+   1,
+   2.5
+  ],
+  "min": 1,
+  "max": 2.5,
+  "n": 2,
+  "source": "owner"
+ },
+ "world:gazebo": {
+  "scale": 1.08,
+  "placed": [
+   1.08,
+   1.581,
+   1.8
+  ],
+  "min": 1.08,
+  "max": 1.8,
+  "n": 4,
+  "source": "owner"
+ },
+ "world:bench": {
+  "scale": 1.17,
+  "placed": [
+   1.143,
+   1.17
+  ],
+  "min": 1.143,
+  "max": 1.17,
+  "n": 8,
+  "source": "owner"
+ },
+ "world:primary_school": {
+  "scale": 1.698,
+  "placed": [
+   1.698
+  ],
+  "min": 1.698,
+  "max": 1.698,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:schoolbus": {
+  "scale": 1.73,
+  "placed": [
+   1.73,
+   1.742
+  ],
+  "min": 1.73,
+  "max": 1.742,
+  "n": 6,
+  "source": "owner"
+ },
+ "world:junglegym_0": {
+  "scale": 0.781,
+  "placed": [
+   0.55,
+   0.781,
+   0.859
+  ],
+  "min": 0.55,
+  "max": 0.859,
+  "n": 5,
+  "source": "owner"
+ },
+ "world:junglegym_1": {
+  "scale": 0.826,
+  "placed": [
+   0.826
+  ],
+  "min": 0.826,
+  "max": 0.826,
+  "n": 2,
+  "source": "owner"
+ },
+ "world:merrygoround": {
+  "scale": 0.945,
+  "placed": [
+   0.945,
+   0.99
+  ],
+  "min": 0.945,
+  "max": 0.99,
+  "n": 4,
+  "source": "owner"
+ },
+ "world:swings": {
+  "scale": 0.945,
+  "placed": [
+   0.8,
+   0.945
+  ],
+  "min": 0.8,
+  "max": 0.945,
+  "n": 6,
+  "source": "owner"
+ },
+ "world:drivein_screen": {
+  "scale": 0.963,
+  "placed": [
+   0.963
+  ],
+  "min": 0.963,
+  "max": 0.963,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:speaker_post": {
+  "scale": 0.909,
+  "placed": [
+   0.667,
+   0.909,
+   1.464
+  ],
+  "min": 0.667,
+  "max": 1.464,
+  "n": 15,
+  "source": "owner"
+ },
+ "world:snack_bar": {
+  "scale": 2.391,
+  "source": "estimate: guideScale 2.63 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "world:drivein_marquee": {
+  "scale": 1.227,
+  "placed": [
+   1.227
+  ],
+  "min": 1.227,
+  "max": 1.227,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:church": {
+  "scale": 1.595,
+  "placed": [
+   1.595
+  ],
+  "min": 1.595,
+  "max": 1.595,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:video_rental": {
+  "scale": 1.229,
+  "placed": [
+   1.229
+  ],
+  "min": 1.229,
+  "max": 1.229,
+  "n": 1,
+  "source": "owner"
+ },
+ "world:barn": {
+  "scale": 2.19,
+  "placed": [
+   2.19
+  ],
+  "min": 2.19,
+  "max": 2.19,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:fish_tackle": {
+  "scale": 1.383,
+  "placed": [
+   1.383
+  ],
+  "min": 1.383,
+  "max": 1.383,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:grocery": {
+  "scale": 1.727,
+  "placed": [
+   1.727
+  ],
+  "min": 1.727,
+  "max": 1.727,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:hardware": {
+  "scale": 1.755,
+  "source": "estimate: guideScale 2.11 x owner ratio 0.83 (Shops & services)"
+ },
+ "town:bakery": {
+  "scale": 1.487,
+  "placed": [
+   1.487
+  ],
+  "min": 1.487,
+  "max": 1.487,
+  "n": 2,
+  "source": "owner"
+ },
+ "town:laundromat": {
+  "scale": 1.782,
+  "placed": [
+   1.782
+  ],
+  "min": 1.782,
+  "max": 1.782,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:pharmacy": {
+  "scale": 1.782,
+  "placed": [
+   1.782
+  ],
+  "min": 1.782,
+  "max": 1.782,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:barber": {
+  "scale": 1.646,
+  "source": "estimate: guideScale 1.98 x owner ratio 0.83 (Shops & services)"
+ },
+ "town:postoffice": {
+  "scale": 2.034,
+  "placed": [
+   2.034
+  ],
+  "min": 2.034,
+  "max": 2.034,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:firestation": {
+  "scale": 1.629,
+  "placed": [
+   1.629
+  ],
+  "min": 1.629,
+  "max": 1.629,
+  "n": 1,
+  "source": "owner"
+ },
+ "town:dumpster": {
+  "scale": 1,
+  "placed": [
+   0.855,
+   1,
+   1.081,
+   1.17
+  ],
+  "min": 0.855,
+  "max": 1.17,
+  "n": 8,
+  "source": "owner"
+ },
+ "town:delivery_crates": {
+  "scale": 1.126,
+  "placed": [
+   0.879,
+   1.126
+  ],
+  "min": 0.879,
+  "max": 1.126,
+  "n": 3,
+  "source": "owner"
+ },
+ "town:planter_terracotta": {
+  "scale": 0.532,
+  "placed": [
+   0.532,
+   0.63,
+   0.7
+  ],
+  "min": 0.532,
+  "max": 0.7,
+  "n": 7,
+  "source": "owner"
+ },
+ "town:planter_square": {
+  "scale": 0.676,
+  "placed": [
+   0.577,
+   0.676,
+   0.71,
+   1
+  ],
+  "min": 0.577,
+  "max": 1,
+  "n": 16,
+  "source": "owner"
+ },
+ "town:traffic_light": {
+  "scale": 0.945,
+  "placed": [
+   0.945
+  ],
+  "min": 0.945,
+  "max": 0.945,
+  "n": 21,
+  "source": "owner"
+ },
+ "town:stop_sign": {
+  "scale": 0.945,
+  "placed": [
+   0.945,
+   0.99,
+   1.1,
+   1.464
+  ],
+  "min": 0.945,
+  "max": 1.464,
+  "n": 5,
+  "source": "owner"
+ },
+ "town:street_sign": {
+  "scale": 1.359,
+  "placed": [
+   1.359,
+   1.39
+  ],
+  "min": 1.359,
+  "max": 1.39,
+  "n": 5,
+  "source": "owner"
+ },
+ "town:bus_stop": {
+  "scale": 0.967,
+  "placed": [
+   0.841,
+   0.967,
+   1
+  ],
+  "min": 0.841,
+  "max": 1,
+  "n": 7,
+  "source": "owner"
+ },
+ "town:phone_booth": {
+  "scale": 1.198,
+  "placed": [
+   1.122,
+   1.198
+  ],
+  "min": 1.122,
+  "max": 1.198,
+  "n": 3,
+  "source": "owner"
+ },
+ "town:bike_rack": {
+  "scale": 0.751,
+  "placed": [
+   0.669,
+   0.751,
+   0.9
+  ],
+  "min": 0.669,
+  "max": 0.9,
+  "n": 6,
+  "source": "owner"
+ },
+ "town:picnic_table": {
+  "scale": 0.86,
+  "placed": [
+   0.86,
+   0.9,
+   0.945,
+   1
+  ],
+  "min": 0.86,
+  "max": 1,
+  "n": 16,
+  "source": "owner"
+ },
+ "town:utility_pole": {
+  "scale": 1.215,
+  "placed": [
+   1.215,
+   1.35
+  ],
+  "min": 1.215,
+  "max": 1.35,
+  "n": 2,
+  "source": "owner"
+ },
+ "town:produce_stand": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   0.99
+  ],
+  "min": 0.9,
+  "max": 0.99,
+  "n": 4,
+  "source": "owner"
+ },
+ "town:fern": {
+  "scale": 1.726,
+  "placed": [
+   0.826,
+   0.837,
+   0.864,
+   0.927,
+   0.93,
+   0.974,
+   0.99,
+   1.017,
+   1.072,
+   1.1,
+   1.116,
+   1.13,
+   1.143,
+   1.188,
+   1.35,
+   1.384,
+   1.426,
+   1.5,
+   1.518,
+   1.55,
+   1.605,
+   1.665,
+   1.687,
+   1.688,
+   1.69,
+   1.726,
+   1.731,
+   1.782,
+   1.856,
+   1.943,
+   2.089,
+   2.134
+  ],
+  "min": 0.826,
+  "max": 2.134,
+  "n": 86,
+  "source": "owner"
+ },
+ "town:hydrangea": {
+  "scale": 0.818,
+  "placed": [
+   0.818,
+   0.941,
+   0.963,
+   0.974,
+   0.975,
+   1.107,
+   1.21,
+   1.298,
+   1.427,
+   1.465,
+   1.54,
+   1.678,
+   1.796
+  ],
+  "min": 0.818,
+  "max": 1.796,
+  "n": 31,
+  "source": "owner"
+ },
+ "town:ornamental_grass": {
+  "scale": 0.621,
+  "placed": [
+   0.564,
+   0.6,
+   0.621,
+   0.653,
+   0.751,
+   0.826,
+   0.864,
+   0.96,
+   1,
+   1.179,
+   1.181,
+   1.21,
+   1.24,
+   1.37,
+   1.575,
+   1.602,
+   1.726,
+   1.76,
+   1.783,
+   1.813,
+   1.842,
+   1.975,
+   2.088,
+   2.089
+  ],
+  "min": 0.564,
+  "max": 2.089,
+  "n": 57,
+  "source": "owner"
+ },
+ "town:bare_grass": {
+  "scale": 2.046,
+  "placed": [
+   1.395,
+   1.55,
+   1.665,
+   1.85,
+   1.915,
+   2.046,
+   2.27,
+   2.5
+  ],
+  "min": 1.395,
+  "max": 2.5,
+  "n": 31,
+  "source": "owner"
+ },
+ "town:mud_grass": {
+  "scale": 2.312,
+  "placed": [
+   1.198,
+   1.305,
+   1.737,
+   1.911,
+   2.102,
+   2.312,
+   2.543,
+   2.659,
+   2.797,
+   3.077
+  ],
+  "min": 1.198,
+  "max": 3.077,
+  "n": 22,
+  "source": "owner"
+ },
+ "town:leaf_drift": {
+  "scale": 1.55,
+  "placed": [
+   0.639,
+   0.69,
+   0.873,
+   1,
+   1.24,
+   1.268,
+   1.27,
+   1.376,
+   1.395,
+   1.41,
+   1.464,
+   1.53,
+   1.55,
+   1.604,
+   1.665,
+   1.69,
+   1.71,
+   1.755,
+   1.772,
+   1.833,
+   1.85,
+   1.86,
+   1.88,
+   1.9,
+   1.915,
+   1.95,
+   2.003,
+   2.013,
+   2.019,
+   2.02,
+   2.04,
+   2.096,
+   2.099,
+   2.108,
+   2.12,
+   2.128,
+   2.132,
+   2.141,
+   2.161,
+   2.164,
+   2.179,
+   2.184,
+   2.187,
+   2.211,
+   2.215,
+   2.219,
+   2.222,
+   2.228,
+   2.241,
+   2.245,
+   2.25,
+   2.255,
+   2.259,
+   2.261,
+   2.264,
+   2.271,
+   2.289,
+   2.295,
+   2.299,
+   2.3,
+   2.301,
+   2.312,
+   2.323,
+   2.325,
+   2.366,
+   2.389,
+   2.4,
+   2.403,
+   2.409,
+   2.42,
+   2.422,
+   2.432,
+   2.45,
+   2.46,
+   2.475,
+   2.481,
+   2.491,
+   2.497,
+   2.5,
+   2.512,
+   2.517,
+   2.53,
+   2.536,
+   2.537,
+   2.564,
+   2.579,
+   2.589,
+   2.598,
+   2.599,
+   2.6,
+   2.616,
+   2.618,
+   2.644,
+   2.651,
+   2.664,
+   2.681,
+   2.691,
+   2.701,
+   2.715,
+   2.734,
+   2.737,
+   2.745,
+   2.749,
+   2.772,
+   2.78,
+   2.781,
+   2.785,
+   2.791,
+   2.793,
+   2.814,
+   2.822,
+   2.831,
+   2.838,
+   2.865,
+   2.873,
+   2.874,
+   2.878,
+   2.901,
+   2.91,
+   2.922,
+   2.925,
+   2.927,
+   2.931,
+   2.941,
+   2.95,
+   2.969,
+   2.973,
+   2.977,
+   2.987
+  ],
+  "min": 0.639,
+  "max": 2.987,
+  "n": 251,
+  "source": "owner"
+ },
+ "town:paper_litter": {
+  "scale": 0.9,
+  "placed": [
+   0.775,
+   0.794,
+   0.822,
+   0.841,
+   0.9,
+   1
+  ],
+  "min": 0.775,
+  "max": 1,
+  "n": 19,
+  "source": "owner"
+ },
+ "town:bag_litter": {
+  "scale": 0.9,
+  "placed": [
+   0.813,
+   0.9,
+   1,
+   1.089,
+   1.594
+  ],
+  "min": 0.813,
+  "max": 1.594,
+  "n": 7,
+  "source": "owner"
+ },
+ "town:puddle": {
+  "scale": 2.358,
+  "placed": [
+   2.358,
+   2.712
+  ],
+  "min": 2.358,
+  "max": 2.712,
+  "n": 5,
+  "source": "owner"
+ },
+ "town:oil_stain": {
+  "scale": 1,
+  "placed": [
+   0.99,
+   1,
+   1.594
+  ],
+  "min": 0.99,
+  "max": 1.594,
+  "n": 3,
+  "source": "owner"
+ },
+ "town:paving_wear": {
+  "scale": 1.26,
+  "placed": [
+   0.729,
+   0.918,
+   1.026,
+   1.035,
+   1.089,
+   1.26,
+   1.4,
+   1.449
+  ],
+  "min": 0.729,
+  "max": 1.449,
+  "n": 10,
+  "source": "owner"
+ },
+ "town:wheel_wear": {
+  "scale": 2.153,
+  "placed": [
+   2.153,
+   2.476
+  ],
+  "min": 2.153,
+  "max": 2.476,
+  "n": 16,
+  "source": "owner"
+ },
+ "town:gravel_spill": {
+  "scale": 1.772,
+  "placed": [
+   1.772
+  ],
+  "min": 1.772,
+  "max": 1.772,
+  "n": 2,
+  "source": "owner"
+ },
+ "static:compact_e": {
+  "scale": 1.186,
+  "placed": [
+   1.186,
+   1.21,
+   1.364
+  ],
+  "min": 1.186,
+  "max": 1.364,
+  "n": 6,
+  "source": "owner"
+ },
+ "static:compact_w": {
+  "scale": 1.186,
+  "placed": [
+   1.125,
+   1.186,
+   1.21,
+   1.4
+  ],
+  "min": 1.125,
+  "max": 1.4,
+  "n": 5,
+  "source": "owner"
+ },
+ "static:compact_s": {
+  "scale": 1.45,
+  "placed": [
+   1.45
+  ],
+  "min": 1.45,
+  "max": 1.45,
+  "n": 1,
+  "source": "owner"
+ },
+ "static:compact_n": {
+  "scale": 1.25,
+  "placed": [
+   1.25,
+   1.45
+  ],
+  "min": 1.25,
+  "max": 1.45,
+  "n": 2,
+  "source": "owner"
+ },
+ "static:compact_n-v2": {
+  "scale": 1.099,
+  "placed": [
+   0.966,
+   1.099,
+   1.125,
+   1.2
+  ],
+  "min": 0.966,
+  "max": 1.2,
+  "n": 5,
+  "source": "owner"
+ },
+ "static:pickup_n": {
+  "scale": 1.32,
+  "placed": [
+   1.32,
+   1.33
+  ],
+  "min": 1.32,
+  "max": 1.33,
+  "n": 2,
+  "source": "owner"
+ },
+ "static:pickup_n-v2": {
+  "scale": 1.2,
+  "placed": [
+   0.966,
+   1.08,
+   1.2,
+   1.305,
+   1.318,
+   1.38
+  ],
+  "min": 0.966,
+  "max": 1.38,
+  "n": 7,
+  "source": "owner"
+ },
+ "static:van_e": {
+  "scale": 1.21,
+  "placed": [
+   1.186,
+   1.21,
+   1.264
+  ],
+  "min": 1.186,
+  "max": 1.264,
+  "n": 3,
+  "source": "owner"
+ },
+ "static:van_e-v2": {
+  "scale": 1.1,
+  "placed": [
+   1.076,
+   1.1,
+   1.21,
+   1.31
+  ],
+  "min": 1.076,
+  "max": 1.31,
+  "n": 5,
+  "source": "owner"
+ },
+ "static:shop_brick_rear": {
+  "scale": 1.233,
+  "placed": [
+   1.233,
+   1.492
+  ],
+  "min": 1.233,
+  "max": 1.492,
+  "n": 3,
+  "source": "owner"
+ },
+ "static:shop_brick_rear-v2": {
+  "scale": 1.346,
+  "placed": [
+   1.346
+  ],
+  "min": 1.346,
+  "max": 1.346,
+  "n": 1,
+  "source": "owner"
+ },
+ "static:shop_market_rear": {
+  "scale": 1.755,
+  "source": "estimate: guideScale 2.11 x owner ratio 0.83 (Shops & services)"
+ },
+ "static:shop_market_rear-v2": {
+  "scale": 2.11,
+  "placed": [
+   2.11
+  ],
+  "min": 2.11,
+  "max": 2.11,
+  "n": 1,
+  "source": "owner"
+ },
+ "static:garage_timber": {
+  "scale": 1.739,
+  "placed": [
+   1.739,
+   1.929
+  ],
+  "min": 1.739,
+  "max": 1.929,
+  "n": 2,
+  "source": "owner"
+ },
+ "static:garage_timber-v2": {
+  "scale": 1.75,
+  "source": "reviewed",
+  "note": "owner uses the v1 timber garage at 1.74-1.93"
+ },
+ "static:garage_brick": {
+  "scale": 1.395,
+  "placed": [
+   1.395,
+   1.55
+  ],
+  "min": 1.395,
+  "max": 1.55,
+  "n": 2,
+  "source": "owner"
+ },
+ "static:garage_brick-v2": {
+  "scale": 1.395,
+  "placed": [
+   1.395,
+   1.55
+  ],
+  "min": 1.395,
+  "max": 1.55,
+  "n": 2,
+  "source": "owner"
+ },
+ "ref:building-barn": {
+  "scale": 1.991,
+  "source": "estimate: guideScale 2.19 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:building-barn-v2": {
+  "scale": 1.991,
+  "source": "estimate: guideScale 2.19 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:building-church": {
+  "scale": 1.8,
+  "source": "estimate: guideScale 1.98 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:building-corner-shop": {
+  "scale": 1.755,
+  "source": "estimate: guideScale 2.11 x owner ratio 0.83 (Shops & services)"
+ },
+ "ref:building-corner-store": {
+  "scale": 1.755,
+  "source": "estimate: guideScale 2.11 x owner ratio 0.83 (Shops & services)"
+ },
+ "ref:building-drive-in-screen": {
+  "scale": 1.636,
+  "source": "estimate: guideScale 1.8 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:building-farm-shed": {
+  "scale": 1.918,
+  "placed": [
+   1.918
+  ],
+  "min": 1.918,
+  "max": 1.918,
+  "n": 1,
+  "source": "owner"
+ },
+ "ref:building-gas-canopy": {
+  "scale": 1.98,
+  "placed": [
+   1.98
+  ],
+  "min": 1.98,
+  "max": 1.98,
+  "n": 1,
+  "source": "owner"
+ },
+ "ref:building-grocery": {
+  "scale": 0.905,
+  "placed": [
+   0.905,
+   0.974
+  ],
+  "min": 0.905,
+  "max": 0.974,
+  "n": 2,
+  "source": "owner"
+ },
+ "ref:building-mausoleum": {
+  "scale": 1.8,
+  "source": "estimate: guideScale 1.98 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:building-school": {
+  "scale": 2.318,
+  "source": "estimate: guideScale 2.55 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:landmark-fountain": {
+  "scale": 1.185,
+  "placed": [
+   1.185
+  ],
+  "min": 1.185,
+  "max": 1.185,
+  "n": 1,
+  "source": "owner"
+ },
+ "ref:landmark-fountain-v2": {
+  "scale": 1.909,
+  "source": "estimate: guideScale 2.1 x owner ratio 0.91 (Landmarks & venues)"
+ },
+ "ref:landmark-silo": {
+  "scale": 1.76,
+  "placed": [
+   1.76
+  ],
+  "min": 1.76,
+  "max": 1.76,
+  "n": 3,
+  "source": "owner"
+ },
+ "ref:landmark-water-tower": {
+  "scale": 1.455,
+  "placed": [
+   1.455
+  ],
+  "min": 1.455,
+  "max": 1.455,
+  "n": 2,
+  "source": "owner"
+ },
+ "ref:landmark-windmill": {
+  "scale": 2.835,
+  "placed": [
+   2.835
+  ],
+  "min": 2.835,
+  "max": 2.835,
+  "n": 1,
+  "source": "owner"
+ },
+ "ref:tree-maple-crimson": {
+  "scale": 2.489,
+  "placed": [
+   0.936,
+   1.097,
+   1.665,
+   1.8,
+   1.85,
+   1.907,
+   2.452,
+   2.489,
+   2.646,
+   2.738,
+   3.012,
+   3.067,
+   3.874,
+   4.026
+  ],
+  "min": 0.936,
+  "max": 4.026,
+  "n": 16,
+  "source": "owner"
+ },
+ "ref:tree-birch-gold": {
+  "scale": 1.26,
+  "placed": [
+   1.26,
+   1.4,
+   1.405,
+   1.449,
+   1.7,
+   2.029,
+   2.232,
+   2.738,
+   3.012
+  ],
+  "min": 1.26,
+  "max": 3.012,
+  "n": 18,
+  "source": "owner"
+ },
+ "ref:tree-spruce-blue": {
+  "scale": 1.697,
+  "placed": [
+   1.159,
+   1.275,
+   1.31,
+   1.35,
+   1.405,
+   1.495,
+   1.543,
+   1.697,
+   1.7,
+   1.717,
+   1.831,
+   1.851,
+   1.867,
+   1.868,
+   1.87,
+   1.926,
+   1.977,
+   2.053,
+   2.054,
+   2.067,
+   2.138,
+   2.197,
+   2.216,
+   2.247,
+   2.259,
+   2.263,
+   2.485,
+   2.5,
+   2.508,
+   2.51,
+   2.602,
+   2.733,
+   2.734,
+   3.006,
+   3.007,
+   3.307,
+   3.308,
+   3.519,
+   3.638,
+   3.66,
+   4.001,
+   4.842,
+   4.843
+  ],
+  "min": 1.159,
+  "max": 4.843,
+  "n": 205,
+  "source": "owner"
+ },
+ "ref:halloween-hay-bales": {
+  "scale": 1.569,
+  "placed": [
+   0.845,
+   0.886,
+   0.94,
+   1.072,
+   1.179,
+   1.297,
+   1.397,
+   1.569,
+   1.607
+  ],
+  "min": 0.845,
+  "max": 1.607,
+  "n": 16,
+  "source": "owner"
+ },
+ "ref:halloween-lantern": {
+  "scale": 0.974,
+  "placed": [
+   0.559,
+   0.788,
+   0.81,
+   0.9,
+   0.974,
+   1.086
+  ],
+  "min": 0.559,
+  "max": 1.086,
+  "n": 9,
+  "source": "owner"
+ },
+ "ref:halloween-mums": {
+  "scale": 1.072,
+  "placed": [
+   0.81,
+   0.9,
+   0.931,
+   1,
+   1.063,
+   1.072,
+   1.186,
+   1.604,
+   1.778
+  ],
+  "min": 0.81,
+  "max": 1.778,
+  "n": 18,
+  "source": "owner"
+ },
+ "ref:halloween-pumpkin-cluster": {
+  "scale": 1.179,
+  "placed": [
+   0.81,
+   0.9,
+   0.966,
+   1,
+   1.179,
+   1.569
+  ],
+  "min": 0.81,
+  "max": 1.569,
+  "n": 10,
+  "source": "owner"
+ },
+ "ref:halloween-sheet-ghost": {
+  "scale": 0.974,
+  "placed": [
+   0.66,
+   0.675,
+   0.75,
+   0.759,
+   0.974
+  ],
+  "min": 0.66,
+  "max": 0.974,
+  "n": 7,
+  "source": "owner"
+ },
+ "ref:halloween-witch-sign": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.17
+  ],
+  "min": 1,
+  "max": 1.17,
+  "n": 3,
+  "source": "owner"
+ },
+ "decal:decal-01-lush-grass": {
+  "scale": 1.13,
+  "placed": [
+   1.028,
+   1.13,
+   1.131,
+   1.656
+  ],
+  "min": 1.028,
+  "max": 1.656,
+  "n": 8,
+  "source": "owner"
+ },
+ "decal:decal-02-dry-golden-grass": {
+  "scale": 0.879,
+  "placed": [
+   0.879,
+   1.064,
+   1.628,
+   1.663,
+   1.78
+  ],
+  "min": 0.879,
+  "max": 1.78,
+  "n": 25,
+  "source": "owner"
+ },
+ "decal:decal-03-moss-groundcover": {
+  "scale": 1.062,
+  "placed": [
+   1.062,
+   1.221,
+   1.71
+  ],
+  "min": 1.062,
+  "max": 1.71,
+  "n": 19,
+  "source": "owner"
+ },
+ "decal:decal-04-low-weeds": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 7,
+  "source": "owner"
+ },
+ "decal:decal-05-thin-grass": {
+  "scale": 1.462,
+  "placed": [
+   1.462,
+   2.14
+  ],
+  "min": 1.462,
+  "max": 2.14,
+  "n": 22,
+  "source": "owner"
+ },
+ "decal:decal-06-orange-leaf-scatter": {
+  "scale": 0.975,
+  "placed": [
+   0.605,
+   0.646,
+   0.648,
+   0.652,
+   0.675,
+   0.698,
+   0.706,
+   0.738,
+   0.744,
+   0.747,
+   0.759,
+   0.806,
+   0.848,
+   0.872,
+   0.875,
+   0.904,
+   0.94,
+   0.943,
+   0.975,
+   1.24
+  ],
+  "min": 0.605,
+  "max": 1.24,
+  "n": 58,
+  "source": "owner"
+ },
+ "decal:decal-07-red-leaf-cluster": {
+  "scale": 0.569,
+  "placed": [
+   0.569,
+   0.654,
+   0.689,
+   0.709,
+   0.81,
+   0.826,
+   0.833,
+   0.9,
+   1.24
+  ],
+  "min": 0.569,
+  "max": 1.24,
+  "n": 26,
+  "source": "owner"
+ },
+ "decal:decal-08-yellow-leaf-scatter": {
+  "scale": 0.9,
+  "placed": [
+   0.734,
+   0.738,
+   0.785,
+   0.795,
+   0.798,
+   0.802,
+   0.815,
+   0.827,
+   0.831,
+   0.857,
+   0.858,
+   0.863,
+   0.875,
+   0.9,
+   0.971,
+   0.982,
+   0.989,
+   0.99,
+   1,
+   1.034,
+   1.039,
+   1.056,
+   1.057
+  ],
+  "min": 0.734,
+  "max": 1.057,
+  "n": 45,
+  "source": "owner"
+ },
+ "decal:scatter-grass-tufts": {
+  "scale": 1.24,
+  "placed": [
+   1.208,
+   1.24,
+   1.254,
+   1.34,
+   1.41,
+   1.501,
+   1.767
+  ],
+  "min": 1.208,
+  "max": 1.767,
+  "n": 10,
+  "source": "owner"
+ },
+ "decal:scatter-tiny-leaves": {
+  "scale": 0.791,
+  "placed": [
+   0.72,
+   0.728,
+   0.732,
+   0.748,
+   0.761,
+   0.768,
+   0.771,
+   0.791,
+   0.811,
+   0.825,
+   0.832,
+   0.837,
+   0.841,
+   0.881,
+   0.925,
+   0.933,
+   0.936,
+   0.948,
+   0.954,
+   0.982,
+   0.992,
+   0.999,
+   1.561
+  ],
+  "min": 0.72,
+  "max": 1.561,
+  "n": 38,
+  "source": "owner"
+ },
+ "poi:canoe-rack": {
+  "scale": 1.575,
+  "placed": [
+   1.575,
+   1.75,
+   1.906
+  ],
+  "min": 1.575,
+  "max": 1.906,
+  "n": 5,
+  "source": "owner"
+ },
+ "poi:bait-cooler": {
+  "scale": 1.199,
+  "placed": [
+   1.199
+  ],
+  "min": 1.199,
+  "max": 1.199,
+  "n": 1,
+  "source": "owner"
+ },
+ "poi:rod-bucket": {
+  "scale": 1.949,
+  "placed": [
+   1.949
+  ],
+  "min": 1.949,
+  "max": 1.949,
+  "n": 2,
+  "source": "owner"
+ },
+ "poi:fishing-board": {
+  "scale": 1.575,
+  "placed": [
+   1.575
+  ],
+  "min": 1.575,
+  "max": 1.575,
+  "n": 1,
+  "source": "owner"
+ },
+ "poi:tape-return": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1,
+   1.575
+  ],
+  "min": 0.9,
+  "max": 1.575,
+  "n": 4,
+  "source": "owner"
+ },
+ "poi:movie-display": {
+  "scale": 1.198,
+  "placed": [
+   1.198
+  ],
+  "min": 1.198,
+  "max": 1.198,
+  "n": 1,
+  "source": "owner"
+ },
+ "poi:vhs-carton": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1,
+   1.322,
+   1.935
+  ],
+  "min": 0.9,
+  "max": 1.935,
+  "n": 6,
+  "source": "owner"
+ },
+ "poi:skates-crate": {
+  "scale": 1.595,
+  "placed": [
+   1.595,
+   1.77,
+   1.93
+  ],
+  "min": 1.595,
+  "max": 1.93,
+  "n": 4,
+  "source": "owner"
+ },
+ "poi:candy-soda-litter": {
+  "scale": 1.61,
+  "placed": [
+   0.747,
+   1.45,
+   1.61,
+   1.68,
+   2.5
+  ],
+  "min": 0.747,
+  "max": 2.5,
+  "n": 5,
+  "source": "owner"
+ },
+ "poi:newspaper-cup-litter": {
+  "scale": 1.2,
+  "placed": [
+   0.775,
+   1.082,
+   1.2,
+   1.276,
+   1.698,
+   1.937
+  ],
+  "min": 0.775,
+  "max": 1.937,
+  "n": 6,
+  "source": "owner"
+ },
+ "poi:pizza-litter": {
+  "scale": 1.2,
+  "placed": [
+   0.775,
+   0.898,
+   1.08,
+   1.2,
+   1.248,
+   1.429,
+   1.437,
+   1.6
+  ],
+  "min": 0.775,
+  "max": 1.6,
+  "n": 8,
+  "source": "owner"
+ },
+ "poi:flyer-tape-litter": {
+  "scale": 1.08,
+  "placed": [
+   0.888,
+   0.9,
+   1.08,
+   1.252,
+   1.492
+  ],
+  "min": 0.888,
+  "max": 1.492,
+  "n": 5,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_cabinet_0.55_0.75": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_cabinet_retro_0.55_0.75": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_cabinet_racer_0.55_0.75": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_cabinet_back_0.55_0.75": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_cabinet_back_alt_0.55_0.75": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_pinball_0.65_1.15": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_pinball_back_0.65_1.15": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_skeeball_2.1_2.7": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_airhockey_2.1_1.2": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_foosball_1.5_1": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_prizes_5_1.2": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_pizza_6_1.4": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_booth_2.4_1.3": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_stage_5_2.4": {
+  "scale": 0.9,
+  "placed": [
+   0.9
+  ],
+  "min": 0.9,
+  "max": 0.9,
+  "n": 1,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_photo_0.8_0.7": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_tokens_0.55_0.6": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_party_3_1.8": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_wall_8_0.15": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_wall_0.15_7.5": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade furniture"
+ },
+ "arcade:arcade_v2_exit_mat": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade floor decals"
+ },
+ "arcade:arcade_v2_clutter_bigfoot": {
+  "scale": 0.944,
+  "source": "estimate: owner median for Arcade decor"
+ },
+ "arcade:arcade_v2_clutter_robot": {
+  "scale": 0.944,
+  "source": "estimate: owner median for Arcade decor"
+ },
+ "arcade:arcade_v2_clutter_poster": {
+  "scale": 0.678,
+  "placed": [
+   0.678
+  ],
+  "min": 0.678,
+  "max": 0.678,
+  "n": 1,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_jukebox": {
+  "scale": 0.944,
+  "source": "estimate: owner median for Arcade decor"
+ },
+ "arcade:arcade_v2_clutter_gumball": {
+  "scale": 0.944,
+  "source": "estimate: owner median for Arcade decor"
+ },
+ "arcade:arcade_v2_clutter_vhs": {
+  "scale": 0.944,
+  "source": "estimate: owner median for Arcade decor"
+ },
+ "arcade:arcade_v2_clutter_plant": {
+  "scale": 1.21,
+  "placed": [
+   1.21
+  ],
+  "min": 1.21,
+  "max": 1.21,
+  "n": 63,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_popcorn": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1
+  ],
+  "min": 0.9,
+  "max": 1,
+  "n": 2,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_soda": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1
+  ],
+  "min": 0.9,
+  "max": 1,
+  "n": 4,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_pizza_box": {
+  "scale": 0.9,
+  "placed": [
+   0.9
+  ],
+  "min": 0.9,
+  "max": 0.9,
+  "n": 2,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_tickets": {
+  "scale": 0.9,
+  "placed": [
+   0.9
+  ],
+  "min": 0.9,
+  "max": 0.9,
+  "n": 3,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_snack_pile": {
+  "scale": 0.9,
+  "placed": [
+   0.9
+  ],
+  "min": 0.9,
+  "max": 0.9,
+  "n": 2,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_party_pile": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   0.903
+  ],
+  "min": 0.9,
+  "max": 0.903,
+  "n": 3,
+  "source": "owner"
+ },
+ "arcade:arcade_v2_clutter_paper_pile": {
+  "scale": 0.9,
+  "source": "estimate: owner median for Arcade floor decals"
+ },
+ "arcade:arcade_v2_clutter_arcade_junk": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1
+  ],
+  "min": 0.9,
+  "max": 1,
+  "n": 4,
+  "source": "owner"
+ },
+ "gen:drift-1": {
+  "scale": 0.966,
+  "placed": [
+   0.36,
+   0.6,
+   0.714,
+   0.95,
+   0.966
+  ],
+  "min": 0.36,
+  "max": 0.966,
+  "n": 33,
+  "source": "owner"
+ },
+ "gen:drift-2": {
+  "scale": 1.08,
+  "placed": [
+   0.611,
+   0.68,
+   0.974,
+   0.98,
+   1.08,
+   1.082,
+   1.12,
+   1.2
+  ],
+  "min": 0.611,
+  "max": 1.2,
+  "n": 19,
+  "source": "owner"
+ },
+ "gen:drift-3": {
+  "scale": 1.08,
+  "placed": [
+   0.63,
+   0.661,
+   0.7,
+   0.727,
+   0.765,
+   0.9,
+   1.018,
+   1.035,
+   1.08,
+   1.12,
+   1.171,
+   1.242,
+   1.288,
+   1.305
+  ],
+  "min": 0.63,
+  "max": 1.305,
+  "n": 171,
+  "source": "owner"
+ },
+ "gen:drift-4": {
+  "scale": 0.901,
+  "placed": [
+   0.509,
+   0.745,
+   0.819,
+   0.891,
+   0.901,
+   1.08
+  ],
+  "min": 0.509,
+  "max": 1.08,
+  "n": 40,
+  "source": "owner"
+ },
+ "gen:drift-5": {
+  "scale": 1.08,
+  "placed": [
+   1.08
+  ],
+  "min": 1.08,
+  "max": 1.08,
+  "n": 1,
+  "source": "owner"
+ },
+ "gen:drift-6": {
+  "scale": 0.852,
+  "placed": [
+   0.36,
+   0.481,
+   0.54,
+   0.553,
+   0.621,
+   0.675,
+   0.704,
+   0.791,
+   0.852,
+   0.9,
+   0.937,
+   1.031,
+   1.372,
+   1.509
+  ],
+  "min": 0.36,
+  "max": 1.509,
+  "n": 202,
+  "source": "owner"
+ },
+ "gen:drift-7": {
+  "scale": 1.12,
+  "placed": [
+   1.06,
+   1.12,
+   1.288
+  ],
+  "min": 1.06,
+  "max": 1.288,
+  "n": 3,
+  "source": "owner"
+ },
+ "gen:drift-8": {
+  "scale": 0.974,
+  "placed": [
+   0.6,
+   0.949,
+   0.974,
+   1.091
+  ],
+  "min": 0.6,
+  "max": 1.091,
+  "n": 24,
+  "source": "owner"
+ },
+ "gen:litter-candy": {
+  "scale": 0.621,
+  "placed": [
+   0.621,
+   0.683
+  ],
+  "min": 0.621,
+  "max": 0.683,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:litter-fastfood": {
+  "scale": 0.9,
+  "placed": [
+   0.747,
+   0.822,
+   0.9
+  ],
+  "min": 0.747,
+  "max": 0.9,
+  "n": 10,
+  "source": "owner"
+ },
+ "gen:gravel-spill": {
+  "scale": 1.055,
+  "source": "estimate: owner median for Decals & ground"
+ },
+ "gen:litter-newspaper": {
+  "scale": 0.893,
+  "placed": [
+   0.671,
+   0.812,
+   0.893,
+   1.08,
+   1.081
+  ],
+  "min": 0.671,
+  "max": 1.081,
+  "n": 15,
+  "source": "owner"
+ },
+ "gen:pinecones-needles": {
+  "scale": 0.9,
+  "placed": [
+   0.656,
+   0.716,
+   0.726,
+   0.728,
+   0.738,
+   0.742,
+   0.761,
+   0.77,
+   0.778,
+   0.788,
+   0.793,
+   0.796,
+   0.802,
+   0.803,
+   0.818,
+   0.83,
+   0.831,
+   0.84,
+   0.843,
+   0.862,
+   0.863,
+   0.9,
+   0.906,
+   0.917,
+   0.918,
+   0.926,
+   0.942,
+   0.945,
+   0.959,
+   0.96,
+   0.969,
+   0.97,
+   0.971,
+   0.976,
+   0.979,
+   0.98,
+   0.983,
+   0.984,
+   0.985,
+   0.988,
+   0.989,
+   0.991,
+   0.992,
+   0.997,
+   1,
+   1.001,
+   1.002,
+   1.003,
+   1.008,
+   1.009,
+   1.011,
+   1.012,
+   1.013,
+   1.014,
+   1.015,
+   1.017,
+   1.018,
+   1.02,
+   1.022,
+   1.024,
+   1.026,
+   1.029,
+   1.03,
+   1.032,
+   1.035,
+   1.038,
+   1.04,
+   1.041,
+   1.044,
+   1.046,
+   1.052,
+   1.053,
+   1.055,
+   1.056,
+   1.057,
+   1.064,
+   1.066,
+   1.067,
+   1.071,
+   1.072,
+   1.073,
+   1.075,
+   1.077,
+   1.079,
+   1.081,
+   1.082,
+   1.083,
+   1.084,
+   1.086,
+   1.087,
+   1.089,
+   1.093,
+   1.094,
+   1.096,
+   1.097,
+   1.1,
+   1.101,
+   1.103,
+   1.105,
+   1.107,
+   1.109,
+   1.11,
+   1.111,
+   1.112,
+   1.114,
+   1.117,
+   1.119,
+   1.121,
+   1.123,
+   1.124,
+   1.13,
+   1.131,
+   1.132,
+   1.133,
+   1.134,
+   1.135,
+   1.136,
+   1.137,
+   1.138,
+   1.141,
+   1.147,
+   1.148,
+   1.152,
+   1.153,
+   1.159,
+   1.161,
+   1.164,
+   1.167,
+   1.168,
+   1.169,
+   1.17,
+   1.172,
+   1.173,
+   1.176,
+   1.178,
+   1.18,
+   1.182,
+   1.185,
+   1.187,
+   1.188,
+   1.189,
+   1.19,
+   1.191,
+   1.192,
+   1.194,
+   1.195,
+   1.196,
+   1.198,
+   1.199,
+   1.2,
+   1.201,
+   1.202,
+   1.205,
+   1.21,
+   1.211,
+   1.213,
+   1.214,
+   1.215,
+   1.217,
+   1.22,
+   1.223,
+   1.225,
+   1.228,
+   1.23,
+   1.232,
+   1.234,
+   1.235,
+   1.236,
+   1.237,
+   1.239,
+   1.24,
+   1.241,
+   1.242,
+   1.243,
+   1.245,
+   1.247,
+   1.248,
+   1.251,
+   1.253,
+   1.255,
+   1.263,
+   1.265,
+   1.266,
+   1.268,
+   1.271,
+   1.274,
+   1.275,
+   1.278,
+   1.279,
+   1.28,
+   1.281,
+   1.283,
+   1.285,
+   1.29,
+   1.294,
+   1.296,
+   1.297,
+   1.299,
+   1.302,
+   1.305,
+   1.31,
+   1.313,
+   1.32,
+   1.322,
+   1.323,
+   1.325,
+   1.326,
+   1.328,
+   1.33,
+   1.331,
+   1.332,
+   1.333,
+   1.334,
+   1.335,
+   1.336,
+   1.337,
+   1.338,
+   1.339,
+   1.341,
+   1.347,
+   1.348,
+   1.349,
+   1.35,
+   1.353,
+   1.356,
+   1.358,
+   1.359,
+   1.36,
+   1.361,
+   1.362,
+   1.363,
+   1.365,
+   1.366,
+   1.367,
+   1.371,
+   1.375,
+   1.377,
+   1.378,
+   1.387,
+   1.388,
+   1.389,
+   1.39,
+   1.391,
+   1.392,
+   1.393,
+   1.396,
+   1.397,
+   1.399,
+   1.4,
+   1.401,
+   1.403,
+   1.404,
+   1.405,
+   1.406,
+   1.409,
+   1.41,
+   1.416,
+   1.417,
+   1.418,
+   1.42,
+   1.421,
+   1.424,
+   1.434,
+   1.435,
+   1.436,
+   1.62
+  ],
+  "min": 0.656,
+  "max": 1.62,
+  "n": 417,
+  "source": "owner"
+ },
+ "gen:rubbish-bags": {
+  "scale": 0.9,
+  "placed": [
+   0.9
+  ],
+  "min": 0.9,
+  "max": 0.9,
+  "n": 4,
+  "source": "owner"
+ },
+ "gen:rubbish-cardboard": {
+  "scale": 0.9,
+  "placed": [
+   0.9
+  ],
+  "min": 0.9,
+  "max": 0.9,
+  "n": 6,
+  "source": "owner"
+ },
+ "gen:twigs-branches": {
+  "scale": 1.025,
+  "placed": [
+   0.83,
+   0.905,
+   0.942,
+   0.965,
+   1.025,
+   1.086,
+   1.15,
+   1.154,
+   1.163,
+   1.18
+  ],
+  "min": 0.83,
+  "max": 1.18,
+  "n": 10,
+  "source": "owner"
+ },
+ "gen:house-l-ranch": {
+  "scale": 1.3,
+  "source": "reviewed",
+  "note": "owner houses ~0.6 of guide"
+ },
+ "gen:house-l-shape": {
+  "scale": 1.252,
+  "placed": [
+   1.089,
+   1.252,
+   1.314
+  ],
+  "min": 1.089,
+  "max": 1.314,
+  "n": 3,
+  "source": "owner"
+ },
+ "gen:house-ranch-long": {
+  "scale": 1.449,
+  "placed": [
+   1.449
+  ],
+  "min": 1.449,
+  "max": 1.449,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:house-splitlevel": {
+  "scale": 1.378,
+  "placed": [
+   1.198,
+   1.378,
+   1.416
+  ],
+  "min": 1.198,
+  "max": 1.416,
+  "n": 3,
+  "source": "owner"
+ },
+ "gen:house-duplex": {
+  "scale": 1.243,
+  "placed": [
+   1.243
+  ],
+  "min": 1.243,
+  "max": 1.243,
+  "n": 1,
+  "source": "owner"
+ },
+ "gen:back-bbq-deck": {
+  "scale": 1.198,
+  "placed": [
+   1.198
+  ],
+  "min": 1.198,
+  "max": 1.198,
+  "n": 1,
+  "source": "owner"
+ },
+ "gen:back-patio-pool": {
+  "scale": 1.2,
+  "source": "reviewed",
+  "note": "owner house backs 1.0-1.3"
+ },
+ "gen:back-screened-porch": {
+  "scale": 1.2,
+  "source": "reviewed",
+  "note": "owner house backs 1.0-1.3"
+ },
+ "gen:back-shed-garden": {
+  "scale": 0.99,
+  "placed": [
+   0.99,
+   1.138
+  ],
+  "min": 0.99,
+  "max": 1.138,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:back-swingset": {
+  "scale": 1.089,
+  "placed": [
+   1.089,
+   1.252
+  ],
+  "min": 1.089,
+  "max": 1.252,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:fence-chainlink": {
+  "scale": 0.743,
+  "placed": [
+   0.743,
+   1.93
+  ],
+  "min": 0.743,
+  "max": 1.93,
+  "n": 10,
+  "source": "owner"
+ },
+ "gen:fence-picket-gate": {
+  "scale": 0.765,
+  "placed": [
+   0.765
+  ],
+  "min": 0.765,
+  "max": 0.765,
+  "n": 1,
+  "source": "owner"
+ },
+ "gen:fence-privacy-wood": {
+  "scale": 1.21,
+  "placed": [
+   1,
+   1.21
+  ],
+  "min": 1,
+  "max": 1.21,
+  "n": 16,
+  "source": "owner"
+ },
+ "gen:fence-split-rail": {
+  "scale": 1.318,
+  "placed": [
+   1.318
+  ],
+  "min": 1.318,
+  "max": 1.318,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:house-farmhouse-wrap": {
+  "scale": 1.645,
+  "placed": [
+   1.645
+  ],
+  "min": 1.645,
+  "max": 1.645,
+  "n": 1,
+  "source": "owner"
+ },
+ "gen:wall-brick-low": {
+  "scale": 1.045,
+  "source": "estimate: owner median for Fences & walls"
+ },
+ "gen:wall-stone-dry": {
+  "scale": 1.045,
+  "source": "estimate: owner median for Fences & walls"
+ },
+ "gen:birdbath-gnome": {
+  "scale": 1.198,
+  "source": "estimate: owner median for POI dressing"
+ },
+ "gen:cooler-lawnchairs": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1.174
+  ],
+  "min": 0.9,
+  "max": 1.174,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:inflatable-pumpkin": {
+  "scale": 0.6,
+  "placed": [
+   0.6,
+   0.609
+  ],
+  "min": 0.6,
+  "max": 0.609,
+  "n": 2,
+  "source": "owner"
+ },
+ "gen:kiddie-pool": {
+  "scale": 1.198,
+  "source": "estimate: owner median for POI dressing"
+ },
+ "gen:kids-bikes": {
+  "scale": 1.316,
+  "placed": [
+   1.167,
+   1.169,
+   1.198,
+   1.21,
+   1.286,
+   1.316,
+   1.513
+  ],
+  "min": 1.167,
+  "max": 1.513,
+  "n": 8,
+  "source": "owner"
+ },
+ "gen:lawnmower": {
+  "scale": 1.789,
+  "placed": [
+   1.556,
+   1.691,
+   1.789
+  ],
+  "min": 1.556,
+  "max": 1.789,
+  "n": 4,
+  "source": "owner"
+ },
+ "gen:newspaper-box": {
+  "scale": 1.198,
+  "source": "estimate: owner median for POI dressing"
+ },
+ "gen:porch-rocker": {
+  "scale": 1.153,
+  "placed": [
+   1.153
+  ],
+  "min": 1.153,
+  "max": 1.153,
+  "n": 1,
+  "source": "owner"
+ },
+ "gen:trash-cans-row": {
+  "scale": 0.9,
+  "placed": [
+   0.855,
+   0.9,
+   1.089,
+   1.198,
+   1.305
+  ],
+  "min": 0.855,
+  "max": 1.305,
+  "n": 9,
+  "source": "owner"
+ },
+ "gen:wheelbarrow-leaves": {
+  "scale": 1.516,
+  "placed": [
+   1.048,
+   1.153,
+   1.318,
+   1.516,
+   1.535,
+   1.754
+  ],
+  "min": 1.048,
+  "max": 1.754,
+  "n": 8,
+  "source": "owner"
+ },
+ "gen:yard-tombstones": {
+  "scale": 1.089,
+  "placed": [
+   0.947,
+   1.089,
+   1.143
+  ],
+  "min": 0.947,
+  "max": 1.143,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:cottage-rear": {
+  "scale": 1.3,
+  "source": "reviewed",
+  "note": "rear-view houses match the owner's houses (9-12 m wide at 1.2-1.45)"
+ },
+ "expansion:dormer-rear": {
+  "scale": 1.25,
+  "source": "reviewed",
+  "note": "matches owner house widths"
+ },
+ "expansion:rundown-house": {
+  "scale": 1.242,
+  "placed": [
+   1.242
+  ],
+  "min": 1.242,
+  "max": 1.242,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:picket-x": {
+  "scale": 1.286,
+  "placed": [
+   1.286,
+   1.479
+  ],
+  "min": 1.286,
+  "max": 1.479,
+  "n": 22,
+  "source": "owner"
+ },
+ "expansion:picket-y": {
+  "scale": 1.17,
+  "source": "estimate: owner median for Correct-angle fences"
+ },
+ "expansion:gutter-leaves-x": {
+  "scale": 1.05,
+  "placed": [
+   1.05,
+   1.53
+  ],
+  "min": 1.05,
+  "max": 1.53,
+  "n": 39,
+  "source": "owner"
+ },
+ "expansion:mud-tracks-x": {
+  "scale": 1,
+  "placed": [
+   0.683,
+   0.909,
+   1,
+   1.15,
+   1.611
+  ],
+  "min": 0.683,
+  "max": 1.611,
+  "n": 31,
+  "source": "owner"
+ },
+ "expansion:gutter-leaves-y": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.1,
+   1.15,
+   1.21,
+   1.265
+  ],
+  "min": 1,
+  "max": 1.265,
+  "n": 206,
+  "source": "owner"
+ },
+ "expansion:mud-tracks-y": {
+  "scale": 1.379,
+  "placed": [
+   0.585,
+   0.856,
+   1.036,
+   1.379
+  ],
+  "min": 0.585,
+  "max": 1.379,
+  "n": 21,
+  "source": "owner"
+ },
+ "expansion:barbecue": {
+  "scale": 1.391,
+  "placed": [
+   1.391
+  ],
+  "min": 1.391,
+  "max": 1.391,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:lawn-chair": {
+  "scale": 1.395,
+  "placed": [
+   1.153,
+   1.269,
+   1.326,
+   1.395
+  ],
+  "min": 1.153,
+  "max": 1.395,
+  "n": 9,
+  "source": "owner"
+ },
+ "expansion:tyre-stack": {
+  "scale": 1.395,
+  "placed": [
+   1,
+   1.326,
+   1.331,
+   1.395,
+   1.535
+  ],
+  "min": 1,
+  "max": 1.535,
+  "n": 6,
+  "source": "owner"
+ },
+ "expansion:boxcar": {
+  "scale": 1.366,
+  "placed": [
+   1.366
+  ],
+  "min": 1.366,
+  "max": 1.366,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:junk-car": {
+  "scale": 1.395,
+  "placed": [
+   1.268,
+   1.395
+  ],
+  "min": 1.268,
+  "max": 1.395,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:yard-workbench": {
+  "scale": 1.464,
+  "placed": [
+   1,
+   1.15,
+   1.464
+  ],
+  "min": 1,
+  "max": 1.464,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:hydrant-yellow": {
+  "scale": 1.845,
+  "placed": [
+   1.386,
+   1.45,
+   1.594,
+   1.845
+  ],
+  "min": 1.386,
+  "max": 1.845,
+  "n": 11,
+  "source": "owner"
+ },
+ "expansion:utility-trailer": {
+  "scale": 1.26,
+  "placed": [
+   1.26,
+   1.449,
+   1.677
+  ],
+  "min": 1.26,
+  "max": 1.677,
+  "n": 6,
+  "source": "owner"
+ },
+ "expansion:crt-curb": {
+  "scale": 1.53,
+  "placed": [
+   1.53
+  ],
+  "min": 1.53,
+  "max": 1.53,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:milk-crates": {
+  "scale": 1.264,
+  "placed": [
+   0.95,
+   1.045,
+   1.264
+  ],
+  "min": 0.95,
+  "max": 1.264,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:doghouse": {
+  "scale": 1.53,
+  "placed": [
+   1.26,
+   1.449,
+   1.53
+  ],
+  "min": 1.26,
+  "max": 1.53,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:abandoned-workshop": {
+  "scale": 0.701,
+  "placed": [
+   0.599,
+   0.701,
+   1.242
+  ],
+  "min": 0.599,
+  "max": 1.242,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:lean-to-shed": {
+  "scale": 1.503,
+  "placed": [
+   1.366,
+   1.503,
+   1.571,
+   2.2
+  ],
+  "min": 1.366,
+  "max": 2.2,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:mud-long-x": {
+  "scale": 1,
+  "placed": [
+   0.683,
+   0.876,
+   1,
+   1.878
+  ],
+  "min": 0.683,
+  "max": 1.878,
+  "n": 17,
+  "source": "owner"
+ },
+ "expansion:chainlink-x": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 50,
+  "source": "owner"
+ },
+ "expansion:chainlink-y": {
+  "scale": 1,
+  "placed": [
+   0.826,
+   1
+  ],
+  "min": 0.826,
+  "max": 1,
+  "n": 68,
+  "source": "owner"
+ },
+ "expansion:cottage-side-east": {
+  "scale": 1.3,
+  "source": "reviewed",
+  "note": "matches owner house widths"
+ },
+ "expansion:garage-rear": {
+  "scale": 1.818,
+  "placed": [
+   1.818
+  ],
+  "min": 1.818,
+  "max": 1.818,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:skate-ramp": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:chicken-coop": {
+  "scale": 2.2,
+  "placed": [
+   2.2
+  ],
+  "min": 2.2,
+  "max": 2.2,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:glasshouse": {
+  "scale": 1.535,
+  "placed": [
+   1.535,
+   1.765
+  ],
+  "min": 1.535,
+  "max": 1.765,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:canoe": {
+  "scale": 1.331,
+  "placed": [
+   1.331
+  ],
+  "min": 1.331,
+  "max": 1.331,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:wagon": {
+  "scale": 1.851,
+  "placed": [
+   1.851,
+   2.129
+  ],
+  "min": 1.851,
+  "max": 2.129,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:tricycle": {
+  "scale": 1.36,
+  "placed": [
+   1.183,
+   1.36,
+   1.556
+  ],
+  "min": 1.183,
+  "max": 1.556,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:camping-cooler": {
+  "scale": 1.118,
+  "placed": [
+   1,
+   1.118,
+   1.15,
+   1.21
+  ],
+  "min": 1,
+  "max": 1.21,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:scrap-engine": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.1
+  ],
+  "min": 1,
+  "max": 1.1,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:appliance-pile": {
+  "scale": 1.464,
+  "placed": [
+   1,
+   1.464
+  ],
+  "min": 1,
+  "max": 1.464,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:scrap-metal": {
+  "scale": 0.879,
+  "placed": [
+   0.879,
+   0.967
+  ],
+  "min": 0.879,
+  "max": 0.967,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:rain-barrel": {
+  "scale": 1.17,
+  "placed": [
+   1.17,
+   1.345
+  ],
+  "min": 1.17,
+  "max": 1.345,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:garden-hose": {
+  "scale": 1.345,
+  "placed": [
+   1.17,
+   1.345,
+   1.395
+  ],
+  "min": 1.17,
+  "max": 1.395,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:mud-long-y": {
+  "scale": 1.21,
+  "placed": [
+   0.564,
+   0.683,
+   1.21
+  ],
+  "min": 0.564,
+  "max": 1.21,
+  "n": 35,
+  "source": "owner"
+ },
+ "expansion:mud-footprints": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.464
+  ],
+  "min": 1,
+  "max": 1.464,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:gate-chainlink-x": {
+  "scale": 1.039,
+  "placed": [
+   1.039,
+   1.195
+  ],
+  "min": 1.039,
+  "max": 1.195,
+  "n": 152,
+  "source": "owner"
+ },
+ "expansion:gate-chainlink-y": {
+  "scale": 1.17,
+  "placed": [
+   1,
+   1.17
+  ],
+  "min": 1,
+  "max": 1.17,
+  "n": 10,
+  "source": "owner"
+ },
+ "expansion:rabbit-hutch": {
+  "scale": 1.949,
+  "placed": [
+   1.949,
+   2.241
+  ],
+  "min": 1.949,
+  "max": 2.241,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:woodpile": {
+  "scale": 1.21,
+  "placed": [
+   1.21
+  ],
+  "min": 1.21,
+  "max": 1.21,
+  "n": 6,
+  "source": "owner"
+ },
+ "expansion:hot-tub": {
+  "scale": 1.393,
+  "source": "estimate: owner median for Backyard furniture"
+ },
+ "expansion:scrap-pipes": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:bicycle-rear": {
+  "scale": 1.45,
+  "placed": [
+   1.45,
+   1.93
+  ],
+  "min": 1.45,
+  "max": 1.93,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:motorcycle-rear": {
+  "scale": 1.772,
+  "placed": [
+   1.772
+  ],
+  "min": 1.772,
+  "max": 1.772,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:treehouse": {
+  "scale": 1.287,
+  "placed": [
+   1.17,
+   1.287,
+   1.558
+  ],
+  "min": 1.17,
+  "max": 1.558,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:basketball-hoop": {
+  "scale": 1.169,
+  "placed": [
+   0.6,
+   1.169,
+   1.415
+  ],
+  "min": 0.6,
+  "max": 1.415,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:washing-line": {
+  "scale": 0.879,
+  "placed": [
+   0.726,
+   0.799,
+   0.835,
+   0.879,
+   1.287
+  ],
+  "min": 0.726,
+  "max": 1.287,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:satellite-dish": {
+  "scale": 0.909,
+  "placed": [
+   0.909
+  ],
+  "min": 0.909,
+  "max": 0.909,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:fence-privacy-x": {
+  "scale": 1.535,
+  "placed": [
+   1.535,
+   1.765
+  ],
+  "min": 1.535,
+  "max": 1.765,
+  "n": 31,
+  "source": "owner"
+ },
+ "expansion:storm-drain-x": {
+  "scale": 2.358,
+  "placed": [
+   1.949,
+   2.358
+  ],
+  "min": 1.949,
+  "max": 2.358,
+  "n": 15,
+  "source": "owner"
+ },
+ "expansion:fence-privacy-y": {
+  "scale": 1.268,
+  "placed": [
+   0.967,
+   1.268,
+   1.458
+  ],
+  "min": 0.967,
+  "max": 1.458,
+  "n": 55,
+  "source": "owner"
+ },
+ "expansion:compost-bin": {
+  "scale": 0.945,
+  "placed": [
+   0.945,
+   1.04,
+   1.087
+  ],
+  "min": 0.945,
+  "max": 1.087,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:lawn-roller": {
+  "scale": 1.464,
+  "placed": [
+   1.464
+  ],
+  "min": 1.464,
+  "max": 1.464,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:shopping-cart": {
+  "scale": 1.755,
+  "placed": [
+   1.755,
+   1.931
+  ],
+  "min": 1.755,
+  "max": 1.931,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:oil-drums": {
+  "scale": 1,
+  "placed": [
+   0.909,
+   1,
+   1.15,
+   1.21
+  ],
+  "min": 0.909,
+  "max": 1.21,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:pallet-stack": {
+  "scale": 1.384,
+  "placed": [
+   0.945,
+   1.384,
+   1.592
+  ],
+  "min": 0.945,
+  "max": 1.592,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:cement-bags": {
+  "scale": 1.611,
+  "placed": [
+   0.951,
+   1.611
+  ],
+  "min": 0.951,
+  "max": 1.611,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:hvac-unit": {
+  "scale": 0.9,
+  "placed": [
+   0.9,
+   1
+  ],
+  "min": 0.9,
+  "max": 1,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:utility-cabinet": {
+  "scale": 1.331,
+  "placed": [
+   1,
+   1.331
+  ],
+  "min": 1,
+  "max": 1.331,
+  "n": 8,
+  "source": "owner"
+ },
+ "expansion:gutter-leaves-sparse": {
+  "scale": 0.945,
+  "placed": [
+   0.945,
+   1.087
+  ],
+  "min": 0.945,
+  "max": 1.087,
+  "n": 84,
+  "source": "owner"
+ },
+ "expansion:mud-arc": {
+  "scale": 1,
+  "placed": [
+   0.514,
+   1,
+   1.611
+  ],
+  "min": 0.514,
+  "max": 1.611,
+  "n": 9,
+  "source": "owner"
+ },
+ "expansion:duplex-rear": {
+  "scale": 1.25,
+  "source": "reviewed",
+  "note": "matches owner house widths"
+ },
+ "expansion:victorian-rear": {
+  "scale": 1.25,
+  "source": "reviewed",
+  "note": "matches owner house widths"
+ },
+ "expansion:ranch-rear": {
+  "scale": 1.366,
+  "placed": [
+   1.366
+  ],
+  "min": 1.366,
+  "max": 1.366,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:derelict-two-storey": {
+  "scale": 1.026,
+  "placed": [
+   1.026
+  ],
+  "min": 1.026,
+  "max": 1.026,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:boarded-store-rear": {
+  "scale": 1.653,
+  "placed": [
+   1.653
+  ],
+  "min": 1.653,
+  "max": 1.653,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:mobile-home": {
+  "scale": 2.2,
+  "placed": [
+   1.37,
+   2.2
+  ],
+  "min": 1.37,
+  "max": 2.2,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:outhouse": {
+  "scale": 1.366,
+  "placed": [
+   1.366,
+   1.503
+  ],
+  "min": 1.366,
+  "max": 1.503,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:patio-swing": {
+  "scale": 1.257,
+  "placed": [
+   1.143,
+   1.257,
+   1.314,
+   1.383
+  ],
+  "min": 1.143,
+  "max": 1.383,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:brick-barbecue": {
+  "scale": 1.772,
+  "placed": [
+   1.772,
+   2.038
+  ],
+  "min": 1.772,
+  "max": 2.038,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:aboveground-pool": {
+  "scale": 1.144,
+  "placed": [
+   1.04,
+   1.144,
+   1.316
+  ],
+  "min": 1.04,
+  "max": 1.316,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:kennel": {
+  "scale": 1.331,
+  "placed": [
+   1.331
+  ],
+  "min": 1.331,
+  "max": 1.331,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:garden-pump": {
+  "scale": 1.611,
+  "placed": [
+   1.611
+  ],
+  "min": 1.611,
+  "max": 1.611,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:manhole": {
+  "scale": 1.516,
+  "placed": [
+   1.516,
+   2.017,
+   2.5
+  ],
+  "min": 1.516,
+  "max": 2.5,
+  "n": 8,
+  "source": "owner"
+ },
+ "expansion:kiddie-pool": {
+  "scale": 1.393,
+  "source": "estimate: owner median for Backyard furniture"
+ },
+ "expansion:trampoline": {
+  "scale": 1.464,
+  "placed": [
+   1.21,
+   1.464,
+   1.684
+  ],
+  "min": 1.21,
+  "max": 1.684,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:firepit": {
+  "scale": 1.878,
+  "placed": [
+   0.6,
+   1.345,
+   1.878
+  ],
+  "min": 0.6,
+  "max": 1.878,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:cable-spool": {
+  "scale": 1.331,
+  "placed": [
+   1,
+   1.331
+  ],
+  "min": 1,
+  "max": 1.331,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:farm-tractor": {
+  "scale": 2.025,
+  "placed": [
+   1.841,
+   2.025
+  ],
+  "min": 1.841,
+  "max": 2.025,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:rideon-mower": {
+  "scale": 1.772,
+  "placed": [
+   1.772,
+   1.949
+  ],
+  "min": 1.772,
+  "max": 1.949,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:boat-trailer": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.1
+  ],
+  "min": 1,
+  "max": 1.1,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:stationwagon-rear": {
+  "scale": 1.611,
+  "placed": [
+   1.611
+  ],
+  "min": 1.611,
+  "max": 1.611,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:scrap-pickup-rear": {
+  "scale": 1.464,
+  "placed": [
+   1.464,
+   1.61
+  ],
+  "min": 1.464,
+  "max": 1.61,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:motorcycle-front": {
+  "scale": 1.575,
+  "placed": [
+   1.575,
+   1.733
+  ],
+  "min": 1.575,
+  "max": 1.733,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:sandbox": {
+  "scale": 1.383,
+  "placed": [
+   0.6,
+   1.01,
+   1.383
+  ],
+  "min": 0.6,
+  "max": 1.383,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:birdhouse-post": {
+  "scale": 1.331,
+  "placed": [
+   1.21,
+   1.331,
+   1.531
+  ],
+  "min": 1.21,
+  "max": 1.531,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:bike-scrap": {
+  "scale": 1.331,
+  "placed": [
+   1.331
+  ],
+  "min": 1.331,
+  "max": 1.331,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:rural-mailboxes": {
+  "scale": 1.595,
+  "placed": [
+   1.21,
+   1.595
+  ],
+  "min": 1.21,
+  "max": 1.595,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:forklift": {
+  "scale": 1.395,
+  "placed": [
+   1.395
+  ],
+  "min": 1.395,
+  "max": 1.395,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:kiddie-car": {
+  "scale": 2.144,
+  "placed": [
+   2.144
+  ],
+  "min": 2.144,
+  "max": 2.144,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:camper": {
+  "scale": 1.653,
+  "placed": [
+   1.366,
+   1.653
+  ],
+  "min": 1.366,
+  "max": 1.653,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:blowmold-ghost": {
+  "scale": 0.69,
+  "placed": [
+   0.6,
+   0.69,
+   1.297,
+   1.755
+  ],
+  "min": 0.6,
+  "max": 1.755,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:yard-coffin": {
+  "scale": 1.755,
+  "placed": [
+   1.755
+  ],
+  "min": 1.755,
+  "max": 1.755,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:yard-spider": {
+  "scale": 0.901,
+  "placed": [
+   0.6,
+   0.901,
+   0.974,
+   1.569
+  ],
+  "min": 0.6,
+  "max": 1.569,
+  "n": 6,
+  "source": "owner"
+ },
+ "expansion:leaf-bags": {
+  "scale": 1.415,
+  "placed": [
+   1.286,
+   1.415,
+   1.556,
+   1.627
+  ],
+  "min": 1.286,
+  "max": 1.627,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:can-litter": {
+  "scale": 1.06,
+  "placed": [
+   1.06,
+   1.411,
+   1.552
+  ],
+  "min": 1.06,
+  "max": 1.552,
+  "n": 10,
+  "source": "owner"
+ },
+ "expansion:cloth-litter": {
+  "scale": 1.21,
+  "placed": [
+   1,
+   1.21,
+   1.772,
+   1.949,
+   1.95
+  ],
+  "min": 1,
+  "max": 1.95,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:paint-spill": {
+  "scale": 2.5,
+  "placed": [
+   2.5
+  ],
+  "min": 2.5,
+  "max": 2.5,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:wheel-stop": {
+  "scale": 1.772,
+  "placed": [
+   1.772
+  ],
+  "min": 1.772,
+  "max": 1.772,
+  "n": 23,
+  "source": "owner"
+ },
+ "expansion:yellow-bollard": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.331
+  ],
+  "min": 1,
+  "max": 1.331,
+  "n": 19,
+  "source": "owner"
+ },
+ "expansion:parking-meter": {
+  "scale": 1.754,
+  "placed": [
+   1.754
+  ],
+  "min": 1.754,
+  "max": 1.754,
+  "n": 18,
+  "source": "owner"
+ },
+ "expansion:wooden-well": {
+  "scale": 1.15,
+  "placed": [
+   1,
+   1.15,
+   1.21
+  ],
+  "min": 1,
+  "max": 1.21,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:ivy-arbor": {
+  "scale": 2.358,
+  "placed": [
+   2.358,
+   2.712
+  ],
+  "min": 2.358,
+  "max": 2.712,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:rocket-playfort": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.15
+  ],
+  "min": 1,
+  "max": 1.15,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:backyard-telescope": {
+  "scale": 1,
+  "placed": [
+   0.826,
+   1,
+   1.15
+  ],
+  "min": 0.826,
+  "max": 1.15,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:ham-radio-bench": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.464
+  ],
+  "min": 1,
+  "max": 1.464,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:backyard-tent": {
+  "scale": 1,
+  "placed": [
+   1,
+   1.15
+  ],
+  "min": 1,
+  "max": 1.15,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:homemade-gokart": {
+  "scale": 1.611,
+  "placed": [
+   1.611,
+   1.949
+  ],
+  "min": 1.611,
+  "max": 1.949,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:soapbox-racer": {
+  "scale": 1.331,
+  "placed": [
+   1.331,
+   1.531
+  ],
+  "min": 1.331,
+  "max": 1.531,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:salvaged-pinball": {
+  "scale": 1.1,
+  "placed": [
+   1.1
+  ],
+  "min": 1.1,
+  "max": 1.1,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:carseat-bench": {
+  "scale": 1.611,
+  "placed": [
+   1.611
+  ],
+  "min": 1.611,
+  "max": 1.611,
+  "n": 4,
+  "source": "owner"
+ },
+ "expansion:homemade-ufo": {
+  "scale": 2.358,
+  "placed": [
+   2.358
+  ],
+  "min": 2.358,
+  "max": 2.358,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:pop-up-caravan": {
+  "scale": 2.5,
+  "placed": [
+   1.949,
+   2.5
+  ],
+  "min": 1.949,
+  "max": 2.5,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:antique-pram": {
+  "scale": 1.464,
+  "placed": [
+   1.464
+  ],
+  "min": 1.464,
+  "max": 1.464,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:attic-trunk": {
+  "scale": 1.331,
+  "placed": [
+   1.331
+  ],
+  "min": 1.331,
+  "max": 1.331,
+  "n": 1,
+  "source": "owner"
+ },
+ "kid:tommy-front": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 1,
+  "source": "owner"
+ },
+ "kid:tommy-back": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 1,
+  "source": "owner"
+ },
+ "kid:jess-front": {
+  "scale": 1,
+  "source": "estimate: owner median for Kids (for scale)"
+ },
+ "kid:jess-back": {
+  "scale": 1,
+  "source": "estimate: owner median for Kids (for scale)"
+ },
+ "kid:sam-front": {
+  "scale": 1,
+  "source": "estimate: owner median for Kids (for scale)"
+ },
+ "kid:sam-back": {
+  "scale": 1,
+  "source": "estimate: owner median for Kids (for scale)"
+ },
+ "expansion:ice-freezer": {
+  "scale": 1.1,
+  "placed": [
+   1.1
+  ],
+  "min": 1.1,
+  "max": 1.1,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:crushed-car-stack": {
+  "scale": 1.464,
+  "placed": [
+   1.464
+  ],
+  "min": 1.464,
+  "max": 1.464,
+  "n": 3,
+  "source": "owner"
+ },
+ "expansion:fishing-rod-rack": {
+  "scale": 1.611,
+  "placed": [
+   1.611
+  ],
+  "min": 1.611,
+  "max": 1.611,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:junkyard-crane": {
+  "scale": 1.363,
+  "source": "estimate: owner median for Scrapyard clutter"
+ },
+ "expansion:bread-delivery-rack": {
+  "scale": 1.465,
+  "placed": [
+   1.465
+  ],
+  "min": 1.465,
+  "max": 1.465,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:air-compressor": {
+  "scale": 1.331,
+  "placed": [
+   1.331
+  ],
+  "min": 1.331,
+  "max": 1.331,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:lumber-bundle": {
+  "scale": 1.772,
+  "placed": [
+   1.21,
+   1.464,
+   1.772,
+   2.038
+  ],
+  "min": 1.21,
+  "max": 2.038,
+  "n": 7,
+  "source": "owner"
+ },
+ "expansion:concrete-rubble": {
+  "scale": 1.464,
+  "placed": [
+   1.464
+  ],
+  "min": 1.464,
+  "max": 1.464,
+  "n": 5,
+  "source": "owner"
+ },
+ "expansion:coin-horse-ride": {
+  "scale": 1.611,
+  "placed": [
+   1.611
+  ],
+  "min": 1.611,
+  "max": 1.611,
+  "n": 2,
+  "source": "owner"
+ },
+ "expansion:snowblower": {
+  "scale": 1.949,
+  "placed": [
+   1.949
+  ],
+  "min": 1.949,
+  "max": 1.949,
+  "n": 1,
+  "source": "owner"
+ },
+ "expansion:rototiller": {
+  "scale": 2.358,
+  "placed": [
+   2.241,
+   2.358,
+   2.712
+  ],
+  "min": 2.241,
+  "max": 2.712,
+  "n": 5,
+  "source": "owner"
+ },
+ "recovered:star-soda-spill": {
+  "scale": 1.055,
+  "source": "estimate: owner median for Decals & ground"
+ },
+ "recovered:pizza-box-open": {
+  "scale": 1.055,
+  "source": "estimate: owner median for Decals & ground"
+ },
+ "recovered:tokens-ticket": {
+  "scale": 1.055,
+  "source": "estimate: owner median for Decals & ground"
+ },
+ "paint:asphalt-blob-2m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-2m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-2m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-4m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-4m-4": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-8m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-blob-8m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-square-4m-1": {
+  "scale": 1,
+  "placed": [
+   1
+  ],
+  "min": 1,
+  "max": 1,
+  "n": 4,
+  "source": "owner"
+ },
+ "paint:asphalt-square-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:asphalt-square-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-2m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-2m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-2m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-4m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-4m-4": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-8m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-blob-8m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-square-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-square-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-square-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-tile-5m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-tile-5m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:slabs-tile-2_5m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-2m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-2m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-2m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-4m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-4m-4": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-8m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-blob-8m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-square-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-square-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:pavement-square-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-2m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-2m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-2m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-4m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-4m-4": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-8m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-blob-8m-3": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-square-4m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-square-4m-2": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ },
+ "paint:dirt-square-8m-1": {
+  "scale": 1,
+  "source": "estimate: owner median for Ground paint"
+ }
+}

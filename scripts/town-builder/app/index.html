@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maple Falls Town Builder</title>
+<link rel="stylesheet" href="/app/style.css">
+</head>
+<body aria-busy="true">
+<header id="top">
+ <div class="brand"><span class="moon"></span><b id="mapName">Maple Falls</b><span class="sub">Town Builder</span><select id="mapSelect" aria-label="Choose map" title="Switch to another town after saving"></select></div>
+ <nav class="tools" id="tools">
+  <button data-mode="select" title="Select & move (V)">Select / edit <kbd>V</kbd></button>
+  <button data-mode="paint" title="Paint the chosen sprite (B)">Place objects <kbd>B</kbd></button>
+  <button data-mode="pan" title="Pan (H, or hold Space / right-drag)">Move view <kbd>H</kbd></button>
+  <span class="sep"></span>
+  <button data-mode="roads" title="Build or remove road cells, then Rebuild ground (R)">Build / remove roads <kbd>R</kbd></button>
+  <button data-mode="streetlights" title="Place a selectable lamp sprite (J)">Streetlights <kbd>J</kbd></button>
+  <button data-mode="lamps" title="Paint or erase light reflections (L)">Light glow <kbd>L</kbd></button>
+  <button data-mode="lots" title="Drag a rectangle: car park, plaza, pavement patch, yard or field (K; U = pavement patch)">Lots &amp; paving <kbd>K</kbd></button>
+  <button data-mode="spots" title="Place bare light spots anywhere: radius, strength and kind (Y)">Light spots <kbd>Y</kbd></button>
+  <span class="sep"></span>
+  <button data-mode="walk" class="walk-btn" title="Walk the map as the kid, with the game's camera, night and torch (T)">Walk as kid <kbd>T</kbd></button>
+ </nav>
+ <div class="toggles">
+  <label><input type="checkbox" id="tGrid"> Grid <kbd>G</kbd></label>
+  <label><input type="checkbox" id="tPoi" checked> Places <kbd>P</kbd></label>
+  <select id="goPlace" title="Fly to a place"><option value="">Go to place…</option></select>
+  <label><input type="checkbox" id="tPlan"> Plan <kbd>O</kbd></label>
+  <label><input type="checkbox" id="tShadow" checked> Shadows <kbd>S</kbd></label>
+ </div>
+ <div class="actions">
+  <button id="undo" title="Undo (Ctrl+Z)">Undo</button><button id="redo" title="Redo (Ctrl+Y)">Redo</button>
+  <span id="saveState" class="save">loading…</span>
+  <button id="shareBtn">Share town</button><span id="onlineState" class="save" role="status">Connecting…</span>
+  <button id="bakeBtn" title="Re-render roads, lots, pavement and reflections; lamp posts remain editable sprites">Rebuild ground</button>
+  <button id="exportBtn" class="primary" title="Compose sprites over the full-resolution map">Export image</button>
+  <button id="helpBtn" title="How to use the builder (?)">Help</button>
+ </div>
+</header>
+<aside id="left">
+ <div class="library-heading"><b>Object library</b><span>Pick a picture to place a new object</span></div>
+ <div class="search"><input id="search" placeholder="Search sprites…  (house, tree, car, pumpkin)" autocomplete="off"></div>
+ <div class="cats" id="cats"></div>
+ <div class="grid" id="palette"></div>
+</aside>
+<main id="stage"><canvas id="view"></canvas>
+ <div id="taskBar" data-intent="editing"><span class="intent-dot"></span><div><b id="taskTitle">Select &amp; edit objects</b><p id="taskHint">Click an object on the map to edit it.</p></div></div>
+ <div id="groundStatus" role="status">Ground up to date</div>
+ <div id="hud"><span id="coords"></span><span id="zoomInfo"></span></div>
+ <canvas id="mini" width="300" height="160" title="Minimap: click or drag to move"></canvas>
+ <div id="toast"></div>
+</main>
+<aside id="right">
+ <section id="brushSection" hidden><h3>Place new objects</h3>
+ <div class="brush" id="brushPanel">
+  <div class="bhead"><img id="brushThumb" alt=""><div><div id="brushName">Pick a sprite</div><div id="brushMeta" class="muted">Click a thumbnail, then click the map</div></div></div>
+  <div class="opts">
+   <label>Scale <input type="range" id="bScale" min="0.4" max="2.5" step="0.05" value="1"><span id="bScaleV">1.00</span></label>
+   <label><input type="checkbox" id="bFlip"> Mirror <kbd>F</kbd></label>
+   <label><input type="checkbox" id="bRandFlip"> Random mirror</label>
+   <label>Drag spacing <input type="number" id="bSpacing" min="0" max="40" step="0.5" value="0"> m</label>
+   <label>Scatter <input type="number" id="bJitter" min="0" max="20" step="0.25" value="0"> m</label>
+   <label>Size variety <input type="number" id="bVar" min="0" max="50" step="5" value="0"> %</label>
+   <label><input type="checkbox" id="bSnap" checked> Snap to ¼ m (hold Alt to free)</label>
+  </div>
+ </div>
+ </section>
+ <section id="idleSection"><h3>Tool</h3><p class="muted">Pick a sprite or preset on the left to paint, or press <kbd>V</kbd> and click something to edit it. Settings for whatever you are using appear here.</p></section>
+ <section id="inspector"><h3>Edit selected objects</h3><div id="selBody" class="muted">Nothing selected. Click a sprite in Select mode.</div></section>
+ <section id="spotsPanel" hidden><h3>Light spots</h3><div id="spotsBody"></div></section>
+ <section id="groundPanel" hidden><h3 id="groundTitle">Ground</h3><div id="groundBody"></div></section>
+ <details id="nightPanel"><summary>Night lighting</summary><div id="nightBody"></div></details>
+ <details id="townStats"><summary>Town overview</summary><div id="stats" class="muted"></div></details>
+</aside>
+<div id="help" hidden>
+ <div class="card"><h2>Build your town</h2><div class="help-steps"><p><b>1. Add objects</b><br>Choose a picture on the left, then click the map to place a new copy.</p><p><b>2. Edit objects</b><br>Choose Select / edit, then click an object. The panel changes only your selection.</p><p><b>3. Draw ground</b><br>Open Lots &amp; paving. Choose Draw new or Paint a shape. To change an existing area, choose Edit existing.</p><p><b>4. See finished ground</b><br>Ground changes appear as outlines first. Rebuild ground renders the finished surfaces. Objects appear immediately.</p></div><h3>Keyboard shortcuts</h3>
+ <table>
+  <tr><td><kbd>V</kbd></td><td>Select / move. Shift-click adds to the selection, drag moves everything selected.</td></tr>
+  <tr><td><kbd>B</kbd></td><td>Paint the chosen sprite. Drag with a spacing set to paint rows or scatter trees and leaves.</td></tr>
+  <tr><td><kbd>Space</kbd> / right-drag / <kbd>H</kbd></td><td>Pan. Mouse wheel zooms at the cursor.</td></tr>
+  <tr><td>★ Presets</td><td>Stamp a fixed designed arrangement. Positions, sizes, facing and item choices stay identical on every click. Scale resizes the entire area. Select several sprites and press <b>Save as preset</b> to preserve your exact layout.</td></tr>
+  <tr><td><kbd>S</kbd></td><td>Toggle base shadows.</td></tr>
+  <tr><td><kbd>F</kbd></td><td>Mirror the brush or the selection (fronts face +X instead of +Y). Mirroring also reverses sign lettering, so keep shops with signs unmirrored.</td></tr>
+  <tr><td><kbd>[</kbd> <kbd>]</kbd></td><td>Smaller / bigger (brush or selection). Multi-selection has Resize (%) and spacing controls in the Selection panel.</td></tr>
+  <tr><td>Arrows</td><td>Nudge selection ¼ m (Shift: 2 m) along the ground grid.</td></tr>
+  <tr><td><kbd>{</kbd> / <kbd>}</kbd></td><td>Smaller / bigger in big 25% steps (selection or brush).</td></tr>
+  <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>Bring to front / move to back.</td></tr>
+  <tr><td><kbd>+</kbd> / <kbd>-</kbd> (or <kbd>]</kbd> / <kbd>[</kbd>)</td><td>Bigger / smaller (selection or brush).</td></tr>
+  <tr><td><kbd>.</kbd> / <kbd>,</kbd> (or PgUp / PgDn)</td><td>Move forward one / back one: past the next sprite it overlaps.</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>G</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd></td><td>Group / ungroup the selection. Clicking any member selects the whole group; Alt-click picks one member. Stamped presets are grouped automatically.</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>Copy the selection / paste it at the mouse (paste as many times as you like).</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Duplicate the selection.</td></tr>
+  <tr><td><kbd>Del</kbd></td><td>Delete the selection.</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Undo / redo.</td></tr>
+  <tr><td><kbd>Alt</kbd>-click</td><td>Pick: in Paint mode, Alt-click a placed sprite to use it as the brush.</td></tr>
+  <tr><td><kbd>R</kbd> <kbd>K</kbd> <kbd>L</kbd></td><td>Ground: <b>Roads</b> (choose Build road or Remove road and drag across the grid), <b>Lots &amp; paving</b> (drag a rectangle; choose car park, plaza, <i>pavement patch</i>, yard or field; choose Edit existing to select, move or delete one), <b>Reflections</b>. Then <b>Rebuild ground</b>.</td></tr>
+  <tr><td><kbd>T</kbd></td><td>Walk as the kid: WASD or arrows walk at game speed (Shift runs, Alt walks through objects, click jumps there), <kbd>C</kbd> changes kid, <kbd>Esc</kbd> stops. The camera, zoom, night and the kid's torch are the game's, so the town looks as it will in the game.</td></tr>
+  <tr><td><kbd>Y</kbd></td><td>Light spots: click to place a bare light anywhere (no object needed), set its radius, strength and kind; drag to move, Shift-click or <kbd>Del</kbd> to remove. They go to the game with the next export.</td></tr>
+  <tr><td><kbd>J</kbd></td><td>Paint streetlights as ordinary sprites. Select, move or delete them without rebaking. Their reflections are independent.</td></tr>
+  <tr><td><kbd>G</kbd> <kbd>P</kbd> <kbd>O</kbd></td><td>Grid, place labels, plan overlay.</td></tr>
+ </table>
+ <p class="muted">Everything saves automatically to <code>output/town-builder/layout.json</code> (sprites) and <code>plans/maple-falls.json</code> (ground).</p>
+ <button id="helpClose" class="primary">Got it</button></div>
+</div>
+<dialog id="shareDialog" class="town-dialog"><h2>Build together</h2><label>Your name<input id="builderName" maxlength="32" autocomplete="nickname"></label><p id="shareExplanation"></p><div id="shareLinks"></div><p><button id="sharingToggle" class="primary">Start sharing on this network</button></p><p class="muted">Each person has their own view and Undo history. If both change the same setting, you choose which change to keep. Roads and lots appear as outlines until either person presses Rebuild ground.</p><button id="shareClose">Done</button></dialog>
+<dialog id="conflictDialog" class="town-dialog"><h2>Another builder changed this item</h2><p>Choose whose change to keep for the settings listed below. Other changes from both builders are preserved.</p><pre id="conflictDetails"></pre><div class="btns"><button id="useTheirs" class="primary">Use their change</button><button id="keepMine">Keep my change</button></div></dialog>
+<script src="/app/app.js" type="module"></script>
+<script src="/app/live.js" type="module"></script>
+</body>
+</html>

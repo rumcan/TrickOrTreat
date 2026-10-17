@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import sharp from 'sharp';
+import {boundedRoads,drivewayBlend,junctionMarks} from '../lib/town-builder-rules.mjs';
+import {maskAt,kindOf,RUNS,evalRun} from '../lib/road-v4-kit.mjs';
+import {separateLamps} from './migrate-lamps.mjs';
+import {loadSources,buildScene,shade,renderRect,ROOT} from '../lib/town-scene.mjs';
+let checks=0;const test=(name,fn)=>{fn();checks++;console.log('PASS',name);};
+test('ghost neighbours cannot leave uncapped boundary roads',()=>{const r=boundedRoads(['-1,0','0,0','1,0','2,0'],2,1);assert.equal(r.size,2);assert.equal(kindOf(maskAt(r,0,0)),'end');assert.equal(kindOf(maskAt(r,1,0)),'end');});
+test('dead-end ports have no transverse curb at the adjoining tile seam',()=>{for(const [m,x,y]of [[1,10,0],[2,20,10],[4,10,20],[8,0,10]]){const out={};evalRun(RUNS[m][0],x,y,x,y,out);assert.ok(out.s<-3);}});
+test('driveway blend runs from street to parking on every orientation',()=>{for(const side of ['N','S','E','W']){const d={side,x0:0,y0:0,x1:4,y1:4},p=side==='N'?[[2,0],[2,4]]:side==='S'?[[2,4],[2,0]]:side==='W'?[[0,2],[4,2]]:[[4,2],[0,2]];assert.equal(drivewayBlend(d,...p[0]),0);assert.equal(drivewayBlend(d,...p[1]),1);assert.ok(drivewayBlend(d,2,2)>.4&&drivewayBlend(d,2,2)<.6);}});
+test('zebra bars align with travel and do not extend into absent T arms',()=>{assert.ok(junctionMarks(15,8,3).white>.8);assert.equal(junctionMarks(15,8.4,3).white,0);assert.ok(junctionMarks(15,3,8).white>.8);assert.equal(junctionMarks(14,8,3).white,0);assert.equal(junctionMarks(5,8,3).white,0);});
+test('lamp migration is nonmutating, idempotent and preserves existing sprites',()=>{const p={lamps:[{x:1,y:2}]},l={sprites:[{uid:3,id:'existing',x:4,y:5}]},r=separateLamps(p,l,[{px:2,py:3}]);assert.equal(l.sprites.length,1);assert.ok(p.lamps);assert.equal(r.layout.sprites.length,2);assert.equal(r.layout.sprites[1].uid,4);assert.equal(r.plan.lamps,undefined);assert.deepEqual(r.plan.reflections,p.lamps);assert.equal(separateLamps(r.plan,r.layout,[]).changed,false);});
+const S=await loadSources();
+const plan={nx:5,ny:4,roads:['-1,1','0,1','1,1','2,1','3,1','4,1','5,1','2,-1','2,0','2,2','2,3','2,4'],lots:[{id:'parking',x0:22,y0:35.4,x1:39,y1:54,surface:'asphalt',auto:true,noBorder:['N'],bays:[{side:'S',from:23,to:37}]}],reflections:[{x:30,y:33.3,strength:1}],paving:[{x0:65,y0:48,x1:70,y1:54}]};
+const sc=buildScene(plan,S),sample=(s,x,y)=>{const c=[];const a=shade(s,x,y,c,{});return {a,c:c.slice(0,3)};};
+test('all four real boundary arms use sidewalk-ringed cul-de-sacs',()=>{for(const [x,y]of [[0,1],[4,1],[2,0],[2,3]])assert.equal(kindOf(sc.masks[y*5+x]),'end');});
+test('parking access cuts only the driveway mouth, not the entire side',()=>{assert.equal(sc.drives.length,1);const d=sc.drives[0];assert.equal(d.side,'N');assert.ok(d.x0>22&&d.x1<39);assert.equal(sample(sc,24,54.8).a,1);assert.equal(sample(sc,37,54.8).a,1);});
+test('pavement patches shade as paving and can be independently removed',()=>{assert.equal(sample(sc,67,51).a,1);const erased=buildScene({...plan,paving:[]},S);assert.equal(sample(erased,67,51).a,0);});
+test('reflection enlarges the warm pavement pool but does not replace asphalt',()=>{const unlit=buildScene({...plan,reflections:[]},S),l=sc.lamps[0];assert.ok(l);const a=sample(sc,l.px,l.py),b=sample(unlit,l.px,l.py);assert.ok(a.c[0]>b.c[0]);assert.ok(a.c[2]<b.c[2]);});
+test('ground pixels do not depend on any lamp-post sprite',()=>{const [x,y]=sc.toScreen(30,32),a=renderRect(sc,Math.round(x-80),Math.round(y-60),160,120),lamp=S.lamp;S.lamp={data:Buffer.alloc(4),width:1,height:1};const b=renderRect(sc,Math.round(x-80),Math.round(y-60),160,120);S.lamp=lamp;assert.ok(a.equals(b));});
+const OUT=path.join(ROOT,'output/town-builder/upgrade-review');await fs.mkdir(OUT,{recursive:true});
+for(const [name,X,Y,w,h]of [['intersection',50,30,1100,720],['parking-entry',30,36,1000,720],['dead-end',10,30,950,720],['pavement-patch',67.5,51,650,500]]){const [x,y]=sc.toScreen(X,Y),buf=renderRect(sc,Math.round(x-w/2),Math.round(y-h/2),w,h);await sharp(buf,{raw:{width:w,height:h,channels:4}}).png().toFile(path.join(OUT,name+'.png'));}
+await fs.writeFile(path.join(OUT,'fixture.json'),JSON.stringify(plan,null,1));
+console.log(JSON.stringify({checks,review:OUT}));
