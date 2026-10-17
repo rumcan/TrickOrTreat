@@ -2,6 +2,9 @@
 
 Halloween survival game with an optional Hide & Shriek rescue campaign.
 
+Repository layout and housekeeping rules (where scripts, art and generated images go) are in
+[AGENTS.md](AGENTS.md). Read it before adding files.
+
 ## Development
 
 Use Node 22.12+ (Node 24 is tested), install with `npm ci`, then
@@ -63,7 +66,7 @@ open the URL instead of starting another server on the same port.
 There are now two independent building spaces: **Maple Falls** at
 http://localhost:5190/ and **New Town** at http://localhost:5192/. Use the map
 selector beside the town name to switch; it saves pending edits before leaving.
-Start both local builders with `node scripts/town-maps.mjs` from the main game
+Start both local builders with `node scripts/town/town-maps.mjs` from the main game
 folder. New Town saves its layout, ground plan, lighting, bakes and exports under
 `output/town-builder/maps/second-town/`, sharing the original sprite library and
 presets. Starting it again preserves your edits. In-game travel between the towns
@@ -218,6 +221,6 @@ cancelled, failed or unverified orders never grant access.
 Private-release catalog testing may require RUN Playground. Playground
 purchases use real wallets: use the isolated mock tests for failure cases.
 
-See [EXPANSION_PLAN.md](EXPANSION_PLAN.md) for the design and completion checklist
+See [docs/EXPANSION_PLAN.md](docs/EXPANSION_PLAN.md) for the design and completion checklist
 and [art/world/README.md](art/world/README.md) for exact-reference artwork generation,
 review, packing and activation. Each generated Atlas PNG has a provenance sidecar.

@@ -1,5 +1,5 @@
 // Aiming sprites: a kid rendered from a rigged 3D model with both arms stretched out toward one of 8 screen
-// directions, so the gun the engine draws at the hands looks held (scripts/make-hero-3d.mjs, scripts/render-hero-3d.mjs).
+// directions, so the gun the engine draws at the hands looks held (scripts/art/make-hero-3d.mjs, scripts/art/render-hero-3d.mjs).
 //
 // One image per kid, 8 rows (direction 0 = right, then clockwise in 45 degree steps; 2 = toward the camera) and 14
 // columns: the whole kid (1 idle frame + 6 walk frames), then the same 7 frames with only the forearms and hands.

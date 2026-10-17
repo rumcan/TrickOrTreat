@@ -39,7 +39,7 @@ export function Atlas({ onBack }: { onBack: () => void }) {
             <KitTitle className="text-4xl sm:text-5xl">Collection · Asset atlas</KitTitle>
             <div className="mt-2 max-w-3xl font-ui text-sm leading-relaxed text-[#9aa0a6]">
               Every graphic in the game at native size, with its exact spec and a ready-to-use AI prompt. <b className="text-[#f2e6c9]">{files}</b> of {assets.length} currently come from PNG files in{' '}
-              <code className="text-[#ffc453]">public/assets/</code>; the rest are drawn procedurally at boot. Replace a PNG (any scale, sprite sheet or animated PNG) and reload. See <code className="text-[#ffc453]">ASSET_SPEC.md</code>.
+              <code className="text-[#ffc453]">public/assets/</code>; the rest are drawn procedurally at boot. Replace a PNG (any scale, sprite sheet or animated PNG) and reload. See <code className="text-[#ffc453]">docs/ASSET_SPEC.md</code>.
             </div>
           </div>
           <div className="flex gap-2">

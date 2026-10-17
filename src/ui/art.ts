@@ -1,10 +1,10 @@
-// UI artwork cut from the concept sheets in art/concept (see scripts/crop-ui-kit.py).
+// UI artwork cut from the concept sheets in art/concept (see scripts/art/crop-ui-kit.py).
 import { generatedHeadingUrls } from './HeadingArt';
 import { noticeArtUrls } from './notices';
 const base = (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_URL || './';
 const img = (p: string) => `${base}images/${p}`;
 
-/** eight-frame effect strips (scripts/prepare-fx-art.mjs), shown as CSS animations in the full-game showcase */
+/** eight-frame effect strips (scripts/art/prepare-fx-art.mjs), shown as CSS animations in the full-game showcase */
 export const FX_ART = { explosion: `${base}assets/fx/fx_explosion.webp`, fire: `${base}assets/fx/fx_fire.webp` };
 
 export const ART = {
@@ -18,15 +18,15 @@ export const ART = {
   headingSettings: img('redesign/heading-settings.webp'),
   headingLevelUp: img('redesign/heading-levelup.webp'),
   youDied: img('ui/youdied.webp'),
-  /** "Reach 15K Essence to unlock premium" (scripts/prepare-badge-art.mjs) */
+  /** "Reach 15K Essence to unlock premium" (scripts/art/prepare-badge-art.mjs) */
   badge15k: img('ui/badge_15k.webp'),
   infoPumpkin: img('ui/info_pumpkin.webp'),
   skillPumpkin: img('ui/skill_pumpkin.webp'),
-  /** the tutorial's walkie-talkie (scripts/prepare-walkie-art.mjs) */
+  /** the tutorial's walkie-talkie (scripts/art/prepare-walkie-art.mjs) */
   walkie: img('ui/walkie.webp'),
 };
 
-/** painted card art per gun id (scripts/prepare-gun-art.mjs); the small in-world sprites are separate (icon_<id>) */
+/** painted card art per gun id (scripts/art/prepare-gun-art.mjs); the small in-world sprites are separate (icon_<id>) */
 export const GUN_ART_IDS = ['pea', 'nerf', 'shotgun', 'roman', 'soaker', 'balloon', 'rocket', 'laser', 'slingshot', 'gloom', 'marshmallow', 'bubblegum', 'acorn',
   'flamer', 'stream', 'disc', 'sabre', 'glaive', 'swarm', 'singularity', 'annihilator', 'incinerator', 'lance', 'cryo'];
 export const gunArtUrl = (id: string) => img(`guns/${GUN_ART_IDS.includes(id) ? id : 'pea'}.webp`);
