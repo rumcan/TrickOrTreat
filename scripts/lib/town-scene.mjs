@@ -11,7 +11,8 @@ import {groundFrame,groundBounds} from '../town-builder/app/ground-boundary.js';
 
 export {ROOT,TOWN_ART,artSource,artDir} from './town-paths.mjs';
 import {ROOT} from './town-paths.mjs';
-const SRC=path.join(ROOT,'output/road-autotile-v4/sources'),TM=path.join(ROOT,'output/terrain-materials');
+// The ground's painted materials are committed in art/town-ground/ (see its README for where each one came from).
+const GROUND=path.join(ROOT,'art/town-ground'),SRC=path.join(GROUND,'roads'),TM=path.join(GROUND,'terrain');
 const clamp=(v,a,b)=>v<a?a:v>b?b:v,smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
 const SQ3=Math.sqrt(3);
 
@@ -44,10 +45,10 @@ export async function loadSources(zoom=1){
  const A=S.asph;S.asphMean=[0,1,2].map(k=>(A[0].mean[k]*A[0].width+A[1].mean[k]*A[1].width)/(A[0].width+A[1].width));
  for(const a of A)for(let i=0;i<a.width*a.height;i++)for(let k=0;k<3;k++)a.data[i*4+k]=clamp(Math.round(a.data[i*4+k]-a.mean[k]+S.asphMean[k]),0,255);
  S.LUMA0=.3*S.asphMean[0]+.59*S.asphMean[1]+.11*S.asphMean[2];
- // Car-park asphalt: one large generated texture (output/paving-kit/lot-texture/lot-asphalt-3.png, ~28 m across) with cracks,
+ // Car-park asphalt: one large generated texture (art/town-ground/paving/lot-asphalt-3.png, ~28 m across) with cracks,
  // tar-sealed seams, patches and faded areas. Its large-scale tone is kept (that IS the variation); only its mean is matched
  // to sit a touch lighter and greyer than the road, so lot reflections behave exactly like road ones.
- {const t=await raw(path.join(ROOT,'output/paving-kit/lot-texture/lot-asphalt-3.png'));const m=[0,0,0];for(let i=0;i<t.width*t.height;i++)for(let k=0;k<3;k++)m[k]+=t.data[i*4+k];
+ {const t=await raw(path.join(GROUND,'paving/lot-asphalt-3.png'));const m=[0,0,0];for(let i=0;i<t.width*t.height;i++)for(let k=0;k<3;k++)m[k]+=t.data[i*4+k];
   for(let k=0;k<3;k++)m[k]/=t.width*t.height;const target=[S.asphMean[0]*1.06+2,S.asphMean[1]*1.06+2,S.asphMean[2]*1.02];
   for(let i=0;i<t.width*t.height;i++)for(let k=0;k<3;k++)t.data[i*4+k]=clamp(Math.round(t.data[i*4+k]-m[k]+target[k]),0,255);t.ppm=t.width/28;S.lotTex=t;S.lotMean=target;}
  S.slabs=[];for(const s of man.slabs)S.slabs.push(await load(path.join(SRC,s.file)));
@@ -76,7 +77,7 @@ export async function loadSources(zoom=1){
  S.leafImgs.sort((a,b)=>a.dim-b.dim);S.roundLeaves.sort((a,b)=>a.dim-b.dim);
  // the game's painted street lamp (atlas: 80 x 240 at 1x, anchor 40,204)
  const lampW=Math.round(80*zoom),lampH=Math.round(240*zoom);
- S.lamp=await raw(path.join(ROOT,'art/world/staged/streetlamp-57c1616a5a639908.png'),{width:lampW,height:lampH,kernel:'lanczos3'});S.lampAnchor=[40*zoom,204*zoom];
+ S.lamp=await raw(path.join(ROOT,'public/assets/generated/world/streetlamp-57c1616a5a639908.png'),{width:lampW,height:lampH,kernel:'lanczos3'});S.lampAnchor=[40*zoom,204*zoom];
  return S;}
 
 // ---------------------------------------------------------------- scene

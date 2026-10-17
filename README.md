@@ -92,11 +92,11 @@ exporting. The working files are:
 | `output/town-builder/plans/maple-falls.json` | Ground plan, roads and lighting settings |
 | `output/town-builder/library/` | Object artwork and library metadata |
 | `output/town-builder/map-current.json` | Pointer to the current ground bake (`map-version-*`). Each **Rebuild ground** keeps the current and previous bake and deletes older ones |
-| `output/road-autotile-v4/`, `output/terrain-materials/`, `output/paving-kit/` | Road, grass and car-park materials the ground bake reads |
+| `art/town-ground/` | Road, sidewalk, grass and car-park materials the ground bake reads (committed) |
 | `output/town-art/` | The town's working art (raw generations, guides, sprite masters). Set `TOWN_ART` to use another folder |
 
 `output/` is local and Git-ignored. Back it up along with the game: a fresh Git
-clone has the builder but not your editable town data or its materials.
+clone has the builder and the ground materials, but not your editable town data.
 
 ## Update the playable game map after editing
 

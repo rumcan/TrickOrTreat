@@ -269,7 +269,7 @@ const tag=`${layoutName}${ZOOM===1?'':'-z'+ZOOM}`;
 await fs.mkdir(path.join(OUT,'maps'),{recursive:true});
 await sharp(pave,{raw:{width:W,height:H,channels:4}}).png().toFile(path.join(OUT,'maps',`${tag}-roads-transparent.png`));
 // ---------- the game's existing painted street lamp stands at every light pool (base on the post position) ----------
-const LAMP_SRC=path.join(ROOT,'art/world/staged/streetlamp-57c1616a5a639908.png');
+const LAMP_SRC=path.join(ROOT,'public/assets/generated/world/streetlamp-57c1616a5a639908.png');
 const lampW=Math.round(80*ZOOM),lampH=Math.round(240*ZOOM);
 const lampBuf=await sharp(LAMP_SRC).resize(lampW,lampH,{kernel:'lanczos3'}).png().toBuffer();
 const {data:la,info:li}=await sharp(lampBuf).raw().toBuffer({resolveWithObject:true});
