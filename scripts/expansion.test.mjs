@@ -97,7 +97,7 @@ try {
   await page.screenshot({ path: 'art/world/checks/run-inventory.png' });
   await page.getByRole('button', { name: 'Close inventory' }).click();
   await page.evaluate(() => window.__tot.game.endRun(false));
-  await page.getByRole('button', { name: 'Spend essence on talents' }).click();
+  await page.getByRole('button', { name: 'Spend talent points' }).click();
   await page.getByRole('button', { name: /Play again/ }).waitFor();
   assert.deepEqual(errors, []);
   console.log('Expansion gameplay and screen checks passed. No checkout was invoked.');

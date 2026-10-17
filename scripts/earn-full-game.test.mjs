@@ -63,7 +63,7 @@ try {
   await page.getByRole('button', { name: 'Support the creator' }).click();
   const line = page.locator('.unlock-earn');
   await line.waitFor();
-  assert.match(await line.innerText(), /more than 15,000 Essence\. So far: 5,000\./, 'The showcase shows the free way in and the progress');
+  assert.match(await line.innerText(), /more than 15,000 talent points\. So far: 5,000\./, 'The showcase shows the free way in and the progress');
   await fs.mkdir('art/world/checks', { recursive: true });
   await line.scrollIntoViewIfNeeded();
   await page.screenshot({ path: 'art/world/checks/earn-full-game.png' });

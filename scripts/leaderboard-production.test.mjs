@@ -34,7 +34,7 @@ try {
   assert.equal(submitted[0].score, submitted[0].duration);
   assert.equal(submitted[0].period, 'alltime'); assert.equal(submitted[0].mode, 'survival');
   assert.equal(submitted[0].metadata.hero, 'Tommy');
-  await page.getByRole('button', { name: 'Spend essence on talents' }).click();
+  await page.getByRole('button', { name: 'Spend talent points' }).click();
   await page.getByRole('button', { name: 'Main menu' }).click();
   await page.getByRole('button', { name: 'Open time leaderboard' }).click();
   await page.getByRole('dialog', { name: 'Time leaderboard' }).getByText('NightRunner', { exact: true }).waitFor();

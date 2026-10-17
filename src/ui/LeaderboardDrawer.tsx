@@ -5,12 +5,14 @@ import { leaderboard, setGuestTag } from '../game/leaderboard';
 import type { BoardEntry, BoardMode, BoardRank } from '../game/leaderboard-service';
 import { fmtTime } from './common';
 import { campaignOffered } from '../game/engine';
+import { PaintedFrame } from './PaintedFrame';
+import RadioPill from './RadioPill';
 
 /**
  * Night records. Left alone it renders its own edge tab; a caller can instead drive it (`open` / `onOpenChange`),
  * which is what the title's menu row does.
  */
-export function LeaderboardDrawer({ open: openProp, onOpenChange, showTrigger = true }: { open?: boolean; onOpenChange?: (open: boolean) => void; showTrigger?: boolean } = {}) {
+export function LeaderboardDrawer({ open: openProp, onOpenChange, showTrigger = true, personalBest = 0 }: { open?: boolean; onOpenChange?: (open: boolean) => void; showTrigger?: boolean; personalBest?: number } = {}) {
   const [profile, setProfile] = useState(leaderboard.profile);
   const [ownOpen, setOwnOpen] = useState(false);
   const controlled = openProp !== undefined;
@@ -50,8 +52,8 @@ export function LeaderboardDrawer({ open: openProp, onOpenChange, showTrigger = 
     finally { if (ticket === generation.current) setBusy(false); }
   };
   useEffect(() => {
-    if (!profile) { setOpen(false); setRows([]); setRank(null); setCursor(null); }
-    if (open && profile) { closeRef.current?.focus(); void load(); }
+    if (!profile) { setRows([]); setRank(null); setCursor(null); }
+    if (open) { closeRef.current?.focus(); if (profile) void load(); }
     return () => { generation.current++; };
   }, [open, mode, profile?.id]);
   // asked for from the menu with no RUN session (or offline): say so instead of doing nothing
@@ -73,10 +75,12 @@ export function LeaderboardDrawer({ open: openProp, onOpenChange, showTrigger = 
     if (!unavailable) return null;
     return (
       <div className="records-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
-        <aside className="records-drawer" role="dialog" aria-modal="true" aria-label="Time leaderboard">
-          <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2 className="kit-word"><Trophy size={26} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
+        <aside className="records-drawer generated-framed" role="dialog" aria-modal="true" aria-label="Time leaderboard">
+          <PaintedFrame />
+          <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2 className="records-heading"><img src={`${import.meta.env.BASE_URL}images/generated-v5/heading-records.png`} alt="Night records" /></h2><RadioPill compact /></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
           <p className="records-intro">The longest nights. The bravest kids. Your best survival time, ranked against every RUN player.</p>
-          <div className="records-you"><span>Not signed in to RUN</span><span>Night records are kept on RUN, so they need a RUN session. Play offline and your own best time still waits for you on the title screen.</span></div>
+          <section className="records-you"><span>Your best night</span><strong className="records-personal-time">{fmtTime(personalBest)}</strong><span>{personalBest ? 'Saved on this device' : 'Finish a run to set your first record'}</span></section>
+          <section className="records-list"><h3>Worldwide records</h3><p>Open the game on RUN to see the worldwide leaderboard. Your personal best is saved when you play here.</p></section>
           <footer><button className="hm-btn ghost" onClick={close}>Close</button></footer>
         </aside>
       </div>
@@ -85,8 +89,9 @@ export function LeaderboardDrawer({ open: openProp, onOpenChange, showTrigger = 
   return <>
     {showTrigger && <button ref={triggerRef} className="records-trigger" aria-label="Open time leaderboard" aria-expanded={open} aria-controls="time-records" onClick={() => setOpen(true)}><Trophy size={20} /><span>Night records</span><ChevronRight size={16} /></button>}
     {open && <div className="records-backdrop" onPointerDown={event => { if (event.target === event.currentTarget) close(); }}>
-      <aside id="time-records" className="records-drawer" role="dialog" aria-modal="true" aria-label="Time leaderboard">
-        <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2 className="kit-word"><Trophy size={26} /> Night records</h2></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
+      <aside id="time-records" className="records-drawer generated-framed" role="dialog" aria-modal="true" aria-label="Time leaderboard">
+        <PaintedFrame />
+        <header><div><div className="paper-kicker">Maple Falls hall of fame</div><h2 className="records-heading"><img src={`${import.meta.env.BASE_URL}images/generated-v5/heading-records.png`} alt="Night records" /></h2><RadioPill compact /></div><button ref={closeRef} className="records-icon" aria-label="Close leaderboard" onClick={close}><X /></button></header>
         <p className="records-intro">The longest nights. The bravest kids. Your best survival time, ranked against every RUN player.</p>
         {/* one board for now (the rescue campaign is shelved): no tabs to choose between, and more room for records */}
         {campaignOffered() && <div className="records-tabs" role="group" aria-label="Leaderboard mode">{(['survival', 'rescue'] as const).map(m => <button key={m} aria-pressed={m === mode} onClick={() => setMode(m)}>{m === 'survival' ? 'Neighbourhood' : 'Rescue campaign'}</button>)}</div>}

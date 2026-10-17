@@ -34,7 +34,7 @@ body,
 .game-canvas { touch-action: none; }
 .touch-manual { display: none; }
 body {
-  font-family: "Rajdhani", "Barlow", system-ui, sans-serif;
+  font-family: "Barlow Condensed", system-ui, sans-serif;
   background: #0e0f13;
   color: #f2e6c9;
   -webkit-font-smoothing: antialiased;
@@ -43,31 +43,31 @@ body {
 /* type — the kit's stack: Bebas Neue (display, menus, buttons), Teko (HUD labels and
    section titles), Rajdhani (readable UI text), Orbitron (numbers and timers) */
 .font-cond {
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   font-weight: 400;
   letter-spacing: 0.035em;
 }
 .font-cond2 {
-  font-family: "Teko", "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
   font-weight: 500;
 }
 .font-ui {
-  font-family: "Rajdhani", "Barlow", system-ui, sans-serif;
+  font-family: "Barlow Condensed", system-ui, sans-serif;
   font-weight: 500;
 }
 /* the HUD's own label face: narrow and tall, readable at 11-14px over the street */
 .font-hud {
-  font-family: "Teko", "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .font-brush {
-  font-family: "Permanent Marker", "Comic Sans MS", cursive;
+  font-family: "Anton", sans-serif;
   font-weight: 400;
 }
 .font-num {
-  font-family: "Orbitron", "Roboto Mono", ui-monospace, monospace;
+  font-family: "Barlow Condensed", ui-monospace, monospace;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
@@ -107,7 +107,7 @@ body {
   gap: 0.6rem;
   border: 2px solid #050506;
   border-radius: 3px;
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   line-height: 1;
@@ -175,7 +175,7 @@ body {
   border-radius: 4px;
   background: #fef5d8;
   color: #2a221a;
-  font-family: "Teko", "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
   line-height: 1;
@@ -351,8 +351,8 @@ button.kit-tile:not(:disabled):hover {
 }
 .paper-panel--rule { border-top: 5px solid var(--pp-orange); }
 .paper-panel--side { border: 0; border-left: 4px solid var(--pp-orange); padding: 10px 16px; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 7px 25px rgba(0, 0, 0, 0.5); }
-.paper-kicker { margin: 0 0 6px; color: var(--pp-kicker); font: 700 13px "Teko", "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; }
-.paper-title { margin: 0; color: var(--pp-text); font: 400 clamp(30px, 4vw, 46px) / 0.99 "Bebas Neue", "Anton", Impact, sans-serif; text-transform: uppercase; text-shadow: none; }
+.paper-kicker { margin: 0 0 6px; color: var(--pp-kicker); font: 700 13px "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; }
+.paper-title { margin: 0; color: var(--pp-text); font: 400 clamp(30px, 4vw, 46px) / 0.99 "Anton", Impact, sans-serif; text-transform: uppercase; text-shadow: none; }
 .paper-rule { display: block; width: 61px; height: 4px; margin: 12px 0 0; background: var(--pp-orange); }
 .paper-card {
   border-radius: 0;
@@ -362,11 +362,11 @@ button.kit-tile:not(:disabled):hover {
   box-shadow: inset 0 1px 0 var(--pp-hairline), var(--pp-shadow-card);
   padding: 10px 14px;
 }
-.paper-card .label { color: var(--pp-mute); font: 700 11px/1.1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; }
+.paper-card .label { color: var(--pp-mute); font: 700 11px/1.1 "Barlow Condensed", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; }
 .paper-section { border-top: 4px solid var(--pp-orange); }
-.paper-section > h3 { margin: 10px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--pp-line); color: var(--pp-kicker); font: 700 13px "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.15em; text-transform: uppercase; }
+.paper-section > h3 { margin: 10px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--pp-line); color: var(--pp-kicker); font: 700 13px "Barlow Condensed", sans-serif; letter-spacing: 0.15em; text-transform: uppercase; }
 .paper-divider { height: 0; border: 0; border-top: 1px solid var(--pp-line); margin: 10px 0; }
-.paper-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 2px solid currentColor; color: var(--pp-text-2); font: 700 11px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+.paper-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 2px solid currentColor; color: var(--pp-text-2); font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
 
 /* everything inside a running game wears the dark paper */
 .ingame .kit-panel,
@@ -387,7 +387,7 @@ button.kit-tile:not(:disabled):hover {
 .ingame .kit-chip { border-radius: 0; background: var(--pp-paper-bg); border: 2px solid var(--pp-frame); box-shadow: inset 0 1px 0 var(--pp-hairline), 0 2px 0 rgba(0, 0, 0, 0.5); }
 .ingame .kit-btn {
   border-radius: 0;
-  font-family: "Teko", "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
   font-weight: 700;
   letter-spacing: 0.07em;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.55);
@@ -414,15 +414,15 @@ button.kit-tile:not(:disabled):hover {
 .hm-xp i { display: block; height: 100%; background: #ed7414; transition: width .2s ease; }
 .hm-av { display: block; overflow: hidden; border: 2px solid #e77a1b; border-radius: 0; }
 .hm-badge { display: grid; place-items: center; width: 20px; height: 20px; border: 2px solid; background: #0c161b; font-size: 11px; line-height: 1; }
-.hm-name { color: #fff0da; font: 700 15px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
-.hm-level { color: #f08a2c; font: 700 11px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .16em; }
+.hm-name { color: #fff0da; font: 700 15px/1 "Barlow Condensed", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.hm-level { color: #f08a2c; font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: .16em; }
 .hm-meter { display: grid; grid-template-columns: 1fr 28px; align-items: center; gap: 6px; }
 .hm-meter span { display: block; height: 6px; background: #1d2a30; }
 .hm-meter i { display: block; height: 100%; transition: width .15s ease; }
-.hm-meter b { color: #c9bda6; font: 600 11px/1 "Teko", "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
+.hm-meter b { color: #c9bda6; font: 600 11px/1 "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
 .hm-goal {
   display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid #ec8124;
-  color: #fff0da; font: 700 12px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+  color: #fff0da; font: 700 12px "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
 }
 .hm-goal-v { color: #aa9c86; font-variant-numeric: tabular-nums; }
 .hm-goal.done { border-color: #33433f; color: #6f8a74; }
@@ -431,13 +431,13 @@ button.kit-tile:not(:disabled):hover {
   position: absolute; left: 50%; top: 0; height: var(--hm-top); transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 18px; background: #0c161b;
 }
-.hm-time { color: #fff0da; font: 700 29px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
-.hm-time-sub { margin-top: 2px; color: #f08a2c; font: 700 10px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; }
+.hm-time { color: #fff0da; font: 700 29px/1 "Barlow Condensed", sans-serif; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.hm-time-sub { margin-top: 2px; color: #f08a2c; font: 700 10px/1 "Barlow Condensed", sans-serif; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; }
 @media (max-width: 639px) { .hm-time { font-size: 22px; } }
 .hm-chips { display: flex; align-items: center; }
 .hm-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border-left: 1px solid #67747770; }
 .hm-chip:first-child { border-left: 0; }
-.hm-chip b { color: #f7ecd6; font: 600 18px/1 "Teko", "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
+.hm-chip b { color: #f7ecd6; font: 600 18px/1 "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
 .hm-chip.money b { color: #f29b39; }
 .hm-chip.hot b { color: #ff7a6e; }
 @media (max-width: 639px) { .hm-chip { padding: 0 6px; } .hm-chip b { font-size: 15px; } .hm-chip.hot { display: none; } }
@@ -455,22 +455,22 @@ button.kit-tile:not(:disabled):hover {
   display: none; flex-direction: column; overflow: hidden; background: #0c171d; border-right: 1px solid #768a7c50;
 }
 @media (min-width: 900px) { .hm-rail { display: flex; } }
-.hm-rail-title { padding: 12px 0 8px; border-bottom: 1px solid #75827834; color: #f4a33b; font: 700 11px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .19em; text-align: center; text-transform: uppercase; }
+.hm-rail-title { padding: 12px 0 8px; border-bottom: 1px solid #75827834; color: #f4a33b; font: 700 11px "Barlow Condensed", sans-serif; letter-spacing: .19em; text-align: center; text-transform: uppercase; }
 .hm-rail-row { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; border: 0; border-bottom: 1px solid #75827834; background: transparent; color: #e8ddc7; }
 .hm-rail-row:hover { background: #344246; }
 .hm-rail-treat { width: 100%; padding: 0; cursor: pointer; font: inherit; }
 .hm-rail-treat:hover .hm-rail-art, .hm-rail-treat:focus-visible .hm-rail-art { outline: 2px solid #ff6a5a; outline-offset: 1px; }
 .hm-rail-treat:focus-visible { outline: none; }
 .hm-rail-art { display: block; width: 46px; height: 34px; overflow: hidden; border: 2px solid #67747770; background: #0c161b; }
-.hm-rail-tag { font: 700 11px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
-.hm-rail-n { color: #f08a2c; font: 700 11px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; min-height: 11px; }
-.hm-rail-more { cursor: pointer; color: #fff0da; font: 700 15px/1 "Teko", "Barlow Condensed", sans-serif; }
+.hm-rail-tag { font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.hm-rail-n { color: #f08a2c; font: 700 11px/1 "Barlow Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; min-height: 11px; }
+.hm-rail-more { cursor: pointer; color: #fff0da; font: 700 15px/1 "Barlow Condensed", sans-serif; }
 .hm-rail-more small { display: block; color: #8f8676; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
-.hm-rail-empty { padding: 10px 6px; color: #6c6658; font: 700 10px/1.3 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+.hm-rail-empty { padding: 10px 6px; color: #6c6658; font: 700 10px/1.3 "Barlow Condensed", sans-serif; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
 
 /* paper notices (toasts, prompts) */
 .hm-slip { background: var(--pp-paper-bg); border-left: 4px solid #f28220; padding: 8px 12px; color: #f2e8d4; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 7px 25px rgba(0, 0, 0, .5); }
-.hm-kicker { margin-bottom: 6px; color: #f08a2c; font: 700 12px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.hm-kicker { margin-bottom: 6px; color: #f08a2c; font: 700 12px "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
 .hm-notices { position: absolute; right: 12px; z-index: 15; top: calc(var(--hm-top) + 3px + min(230px, 22vw) / 2 + 34px); display: flex; flex-direction: column; align-items: stretch; gap: 8px; width: min(280px, 72vw); }
 @media (max-width: 639px) { .hm-notices { top: calc(var(--hm-top) + 3px + min(230px, 22vw) / 2 + 24px); } }
 .hm-progress { height: 8px; background: #0f1518; border: 1px solid rgba(242, 232, 212, .25); }
@@ -489,12 +489,12 @@ button.kit-tile:not(:disabled):hover {
 .hm-tab.active::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: #ef7c17; }
 .hm-tab.empty { opacity: .5; }
 .hm-tab .hm-key { height: 20px !important; min-width: 20px !important; padding: 0 4px !important; border-radius: 0 !important; font-size: 11px !important; }
-.hm-tab-name { max-width: 128px; overflow: hidden; color: #f2e8d4; font: 700 13px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .07em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
-.hm-tab-sub { margin-top: 3px; color: #c9bda6; font: 600 12px/1 "Rajdhani", "Barlow", sans-serif; font-variant-numeric: tabular-nums; }
+.hm-tab-name { max-width: 128px; overflow: hidden; color: #f2e8d4; font: 700 13px/1 "Barlow Condensed", sans-serif; letter-spacing: .07em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.hm-tab-sub { margin-top: 3px; color: #c9bda6; font: 600 12px/1 "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
 @media (max-width: 639px) { .hm-tabs { height: 48px; } .hm-tab { gap: 5px; padding: 0 7px; min-width: 0; } }
 .hm-drawer { pointer-events: auto; padding: 10px 16px 12px; background: var(--pp-paper-bg); border-top: 4px solid #ef7c17; color: #f2e8d4; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 -12px 45px rgba(0, 0, 0, .35); }
-.hm-drawer-main { color: #fff0da; font: 700 16px/1.2 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
-.hm-drawer-note { margin-top: 6px; color: #c9bda6; font: 600 12px/1.3 "Rajdhani", "Barlow", sans-serif; }
+.hm-drawer-main { color: #fff0da; font: 700 16px/1.2 "Barlow Condensed", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.hm-drawer-note { margin-top: 6px; color: #c9bda6; font: 600 12px/1.3 "Barlow Condensed", sans-serif; }
 
 /* Touch controls: independent captured pointers, above the weapon dock. */
 .touch-game { --hm-top: calc(56px + env(safe-area-inset-top, 0px)); --touch-bottom: calc(52px + env(safe-area-inset-bottom, 0px)); cursor: auto; }
@@ -506,7 +506,7 @@ button.kit-tile:not(:disabled):hover {
 .touch-drag { position: absolute; width: 72px; height: 72px; margin: -36px 0 0 -36px; border: 1px solid #d1efde2e; border-radius: 50%; background: radial-gradient(circle, #102b3414, #0c151b26); pointer-events: none; }
 .touch-drag i { position: absolute; left: calc(50% - 13px); top: calc(50% - 13px); width: 26px; height: 26px; border: 1px solid #d1efde73; border-radius: 50%; background: linear-gradient(#79a9a955, #26474e66); }
 .touch-actions { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--touch-bottom) + 10px); display: flex; gap: 8px; }
-.touch-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 58px; min-height: 52px; padding: 4px 1px; color: #fff4de; border: 1px solid #bfb39a; border-radius: 9px; background: #15252dce; pointer-events: auto; touch-action: manipulation; font: 700 11px/1.1 "Teko", "Barlow Condensed", sans-serif; }
+.touch-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 58px; min-height: 52px; padding: 4px 1px; color: #fff4de; border: 1px solid #bfb39a; border-radius: 9px; background: #15252dce; pointer-events: auto; touch-action: manipulation; font: 700 11px/1.1 "Barlow Condensed", sans-serif; }
 .touch-action--interact { border-color: #84db9f; color: #c8ffd9; }
 .touch-action--skill { border-color: #e0af6f; color: #ffe1b2; }
 .touch-action--dash { border-color: #78cee5; color: #c6f4ff; }
@@ -518,7 +518,7 @@ button.kit-tile:not(:disabled):hover {
 @media (prefers-reduced-motion: reduce) { .touch-action--ready { animation: none; } }
 .touch-action:not(:disabled):active { background: #486568; transform: scale(.96); }
 .touch-action:focus-visible { outline: 2px solid #fff0d2; outline-offset: 3px; }
-.touch-context { position: absolute; bottom: calc(var(--touch-bottom) + 72px); left: 50%; transform: translateX(-50%); width: min(300px, calc(100% - 24px)); padding: 5px 8px; border: 1px solid #80d79a99; border-radius: 8px; background: #10231ccd; color: #f0fff5; text-align: center; font: 600 11px/1.25 "Rajdhani", "Barlow", sans-serif; }
+.touch-context { position: absolute; bottom: calc(var(--touch-bottom) + 72px); left: 50%; transform: translateX(-50%); width: min(300px, calc(100% - 24px)); padding: 5px 8px; border: 1px solid #80d79a99; border-radius: 8px; background: #10231ccd; color: #f0fff5; text-align: center; font: 600 11px/1.25 "Barlow Condensed", sans-serif; }
 .touch-game .hm-dock { bottom: env(safe-area-inset-bottom, 0px); min-width: min(360px, 94vw); }
 .touch-game .hm-tabs { height: 44px; }
 .touch-game .hm-tab { min-height: 44px; }
@@ -574,7 +574,7 @@ button.kit-tile:not(:disabled):hover {
 .hm-music { position: absolute; z-index: 21; left: max(8px, env(safe-area-inset-left, 0px)); top: calc(var(--hm-top) + 12px); }
 @media (min-width: 900px) { .hm-music { left: calc(var(--hm-rail) + 8px); } }
 @media (min-width: 1280px) { .hm-music { display: none; } }
-.hm-mapclose { position: absolute; z-index: 26; left: 50%; top: calc(var(--hm-top) + 14px); transform: translateX(-50%); display: none; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border: 2px solid #06090b; border-radius: 8px; background: #fb8016; color: #1d1d1b; box-shadow: 0 3px 0 #000a; font: 700 15px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .08em; text-transform: uppercase; touch-action: manipulation; }
+.hm-mapclose { position: absolute; z-index: 26; left: 50%; top: calc(var(--hm-top) + 14px); transform: translateX(-50%); display: none; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border: 2px solid #06090b; border-radius: 8px; background: #fb8016; color: #1d1d1b; box-shadow: 0 3px 0 #000a; font: 700 15px/1 "Barlow Condensed", sans-serif; letter-spacing: .08em; text-transform: uppercase; touch-action: manipulation; }
 .touch-game .hm-mapclose { display: flex; }
 .modal-close { position: absolute; z-index: 5; top: max(8px, env(safe-area-inset-top, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); display: none; place-items: center; width: 44px; height: 44px; border: 2px solid #06090b; border-radius: 8px; background: #fb8016; color: #1d1d1b; box-shadow: 0 3px 0 #000a; touch-action: manipulation; }
 .modal-close--over { z-index: 60; }
@@ -639,8 +639,8 @@ button.kit-tile:not(:disabled):hover {
 .talent-svg { position: absolute; inset: 46px 0 0; z-index: 1; width: 100%; height: calc(100% - 46px); user-select: none; -webkit-user-select: none; }
 .talent-side { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px 16px; background: var(--pp-paper-bg); border-top: 5px solid var(--pp-orange); box-shadow: inset 0 1px 0 var(--pp-hairline); }
 .talent-wallet { flex: 1; display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--pp-bar); border: 2px solid var(--pp-frame); box-shadow: var(--pp-shadow-card); }
-.talent-wallet .label { color: var(--pp-mute); font: 700 10px/1.1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
-.talent-wallet b { display: block; color: #d9a8ff; font: 400 30px/1 "Bebas Neue", "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
+.talent-wallet .label { color: var(--pp-mute); font: 700 10px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.talent-wallet b { display: block; color: #d9a8ff; font: 400 30px/1 "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
 .talent-focus-art { flex: 0 0 auto; display: grid; place-items: center; width: 72px; height: 72px; border: 3px solid; background: radial-gradient(circle, #241a38, #07060d); box-shadow: var(--pp-shadow-card); }
 .talent-focus-art img { width: 60px; height: 60px; object-fit: contain; }
 /* no black frames in this column: a light hairline, and the branch colour on one edge does the framing */
@@ -662,16 +662,16 @@ button.kit-tile:not(:disabled):hover {
 .end-plate { display: block; width: 100%; height: auto; box-shadow: 0 0 34px rgba(255, 40, 40, .35), 0 14px 40px rgba(0, 0, 0, .6); }
 .end-panel { margin-top: 14px; padding: 18px 20px 20px; background: var(--pp-paper-bg); border: 1px solid rgba(242, 232, 212, .16); border-top: 5px solid var(--pp-orange); box-shadow: 0 18px 50px rgba(0, 0, 0, .55); color: var(--pp-text); }
 .end-stat { padding: 9px 12px 10px; background: var(--pp-card); border: 1px solid rgba(242, 232, 212, .16); border-left: 4px solid var(--pp-orange); }
-.end-stat .label { display: flex; align-items: center; gap: 6px; color: var(--pp-mute); font: 700 11px/1.1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
-.end-stat b { display: block; margin-top: 4px; color: #fff0da; font: 400 28px/1 "Bebas Neue", "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
+.end-stat .label { display: flex; align-items: center; gap: 6px; color: var(--pp-mute); font: 700 11px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.end-stat b { display: block; margin-top: 4px; color: #fff0da; font: 400 28px/1 "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
 .end-rows { margin: 14px 0 0; border-top: 1px solid var(--pp-line); }
-.end-rows > div { display: flex; justify-content: space-between; gap: 16px; padding: 6px 2px; border-bottom: 1px solid var(--pp-hairline); font: 600 15px/1.25 "Rajdhani", "Barlow", sans-serif; }
+.end-rows > div { display: flex; justify-content: space-between; gap: 16px; padding: 6px 2px; border-bottom: 1px solid var(--pp-hairline); font: 600 15px/1.25 "Barlow Condensed", sans-serif; }
 .end-rows dt { color: var(--pp-text-2); }
 .end-rows dd { margin: 0; color: #d9a8ff; font-variant-numeric: tabular-nums; }
 .end-total { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; padding: 12px 14px; background: var(--pp-bar); border: 1px solid rgba(217, 168, 255, .4); }
-.end-total b { color: #d9a8ff; font: 400 46px/1 "Bebas Neue", "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
-.end-total span { color: #fff0da; font: 700 15px/1.1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
-.end-total small { display: block; margin-top: 4px; color: var(--pp-mute); font: 500 12px/1.2 "Rajdhani", "Barlow", sans-serif; letter-spacing: 0; text-transform: none; }
+.end-total b { color: #d9a8ff; font: 400 46px/1 "Anton", Impact, sans-serif; font-variant-numeric: tabular-nums; }
+.end-total span { color: #fff0da; font: 700 15px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.end-total small { display: block; margin-top: 4px; color: var(--pp-mute); font: 500 12px/1.2 "Barlow Condensed", sans-serif; letter-spacing: 0; text-transform: none; }
 .end-panel .hm-btn { cursor: pointer; }
 .end-panel .hm-btn.end-next { min-height: 56px; font-size: 20px; }
 
@@ -679,9 +679,9 @@ button.kit-tile:not(:disabled):hover {
 .hm-backdrop { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 16px; background: rgba(2, 5, 7, .74); backdrop-filter: blur(4px); }
 .hm-modal { width: min(1060px, 100%); max-width: 100%; margin: auto; background: var(--pp-paper-bg); border: 3px solid #06090b; border-top: 5px solid #ef7c17; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 4px 0 rgba(0, 0, 0, .45), 0 25px 80px rgba(0, 0, 0, .6); padding: 26px 30px 22px; color: #f2e8d4; }
 @media (max-width: 639px) { .hm-modal { padding: 18px 16px 16px; } }
-.hm-modal-title { margin: 0; color: #fff0da; font: 400 clamp(36px, 5vw, 64px)/.92 "Bebas Neue", "Anton", Impact, sans-serif; letter-spacing: -.018em; text-transform: uppercase; }
+.hm-modal-title { margin: 0; color: #fff0da; font: 400 clamp(36px, 5vw, 64px)/.92 "Anton", Impact, sans-serif; letter-spacing: -.018em; text-transform: uppercase; }
 .hm-rule { display: block; width: 61px; height: 4px; margin: 14px 0 0; background: #ef7c17; }
-.hm-label { color: var(--acc, #f08a2c); font: 700 10px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+.hm-label { color: var(--acc, #f08a2c); font: 700 10px "Barlow Condensed", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
 
 .hm-pick { --acc: #e8700f; position: relative; display: flex; flex-direction: column; text-align: left; background: #273138; border: 2px solid #06090b; box-shadow: inset 0 1px 0 var(--pp-hairline), 0 3px 0 rgba(0, 0, 0, .55); transition: transform .2s ease, box-shadow .2s ease; cursor: pointer; color: #f2e8d4; }
 .hm-pick:hover, .hm-pick:focus-visible { transform: translateY(-6px); box-shadow: 0 10px 0 var(--acc), 0 18px 30px rgba(0, 0, 0, .45); outline: none; }
@@ -696,11 +696,11 @@ button.kit-tile:not(:disabled):hover {
 .hm-locked .hm-pick-name, .hm-locked .hm-pick-desc { color: #a59c8a; }
 .hm-lock { position: absolute; inset: 0; display: grid; place-items: center; color: #fff0da; background: repeating-linear-gradient(135deg, rgba(6, 9, 11, .0) 0 10px, rgba(6, 9, 11, .28) 10px 20px); }
 .hm-lock svg { width: 46px; height: 46px; padding: 9px; background: #0c161b; border: 2px solid var(--acc); box-shadow: 0 3px 0 rgba(0, 0, 0, .6); color: var(--acc); }
-.hm-locked-foot { display: flex; align-items: center; gap: 6px; color: #f08a2c; font: 700 11px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
-.hm-stamp { position: absolute; right: 8px; top: 8px; padding: 3px 7px; border: 2px solid var(--acc); color: var(--acc); background: rgba(6, 9, 11, .82); font: 700 10px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .14em; text-transform: uppercase; transform: rotate(3deg); }
-.hm-pick-name { color: #fff; font: 800 23px/1.18 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; }
-.hm-pick-quote { margin-top: 9px; color: #fff; font: italic 500 13px/1.5 "Rajdhani", "Barlow", sans-serif; }
-.hm-pick-desc { margin-top: 6px; color: #fff; font: 600 15px/1.5 "Rajdhani", "Barlow", sans-serif; }
+.hm-locked-foot { display: flex; align-items: center; gap: 6px; color: #f08a2c; font: 700 11px "Barlow Condensed", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.hm-stamp { position: absolute; right: 8px; top: 8px; padding: 3px 7px; border: 2px solid var(--acc); color: var(--acc); background: rgba(6, 9, 11, .82); font: 700 10px "Barlow Condensed", sans-serif; letter-spacing: .14em; text-transform: uppercase; transform: rotate(3deg); }
+.hm-pick-name { color: #fff; font: 800 23px/1.18 "Barlow Condensed", sans-serif; letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; }
+.hm-pick-quote { margin-top: 9px; color: #fff; font: italic 500 13px/1.5 "Barlow Condensed", sans-serif; }
+.hm-pick-desc { margin-top: 6px; color: #fff; font: 600 15px/1.5 "Barlow Condensed", sans-serif; }
 .hm-pick > div:last-child { padding: 18px; gap: 3px; }
 .hm-pick .hm-label, .hm-pick [class*="text-[#8f8676]"], .hm-locked .hm-pick-name, .hm-locked .hm-pick-desc { color: #fff; }
 /* Pause: on a wide screen the menu is one fixed page. Only the list of collected treats scrolls. */
@@ -730,7 +730,7 @@ button.kit-tile:not(:disabled):hover {
 .run-inventory details[open] summary { margin-bottom: 14px; }
 
 .hm-foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--pp-line); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.hm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 18px; border: 1.5px solid #e8700f; background: #e8700f; color: #fff; font: 700 16px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .07em; text-transform: uppercase; transition: background .18s, color .18s, transform .18s; cursor: pointer; }
+.hm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 18px; border: 1.5px solid #e8700f; background: #e8700f; color: #fff; font: 700 16px "Barlow Condensed", sans-serif; letter-spacing: .07em; text-transform: uppercase; transition: background .18s, color .18s, transform .18s; cursor: pointer; }
 .hm-btn:hover:not(:disabled) { background: #fa7b19; transform: translateY(-2px); }
 .hm-btn.ghost { background: transparent; border-color: rgba(242, 232, 212, .55); color: #f2e8d4; }
 .hm-btn.ghost:hover:not(:disabled) { background: #f2e8d4; color: #10191e; }
@@ -739,15 +739,15 @@ button.kit-tile:not(:disabled):hover {
 .hm-menu-row { display: grid; grid-template-columns: 34px auto 1fr 18px; align-items: center; gap: 12px; width: 100%; padding: 12px 2px; border-bottom: 1px solid var(--pp-line); text-align: left; cursor: pointer; }
 .hm-menu-chev { color: #8b7f6d; align-self: center; transition: color .15s, transform .15s; }
 .hm-menu-row:hover .hm-menu-chev, .hm-menu-row:focus-visible .hm-menu-chev { color: var(--nx-orange-hi); transform: translateX(3px); }
-.hm-menu-n { color: #f08a2c; font: 700 12px "Teko", "Barlow Condensed", sans-serif; letter-spacing: .1em; }
-.hm-menu-label { color: #f2e8d4; font: 700 22px/1 "Teko", "Barlow Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; transition: color .15s, transform .15s; }
-.hm-menu-sub { color: #8f8676; font: 500 13px "Rajdhani", "Barlow", sans-serif; text-align: right; }
+.hm-menu-n { color: #f08a2c; font: 700 12px "Barlow Condensed", sans-serif; letter-spacing: .1em; }
+.hm-menu-label { color: #f2e8d4; font: 700 22px/1 "Barlow Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; transition: color .15s, transform .15s; }
+.hm-menu-sub { color: #8f8676; font: 500 13px "Barlow Condensed", sans-serif; text-align: right; }
 .hm-menu-row:hover .hm-menu-label, .hm-menu-row:focus-visible .hm-menu-label { color: #fa7b19; transform: translateX(4px); }
 .hm-menu-row:focus-visible { outline: none; }
 @media (max-width: 639px) { .hm-menu-sub { display: none; } .hm-menu-label { font-size: 19px; } .hm-menu-row { grid-template-columns: 30px auto 1fr 16px; padding: 10px 2px; gap: 9px; } }
 
 .hm-thumb { position: relative; aspect-ratio: 1; overflow: hidden; border: 2px solid #67747770; background: #0c161b; }
-.hm-thumb-n { position: absolute; right: 0; bottom: 0; padding: 1px 4px; background: #e8700f; color: #fff; font: 700 10px "Teko", "Barlow Condensed", sans-serif; }
+.hm-thumb-n { position: absolute; right: 0; bottom: 0; padding: 1px 4px; background: #e8700f; color: #fff; font: 700 10px "Barlow Condensed", sans-serif; }
 @media (max-width: 639px) {
   .hm-pick { flex-direction: row; }
   .hm-pick-art { flex: 0 0 34%; aspect-ratio: auto; min-height: 96px; border-bottom: 0; border-right: 3px solid var(--acc); }
@@ -767,7 +767,7 @@ button.kit-tile:not(:disabled):hover {
 .unlock-scroll { overflow-y: auto; min-height: 0; scroll-behavior: smooth; }
 .unlock-hero { padding: 40px 30px; background-position: center; background-size: cover; }
 .unlock-kicker { color: #ffd889; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
-.unlock-hero h1 { font-family: "Teko", "Barlow Condensed", sans-serif; font-weight: 900; font-size: clamp(40px, 6vw, 76px); line-height: 1.1; margin: 10px 0; }
+.unlock-hero h1 { font-family: "Barlow Condensed", sans-serif; font-weight: 900; font-size: clamp(40px, 6vw, 76px); line-height: 1.1; margin: 10px 0; }
 .unlock-hero p { max-width: 660px; line-height: 1.6; margin: 12px 0; }
 .unlock-badges, .unlock-nav { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
 .unlock-badges span { padding: 8px 12px; border: 1px solid #a08045; background: #101720dd; color: #ffe0a3; font-weight: 700; }
@@ -778,7 +778,7 @@ button.kit-tile:not(:disabled):hover {
 .unlock-kids, .unlock-grid, .unlock-talents { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 20px; }
 .unlock-kid { display: flex; gap: 18px; border: 1px solid #526a83; background: #1a2635; padding: 16px; }
 .unlock-kid img { width: 32%; object-fit: cover; object-position: top; align-self: flex-start; }
-.unlock-kid h3, .unlock-card h3, .unlock-section > h3 { font: 800 25px/1.2 "Teko", "Barlow Condensed", sans-serif; color: #ffe0a3; margin: 8px 0; }
+.unlock-kid h3, .unlock-card h3, .unlock-section > h3 { font: 800 25px/1.2 "Barlow Condensed", sans-serif; color: #ffe0a3; margin: 8px 0; }
 .unlock-kid h4 { font-weight: 800; color: #91e7ff; margin-top: 16px; }
 .unlock-kid p, .unlock-card p, .unlock-talents p { font-size: 14px; line-height: 1.6; margin-top: 8px; }
 .unlock-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
@@ -795,7 +795,7 @@ button.kit-tile:not(:disabled):hover {
 .unlock-earn > span { display: block; height: 5px; margin-top: 5px; background: #0b1218; border: 1px solid #3d5a4a; }
 .unlock-earn > span > i { display: block; height: 100%; background: #45da79; }
 .end-unlock { margin-top: 12px; padding: 10px 12px; border-left: 4px solid #45da79; background: #0f2a1ccc; color: #dfffe8; font-size: 14px; line-height: 1.4; }
-.end-unlock b { display: block; font: 400 22px "Bebas Neue", "Anton", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #8dffab; }
+.end-unlock b { display: block; font: 400 22px "Anton", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #8dffab; }
 .end-unlock--progress { border-left-color: #5b7077; background: #0d1418cc; color: #c9d6d2; font-size: 13px; text-align: center; }
 /* eight-frame effect strips played with steps(): the explosion once every couple of seconds, the fire on a loop */
 .unlock-fx { width: 150px; height: 150px; background-size: 800% 100%; background-repeat: no-repeat; animation: unlock-fx 2.2s steps(8, jump-none) infinite; }
@@ -817,7 +817,7 @@ button.kit-tile:not(:disabled):hover {
 .records-drawer { width:min(420px,100%); height:100%; display:flex; flex-direction:column; gap:18px; padding:24px; padding-top:calc(24px + env(safe-area-inset-top)); padding-bottom:calc(20px + env(safe-area-inset-bottom)); color:#fff6e6; background:linear-gradient(155deg,#193036,#0b151c 65%); border-right:2px solid #d49443; box-shadow:15px 0 60px #0009; overflow:auto; animation:records-enter .22s ease-out; }
 @keyframes records-enter { from { transform:translateX(-100%); } to { transform:translateX(0); } }
 .records-drawer header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-.records-drawer h2 { display:flex; align-items:center; gap:10px; margin:6px 0; font-family:"Bebas Neue","Anton",sans-serif; font-size:28px; text-transform:uppercase; color:#ffc873; }
+.records-drawer h2 { display:flex; align-items:center; gap:10px; margin:6px 0; font-family:"Anton",sans-serif; font-size:28px; text-transform:uppercase; color:#ffc873; }
 .records-icon { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; border:1px solid #668087; border-radius:6px; color:#fff; background:#111f28; flex-shrink:0; }
 .records-icon:disabled { opacity:.4; }
 .records-intro, .records-drawer p { font-size:14px; line-height:1.55; color:#d9e9e8; }
@@ -837,11 +837,11 @@ button.kit-tile:not(:disabled):hover {
 /* the list scrolls inside the drawer: with many records it used to spill out of its box and run under the Refresh button */
 .records-list { flex:1 1 0; min-height:170px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#45636a transparent; padding-right:4px; }
 .records-row { display:flex; align-items:center; gap:12px; padding:15px 8px; border-bottom:1px solid #3f575e; font-size:14px; }
-.records-rank { min-width:32px; color:#ffd188; font-family:"Orbitron","Roboto Mono",monospace; }
+.records-rank { min-width:32px; color:#ffd188; font-family:"Barlow Condensed",monospace; }
 .records-row > strong { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .records-row small { color:#97edc2; margin-left:6px; font-size:10px; }
 .records-row.is-you { border-radius:5px; background:#244c40; }
-.records-time { display:flex; gap:5px; align-items:center; flex-shrink:0; font-family:"Orbitron","Roboto Mono",monospace; color:#fff; }
+.records-time { display:flex; gap:5px; align-items:center; flex-shrink:0; font-family:"Barlow Condensed",monospace; color:#fff; }
 .records-drawer footer { display:flex; flex-wrap:wrap; gap:10px; flex-shrink:0; }
 .records-drawer footer .hm-btn { min-height:44px; display:flex; align-items:center; gap:8px; }
 .records-drawer footer small { width:100%; line-height:1.6; color:#bdd0d2; }
@@ -850,10 +850,10 @@ button.kit-tile:not(:disabled):hover {
 .vending-backdrop { position:absolute; inset:0; z-index:60; display:flex; padding:20px; overflow:auto; background:#020608d9; backdrop-filter:blur(5px); }
 .vending-machine { position:relative; margin:auto; width:min(1050px,100%); flex-shrink:0; padding:24px; border:2px solid #a9763f; border-top:4px solid #ffbd61; border-radius:14px; color:#fff6e5; background:radial-gradient(ellipse at 50% 0,#354154,#17232b 48%,#0f181f); box-shadow:0 20px 90px #0009,inset 0 1px #fff2; }
 .vending-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }
-.vending-header h2 { display:flex; align-items:center; gap:10px; margin:5px 0 10px; font-family:"Bebas Neue","Anton",sans-serif; font-size:clamp(25px,3.5vw,38px); line-height:1.15; text-transform:uppercase; color:#ffd092; }
+.vending-header h2 { display:flex; align-items:center; gap:10px; margin:5px 0 10px; font-family:"Anton",sans-serif; font-size:clamp(25px,3.5vw,38px); line-height:1.15; text-transform:uppercase; color:#ffd092; }
 .vending-header p { color:#d5e6e6; font-size:14px; }
 .vending-wallet { display:flex; gap:10px; align-items:center; color:#ffca76; flex-shrink:0; }
-.vending-wallet strong { font-family:"Orbitron","Roboto Mono",monospace; font-size:22px; }
+.vending-wallet strong { font-family:"Barlow Condensed",monospace; font-size:22px; }
 .vending-reel-frame { position:relative; overflow:hidden; margin-top:14px; padding:12px 0; border:1px solid #677680; border-radius:9px; background:#061016; box-shadow:inset 0 0 40px #000; }
 .vending-reel-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,#061016cf,transparent 9%,transparent 91%,#061016cf); }
 .vending-reel { display:flex; gap:10px; width:max-content; will-change:transform; }
@@ -862,7 +862,7 @@ button.kit-tile:not(:disabled):hover {
 .vending-tile-art { height:88px; width:100%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#040a1070; }
 .vending-tile-art .vending-gun { width:100%; height:100%; object-fit:cover; }
 .vending-tile > span { padding:7px 9px 0; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--prize-color); }
-.vending-tile > strong { padding:4px 9px 8px; font-family:"Teko","Barlow Condensed",sans-serif; font-size:17px; font-weight:700; line-height:1.15; }
+.vending-tile > strong { padding:4px 9px 8px; font-family:"Barlow Condensed",sans-serif; font-size:17px; font-weight:700; line-height:1.15; }
 .vending-tile > small { display:flex; gap:4px; align-items:center; padding:0 9px 7px; font-size:9px; color:#ffe0a2; }
 .vending-tile.is-winner { background:linear-gradient(#53504a,#243b3b); border:2px solid var(--prize-color); border-bottom-width:4px; box-shadow:0 0 20px color-mix(in srgb,var(--prize-color) 35%,transparent); }
 .vending-marker { position:absolute; z-index:2; top:0; bottom:0; left:50%; width:2px; background:#ffe2a280; pointer-events:none; }
@@ -873,14 +873,14 @@ button.kit-tile:not(:disabled):hover {
 .vending-treat-detail { padding:14px; border:1px solid; border-radius:6px; background:#101d25; }
 .vending-detail-art { height:104px; margin:-14px -14px 14px; overflow:hidden; border-radius:5px 5px 0 0; }
 .vending-detail-art img { object-fit:contain; background:#070f16; }
-.vending-treat-detail h3 { font-family:"Bebas Neue","Anton",sans-serif; font-size:23px; text-transform:uppercase; line-height:1.2; margin:8px 0; }
+.vending-treat-detail h3 { font-family:"Anton",sans-serif; font-size:23px; text-transform:uppercase; line-height:1.2; margin:8px 0; }
 .vending-quote { margin:8px 0; font-size:13px; font-style:italic; color:#dbe2d7; }
 .vending-effect { display:flex; flex-direction:column; gap:6px; padding:12px; margin:12px 0; border-radius:5px; background:#294036; color:#cbffb3; }
 .vending-effect small { font-size:10px; letter-spacing:.14em; }
 .vending-effect strong { font-size:16px; }
 .vending-owned { margin-top:12px; font-size:12px; color:#d1e0db; }
 .vending-claim { display:flex; flex-direction:column; justify-content:flex-start; align-items:stretch; gap:12px; padding-top:22px; }
-.vending-claim h3, .vending-catalogue h3 { font-family:"Bebas Neue","Anton",sans-serif; font-size:26px; text-transform:uppercase; color:#ffcc83; }
+.vending-claim h3, .vending-catalogue h3 { font-family:"Anton",sans-serif; font-size:26px; text-transform:uppercase; color:#ffcc83; }
 .vending-claim p, .vending-catalogue p { font-size:14px; color:#e1e8e4; line-height:1.5; }
 .vending-collected { color:#b4fbb8 !important; font-weight:700; }
 /* the buttons stay in reach: when the panel is taller than the window they sit on its bottom edge instead of below the fold */
@@ -956,7 +956,7 @@ button.kit-tile:not(:disabled):hover {
 .walkie:not(.is-talking) .walkie-bubble { background: #dfe9dc; }
 .walkie:not(.is-talking) .walkie-bubble::after { border-right-color: #dfe9dc; }
 .walkie-name { font: 700 12px/1 "Barlow Condensed", system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #a8480c; }
-.walkie-bubble p { margin: 4px 0 0; font: 600 15px/1.25 system-ui, sans-serif; }
+.walkie-bubble p { margin: 4px 0 0; font: 600 15px/1.25 "Barlow Condensed", sans-serif; }
 @keyframes walkie-pop { from { transform: scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
 .walkie-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .walkie-actions button { pointer-events: auto; cursor: pointer; min-height: 30px; padding: 4px 10px; border: 1px solid #6a6f78; border-radius: 6px; background: #12161cdd; color: #f2e6c9; font: 700 12px/1 "Barlow Condensed", system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; touch-action: manipulation; }
@@ -1012,7 +1012,7 @@ button.kit-tile:not(:disabled):hover {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: "Permanent Marker", "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", "Anton", Impact, sans-serif;
   font-weight: 400;
   line-height: 1;
   text-transform: uppercase;
@@ -1115,8 +1115,8 @@ button.kit-tile:not(:disabled):hover {
 .title-stat-ico { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: #fff; border: 1px solid #050506; }
 .title-stat--purple .title-stat-ico { background: linear-gradient(180deg, #c06bff, #7a1fd0); box-shadow: 0 0 10px rgba(170, 80, 255, 0.5); }
 .title-stat--orange .title-stat-ico { background: linear-gradient(180deg, #ffb048, #e2600a); box-shadow: 0 0 10px rgba(255, 122, 24, 0.5); }
-.title-stat-value { font-family: "Bebas Neue", "Anton", Impact, sans-serif; font-size: 19px; line-height: 1; color: #fff3dd; font-variant-numeric: tabular-nums; }
-.title-stat-label { font-family: "Teko", "Barlow Condensed", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #e6a862; }
+.title-stat-value { font-family: "Anton", Impact, sans-serif; font-size: 19px; line-height: 1; color: #fff3dd; font-variant-numeric: tabular-nums; }
+.title-stat-label { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #e6a862; }
 .title-stat-music { display: inline-flex; align-items: center; }
 
 /* the kid carousel */
@@ -1179,16 +1179,16 @@ button.kit-tile:not(:disabled):hover {
   padding: 5px 7px;
   background: rgba(6, 6, 9, 0.92);
   color: var(--nx-text);
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-weight: 700;
   font-size: 15px;
   letter-spacing: 0.05em;
 }
 .title-card.is-picked .title-kid { color: #ffc453; }
 .title-card-detail { display: none; }
-.title-card-role { font-family: "Teko", "Barlow Condensed", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--nx-orange-hi); }
-.title-card-perk { font-family: "Rajdhani", "Barlow", sans-serif; font-size: 12px; line-height: 1.35; color: #e6dcc4; }
-.title-lock { position: absolute; inset-inline: 0; bottom: 0; background: rgba(0, 0, 0, 0.72); color: #ffc453; font-family: "Teko", "Barlow Condensed", sans-serif; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; padding: 2px 0; }
+.title-card-role { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--nx-orange-hi); }
+.title-card-perk { font-family: "Barlow Condensed", sans-serif; font-size: 12px; line-height: 1.35; color: #e6dcc4; }
+.title-lock { position: absolute; inset-inline: 0; bottom: 0; background: rgba(0, 0, 0, 0.72); color: #ffc453; font-family: "Barlow Condensed", sans-serif; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; padding: 2px 0; }
 
 /* menu rows: the left column on a desktop, the key grid on a phone */
 .title-menu {
@@ -1201,7 +1201,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 5px;
   background: var(--nx-plate);
   color: var(--nx-text);
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 0.07em;
@@ -1216,7 +1216,7 @@ button.kit-tile:not(:disabled):hover {
 .title-menu-ico { flex: 0 0 auto; color: var(--nx-orange-hi); }
 .title-menu-text { display: flex; flex-direction: column; min-width: 0; flex: 1; line-height: 1.12; }
 .title-menu-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.title-menu-sub { font-family: "Rajdhani", "Barlow", sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.03em; text-transform: none; color: var(--nx-mute); }
+.title-menu-sub { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.03em; text-transform: none; color: var(--nx-mute); }
 .title-menu-chev { flex: 0 0 auto; color: #8b7f6d; }
 .title-menu--play { border-color: var(--nx-orange); background: linear-gradient(180deg, #341913 0%, #1a0d07 100%); }
 .title-menu--play .title-menu-label { color: #ffd79a; }
@@ -1342,8 +1342,8 @@ button.kit-tile:not(:disabled):hover {
   background: linear-gradient(180deg, rgba(24, 20, 26, 0.85), rgba(9, 8, 11, 0.88));
 }
 .keybind-row.is-armed { border-color: var(--nx-orange); background: linear-gradient(180deg, rgba(58, 26, 8, 0.9), rgba(24, 12, 4, 0.9)); box-shadow: 0 0 18px rgba(255, 122, 24, 0.35); }
-.keybind-name { font-family: "Teko", "Barlow Condensed", sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--nx-text); }
-.keybind-desc { font-family: "Rajdhani", "Barlow", sans-serif; font-size: 12px; line-height: 1.35; color: var(--nx-mute); }
+.keybind-name { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--nx-text); }
+.keybind-desc { font-family: "Barlow Condensed", sans-serif; font-size: 12px; line-height: 1.35; color: var(--nx-mute); }
 .keybind-keys { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .keybind-key {
   display: inline-flex;
@@ -1355,7 +1355,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px;
   background: linear-gradient(180deg, #ffa63c, #e2600a);
   color: #230f02;
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.06em;
@@ -1367,8 +1367,8 @@ button.kit-tile:not(:disabled):hover {
 .keybind-key:active { transform: translateY(1px); }
 .keybind-x { display: grid; place-items: center; width: 28px; height: 34px; border: 1.5px dashed rgba(255, 122, 24, 0.5); border-radius: 3px; background: transparent; color: var(--nx-orange-hi); cursor: pointer; }
 .keybind-x:hover { border-color: var(--nx-orange); color: #fff; }
-.keybind-waiting { font-family: "Rajdhani", "Barlow", sans-serif; font-size: 13px; font-weight: 600; color: #ffd08a; }
-.keybind-note { flex: 1 1 220px; min-width: 0; font-family: "Rajdhani", "Barlow", sans-serif; font-size: 12px; line-height: 1.4; color: var(--nx-mute); }
+.keybind-waiting { font-family: "Barlow Condensed", sans-serif; font-size: 13px; font-weight: 600; color: #ffd08a; }
+.keybind-note { flex: 1 1 220px; min-width: 0; font-family: "Barlow Condensed", sans-serif; font-size: 12px; line-height: 1.4; color: var(--nx-mute); }
 
 /* ══════════════════════════════ SETTINGS ══════════════════════════════ */
 .settings-tabs { display: flex; gap: 6px; margin-top: 16px; padding: 4px; border: 1.5px solid rgba(255, 122, 24, 0.3); border-radius: 6px; background: rgba(8, 7, 10, 0.7); }
@@ -1380,7 +1380,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 4px;
   background: transparent;
   color: var(--nx-mute);
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.1em;
@@ -1391,7 +1391,7 @@ button.kit-tile:not(:disabled):hover {
 .settings-tab[aria-selected="true"] { border-color: var(--nx-orange); background: var(--nx-plate-hot); color: #ffd79a; }
 .settings-row { border-bottom: 1px solid rgba(255, 122, 24, 0.14); padding-bottom: 10px; }
 .settings-row:last-child { border-bottom: 0; padding-bottom: 0; }
-.settings-note { font-family: "Rajdhani", "Barlow", sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--nx-mute); }
+.settings-note { font-family: "Barlow Condensed", sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--nx-mute); }
 .settings-note svg { color: var(--nx-orange-hi); }
 .settings-select { min-height: 40px; padding: 0 10px; border: 1.5px solid var(--nx-line); border-radius: 4px; background: #131019; color: var(--nx-text); }
 .settings-body { max-height: min(62dvh, 560px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
@@ -1403,7 +1403,7 @@ button.kit-tile:not(:disabled):hover {
   border-left: 4px solid var(--nx-orange);
   background: linear-gradient(180deg, rgba(24, 18, 14, 0.94), rgba(8, 7, 10, 0.96));
   color: #ffd79a;
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
@@ -1415,12 +1415,12 @@ button.kit-tile:not(:disabled):hover {
     radial-gradient(120% 60% at 0% 0%, rgba(255, 122, 24, 0.14), transparent 60%),
     linear-gradient(155deg, #171219, #08070a 68%);
 }
-.records-drawer h2 { display: flex; align-items: center; gap: 10px; font-family: "Permanent Marker", "Bebas Neue", "Anton", Impact, sans-serif; font-size: 27px; transform: rotate(-1deg); }
+.records-drawer h2 { display: flex; align-items: center; gap: 10px; font-family: "Anton", "Anton", Impact, sans-serif; font-size: 27px; transform: rotate(-1deg); }
 .records-drawer .paper-kicker { color: var(--nx-orange-hi); }
 .records-icon { border: 1.5px solid var(--nx-line); border-radius: 4px; background: linear-gradient(180deg, #1d1720, #0b0a0d); color: #ffd79a; }
 .records-icon:hover { border-color: var(--nx-orange); color: #fff; }
 .records-tabs { border: 1.5px solid rgba(255, 122, 24, 0.3); border-radius: 6px; background: rgba(8, 7, 10, 0.7); }
-.records-tabs button { color: var(--nx-mute); font-family: "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+.records-tabs button { color: var(--nx-mute); font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
 .records-tabs button[aria-pressed="true"] { background: linear-gradient(180deg, #ffa63c, #e2600a); color: #230f02; }
 .records-you { border: 1.5px solid rgba(255, 122, 24, 0.35); border-radius: 4px; background: linear-gradient(180deg, rgba(38, 22, 10, 0.8), rgba(14, 10, 8, 0.85)); }
 .records-you strong { color: #ffd79a; }
@@ -1465,10 +1465,10 @@ button.kit-tile:not(:disabled):hover {
 .hm-modal--lvl::after { right: -10px; transform: scaleX(-1); }
 
 .lvl-head { position: relative; }
-.lvl-kicker { color: var(--nx-orange-hi); font: 700 12.5px "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+.lvl-kicker { color: var(--nx-orange-hi); font: 700 12.5px "Barlow Condensed", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
 .lvl-title {
   margin: 2px 0 0;
-  font: 400 clamp(44px, 6.6vw, 88px)/0.88 "Bebas Neue", "Anton", Impact, sans-serif;
+  font: 400 clamp(44px, 6.6vw, 88px)/0.88 "Anton", Impact, sans-serif;
   letter-spacing: 0.005em;
   text-transform: uppercase;
   color: #fff4e4;
@@ -1536,7 +1536,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 2px;
   background: #f2e3c6;
   color: #14100c;
-  font: 800 14px/1 "Teko", "Barlow Condensed", sans-serif;
+  font: 800 14px/1 "Barlow Condensed", sans-serif;
   transform: rotate(-4deg);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
 }
@@ -1549,7 +1549,7 @@ button.kit-tile:not(:disabled):hover {
   background: rgba(6, 8, 10, 0.9);
   color: #fff;
   transform: none;
-  font: 700 11px "Teko", "Barlow Condensed", sans-serif;
+  font: 700 11px "Barlow Condensed", sans-serif;
   letter-spacing: 0.16em;
   box-shadow: 0 0 14px -3px var(--acc), inset 0 0 14px -8px var(--acc);
 }
@@ -1557,20 +1557,20 @@ button.kit-tile:not(:disabled):hover {
 .lvl-card .hm-pick-name { font-size: 25px; letter-spacing: 0.005em; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55); }
 .lvl-card .hm-pick-quote { margin-top: 7px; color: var(--nx-cream); font-size: 12.5px; }
 .lvl-effect { display: flex; flex-direction: column; gap: 4px; margin-top: 13px; }
-.lvl-card .hm-pick-desc { color: #fbf6ec; font: 700 15px/1.35 "Rajdhani", "Barlow", sans-serif; }
+.lvl-card .hm-pick-desc { color: #fbf6ec; font: 700 15px/1.35 "Barlow Condensed", sans-serif; }
 .lvl-tags { margin-top: 12px; }
 .lvl-card .paper-chip {
   padding: 3px 8px;
   border: 1.5px solid currentColor;
   border-radius: 3px;
   background: rgba(8, 7, 10, 0.72);
-  font: 700 11px "Teko", "Barlow Condensed", sans-serif;
+  font: 700 11px "Barlow Condensed", sans-serif;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   box-shadow: 0 0 14px -6px currentColor;
 }
 .lvl-owned { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(242, 232, 212, 0.14); }
-.lvl-owned-k { color: var(--nx-mute); font: 700 10.5px "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+.lvl-owned-k { color: var(--nx-mute); font: 700 10.5px "Barlow Condensed", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
 
 .lvl-bar {
   display: flex;
@@ -1582,7 +1582,7 @@ button.kit-tile:not(:disabled):hover {
   padding-top: 14px;
   border-top: 1px solid rgba(255, 122, 24, 0.3);
 }
-.lvl-bar-hint { display: flex; align-items: center; gap: 8px; color: var(--nx-text); font: 600 14px "Rajdhani", "Barlow", sans-serif; }
+.lvl-bar-hint { display: flex; align-items: center; gap: 8px; color: var(--nx-text); font: 600 14px "Barlow Condensed", sans-serif; }
 .lvl-key {
   min-width: 26px;
   height: 26px;
@@ -1591,7 +1591,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 2px;
   background: #f2e3c6;
   color: #14100c;
-  font: 800 14px/1 "Teko", "Barlow Condensed", sans-serif;
+  font: 800 14px/1 "Barlow Condensed", sans-serif;
 }
 .lvl-reroll {
   min-height: 46px;
@@ -1600,7 +1600,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px;
   background: linear-gradient(180deg, #ff9a2f, #e2600a);
   color: #1a0f05;
-  font: 800 17px "Teko", "Barlow Condensed", sans-serif;
+  font: 800 17px "Barlow Condensed", sans-serif;
   letter-spacing: 0.1em;
   box-shadow: 0 0 24px -8px rgba(255, 122, 24, 0.95), 0 3px 0 rgba(0, 0, 0, 0.5);
 }
@@ -1624,76 +1624,29 @@ button.kit-tile:not(:disabled):hover {
    WEAPON INSPECT / COMPARE — art/concept/gun-inspect.webp
    Rarity-lit cards side by side, glyph stat table, key-plate footer
    ============================================================ */
-.wx-panel {
-  position: relative;
-  padding: 20px 22px 16px;
-  color: var(--nx-text);
-  background:
-    radial-gradient(120% 78% at 50% -10%, rgba(255, 122, 24, 0.15), transparent 62%),
-    linear-gradient(180deg, #141118, #09080b 72%);
-  border: 2px solid var(--nx-orange);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(255, 122, 24, 0.28), 0 0 46px -12px rgba(255, 122, 24, 0.5), 0 26px 80px rgba(0, 0, 0, 0.7);
-}
-.wx-panel::before,
-.wx-panel::after {
-  content: "";
-  position: absolute;
-  top: -10px;
-  width: 118px;
-  height: 96px;
-  pointer-events: none;
-  background: var(--nx-web) center / contain no-repeat;
-  opacity: 0.45;
-}
-.wx-panel::before { left: -10px; }
-.wx-panel::after { right: -10px; transform: scaleX(-1); }
+/* the frame, fill and backdrop are the shared painted modal (hm-modal + PaintedFrame); this only clears its edge */
+.hm-modal.wx-panel { padding: 32px 40px 28px; color: var(--nx-text); }
 
 .wx-head-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-.wx-title {
-  margin: 2px 0 0;
-  font: 400 clamp(30px, 4.6vw, 58px)/0.9 "Bebas Neue", "Anton", Impact, sans-serif;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
-  color: #fff4e4;
-  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 26px rgba(255, 122, 24, 0.3);
-}
-.wx-title em {
-  font-style: normal;
-  background: linear-gradient(180deg, #ffbd63 8%, #ff6a08 72%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 3px 0 rgba(104, 24, 0, 0.65));
-}
-.wx-title::after {
-  content: "";
-  display: block;
-  width: min(280px, 54%);
-  height: 4px;
-  margin-top: 5px;
-  background: linear-gradient(90deg, rgba(255, 122, 24, 0.95), rgba(255, 122, 24, 0.3) 72%, transparent);
-  clip-path: polygon(0 42%, 74% 0, 100% 52%, 22% 100%);
-}
 .wx-rarity {
   padding: 5px 12px 4px;
   border: 1.5px solid var(--acc, var(--nx-orange));
   border-radius: 3px;
   background: rgba(6, 8, 10, 0.86);
   color: #fff;
-  font: 700 12px "Teko", "Barlow Condensed", sans-serif;
+  font: 700 12px "Barlow Condensed", sans-serif;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   box-shadow: 0 0 18px -5px var(--acc, var(--nx-orange)), inset 0 0 16px -9px var(--acc, var(--nx-orange));
 }
 .wx-tagrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
-.wx-taglabel { color: var(--nx-mute); font: 700 11px "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+.wx-taglabel { color: var(--nx-mute); font: 700 11px "Barlow Condensed", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
 .wx-tagrow .paper-chip {
   padding: 2px 8px;
   border: 1.5px solid currentColor;
   border-radius: 3px;
   background: rgba(8, 7, 10, 0.7);
-  font: 700 11px "Teko", "Barlow Condensed", sans-serif;
+  font: 700 11px "Barlow Condensed", sans-serif;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   box-shadow: 0 0 14px -7px currentColor;
@@ -1708,7 +1661,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px 3px 0 0;
   background: linear-gradient(180deg, rgba(255, 154, 47, 0.18), rgba(10, 9, 12, 0.92));
   color: var(--nx-orange-hi);
-  font: 700 11.5px "Teko", "Barlow Condensed", sans-serif;
+  font: 700 11.5px "Barlow Condensed", sans-serif;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -1743,9 +1696,9 @@ button.kit-tile:not(:disabled):hover {
   border-bottom: 1px solid rgba(242, 232, 212, 0.09);
 }
 .wx-stat:last-child { border-bottom: 0; }
-.wx-stat-k { display: flex; align-items: center; gap: 7px; color: #e6dcc4; font: 600 13px "Rajdhani", "Barlow", sans-serif; }
+.wx-stat-k { display: flex; align-items: center; gap: 7px; color: #e6dcc4; font: 600 13px "Barlow Condensed", sans-serif; }
 .wx-stat-k svg { color: var(--nx-mute); }
-.wx-stat-v { color: #fff; font: 700 13px "Rajdhani", "Barlow", sans-serif; font-variant-numeric: tabular-nums; }
+.wx-stat-v { color: #fff; font: 700 13px "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
 
 .wx-foot {
   position: sticky;
@@ -1755,29 +1708,26 @@ button.kit-tile:not(:disabled):hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin: 16px -22px -16px;
-  padding: 12px 22px 10px;
+  /* inside the painted frame, like the treat bowl's footer: edge to edge it covered the frame's bottom and sides */
+  margin: 16px 0 0;
+  padding: 12px 0 4px;
   border-top: 1px solid rgba(255, 122, 24, 0.3);
-  background: linear-gradient(180deg, rgba(9, 8, 11, 0.94), #09080b);
+  background: #08090b;
 }
 .wx-act { min-height: 48px; }
 .wx-act--leave { border-color: rgba(255, 233, 198, 0.5) !important; }
 .wx-note { color: var(--nx-mute); }
 
 @media (max-width: 639px) {
-  .wx-panel { padding: 16px 14px 12px; }
-  .wx-panel::before,
-  .wx-panel::after { width: 76px; height: 62px; }
-  .wx-title { font-size: clamp(26px, 8.6vw, 40px); }
-  .wx-title::after { width: 52%; }
+  .hm-modal.wx-panel { padding: 22px 18px 14px; }
   .wx-rarity { padding: 4px 9px 3px; font-size: 11px; }
-  .wx-foot { margin: 14px -14px -12px; padding: 10px 14px 8px; }
+  .wx-foot { margin: 14px 0 0; padding: 10px 0 4px; }
   .wx-act { min-height: 44px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    KIT RE-SKIN — every surface that still wore the old dark-paper look now uses
-   the Halloween kit: orange-lit frames, brush titles, Teko labels, Orbitron numbers.
+   the Halloween kit: orange-lit frames, illustrated titles and two live text faces.
    These rules come last, so they win over the legacy .paper-* / .talent-* / .end-*
    / .vending-* / .records-* / .unlock-* declarations without touching their markup.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -1799,33 +1749,33 @@ button.kit-tile:not(:disabled):hover {
 .paper-card { padding: 12px 14px; }
 .paper-title {
   color: #fff4e4;
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   letter-spacing: 0.02em;
   text-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
 }
 .paper-kicker {
   color: var(--nx-orange-hi);
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 0.22em;
 }
 .paper-rule { background: linear-gradient(90deg, var(--nx-orange), rgba(255, 122, 24, 0.15)); }
 .paper-divider { border-top-color: rgba(255, 122, 24, 0.24); }
-.paper-section > h3 { border-bottom-color: rgba(255, 122, 24, 0.3); color: var(--nx-orange-hi); font-family: "Teko", "Barlow Condensed", sans-serif; letter-spacing: 0.18em; font-size: 15px; }
+.paper-section > h3 { border-bottom-color: rgba(255, 122, 24, 0.3); color: var(--nx-orange-hi); font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.18em; font-size: 15px; }
 .paper-chip {
   border: 1.5px solid currentColor;
   border-radius: 3px;
   background: rgba(8, 7, 10, 0.72);
   box-shadow: 0 0 14px -7px currentColor;
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-size: 13px;
   letter-spacing: 0.1em;
 }
 .paper-card .label,
 .label {
   color: var(--nx-mute);
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -1834,7 +1784,7 @@ button.kit-tile:not(:disabled):hover {
 /* the app's own outlined display titles ("SETTINGS", "YOU DIED") */
 .kit-word,
 .kit-outline {
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   letter-spacing: 0.03em;
 }
 
@@ -1845,7 +1795,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px;
   background: linear-gradient(180deg, #ff9a2f, #e2600a);
   color: #1a0f05;
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   font-weight: 400;
   font-size: 17px;
   letter-spacing: 0.12em;
@@ -1865,18 +1815,18 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px;
   background: linear-gradient(180deg, #fff3dd, #e6c795);
   color: #20160c;
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   letter-spacing: 0.08em;
 }
 
 /* ── the run summary and the talent screen ── */
 .end-panel { border: 1px solid rgba(255, 122, 24, 0.32); border-top: 4px solid var(--nx-orange); border-radius: 4px; background: linear-gradient(180deg, rgba(18, 15, 21, 0.97), rgba(8, 7, 10, 0.97)); }
 .end-stat { border: 1px solid rgba(255, 122, 24, 0.24); border-left: 4px solid var(--nx-orange); border-radius: 3px; background: rgba(12, 10, 14, 0.9); }
-.end-stat b { font-family: "Orbitron", "Roboto Mono", monospace; font-size: 24px; color: #fff3dd; }
-.end-rows > div { border-bottom-color: rgba(255, 122, 24, 0.18); font-family: "Rajdhani", "Barlow", sans-serif; font-weight: 600; }
-.end-rows dd { color: #ffd79a; font-family: "Orbitron", "Roboto Mono", monospace; }
+.end-stat b { font-family: "Barlow Condensed", monospace; font-size: 24px; color: #fff3dd; }
+.end-rows > div { border-bottom-color: rgba(255, 122, 24, 0.18); font-family: "Barlow Condensed", sans-serif; font-weight: 600; }
+.end-rows dd { color: #ffd79a; font-family: "Barlow Condensed", monospace; }
 .end-total { border: 1px solid rgba(255, 122, 24, 0.45); border-radius: 3px; background: linear-gradient(180deg, rgba(38, 22, 10, 0.85), rgba(14, 10, 8, 0.9)); }
-.end-total b { color: #ffb457; font-family: "Orbitron", "Roboto Mono", monospace; }
+.end-total b { color: #ffb457; font-family: "Barlow Condensed", monospace; }
 .end-panel .hm-btn.end-next { min-height: 54px; font-size: 20px; }
 
 .talent-screen { background: #08070a; }
@@ -1892,7 +1842,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px;
   background: linear-gradient(180deg, rgba(38, 22, 10, 0.8), rgba(14, 10, 8, 0.88));
 }
-.talent-wallet b { color: #ffb457; font-family: "Orbitron", "Roboto Mono", monospace; }
+.talent-wallet b { color: #ffb457; font-family: "Barlow Condensed", monospace; }
 .talent-wallet .label { color: #e6a862; }
 .talent-focus-art { border-radius: 4px; background: radial-gradient(circle, #241a38, #0a070d); box-shadow: 0 0 24px -8px currentColor; }
 .talent-rank { border: 1px solid rgba(255, 122, 24, 0.3); border-radius: 2px; }
@@ -1907,22 +1857,22 @@ button.kit-tile:not(:disabled):hover {
   box-shadow: 0 0 0 1px rgba(255, 122, 24, 0.28), 0 26px 80px rgba(0, 0, 0, 0.7);
 }
 .vending-header h2, .vending-claim h3, .vending-catalogue h3, .vending-treat-detail h3 {
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   color: #fff4e4;
   letter-spacing: 0.03em;
 }
-.vending-wallet strong { font-family: "Orbitron", "Roboto Mono", monospace; color: #ffb457; }
+.vending-wallet strong { font-family: "Barlow Condensed", monospace; color: #ffb457; }
 .vending-reel-frame { border: 1px solid rgba(255, 122, 24, 0.35); border-radius: 4px; background: #0a0910; }
 .vending-tile { border: 1px solid rgba(255, 122, 24, 0.3); border-bottom: 3px solid var(--prize-color); border-radius: 4px; background: linear-gradient(180deg, #1b1720, #0b0a0e); }
 .vending-tile:not(:disabled):hover, .vending-tile:focus-visible { background: linear-gradient(180deg, #241d28, #100e14); outline-color: var(--nx-orange); }
-.vending-tile > span { font-family: "Teko", "Barlow Condensed", sans-serif; font-size: 12px; letter-spacing: 0.14em; }
-.vending-tile > strong { font-family: "Bebas Neue", "Barlow Condensed", sans-serif; font-weight: 400; font-size: 18px; letter-spacing: 0.04em; }
-.vending-tile > small { font-family: "Rajdhani", "Barlow", sans-serif; font-size: 11px; }
+.vending-tile > span { font-family: "Barlow Condensed", sans-serif; font-size: 12px; letter-spacing: 0.14em; }
+.vending-tile > strong { font-family: "Anton", "Barlow Condensed", sans-serif; font-weight: 400; font-size: 18px; letter-spacing: 0.04em; }
+.vending-tile > small { font-family: "Barlow Condensed", sans-serif; font-size: 11px; }
 .vending-controls { border-top: 1px solid rgba(255, 122, 24, 0.3); background: linear-gradient(#0b0910f2, #09080bf2); }
 .vending-effect { border-radius: 3px; background: rgba(24, 40, 32, 0.75); }
 .vending-peek { border: 2px solid var(--nx-orange); border-radius: 4px; background: rgba(11, 9, 14, 0.97); }
 
-.unlock-hero h1 { font-family: "Bebas Neue", "Anton", Impact, sans-serif; font-weight: 400; letter-spacing: 0.02em; color: #fff4e4; }
+.unlock-hero h1 { font-family: "Anton", Impact, sans-serif; font-weight: 400; letter-spacing: 0.02em; color: #fff4e4; }
 .unlock-panel, .unlock-card { border-color: rgba(255, 122, 24, 0.32); border-radius: 4px; background: linear-gradient(180deg, rgba(22, 19, 26, 0.96), rgba(10, 9, 12, 0.97)); }
 
 /* ── night records ── */
@@ -1933,15 +1883,15 @@ button.kit-tile:not(:disabled):hover {
     radial-gradient(120% 50% at 100% 0%, rgba(255, 122, 24, 0.12), transparent 60%),
     linear-gradient(180deg, #141118, #09080b 70%);
 }
-.records-drawer h2 { font-family: "Bebas Neue", "Anton", Impact, sans-serif; font-weight: 400; color: #fff4e4; }
-.records-rank { color: var(--nx-orange-hi); font-family: "Orbitron", "Roboto Mono", monospace; }
-.records-time { font-family: "Orbitron", "Roboto Mono", monospace; }
+.records-drawer h2 { font-family: "Anton", Impact, sans-serif; font-weight: 400; color: #fff4e4; }
+.records-rank { color: var(--nx-orange-hi); font-family: "Barlow Condensed", monospace; }
+.records-time { font-family: "Barlow Condensed", monospace; }
 .records-trigger { border: 1.5px solid rgba(255, 122, 24, 0.5); border-radius: 3px; background: rgba(10, 9, 12, 0.85); color: var(--nx-cream); }
 
 /* ── dialogs and the how-to sheet ── */
 .hm-modal { border-radius: 4px; }
 .modal-close { border-radius: 3px; }
-.hm-modal-title, .kit-modal-title { font-family: "Bebas Neue", "Anton", Impact, sans-serif; font-weight: 400; }
+.hm-modal-title, .kit-modal-title { font-family: "Anton", Impact, sans-serif; font-weight: 400; }
 
 /* ── fluid type: every screen scales with the viewport instead of sitting at one size ── */
 @media (max-width: 639px) {
@@ -2015,7 +1965,7 @@ button.kit-tile:not(:disabled):hover {
 }
 .hm-meter span { height: 7px; border: 1px solid rgba(255, 122, 24, 0.35); border-radius: 2px; background: linear-gradient(180deg, #221c1b, #120f14); overflow: hidden; }
 .hm-meter i { border-radius: 1px; box-shadow: 0 0 10px -2px currentColor; }
-.hm-meter b { font-family: "Orbitron", "Roboto Mono", monospace; font-size: 11px; color: #fff3dd; }
+.hm-meter b { font-family: "Barlow Condensed", monospace; font-size: 11px; color: #fff3dd; }
 
 .hm-goal {
   height: 32px;
@@ -2029,12 +1979,12 @@ button.kit-tile:not(:disabled):hover {
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
 }
 .hm-goal > svg, .hm-goal > span:first-child { color: #ffbf5e; }
-.hm-goal-v { font-family: "Orbitron", "Roboto Mono", monospace; font-size: 11.5px; color: #ffd79a; }
+.hm-goal-v { font-family: "Barlow Condensed", monospace; font-size: 11.5px; color: #ffd79a; }
 .hm-goal.done { border-color: rgba(125, 194, 66, 0.5); color: #a9d98a; background: linear-gradient(180deg, rgba(22, 30, 18, 0.9), rgba(10, 12, 9, 0.88)); }
 .hm-goal.done .hm-goal-v { color: #a9d98a; }
 
 .hm-clock { background: linear-gradient(180deg, rgba(14, 11, 16, 0.95), rgba(8, 7, 10, 0.88)); border-bottom: 2px solid #d33a2c; padding: 0 22px; }
-.hm-time { font-family: "Orbitron", "Roboto Mono", monospace; font-weight: 600; font-size: 28px; color: #fff; text-shadow: 0 0 18px rgba(255, 122, 24, 0.5); }
+.hm-time { font-family: "Barlow Condensed", monospace; font-weight: 600; font-size: 28px; color: #fff; text-shadow: 0 0 18px rgba(255, 122, 24, 0.5); }
 .hm-time-sub { color: #ff9a2f; font-size: 11px; letter-spacing: 0.2em; }
 
 .hm-chips { gap: 6px; }
@@ -2049,7 +1999,7 @@ button.kit-tile:not(:disabled):hover {
 }
 .hm-chip:first-child { border-left: 1.5px solid rgba(255, 122, 24, 0.4); }
 .hm-chip svg { color: #ffbf5e; }
-.hm-chip b { font-family: "Orbitron", "Roboto Mono", monospace; font-size: 15px; color: #fff3dd; }
+.hm-chip b { font-family: "Barlow Condensed", monospace; font-size: 15px; color: #fff3dd; }
 .hm-chip.money svg { color: #ffca76; }
 .hm-chip.money b { color: #ffca76; }
 .hm-chip.hot { border-color: rgba(224, 47, 47, 0.55); }
@@ -2083,7 +2033,7 @@ button.kit-tile:not(:disabled):hover {
 .hm-rail-row:hover { background: rgba(255, 122, 24, 0.16); }
 .hm-rail-art { width: 48px; height: 34px; border: 1.5px solid rgba(255, 122, 24, 0.35); border-radius: 2px; background: #0a0910; }
 .hm-rail-tag { font-size: 12px; letter-spacing: 0.12em; }
-.hm-rail-n { font-family: "Orbitron", "Roboto Mono", monospace; font-size: 11px; color: #ffbf5e; }
+.hm-rail-n { font-family: "Barlow Condensed", monospace; font-size: 11px; color: #ffbf5e; }
 .hm-rail-more { color: #fff3dd; font-size: 16px; }
 .hm-rail-empty { color: #8d8577; font-size: 11px; letter-spacing: 0.12em; }
 
@@ -2100,10 +2050,10 @@ button.kit-tile:not(:disabled):hover {
   box-shadow: inset 0 0 26px -12px rgba(255, 122, 24, 0.9);
 }
 .hm-tab.active::before { height: 3px; background: linear-gradient(90deg, #ff9a2f, #ffcf70); box-shadow: 0 0 12px rgba(255, 122, 24, 0.9); }
-.hm-tab-name { font-family: "Bebas Neue", "Teko", sans-serif; font-size: 16px; letter-spacing: 0.06em; }
-.hm-tab-sub { font-family: "Orbitron", "Roboto Mono", monospace; font-size: 11px; color: #ffbf5e; }
+.hm-tab-name { font-family: "Anton", "Barlow Condensed", sans-serif; font-size: 16px; letter-spacing: 0.06em; }
+.hm-tab-sub { font-family: "Barlow Condensed", monospace; font-size: 11px; color: #ffbf5e; }
 .hm-tab .hm-key { border-radius: 2px !important; }
-.hm-tab .hm-tab-ammo { font-family: "Orbitron", "Roboto Mono", monospace; }
+.hm-tab .hm-tab-ammo { font-family: "Barlow Condensed", monospace; }
 
 /* pop-up plates over the street */
 .hm-slip { border: 1px solid rgba(255, 122, 24, 0.35); border-left: 4px solid #f28220; border-radius: 3px; background: linear-gradient(180deg, rgba(20, 17, 23, 0.96), rgba(9, 8, 11, 0.94)); }
@@ -2151,7 +2101,6 @@ button.kit-tile:not(:disabled):hover {
   /* dialogs: full-width actions, tighter frames */
   .hm-modal, .hm-modal--lvl, .wx-panel { padding-left: 12px; padding-right: 12px; }
   .lvl-title { font-size: clamp(30px, 11vw, 44px); }
-  .wx-title { font-size: clamp(24px, 8.4vw, 34px); }
   .wx-foot .wx-act { flex: 1 1 100%; }
   .wx-rarity { font-size: 10.5px; }
   .lvl-bar-hint { font-size: 13px; }
@@ -2237,7 +2186,7 @@ button.kit-tile:not(:disabled):hover {
   border-radius: 3px;
   background: linear-gradient(180deg, rgba(20, 17, 23, 0.94), rgba(9, 8, 11, 0.92));
   color: var(--nx-text);
-  font-family: "Teko", "Barlow Condensed", sans-serif;
+  font-family: "Barlow Condensed", sans-serif;
   font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2352,7 +2301,7 @@ button.kit-tile:not(:disabled):hover {
 .records-trigger {
   border-width: 2px;
   border-radius: var(--nx-r-sm);
-  font-family: "Bebas Neue", "Anton", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   letter-spacing: 0.09em;
   box-shadow: inset 0 1px 0 rgba(255, 235, 200, 0.35), 0 0 0 2px rgba(2, 2, 4, 0.75), 0 4px 0 rgba(0, 0, 0, 0.5);
 }
@@ -2424,10 +2373,10 @@ button.kit-tile:not(:disabled):hover {
   border-radius: var(--nx-r-sm);
   background: linear-gradient(180deg, rgba(38, 28, 18, 0.75), rgba(10, 9, 12, 0.9));
   color: var(--nx-orange-hi);
-  font-family: "Orbitron", "Roboto Mono", monospace;
+  font-family: "Barlow Condensed", monospace;
   font-size: 12px;
 }
-.hm-menu-label { font-family: "Bebas Neue", "Anton", Impact, sans-serif; font-weight: 400; letter-spacing: 0.05em; }
+.hm-menu-label { font-family: "Anton", Impact, sans-serif; font-weight: 400; letter-spacing: 0.05em; }
 
 /* ── reward cards and the compare cards ─────────────────────────────────── */
 .lvl-card, .wx-card {
@@ -2461,7 +2410,7 @@ button.kit-tile:not(:disabled):hover {
   transform: translateX(-50%) rotate(-2deg);
   pointer-events: none;
   display: none;
-  font-family: "Anton", "Bebas Neue", Impact, sans-serif;
+  font-family: "Anton", Impact, sans-serif;
   font-size: clamp(22px, 3.4vw, 46px);
   letter-spacing: 0.04em;
   text-transform: uppercase;

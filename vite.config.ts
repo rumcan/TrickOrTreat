@@ -16,8 +16,9 @@ export default defineConfig({
     host: true,
     // Cloud previews (and anything tunnelling to a subdomain) are refused by Vite's default host check.
     allowedHosts: ['.e2b.app', '.arena.ai', 'localhost'],
-    // Offline generation inputs/outputs are not part of the running game.
-    watch: { ignored: [path.resolve(__dirname, 'art').replace(/\\/g, '/') + '/**'] },
+    // Offline generation inputs/outputs and the nested session worktrees are not part of the running game; watching
+    // them (tens of thousands of files) blocks the dev server before it answers its first request.
+    watch: { ignored: ['art', 'output', 'dist', 'release-notes', '.codex-session', '.arcade-worktree', '.built-worktree'].map(d => path.resolve(__dirname, d).replace(/\\/g, '/') + '/**') },
   },
   build: {
     target: 'esnext',

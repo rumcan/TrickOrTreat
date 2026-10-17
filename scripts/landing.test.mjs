@@ -49,7 +49,7 @@ try {
     await page.waitForFunction(() => window.__tot.game.state === 'play');
     await page.evaluate(() => window.__tot.game.endRun(false));
     // the night ends at the talent constellations; the way back to the title is there
-    await page.getByRole('button', { name: 'Spend essence on talents' }).click();
+    await page.getByRole('button', { name: 'Spend talent points' }).click();
     await page.getByRole('button', { name: 'Main menu' }).click();
     await go.waitFor();
     assert.equal(await page.getByRole('button', { name: new RegExp(`^Select ${name}`) }).getAttribute('aria-pressed'), 'true');

@@ -1,0 +1,322 @@
+/* Maple Falls: ink, firelight, hand printed labels and neon loot borders. */
+:root {
+  --night-ink: #080b10;
+  --night-paper: #0c0e13;
+  --night-cream: #fff0d5;
+  --night-muted: #b7afa5;
+  --night-orange: #ff850b;
+  --night-ember: #ff4c00;
+  --night-line: #75604a;
+  --night-grain: url('/images/redesign/ink-grain.svg');
+  --night-web: url('/images/redesign/corner-web.svg');
+  --night-leaves: url('/images/redesign/autumn-leaves.svg');
+  --night-surface: var(--night-grain) center / 240px 240px, #080b10;
+  --night-frame-shadow: 0 0 2px #ffe2a7, 0 0 9px #ff650b79, inset 0 0 3px #f9731940, 0 18px 60px #000a;
+  --pp-paper: #090c11;
+  --pp-paper-hi: #121319;
+  --pp-paper-lo: #080a0f;
+  --pp-card: #101116;
+  --pp-card-hover: #1a1514;
+  --pp-tip: #0b0d13;
+  --pp-frame: #75503a;
+  --pp-bar: #07090c;
+  --pp-text: #fff0d5;
+  --pp-text-2: #c1b5a7;
+  --pp-mute: #a69c8f;
+  --pp-line: #c2b49c29;
+  --pp-hairline: #e0b88717;
+  --pp-orange: #ff850b;
+  --pp-orange-hi: #ffae29;
+  --pp-orange-lo: #bf4307;
+  --pp-kicker: #ff8a16;
+  --pp-paper-bg: var(--night-surface);
+  --pp-shadow-panel: var(--night-frame-shadow);
+  --pp-shadow-card: 0 2px 9px #0009;
+}
+
+.game-shell { color: var(--night-cream); }
+.kit-title { letter-spacing: .025em; }
+.font-num { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700; }
+.paper-kicker, .hm-kicker { color: #ff8a16; }
+.paper-title, .hm-modal-title { color: #fff0d5; }
+.paper-rule, .hm-rule { width: 82px; height: 3px; background: #ff850b; transform: rotate(-3deg); transform-origin: left; box-shadow: 12px 4px 0 -1px #e7640d; }
+
+/* Surface rules deliberately override the old running-game paper skin. */
+.game-shell .kit-panel,
+.game-shell .kit-panel-gold,
+.game-shell .kit-paper,
+.game-shell .paper-panel,
+.game-shell .hm-modal {
+  position: relative;
+  color: var(--night-cream);
+  border: 1px solid #ed7a25;
+  border-radius: 5px;
+  background: var(--night-surface);
+  box-shadow: var(--night-frame-shadow);
+}
+.game-shell .kit-panel { border-color: #96603c; box-shadow: 0 0 1px #ffe1a9, 0 0 9px #d44e0630, inset 0 0 15px #0007, 0 6px 18px #0009; }
+.game-shell .kit-panel-gold { border-color: #ffa126; }
+.game-shell .paper-panel--rule { border-top-width: 1px; }
+.game-shell .paper-panel--side { border-left: 2px solid #ff850b; }
+.game-shell .paper-card { border: 1px solid #71614f7d; border-radius: 4px; background: var(--night-surface); box-shadow: inset 0 0 22px #0006, 0 2px 7px #0005; }
+.game-shell .paper-chip { border-width: 1.5px; background: #030609a8; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+.game-shell .hm-modal, .game-shell .paper-panel { isolation: isolate; }
+.game-shell .hm-modal::before,
+.game-shell .paper-panel:not(.paper-panel--side)::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--night-web) left top / 138px 138px no-repeat, radial-gradient(ellipse at 95% 0, #68220d29, transparent 35%), radial-gradient(ellipse at 3% 100%, #70210722, transparent 40%);
+  pointer-events: none;
+}
+.game-shell .hm-modal::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: -16px -16px -12px;
+  border-radius: inherit;
+  background: var(--night-leaves) right top / 100px 90px no-repeat;
+  pointer-events: none;
+}
+.hm-backdrop { background: #0203095e; backdrop-filter: blur(4px) brightness(.71); }
+
+/* Rough enamel button plates. Real text and icons stay selectable by the UI. */
+.game-shell .kit-btn,
+.game-shell .hm-btn {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #ffae43;
+  border-radius: 5px;
+  background: linear-gradient(100deg, #ffd363 0%, #ffb02f 38%, #ff850d 100%);
+  color: #0b0a08;
+  font-family: 'Anton', 'Arial Narrow', Impact, sans-serif;
+  font-weight: 400;
+  letter-spacing: .015em;
+  box-shadow: 0 0 0 2px #6e230b, 0 0 3px 3px #ff650b70, inset 0 1px 1px #ffe59d, inset 0 -2px 0 #ba3f0d, 0 3px 12px #0008;
+  transition: filter .12s, transform .12s, box-shadow .12s;
+}
+.game-shell .kit-btn::after,
+.game-shell .hm-btn::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 2px;
+  border: 1px solid #9e430d66;
+  border-radius: 2px;
+  background: repeating-linear-gradient(127deg, #75190029 0 1px, transparent 1px 25px), radial-gradient(ellipse at 0 0, #8c190366, transparent 16%), radial-gradient(ellipse at 100% 100%, #af230957, transparent 18%);
+  pointer-events: none;
+}
+.game-shell .kit-btn-dark,
+.game-shell .hm-btn.ghost {
+  color: #ffefd0;
+  background: var(--night-surface);
+  border-color: #a37142;
+  box-shadow: inset 0 0 1px #ffb45e, 0 0 0 2px #07090c, 0 2px 8px #0009;
+}
+.game-shell .kit-btn-dark::after,
+.game-shell .hm-btn.ghost::after { border-color: #30251b; background: radial-gradient(ellipse at 0 0, #b849092b, transparent 50%); }
+.game-shell .kit-btn-cream { color: #17100b; background: linear-gradient(115deg, #fff1bb, #f5c972); }
+.game-shell .kit-btn-teal { color: #dbfff6; background: linear-gradient(110deg, #143e3b, #071b1c); border-color: #5fbaa0; }
+.game-shell .kit-btn-red { color: #ff423b; background: linear-gradient(115deg, #320406, #100606); border-color: #ff2b23; box-shadow: 0 0 2px #ff7261, 0 0 10px #f51a1749, inset 0 0 13px #e8121920; }
+.game-shell .kit-btn:not(:disabled):hover,
+.game-shell .hm-btn:not(:disabled):hover { color: #0b0a08; background: linear-gradient(100deg, #ffe18b, #ffb52c 65%, #ff9418); border-color: #ffd570; filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 0 3px #ffd06b, 0 0 15px #ff6b0b70, inset 0 0 3px #fff3b1, 0 4px 10px #0009; }
+.game-shell .kit-btn-dark:not(:disabled):hover,
+.game-shell .hm-btn.ghost:not(:disabled):hover { background: var(--night-surface); color: #ffc158; border-color: #ff9228; }
+.game-shell .kit-btn-red:not(:disabled):hover { background: #6d0a0c; color: #fff0d0; border-color: #ff5c45; box-shadow: 0 0 14px #fb19176b; }
+.game-shell .kit-btn:not(:disabled):active,
+.game-shell .hm-btn:not(:disabled):active { transform: translateY(1px); }
+.game-shell .kit-btn:disabled,
+.game-shell .hm-btn:disabled { color: #b8afa1; border-color: #67605a; background: #151517; box-shadow: inset 0 0 0 1px #000, 0 2px 5px #0006; opacity: .5; }
+.game-shell .kit-btn:focus-visible,
+.game-shell .hm-btn:focus-visible { outline: 2px solid #ffedc5; outline-offset: 4px; }
+
+.game-shell .kit-key { background: linear-gradient(115deg, #fff8dd, #ebd6ac); border: 1px solid #fff5d1; border-radius: 2px; color: #16120d; box-shadow: 0 2px 0 #917453, 0 2px 5px #0008; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; }
+.game-shell .kit-chip { color: var(--night-cream); border: 1px solid #a46a3c; border-radius: 5px; background: var(--night-surface); box-shadow: inset 0 0 2px #e4a14a66, 0 2px 5px #0009; }
+.game-shell .kit-tile { border: 1px solid #a07048; border-radius: 4px; background: var(--night-surface); box-shadow: inset 0 0 2px #d88b4640, 0 2px 6px #0009; }
+.game-shell button.kit-tile:hover { border-color: #ffae32; box-shadow: 0 0 9px #ff850b57; }
+.kit-check { box-shadow: inset 0 0 2px #de7e20, 0 0 3px #090604; }
+.kit-check.is-checked { border-color: #ffca5c; background: #ff9c1c; }
+
+/* Settings controls match the illuminated red and green pill switches. */
+.kit-toggle { --toggle-color: #ff302d; width: 94px; height: 34px; border-color: var(--toggle-color); background: #06080c; box-shadow: 0 0 3px #000, inset 0 0 9px #000; cursor: pointer; }
+.kit-toggle.is-on { --toggle-color: #a0ff60; box-shadow: 0 0 9px #7dff3333, inset 0 0 13px #60dd2020; }
+.kit-toggle-label { color: #fff0d5; font-family: 'Anton', sans-serif; font-size: 13px; font-weight: 400; }
+.kit-toggle.is-on .kit-toggle-label { color: #caff9e; }
+.kit-toggle-knob { left: 4px; width: 25px; height: 25px; border: 1px solid #ff8074; background: radial-gradient(circle at 35% 26%, #ff5651, #ef201f 75%); box-shadow: inset 0 -2px 2px #ad0a19, 0 0 5px #ff332644; transition: left .15s; }
+.kit-toggle.is-on .kit-toggle-knob { left: 60px; border-color: #ceffa0; background: radial-gradient(circle at 35% 26%, #b7ff83, #70f331 75%); box-shadow: inset 0 -2px 2px #45a822, 0 0 7px #9bff5c77; }
+.kit-toggle:focus-visible { outline: 2px solid #fff1d2; outline-offset: 4px; }
+.game-shell .kit-range { height: 16px; border: 2px solid #030304; border-radius: 3px; background: linear-gradient(#ff9c20, #ff6d04) 0 / var(--p, 50%) 100% no-repeat, #18191c; box-shadow: 0 0 0 1px #77716a, inset 0 0 4px #000; }
+.game-shell .kit-range::-webkit-slider-thumb { width: 15px; height: 25px; border: 2px solid #ffe7ae; border-radius: 3px; background: linear-gradient(90deg, #ffa82b, #ffe4a0 48%, #fa8e15 52%, #ffd06e); box-shadow: 0 0 0 2px #6b391a, 0 0 9px #ff8b1866; }
+.game-shell .kit-range::-moz-range-thumb { width: 12px; height: 22px; border: 2px solid #ffe7ae; border-radius: 3px; background: #ffb335; box-shadow: 0 0 0 2px #6b391a, 0 0 9px #ff8b1866; }
+.kit-meter-track { border-radius: 2px; outline: 1px solid #d2a06e2b; }
+
+/* Rare weapons have a single continuous neon frame and quiet ink stat rows. */
+.game-shell .weapon-card { border: 1px solid var(--rarity); border-radius: 3px; background: radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--rarity) 13%, transparent), transparent 35%), var(--night-surface); box-shadow: 0 0 1px var(--rarity), inset 0 0 19px color-mix(in srgb, var(--rarity) 5%, transparent), 0 0 13px color-mix(in srgb, var(--rarity) 19%, transparent), 0 8px 22px #000a; }
+.weapon-card-header { min-height: 58px; }
+.weapon-card-art { border-width: 1px; background: #05080d; box-shadow: inset 0 0 10px #000, 0 0 7px color-mix(in srgb, var(--rarity) 20%, transparent); }
+.weapon-card-art img { object-fit: contain; }
+.weapon-card .weapon-stats { border-color: #b0a89929; border-radius: 4px; background: #03060870; padding-inline: 10px; }
+.weapon-stat { border-color: #e6d6b912; }
+.weapon-stat > span { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 14px; }
+.weapon-stat > span:last-child { font-weight: 700; font-size: 15px; }
+.weapon-stat svg { flex-shrink: 0; opacity: .95; }
+.weapon-card .font-cond2 { letter-spacing: .015em; }
+.weapon-card-compact .weapon-stat { padding-block: 4px; }
+.weapon-card-compact .weapon-card-header .font-cond { font-size: 20px; }
+
+/* Choice cards share their rarity colour through every edge and stamp. */
+.game-shell .hm-pick { border: 1px solid var(--acc); border-radius: 5px; background: radial-gradient(ellipse at 20% 0, color-mix(in srgb, var(--acc) 12%, transparent), transparent 42%), var(--night-surface); box-shadow: inset 0 0 1px var(--acc), 0 0 6px color-mix(in srgb, var(--acc) 28%, transparent), 0 5px 15px #0008; }
+.game-shell .hm-pick:hover,
+.game-shell .hm-pick:focus-visible { transform: translateY(-3px); box-shadow: inset 0 0 2px var(--acc), 0 0 18px color-mix(in srgb, var(--acc) 45%, transparent), 0 8px 24px #000a; outline: 1px solid var(--acc); outline-offset: 3px; }
+.hm-pick-art { background: #04070c; border-bottom: 0; }
+.hm-pick-art > img { object-fit: contain; }
+.hm-stamp { right: 9px; top: 10px; border-color: var(--acc); background: #06090be8; color: var(--acc); font-size: 13px; font-weight: 800; letter-spacing: .1em; transform: rotate(4deg); box-shadow: 0 0 0 2px #030507; }
+.hm-pick-name { color: #fff0d5; font-family: var(--font-horror); font-weight: 400; font-size: clamp(22px, 2.2vw, 31px); line-height: 1.14; letter-spacing: -.025em; }
+.hm-pick-quote { color: #cfc2af; font-size: 15px; font-style: italic; }
+.hm-pick-desc { color: #fff0d5; font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 700; line-height: 1.25; }
+.hm-pick .hm-label { color: #ff8b14; font-size: 12px; }
+.game-shell .hm-locked { border-color: #696362; background: var(--night-surface); border-style: dashed; }
+.game-shell .hm-pick.hm-locked:hover { box-shadow: none; outline: none; transform: none; }
+.hm-thumb { border-radius: 2px; background: #06090d; }
+
+/* Existing auxiliary screens inherit the same materials, including commerce. */
+.game-shell .records-drawer,
+.game-shell .vending-machine,
+.game-shell .vending-peek,
+.game-shell .unlock-page,
+.game-shell .end-panel,
+.game-shell .talent-side { background: var(--night-surface); color: var(--night-cream); border-color: #f58b28; border-width: 1px; border-radius: 5px; box-shadow: var(--night-frame-shadow); }
+.game-shell [aria-label^='Recruit '] > section { background: var(--night-surface); border: 1px solid #ff8b24; border-radius: 5px; box-shadow: var(--night-frame-shadow); }
+.game-shell [aria-label^='Recruit '] > section > button:last-child { color: #ffe0aa; border: 1px solid #9f6a3e; border-radius: 4px; background: #090b10; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+.records-drawer { border-radius: 0 5px 5px 0 !important; }
+.records-drawer h2, .vending-header h2, .vending-claim h3, .vending-catalogue h3 { color: #ffa52a; }
+.records-backdrop, .vending-backdrop, .unlock-backdrop { background: #0203099c; backdrop-filter: blur(5px); }
+.records-tabs { background: #06090c; border-color: #805538; border-radius: 4px; }
+.records-tabs button[aria-pressed=true] { color: #100a06; background: linear-gradient(100deg, #ffc75a, #ff830f); box-shadow: 0 0 8px #ff7d0b55; }
+.records-icon, .records-guest input { color: #fff0d5; background: #090b10; border-color: #9b6c45; border-radius: 3px; }
+.records-row { border-color: #cfa17c26; }
+.records-you, .records-row.is-you { border-color: #66d4278c; background: #19310988; }
+.records-rank { color: #ffa92d; }
+.records-trigger { background: var(--night-surface); border-color: #f99129; border-radius: 0 5px 5px 0; font-family: 'Barlow Condensed', sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.game-shell .unlock-card,
+.game-shell .unlock-kid,
+.game-shell .unlock-talents article,
+.game-shell .vending-treat-detail,
+.game-shell .vending-catalogue-grid button { background: var(--night-surface); border-color: #866044; border-radius: 4px; }
+.unlock-toolbar, .unlock-footer, .vending-controls { background: #080a0ff2; border-color: #bd6a252f; }
+.unlock-nav { border-color: #94552c44; }
+.unlock-nav a { border-color: #835932; background: #0a0d12; color: #ffe1a7; border-radius: 3px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; }
+.unlock-badges span { background: #090c12d9; border-color: #b2733c; border-radius: 3px; }
+.unlock-kid h3, .unlock-card h3, .unlock-section > h3 { color: #ffd18c; font-family: 'Anton', sans-serif; font-weight: 400; text-transform: uppercase; }
+.vending-reel-frame { border-color: #945e35; border-radius: 4px; background: #05080c; }
+.vending-reel-frame::after { background: linear-gradient(90deg, #06090de6, transparent 9%, transparent 91%, #06090de6); }
+.vending-tile { background: var(--night-surface); border: 1px solid var(--prize-color); border-radius: 4px; }
+.vending-tile.is-winner { background: radial-gradient(ellipse at top, color-mix(in srgb, var(--prize-color) 16%, #080a0f), #080a0f); }
+.vending-winner { background: #11100d; border-color: #a46a3b; border-radius: 4px; }
+.vending-effect { border: 1px solid #74b63266; background: #12300d55; border-radius: 3px; }
+.vending-catalogue { border-color: #94552c44; }
+.end-stat { border: 1px solid #7f5b3c; border-radius: 3px; background: var(--night-surface); }
+.end-total { background: #120b19; border-color: #d73eff88; border-radius: 4px; box-shadow: inset 0 0 16px #b61dff18; }
+.talent-wallet { border-color: #d053ff99 !important; background: #140d1bd9; border-radius: 4px; }
+.talent-side .paper-card { border-color: #b2846455; }
+.talent-focus-art { border-radius: 5px; box-shadow: 0 0 15px #aa22ff38; }
+.talent-side { border-radius: 0 !important; }
+.talent-sky::after { background: radial-gradient(ellipse at 50% 45%, #07060d25, #07060d88); }
+.game-shell .run-inventory { background: #06080de8; backdrop-filter: blur(5px); }
+.run-inventory header { background: #080b10f0; border-bottom-color: #ff892b66; }
+.game-shell .run-inventory .paper-card { background: var(--night-surface); }
+.game-shell .inventory-treat { border: 1px solid; border-radius: 4px; }
+.build-tab { color: #f9e6c6; border-color: #92663e; border-radius: 4px; background: var(--night-surface); font-family: 'Barlow Condensed', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: .04em; }
+.build-tab.is-active { color: #151008; background: linear-gradient(110deg, #ffd05d, #ff8b17); border-color: #ffc87b; box-shadow: 0 0 9px #ff851c40; }
+.run-inventory input, .run-inventory select { border-color: #9a673c; border-radius: 3px; background: #080a10; color: #fff0d5; }
+
+.game-shell .character-details { border-color: #f58b28; }
+.character-details [class*='text-[#1d1d1b]'],
+.character-details [class*='text-[#2c2618]'] { color: #fff0d5; }
+.character-details [class*='text-[#5a5346]'],
+.character-details [class*='text-[#4a4130]'] { color: #c6b59f; }
+.character-details [class*='bg-[#e2d2a6]'] { background: #0c0b10; border-color: #905b32; border-radius: 3px; }
+.character-details .font-brush { color: #ff9d1b; }
+.character-arrow { color: #ffba55; filter: drop-shadow(0 0 4px #ff730b66); }
+.game-shell select { color-scheme: dark; }
+.game-shell :is(button, input, select, summary):focus-visible { outline-color: #ffcd75; }
+.game-shell *::-webkit-scrollbar-thumb { background-color: #a45b27; border-color: #080a10; }
+
+@media (max-width: 639px) {
+  .game-shell .hm-modal::after { background-size: 62px 56px; inset: -9px; }
+  .game-shell .hm-modal::before { background-size: 85px 85px; }
+  .game-shell .hm-pick { border-radius: 4px; }
+  .hm-pick-art { border-right-width: 1px; }
+  .hm-pick-name { font-size: 19px; }
+  .hm-pick-desc { font-size: 16px; }
+  .hm-stamp { font-size: 9px; }
+  .game-shell .hm-pick:hover { transform: none; }
+  .game-shell .kit-btn, .game-shell .hm-btn { border-radius: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-shell .kit-btn, .game-shell .hm-btn, .game-shell .hm-pick, .kit-toggle-knob { transition: none; }
+}
+
+/* Repeatable surfaces. Artwork supplies texture; labels and borders are native UI. */
+:root {
+  --night-grain: url('/images/redesign/ink-grain.svg');
+  --night-pause-frame: url('/images/redesign/pause-frame.webp');
+  --night-settings-frame: url('/images/redesign/settings-frame.webp');
+}
+.game-shell .hm-modal { border:1px solid #f58628; border-radius:5px; box-shadow:0 0 3px #ffb052,0 0 15px #f86c0033,0 15px 60px #0009; }
+.hm-backdrop { isolation: isolate; background: transparent; backdrop-filter: none; }
+.hm-backdrop::before { content: ''; position: absolute; z-index: -1; inset: 0; background: url('/images/redesign/street-background.webp') center / cover no-repeat; filter: blur(4px) brightness(.77); transform: scale(1.025); pointer-events: none; }
+.game-shell .hm-modal::before {
+  z-index: -1;
+  inset:0;
+  border:0;
+  border-image:none;
+  border-radius:inherit;
+  background:var(--night-web) left top / 120px 120px no-repeat,url('/images/redesign/autumn-foliage.webp') right top / 90px auto no-repeat;
+}
+.game-shell .hm-modal::after { display: none; }
+.game-shell .paper-panel:not(.paper-panel--side)::before {
+  inset: -7px;
+  border:0;
+  border-image:none;
+  background:var(--night-web) left top / 70px 70px no-repeat;
+}
+@media (max-width: 639px) {
+  .game-shell .hm-modal::before { background-size:80px 80px,60px auto; }
+}
+
+/* A 48px frame tile has fixed 12px corners and repeating 24px edge segments.
+   Button dimensions never rescale a painted sprite or any lettering. */
+.game-shell .kit-btn,
+.game-shell .hm-btn {
+  --button-frame:url('/images/redesign/button-frame.svg');
+  border:1px solid transparent;
+  border-image-source:var(--button-frame);
+  border-image-slice:12;
+  border-image-width:12px;
+  border-image-outset:3px;
+  border-image-repeat:round;
+  border-radius:5px;
+  background:linear-gradient(#ffb83b,#ff8912);
+  color:#151009;
+  box-shadow:inset 0 1px #ffdc8e70,0 3px 9px #0008;
+  font-family:'Anton',Impact,sans-serif;
+  text-shadow:none;
+}
+.game-shell .kit-btn::before,.game-shell .kit-btn::after,
+.game-shell .hm-btn::before,.game-shell .hm-btn::after { display:none; }
+.game-shell .kit-btn > *, .game-shell .hm-btn > * { position:relative; opacity:1; }
+.game-shell .kit-btn-dark,.game-shell .hm-btn.ghost { color:#fff0d5; background:linear-gradient(#111216f5,#080a0ef5); box-shadow:inset 0 0 14px #0005,0 2px 8px #0007; }
+.game-shell .kit-btn-cream { color:#17100b; background:linear-gradient(#ffefbd,#e9c577); }
+.game-shell .kit-btn-red { --button-frame:url('/images/redesign/button-frame-danger.svg'); color:#ff5449; background:linear-gradient(#290a0c,#100809); }
+.game-shell .kit-btn-teal { color:#c4fff0; background:linear-gradient(#194b42,#0b211d); }
+.game-shell .kit-btn:not(:disabled):hover,.game-shell .hm-btn:not(:disabled):hover { color:#151009; border-image-source:var(--button-frame); background:linear-gradient(#ffc957,#ff9c24); box-shadow:0 0 10px #ff8a162e; filter:brightness(1.04); }
+.game-shell .kit-btn-dark:not(:disabled):hover,.game-shell .hm-btn.ghost:not(:disabled):hover { color:#ffd18a; background:linear-gradient(#241c13,#100d0b); }
+.game-shell .kit-btn-red:not(:disabled):hover { color:#ffe6d5; background:linear-gradient(#4a0e12,#26090d); }
+.game-shell .kit-btn:disabled,.game-shell .hm-btn:disabled { opacity:.45; color:#b5ab9c; background:#17171a; filter:grayscale(.8); }
+.game-shell .hm-pick-name,.game-shell .kit-banner-title,.game-shell .character-details .font-brush { font-family:var(--font-horror); font-weight:400; }
+.game-shell .hm-pick-name { font-size:clamp(27px,2.4vw,38px); }
+.game-shell .kit-title,.game-shell .hm-modal-title { font-family:var(--font-horror); }
+.game-shell .redesign-title .title-nav .kit-btn:not(.records-trigger)::after { display:block; content:'›'; position:absolute; inset:50% 12px auto auto; transform:translateY(-55%); z-index:1; border:0; background:none; color:#ffbc54; font:30px/1 'Barlow Condensed',sans-serif; pointer-events:none; }

@@ -1,4 +1,6 @@
 // UI artwork cut from the concept sheets in art/concept (see scripts/crop-ui-kit.py).
+import { generatedHeadingUrls } from './HeadingArt';
+import { noticeArtUrls } from './notices';
 const base = (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_URL || './';
 const img = (p: string) => `${base}images/${p}`;
 
@@ -6,12 +8,15 @@ const img = (p: string) => `${base}images/${p}`;
 export const FX_ART = { explosion: `${base}assets/fx/fx_explosion.webp`, fire: `${base}assets/fx/fx_fire.webp` };
 
 export const ART = {
-  keyart: img('splash.webp?v=3'),
-  keyartPortrait: img('splash_portrait.webp?v=3'),
+  keyart: img('redesign/street-background.webp?v=1'),
+  keyartPortrait: img('redesign/street-background.webp?v=1'),
   logo: img('newlogo.webp?v=4'),
   logoSm: img('newlogo_sm.webp?v=4'),
   kitLogo: img('newlogo_sm.webp?v=4'),
   pause: img('ui/pause_art.webp'),
+  headingPause: img('redesign/heading-pause.webp'),
+  headingSettings: img('redesign/heading-settings.webp'),
+  headingLevelUp: img('redesign/heading-levelup.webp'),
   youDied: img('ui/youdied.webp'),
   /** "Reach 15K Essence to unlock premium" (scripts/prepare-badge-art.mjs) */
   badge15k: img('ui/badge_15k.webp'),
@@ -60,7 +65,13 @@ export function preloadSplash(timeoutMs = 4000) {
 
 /** Decode every UI image up front so plates and portraits never pop in mid-game. */
 export function preloadUiArt() {
-  const all = [...new Set([...Object.values(ART), ...PORTRAITS, ...FACES, ...Object.values(BANNER_ART), ...GUN_ART_IDS.map(gunArtUrl)])];
+  const frameParts = ['corner-tl','corner-tr','corner-bl','corner-br','edge-top','edge-bottom','edge-left','edge-right','button-primary','button-dark','button-nav','card-green','card-purple','card-blue','card-orange'].map(name => img(`generated-v2/${name}.png`));
+  const buttons = ['amber','muted','danger'].map(name => img(`generated-v3/button-${name}.png`));
+  const menuArt = ['play','records','talents','character','howto','settings','fullscreen'].map(name => img(`generated-v3/nav-reference-${name}.png`));
+  menuArt.push(img('generated-v3/button-go-reference.png'));
+  menuArt.push(img('generated-v4/frame.png'));
+  menuArt.push(...['button-rim','button-paint','heading-records'].map(name => img(`generated-v5/${name}.png`)));
+  const all = [...new Set([...Object.values(ART), ...PORTRAITS, ...FACES, ...Object.values(BANNER_ART), ...GUN_ART_IDS.map(gunArtUrl), ...generatedHeadingUrls, ...frameParts, ...noticeArtUrls, ...buttons, ...menuArt])];
   return Promise.all(
     all.map((src) => decode(src, src === ART.logo ? 'high' : 'low'))
   ).then(() => undefined);

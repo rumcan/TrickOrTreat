@@ -1,0 +1,140 @@
+/* The reference uses a painted orange slab, not a yellow gradient and gold rim.
+   Source corners remain fixed; straight edges and center paint repeat. */
+.game-shell .kit-btn:not(.reference-art-button),.game-shell .hm-btn {
+  position:relative; isolation:isolate; overflow:visible;
+  border:0 solid transparent; border-image:url('/images/generated-v5/button-rim.png') 128 / 16px / 4px repeat;
+  border-radius:0; background:none!important; box-shadow:none; color:#120b05;
+  text-shadow:none; transition:filter .12s; letter-spacing:.015em;
+}
+.game-shell .kit-btn:not(.reference-art-button)::before,.game-shell .hm-btn::before {
+  content:''; display:block; position:absolute; inset:8px 9px 10px;
+  z-index:-1; pointer-events:none; border:0; border-radius:0;
+  background:url('/images/generated-v5/button-paint.png') center / 96px 96px repeat,#fb790a;
+}
+.game-shell .kit-btn:not(.reference-art-button)::after,.game-shell .hm-btn::after { display:none; }
+.game-shell .kit-btn:not(.reference-art-button):not(:disabled):hover,.game-shell .hm-btn:not(:disabled):hover {
+  border-image-source:url('/images/generated-v5/button-rim.png'); background:none!important;
+  filter:brightness(1.08); transform:none; color:#120b05!important;
+}
+/* Dark controls need their own closed outline. Cutting a thin rim from the
+   orange paint slab leaves transparent seams where its edge tiles meet. */
+.game-shell .kit-btn-dark:not(.reference-art-button),.game-shell .hm-btn.ghost {
+  color:#fff0d5; border:1px solid #b96922; border-image:none; border-radius:2px;
+  box-shadow:inset 0 0 0 1px #ff9b2214,0 2px 6px #0005;
+}
+.game-shell .kit-btn-dark:not(.reference-art-button)::before,.game-shell .hm-btn.ghost::before {
+  inset:0; border-radius:1px;
+  background:linear-gradient(#0d0e10ed,#0d0e10ed),url('/images/redesign/ink-grain.svg') repeat,#0d0e10;
+}
+.game-shell .kit-btn-dark:not(.reference-art-button):not(:disabled):hover,.game-shell .hm-btn.ghost:not(:disabled):hover {
+  color:#ffca8a!important; border-image:none; border-color:#f18a32;
+}
+.game-shell .kit-btn-red::before { background:#3b1011; }
+.game-shell .kit-btn-red:not(.reference-art-button) { color:#ffe1d9; }
+.game-shell .kit-btn:not(.reference-art-button):disabled,.game-shell .hm-btn:disabled { opacity:1; filter:grayscale(.9); color:#d2c5b4; }
+.game-shell .kit-btn:not(.reference-art-button):not(.kit-btn-dark):disabled,.game-shell .hm-btn:not(.ghost):disabled {
+  filter:grayscale(1) brightness(.8); color:#100e0b; cursor:not-allowed;
+}
+.game-shell .hm-btn:not(.ghost) > svg:first-child {
+  box-sizing:border-box; flex:none; width:42px; height:38px; padding:9px;
+  margin:-3px 3px -3px -7px; color:#ff881a; background:#1c1109;
+}
+.game-shell .talent-side .hm-btn { padding:12px 18px; }
+.game-shell .lvl-reroll { padding-inline:18px; }
+
+/* Every radio belongs to a header. Keep transport controls, track and volume. */
+.game-shell .screen-header,.game-shell:has(.redesign-title) > .screen-header {
+  position:absolute; top:max(12px,env(safe-area-inset-top,0px)); bottom:auto;
+  left:max(18px,env(safe-area-inset-left,0px)); opacity:1;
+}
+.game-shell .radio-pill {
+  height:36px; max-width:350px; border:1px solid #a35720; border-radius:4px;
+  color:#f4dfbf; background:linear-gradient(#0c0d10ed,#0c0d10ed),url('/images/redesign/ink-grain.svg') repeat;
+  box-shadow:inset 0 0 0 1px #ff7a141c,0 2px 9px #0008;
+  font:600 14px/1 var(--font-body); letter-spacing:.025em;
+}
+.game-shell .radio-pill button { height:34px; min-width:28px; color:#e8c69b; }
+.game-shell .radio-pill button:hover:not(:disabled) { background:#452009; color:#ffc785; }
+.game-shell .radio-pill .radio-play { background:#29160d; color:#ff831c; border-inline:1px solid #a95c2455; }
+.game-shell .radio-pill .radio-play:hover { background:#502409; }
+.game-shell .radio-pill[data-on='0'] .radio-play { background:#151416; color:#9a8d7d; }
+.game-shell .radio-pill .radio-slider {
+  background:#0b0d11; border:1px solid #b3692e; border-radius:4px;
+  padding:14px; box-shadow:0 8px 24px #000b;
+}
+.game-shell .radio-pill .radio-vol[aria-expanded='true'] { color:#ff8b25; background:#29160d; }
+.game-shell .radio-pill .radio-note { color:#f18429; }
+.game-shell .hm-header-radio { flex:0 1 auto; min-width:0; }
+.game-shell .hm-header-radio .radio-now { max-width:110px; }
+.game-shell .hm-hud .hm-topbar { gap:12px; }
+@media (min-width:701px) {
+  .game-shell .hm-hud .hm-clock { position:relative; left:auto; right:auto; top:auto; bottom:auto; transform:none; flex:1 1 130px; min-width:130px; }
+  .game-shell .hm-hud .hm-kid { flex:0 1 240px; width:240px; }
+  .game-shell .hm-hud .hm-kid > div:last-of-type { width:155px; }
+  .game-shell .hm-hud .hm-tools { flex:none; margin-left:0; }
+}
+@media (min-width:1280px) and (max-width:1799px) {
+  .game-shell .hm-goal-label { display:none; }
+  .game-shell .hm-hud .hm-goals { gap:6px; }
+  .game-shell .hm-hud .hm-goal { min-width:48px; padding:0 8px; }
+}
+@media (min-width:701px) and (max-width:1100px) {
+  .game-shell .hm-hud .hm-topbar { gap:8px; }
+  .game-shell .hm-header-radio .radio-step,.game-shell .hm-header-radio .radio-skip { display:none; }
+  .game-shell .hm-header-radio .radio-now { max-width:80px; }
+  .game-shell .hm-hud .hm-kid { flex-basis:190px; width:190px; }
+  .game-shell .hm-hud .hm-kid > div:last-of-type { width:120px; }
+  .game-shell .hm-hud .hm-clock { min-width:105px; flex-basis:105px; }
+  .game-shell .hm-hud .hm-time { font-size:34px; }
+}
+@media (max-width:700px) {
+  .game-shell .ingame { --hm-top:106px; }
+  .game-shell .hm-hud .hm-topbar { align-items:flex-start; padding-top:max(5px,env(safe-area-inset-top,0px)); }
+  .game-shell .hm-header-radio { position:absolute; left:10px; bottom:9px; }
+  .game-shell .hm-hud .hm-clock { top:auto; bottom:10px; right:10px; left:auto; height:auto; min-width:0; transform:none; }
+  .game-shell .hm-hud .hm-time { font-size:22px; }
+  .game-shell .hm-hud .hm-time-sub { display:none; }
+  .game-shell .radio-pill .radio-now { display:block; max-width:120px; font-size:13px; }
+  .game-shell .radio-pill .radio-step,.game-shell .radio-pill .radio-skip,.game-shell .radio-pill .radio-vol { display:none; }
+  .game-shell .radio-pill .radio-play { min-height:34px; }
+  .game-shell .hm-hud .hm-chips { bottom:14px; left:190px; }
+}
+
+/* Match the page's dark ink and ember colours, including native scrollbars. */
+.game-shell :is(.talent-panel-scroll,.talent-side,.records-list,.records-drawer,.lvl-grid) {
+  scrollbar-width:thin; scrollbar-color:#c96925 #101014;
+}
+.game-shell .talent-panel-scroll { scrollbar-gutter:stable; }
+.game-shell :is(.talent-panel-scroll,.talent-side,.records-list,.records-drawer,.lvl-grid)::-webkit-scrollbar { width:10px; height:10px; }
+.game-shell :is(.talent-panel-scroll,.talent-side,.records-list,.records-drawer,.lvl-grid)::-webkit-scrollbar-track { background:#101014; border-left:1px solid #61401f; }
+.game-shell :is(.talent-panel-scroll,.talent-side,.records-list,.records-drawer,.lvl-grid)::-webkit-scrollbar-thumb { background:#c96925; border:2px solid #101014; border-radius:5px; min-height:36px; }
+
+.game-shell .records-backdrop { z-index:100; display:flex; justify-content:center; align-items:center; padding:16px; }
+.game-shell .records-drawer {
+  width:min(760px,calc(100vw - 32px)); height:min(800px,calc(100dvh - 32px));
+  padding:36px 38px 42px; gap:18px; overflow-y:auto; animation:none;
+}
+.game-shell .records-drawer > header { align-items:center; }
+.game-shell .records-drawer h2 { font:400 38px/1.1 var(--font-menu); transform:none; color:#ff8a25; }
+.game-shell .records-heading img { display:block; width:min(380px,100%); height:auto; margin:4px 0 10px; }
+.game-shell .records-drawer > header > div { min-width:0; flex:1; }
+.game-shell .records-personal-time { font:700 40px/1.1 var(--font-number); color:#ff9b36; }
+.game-shell .records-list h3 { color:#ffc384; font:400 22px/1.2 var(--font-menu); text-transform:uppercase; margin:0 0 10px; }
+.game-shell .records-drawer .records-intro { font:400 18px/1.4 var(--font-body); }
+.game-shell .records-you { font:400 17px/1.4 var(--font-body); border:1px solid #9a622b; background:#1b120ced; padding:18px; }
+.game-shell .records-you > span:first-child { color:#ffc381; font-weight:700; }
+.game-shell .records-list { padding:4px 6px; }
+.game-shell .records-row { min-height:56px; font:600 18px/1.35 var(--font-body); border-bottom:1px solid #79572e55; }
+.game-shell .records-row.is-you { background:#5b2c1044; border-color:#bd6727; }
+.game-shell .records-time { font:700 20px/1 var(--font-number); }
+.game-shell .records-rank { color:#ff9b38; }
+.game-shell .records-drawer > footer { margin-top:auto; padding-top:18px; border-top:1px solid #9b5b2b66; }
+.game-shell .records-drawer > footer .hm-btn { min-height:48px; min-width:140px; padding:10px 20px; }
+.game-shell .records-drawer > footer small { color:#c5b6a1; font:400 15px/1.35 var(--font-body); }
+@media (max-width:700px) {
+  .game-shell .records-backdrop { padding:6px; }
+  .game-shell .records-drawer { width:calc(100vw - 12px); height:calc(100dvh - 12px); padding:28px 26px 34px; gap:16px; }
+  .game-shell .records-drawer h2 { font-size:29px; }
+  .game-shell .records-drawer .records-intro { font-size:17px; }
+  .game-shell .records-icon { min-width:44px; }
+}

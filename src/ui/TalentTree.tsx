@@ -2,8 +2,11 @@ import { useState, useSyncExternalStore } from 'react';
 import { useBack } from './back';
 import { expansion, hasFullGame } from '../game/expansion';
 import { TALENTS, TALENT_BRANCHES, TALENT_BRANCH_SUB, TALENT_COLORS, TALENT_ROOT, TALENT_BY_ID, Talent, Save, storeSave, talentUnlocked, talentCost, talentCap, COSTUMES } from '../game/data';
-import { ChevronLeft, RotateCcw, ChevronsUp } from 'lucide-react';
+import { ChevronLeft, RotateCcw, ChevronsUp, Plus, Minus, LocateFixed, Scan } from 'lucide-react';
 import { CandyIcon } from './common';
+import { HeadingArt } from './HeadingArt';
+import { PaintedFrame } from './PaintedFrame';
+import { useTalentCamera } from './useTalentCamera';
 
 type NodeState = 'maxed' | 'owned' | 'available' | 'locked';
 const BASE = (import.meta as unknown as { env: { BASE_URL: string } }).env.BASE_URL || './';
@@ -15,6 +18,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
   const [sel, setSel] = useState<string>('sharp');
   const [hover, setHover] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  const camera = useTalentCamera();
   const ranks = save.talents;
 
   const stateOf = (t: Talent): NodeState => {
@@ -78,11 +82,10 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
 
   return (
     <div className="talent-screen">
-      {/* ===== tree: the whole constellation always fits its area ===== */}
+      {/* Zoomable tree; dragging and pinching never purchases a talent. */}
       <div className="talent-sky">
         <img src={icon('back')} alt="" draggable={false} className="talent-sky-art" />
-        {/* the viewBox leaves a margin all round, so labels, rank pips and the radio in the corner never collide with a star */}
-        <svg viewBox="-160 -250 1720 1250" preserveAspectRatio="xMidYMid meet" className="talent-svg">
+        <svg ref={camera.svgRef} viewBox={camera.viewBox} preserveAspectRatio="xMidYMid meet" className="talent-svg" aria-label="Talent constellation" {...camera.handlers}>
           <defs>
             <filter id="tglow" x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="6" result="b" />
@@ -102,8 +105,8 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
             { b: 3, x: 1335, y: 325 },
           ].map(({ b, x, y }) => (
             <g key={b} textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 6, strokeLinejoin: 'round' }}>
-              <text x={x} y={y} fill={TALENT_COLORS[b]} fontSize="34" style={{ fontFamily: '"Bebas Neue", "Anton", Impact, sans-serif', letterSpacing: 3 }}>{TALENT_BRANCHES[b].toUpperCase()}</text>
-              <text x={x} y={y + 22} fill="#fff0da" fontSize="13" fontWeight="700" style={{ fontFamily: '"Teko", "Barlow Condensed", sans-serif', letterSpacing: 5, strokeWidth: 4 }}>{TALENT_BRANCH_SUB[b].toUpperCase()} · {spent(b)} PTS</text>
+              <text x={x} y={y} fill={TALENT_COLORS[b]} fontSize="34" style={{ fontFamily: '"Anton", Impact, sans-serif', letterSpacing: 3 }}>{TALENT_BRANCHES[b].toUpperCase()}</text>
+              <text x={x} y={y + 22} fill="#fff0da" fontSize="13" fontWeight="700" style={{ fontFamily: '"Barlow Condensed", sans-serif', letterSpacing: 5, strokeWidth: 4 }}>{TALENT_BRANCH_SUB[b].toUpperCase()} · {spent(b)} PTS</text>
             </g>
           ))}
 
@@ -148,6 +151,7 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
             return (
               <g
                 key={t.id}
+                data-talent-id={t.id}
                 style={{ cursor: st === 'locked' ? 'not-allowed' : 'pointer' }}
                 onMouseEnter={() => setHover(t.id)}
                 onMouseLeave={() => setHover(null)}
@@ -181,62 +185,72 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
                   return <circle key={k} cx={t.x + Math.cos(a) * (R + 11)} cy={t.y + Math.sin(a) * (R + 11)} r="4.4" fill={k < l ? c : '#07060d'} stroke={st === 'locked' ? '#5b5670' : c} strokeWidth="1.8" />;
                 })}
                 {t.endless && l > t.max && <text x={t.x} y={t.y + R + 31} textAnchor="middle" fill="#ffc94d" fontSize="15" fontWeight="800" style={{ fontFamily: '"Barlow Condensed", sans-serif', paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>+{l - t.max}</text>}
-                <text x={t.x} y={t.y - R - 11} textAnchor="middle" fill={st === 'locked' ? '#a39fb5' : '#ffffff'} fontSize="13" fontWeight="700" style={{ fontFamily: '"Teko", "Barlow Condensed", sans-serif', letterSpacing: 1.2, paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>{t.name}{t.endless ? ' ∞' : ''}</text>
+                <text className="talent-node-label" x={t.x} y={t.y - R - 11} textAnchor="middle" fill={st === 'locked' ? '#a39fb5' : '#ffffff'} fontSize="13" fontWeight="700" style={{ fontFamily: '"Barlow Condensed", sans-serif', letterSpacing: 1.2, paintOrder: 'stroke', stroke: '#05040b', strokeWidth: 5, strokeLinejoin: 'round' }}>{t.name}{t.endless ? ' ∞' : ''}</text>
               </g>
             );
           })}
         </svg>
+        <div className="talent-tree-tools" role="group" aria-label="Talent tree view">
+          <div className="talent-tree-tool-row">
+            <button type="button" aria-label="Zoom out talent tree" disabled={camera.zoom <= 1} onClick={() => camera.zoomBy(1 / 1.3)}><Minus size={18} /></button>
+            <output aria-label="Talent tree zoom">{Math.round(camera.zoom * 100)}%</output>
+            <button type="button" aria-label="Zoom in talent tree" disabled={camera.zoom >= 6} onClick={() => camera.zoomBy(1.3)}><Plus size={18} /></button>
+            <button type="button" aria-label="Focus selected talent" title="Focus selected talent" onClick={() => camera.focus(TALENT_BY_ID[sel])}><LocateFixed size={18} /></button>
+            <button type="button" aria-label="Fit entire talent tree" title="Fit entire talent tree" onClick={camera.fit}><Scan size={18} /><span>Fit</span></button>
+          </div>
+          <span className="talent-tree-hint">Drag to move · pinch or scroll to zoom</span>
+        </div>
       </div>
 
       {/* ===== side panel: the game's dark-paper look ===== */}
-      <aside className="talent-side">
-        <header>
+      <aside className="talent-side generated-framed">
+        <PaintedFrame />
+        <div className="talent-panel-scroll">
+        <header className="talent-panel-head">
           <div className="paper-kicker">Permanent upgrades</div>
-          <h2 className="paper-title !text-[34px]">Talent constellations</h2>
+          <h2 className="paper-title has-generated-heading"><HeadingArt name="talents" text="Talent constellations" /></h2>
           <span className="paper-rule" />
-          <p className="mt-3 text-[13px] leading-snug text-[#c9bda6]">Click a star to invest Essence. Each star unlocks the stars it links to. Stars marked ∞ never stop ranking up: grind runs and pour everything into one if you like.</p>
+          <p className="talent-intro">Invest talent points in a star to unlock the stars it links to. Endless talents can keep ranking up.</p>
         </header>
 
         {earned !== undefined && (
-          <section className="paper-card" style={{ borderLeft: '5px solid #c46bff' }}>
+          <section className="paper-card talent-earned" style={{ borderLeft: '5px solid #c46bff' }}>
             <div className="label">Make the next run stronger</div>
-            <div className="font-cond text-2xl leading-tight text-[#d9a8ff]">+{earned} Essence earned this run</div>
+            <div className="font-cond text-2xl leading-tight text-[#d9a8ff]">+{earned} talent points earned this run</div>
             <p className="mt-1 text-xs text-[#8f8676]">Spend your permanent talent XP below. Run levels reset; these skills stay.</p>
           </section>
         )}
 
-        <div className="flex items-stretch gap-2">
-          <div className="talent-wallet" title="Essence is earned at the end of every run (monsters, time survived, bosses and waves).">
+        <div className="talent-balance-row">
+          <div className="talent-wallet" title="Talent points are earned at the end of every run (monsters, time survived, bosses and waves).">
             <CandyIcon size={26} />
             <div>
-              <div className="label">Essence</div>
+              <div className="label">Talent points</div>
               <b>{save.soul}</b>
             </div>
           </div>
-          <button className="hm-btn ghost" onClick={onBack}><ChevronLeft size={18} strokeWidth={3} /> {backLabel}</button>
         </div>
-        {onAgain && <button className="hm-btn talent-replay w-full" onClick={onAgain}>Play again with these talents</button>}
 
         <section className="paper-card talent-focus" style={{ borderLeft: `5px solid ${fc}` }}>
-          <div className="flex items-center gap-3">
+          <div className="talent-focus-head">
             <div className="talent-focus-art" style={{ borderColor: fst === 'maxed' ? '#ffc94d' : fst === 'locked' ? '#5b5670' : fc }}>
               <img src={icon(focus.id)} alt="" draggable={false} style={{ filter: fst === 'locked' ? 'grayscale(1) brightness(0.7)' : undefined }} />
             </div>
             <div className="min-w-0">
               <div className="label" style={{ color: fc }}>{TALENT_BRANCHES[focus.branch]} · {TALENT_BRANCH_SUB[focus.branch]}{focus.capstone ? focus.desc.startsWith('FINALE') ? ' · Finale' : ' · Capstone' : ''}</div>
-              <div className="font-cond text-[26px] uppercase leading-none text-[#fff0da]">{focus.name}</div>
+              <div className="talent-focus-name">{focus.name}</div>
             </div>
           </div>
-          <p className="mt-3 text-[15px] font-semibold leading-snug text-[#f2e8d4]">{focus.desc}</p>
-          {focus.endless && <p className="mt-1.5 font-cond2 text-[13px] font-bold uppercase tracking-[0.08em] text-[#ffc94d]">Endless · keeps ranking up past {focus.max}, each extra rank nearly double the last</p>}
+          <p className="talent-effect">{focus.desc}</p>
+          {focus.endless && <p className="talent-endless">Endless talent: ranks continue beyond {focus.max}.</p>}
           <div className="mt-3 flex items-center gap-1.5">
             {Array.from({ length: focus.max }).map((_, k) => (
               <div key={k} className="talent-rank h-2.5 flex-1" style={{ background: k < fl ? fc : '#0f1518', borderColor: k < fl ? fc : undefined }} />
             ))}
           </div>
-          <div className="mt-1.5 flex justify-between font-cond2 text-xs font-bold uppercase tracking-[0.14em] text-[#8f8676]">
+          <div className="talent-rank-meta">
             <span>{focus.endless && fl > focus.max ? `Rank ${fl} · ${fl - focus.max} past mastery` : `Rank ${fl} / ${focus.max}`}</span>
-            {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {talentCost(focus, fl)} Essence</span>}
+            {fst !== 'maxed' && <span className="text-[#d9a8ff]">Next: {talentCost(focus, fl)} talent points</span>}
           </div>
           {focus.premium && !hasFullGame() && <p role="status" className="mt-3 border border-[#ffc453]/50 bg-black/30 p-3 text-sm text-white">Full-game talent: unlock the full game using the button in the main-menu header. After unlocking, the linked talent requirements below still apply.</p>}
           {focus.req.length > 0 && (
@@ -247,10 +261,10 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
               ))}
             </div>
           )}
-          {fst !== 'locked' && fst !== 'maxed' && save.soul < talentCost(focus, fl) && <p className="mt-3 text-sm text-white">Earn {talentCost(focus, fl) - save.soul} more essence by completing a run to buy the next rank.</p>}
+          {fst !== 'locked' && fst !== 'maxed' && save.soul < talentCost(focus, fl) && <p className="mt-3 text-sm text-white">Earn {talentCost(focus, fl) - save.soul} more talent points by completing a run to buy the next rank.</p>}
           {focus.id === 'master' && <div className="mt-2 font-cond2 text-xs font-semibold text-[#c9bda6]">One costume per kid: {COSTUMES.map((c) => c.icon).join(' ')}</div>}
-          <button className="hm-btn mt-4 w-full" disabled={!canBuy(focus)} onClick={() => buy(focus.id)}>
-            {fst === 'maxed' ? 'Mastered' : focus.endless && fl >= focus.max && fst !== 'locked' ? `Rank up · ${talentCost(focus, fl)} Essence` : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · ${talentCost(focus, fl)} Essence`}
+          <button className="hm-btn talent-invest w-full" disabled={!canBuy(focus)} onClick={() => buy(focus.id)}>
+            {fst === 'maxed' ? 'Mastered' : focus.endless && fl >= focus.max && fst !== 'locked' ? `Rank up · ${talentCost(focus, fl)} talent points` : fst === 'locked' ? focus.premium && !hasFullGame() ? 'Full game required' : 'Buy a linked talent first' : `Invest · ${talentCost(focus, fl)} talent points`}
           </button>
           {focus.endless && fst !== 'locked' && affordableRanks(focus) > 1 && (
             <button className="hm-btn ghost mt-2 w-full" onClick={() => buy(focus.id, true)}>
@@ -269,11 +283,17 @@ export function TalentTree({ save, onBack, onAgain, earned, backLabel = 'Back' }
           ))}
         </div>
 
-        <footer className="mt-auto flex flex-col gap-2.5 pt-2 font-cond2 text-xs font-semibold uppercase tracking-[0.08em] text-[#8f8676]">
-          <div className="flex items-center gap-2.5"><span className="inline-block h-3.5 w-3.5 rounded-full border-[3px] border-[#fb8016]" /> Pulsing ring: you can afford it</div>
-          <div className="flex items-center gap-2.5"><span className="inline-block h-0 w-7 border-t-[3px] border-dashed border-[#00d5ff]" /> Dashed path: unlocked, not bought</div>
-          <div className="flex items-center gap-2.5"><span className="inline-block h-3.5 w-3.5 rounded-full border-[3px] border-[#ffc94d]" /> Gold ring: mastered</div>
-          <button className="hm-btn ghost mt-1 !min-h-10 !text-sm" onClick={refund}><RotateCcw size={15} strokeWidth={2.6} /> Refund all points</button>
+        <details className="talent-guide">
+          <summary>Tree guide</summary>
+          <div><p><span className="talent-legend-ring" /> A pulsing ring means you can afford a rank.</p>
+          <p><span className="talent-legend-path" /> A dashed path leads to an unlocked star.</p>
+          <p><span className="talent-legend-ring talent-legend-ring--gold" /> A gold ring marks mastery.</p></div>
+        </details>
+        <button className="hm-btn ghost talent-refund" onClick={refund}><RotateCcw size={17} strokeWidth={2.6} /> Refund all points</button>
+        </div>
+        <footer className="talent-action-footer">
+          <button className="hm-btn ghost" onClick={onBack}><ChevronLeft size={18} strokeWidth={3} /> {backLabel}</button>
+          {onAgain && <button className="hm-btn talent-replay" onClick={onAgain}>Play again</button>}
         </footer>
       </aside>
     </div>

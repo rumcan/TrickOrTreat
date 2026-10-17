@@ -1,0 +1,29 @@
+.game-shell .talent-svg { touch-action:none; cursor:grab; }
+.game-shell .talent-svg:active { cursor:grabbing; }
+.game-shell .talent-tree-tools {
+  position:absolute; z-index:5; bottom:12px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:5px 8px 7px; border:1px solid #99602f; border-radius:5px;
+  background:#0b0c11f2; color:#f5e6ce; box-shadow:0 3px 12px #0007;
+}
+.game-shell .talent-tree-tool-row { display:flex; align-items:center; gap:4px; }
+.game-shell .talent-tree-tool-row button {
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  min-width:44px; height:44px; padding:0 8px; border:1px solid #705034;
+  border-radius:3px; background:#16120e; color:#f6d5a7; cursor:pointer;
+  font:600 15px/1 var(--font-body);
+}
+.game-shell .talent-tree-tool-row button:hover:not(:disabled) { background:#3c2413; border-color:#ec8c35; }
+.game-shell .talent-tree-tool-row button:focus-visible { outline:2px solid #ffad58; outline-offset:1px; }
+.game-shell .talent-tree-tool-row button:disabled { opacity:.4; cursor:not-allowed; }
+.game-shell .talent-tree-tool-row output { min-width:44px; text-align:center; font:600 16px/1 var(--font-body); font-variant-numeric:tabular-nums; }
+.game-shell .talent-tree-hint { color:#b8aa98; font:400 13px/1.15 var(--font-body); white-space:nowrap; }
+@media (max-width:1023px) {
+  .game-shell .talent-sky { height:42dvh; min-height:260px; max-height:400px; }
+  .game-shell .talent-svg { inset:50px 0 0; height:calc(100% - 50px); }
+  .game-shell .talent-node-label { font-size:16px; letter-spacing:.4px!important; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .game-shell .talent-sky { height:auto; min-height:0; max-height:none; }
+  .game-shell .talent-tree-tools { bottom:8px; }
+}

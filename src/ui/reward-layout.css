@@ -1,0 +1,76 @@
+/* Desktop rewards form one bounded page: header, offers, and reachable actions. */
+.game-shell .redesign-rewards .lvl-title:not(.has-reference-heading) {
+  font-family:var(--font-horror); font-size:104px; line-height:.8;
+  font-weight:400; letter-spacing:0; transform:none; margin:0;
+  color:#fff0d5; text-shadow:0 3px 1px #0008;
+}
+.game-shell .redesign-rewards .lvl-title em { background:none; color:#ff8b16; filter:none; }
+.game-shell .redesign-rewards .lvl-title::after { display:none; }
+.game-shell .redesign-rewards .hm-pick .hm-pick-name {
+  font-family:var(--font-menu); font-size:26px; font-weight:400;
+  line-height:1.15; letter-spacing:.015em; text-transform:uppercase;
+}
+.game-shell .redesign-rewards .hm-pick-desc { font:600 20px/1.2 'Barlow Condensed',sans-serif; }
+.game-shell .redesign-rewards .hm-pick-quote { font:italic 400 17px/1.2 'Barlow Condensed',sans-serif; }
+.game-shell .reward-guide {
+  flex:none; margin-top:10px; padding:7px 12px; border:1px solid #b8792755;
+  background:#17120be6; color:#dfd2bb; font:400 15px/1.25 'Barlow Condensed',sans-serif;
+}
+.game-shell .reward-guide strong { color:#ffc36c; margin-right:6px; }
+@media (min-width:701px) and (min-height:501px) {
+  .game-shell .redesign-rewards {
+    display:flex; flex-direction:column; min-height:0;
+    height:min(820px,calc(100dvh - 48px)); max-height:calc(100dvh - 48px);
+    padding:24px 30px 18px; width:min(1380px,calc(100vw - 48px));
+  }
+  .game-shell .redesign-rewards .lvl-head { flex:none; }
+  .game-shell .redesign-rewards .lvl-title.has-reference-heading { height:110px; min-height:110px; }
+  .game-shell .redesign-rewards .has-reference-heading .reference-heading { width:440px; }
+  .game-shell .redesign-rewards .lvl-grid {
+    flex:1 1 0; min-height:0; margin-top:14px; gap:16px;
+    grid-template-columns:repeat(var(--reward-columns),minmax(0,1fr));
+    grid-template-rows:minmax(0,1fr);
+  }
+  .game-shell .redesign-rewards .lvl-card { min-height:0; min-width:0; height:100%; padding:7px; }
+  .game-shell .redesign-rewards .lvl-card .hm-pick-art { flex:0 1 30%; min-height:0; height:auto; aspect-ratio:auto; }
+  .game-shell .redesign-rewards .lvl-card .lvl-body { flex:1 0 auto; min-height:0; min-width:0; gap:3px; padding:8px 12px 10px; }
+  .game-shell .redesign-rewards .hm-pick-quote { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; margin:6px 0 0; }
+  .game-shell .redesign-rewards .lvl-effect { margin-top:8px; gap:3px; }
+  .game-shell .redesign-rewards .lvl-tags { margin-top:8px; }
+  .game-shell .redesign-rewards .lvl-owned { margin-top:auto; padding-top:8px; }
+  .game-shell .redesign-rewards .lvl-bar { flex:none; min-height:50px; margin-top:12px; padding-top:8px; gap:16px; flex-wrap:nowrap; }
+  .game-shell .redesign-rewards .lvl-bar > span { font:400 17px/1.3 'Barlow Condensed',sans-serif; }
+  .game-shell .redesign-rewards .lvl-bar > .hm-btn { min-height:48px; min-width:180px; font-size:23px; }
+  .game-shell .redesign-rewards[data-columns='4'] .hm-pick-name,
+  .game-shell .redesign-rewards[data-columns='5'] .hm-pick-name { font-size:23px; }
+  .game-shell .redesign-rewards[data-columns='6'] .hm-pick-name { font-size:21px; }
+}
+@media (min-width:701px) and (min-height:501px) and (max-height:740px) {
+  .game-shell .redesign-rewards { padding:16px 24px 14px; }
+  .game-shell .redesign-rewards .lvl-title:not(.has-reference-heading) { font-size:82px; }
+  .game-shell .redesign-rewards .lvl-title.has-reference-heading { height:80px; min-height:80px; }
+  .game-shell .redesign-rewards .has-reference-heading .reference-heading { width:340px; }
+  .game-shell .redesign-rewards .lvl-card .hm-pick-art { flex-basis:30%; }
+  .game-shell .redesign-rewards .lvl-card .lvl-body { padding:6px 9px; }
+  .game-shell .redesign-rewards .hm-pick .hm-pick-name { font-size:22px; }
+  .game-shell .redesign-rewards .hm-pick-quote { display:none; }
+  .game-shell .redesign-rewards .hm-pick-desc { font-size:18px; }
+  .game-shell .redesign-rewards .lvl-kicker { font-size:13px; }
+  .game-shell .redesign-rewards .hm-stamp { font-size:12px; padding:3px 6px; }
+}
+@media (max-width:700px) {
+  .game-shell .redesign-rewards .lvl-title:not(.has-reference-heading) { font-size:76px; }
+  .game-shell .redesign-rewards .hm-pick .hm-pick-name { font-size:24px; }
+  .game-shell .redesign-rewards .hm-pick-desc { font-size:20px; }
+  .game-shell .reward-guide { font-size:14px; }
+}
+
+/* Descriptions stay readable; illustration space yields to long effects. */
+.game-shell .hm-backdrop::before { transform:none; }
+.game-shell .redesign-rewards .hm-pick-name { overflow-wrap:normal; word-break:normal; }
+@media (min-width:701px) and (min-height:501px) {
+  .game-shell .redesign-rewards[data-columns='5'] .hm-pick-desc,
+  .game-shell .redesign-rewards[data-columns='6'] .hm-pick-desc { font-size:18px; }
+  .game-shell .redesign-rewards[data-columns='5'] .hm-pick-quote,
+  .game-shell .redesign-rewards[data-columns='6'] .hm-pick-quote { display:none; }
+}

@@ -549,6 +549,7 @@ export class Game {
   input: Input;
   private eid = 1;
   private grid: Enemy[][] = [];
+  private occupiedGrid: Enemy[][] = [];
   private flow = new Int32Array(CW * CH);
   private flowQueue = new Int32Array(CW * CH);
   private navigation = new Uint8Array(CW * CH);
@@ -1085,7 +1086,8 @@ export class Game {
     }
     if (inp.pressed.has('i') && (this.state === 'play' || this.state === 'inventory')) this.state = this.state === 'inventory' ? 'play' : 'inventory';
     if (inp.pressed.has('escape')) {
-      if (this.state === 'play') this.state = 'pause';
+      if (this.bigMap) this.bigMap = false;
+      else if (this.state === 'play') this.state = 'pause';
       else if (this.state === 'pause' || this.state === 'inventory') this.state = 'play';
       else if (this.state === 'hire') this.closeHire();
     }
@@ -1993,10 +1995,14 @@ export class Game {
 
   // ---------- spatial grid ----------
   private rebuildGrid() {
-    for (const g of this.grid) g.length = 0;
+    // The painted town has 71,824 cells; only cells holding enemies need clearing.
+    for (const cell of this.occupiedGrid) cell.length = 0;
+    this.occupiedGrid.length = 0;
     for (const e of this.enemies) {
       const gx = clamp(Math.floor(e.x), 0, MAP_W - 1), gy = clamp(Math.floor(e.y), 0, MAP_H - 1);
-      this.grid[gy * MAP_W + gx].push(e);
+      const cell = this.grid[gy * MAP_W + gx];
+      if (!cell.length) this.occupiedGrid.push(cell);
+      cell.push(e);
     }
   }
   query(x: number, y: number, r: number, fn: (e: Enemy) => void) {

@@ -1,0 +1,214 @@
+/* Font roles from the user's reference, kept separate from surface/layout. */
+.game-shell .kit-btn,.game-shell .hm-btn { font-family:var(--font-menu); font-weight:400; letter-spacing:.025em; }
+.game-shell .redesign-title .title-nav button.kit-btn { font-family:var(--font-menu); font-size:22px; font-weight:400; letter-spacing:.035em; }
+.game-shell .redesign-title button.title-play { font-family:var(--font-menu); font-size:30px; }
+.game-shell .redesign-title .title-character .title-kid { font-family:var(--font-hud); font-size:24px; font-weight:600; }
+.game-shell .title-kid small,.game-shell .redesign-title .title-go p { font-family:var(--font-body); }
+.game-shell .hm-pause .hm-menu-row .hm-menu-label { font-family:var(--font-menu); font-weight:400; font-size:29px; letter-spacing:.01em; }
+.game-shell .hm-pause .hm-menu-sub { font-family:var(--font-body); font-size:17px; }
+.game-shell .redesign-settings .settings-row-label > div:first-of-type { font-family:var(--font-hud); font-weight:600; font-size:23px; letter-spacing:.025em; }
+.game-shell .redesign-settings .settings-row-label > div:last-of-type { font-family:var(--font-body); font-size:15px; }
+.game-shell .redesign-settings select { font-family:var(--font-body); font-size:18px; }
+.game-shell .kit-toggle-label { font-family:var(--font-hud); font-size:18px; }
+.game-shell .paper-kicker,.game-shell .hm-label,.game-shell .hm-kicker { font-family:var(--font-hud); font-weight:500; }
+.game-shell .paper-title,.game-shell .paper-section > h3,.game-shell .paper-card .label { font-family:var(--font-hud); }
+.game-shell .weapon-card-header .font-cond,.game-shell .hm-hud .hm-weapon-card .font-cond { font-family:var(--font-hud); font-weight:600; letter-spacing:.015em; }
+.game-shell .weapon-stat > span,.game-shell .hm-hud .hm-weapon-card .weapon-stat .font-ui { font-family:var(--font-body); font-size:16px; }
+.game-shell .weapon-stat > span:last-child { font-family:var(--font-body); font-weight:700; }
+.game-shell .hm-pause .weapon-stat > span { font-family:var(--font-body); font-size:19px; }
+.game-shell .font-num { font-family:var(--font-hud); font-weight:500; }
+.game-shell .hm-hud .hm-time { font-family:var(--font-number); font-weight:700; font-size:34px; letter-spacing:-.035em; }
+.game-shell .hm-hud .hm-time-sub { font-family:var(--font-hud); font-weight:500; }
+.game-shell .hm-hud .hm-name,.game-shell .hm-hud .hm-goal,.game-shell .hm-hud .hm-tab-name { font-family:var(--font-hud); font-weight:600; }
+.game-shell .hm-hud .hm-name { font-size:32px; }
+.game-shell .hm-hud .hm-goal { font-size:18px; }
+.game-shell .hm-hud .hm-tab-name { font-size:19px; }
+.game-shell .hm-hud .hm-rail-title { font-family:var(--font-menu); font-size:18px; letter-spacing:.025em; }
+.game-shell .hm-hud .hm-chip b { font-family:var(--font-hud); font-weight:600; }
+.game-shell .hm-pick .hm-pick-name { font-family:var(--font-horror); font-size:22px; line-height:1.5; letter-spacing:-.035em; }
+.game-shell .hm-pick-quote { font-family:var(--font-body); font-size:19px; }
+.game-shell .hm-pick-desc { font-family:var(--font-hud); font-size:28px; font-weight:500; }
+.game-shell .hm-modal .hm-foot > span { font-family:var(--font-body); }
+
+/* Fixed headings use the exact supplied lettering, with one aspect ratio.
+   These images never contain a button hit area, control label or live value. */
+.game-shell .hm-pause h2.has-reference-heading { min-height:145px; height:145px; margin:0; padding:0; font-size:0; position:relative; }
+.game-shell .hm-pause .has-reference-heading .reference-heading { position:absolute; width:calc(100% + 16px); max-width:none; height:auto; left:-12px; top:-16px; pointer-events:none; }
+.game-shell .redesign-settings .settings-title.has-reference-heading { width:360px; max-width:82%; height:105px; min-height:105px; position:relative; margin:0; padding:0; font-size:0; }
+.game-shell .redesign-settings .has-reference-heading .reference-heading { position:absolute; width:100%; height:auto; left:0; top:-23px; pointer-events:none; }
+.game-shell .redesign-rewards h2.has-reference-heading { position:relative; height:130px; min-height:130px; margin:0; padding:0; font-size:0; }
+.game-shell .redesign-rewards .has-reference-heading .reference-heading { position:absolute; width:500px; max-width:90%; height:auto; top:-7px; left:-7px; pointer-events:none; }
+.game-shell .hm-pause { min-height:654px; }
+
+/* Fixed 128px painted corners, 64px edge tiles. No full-frame stretching and
+   no repeated leaves: only the clean, empty strips repeat between corners. */
+.game-shell .hm-modal::before,.game-shell .redesign-settings::before {
+  content:''; position:absolute; inset:-40px -18px -32px -20px; z-index:-1;
+  border:0; border-image:none; border-radius:0; pointer-events:none; opacity:.86;
+  background-image:url('/images/redesign/pause-part-tl.webp'),url('/images/redesign/pause-part-tr.webp'),url('/images/redesign/pause-part-bl.webp'),url('/images/redesign/pause-part-br.webp'),url('/images/redesign/pause-part-top.webp'),url('/images/redesign/pause-part-bottom.webp'),url('/images/redesign/pause-part-left.webp'),url('/images/redesign/pause-part-right.webp');
+  background-position:left top,right top,left bottom,right bottom,left top 30px,left bottom 22px,left 10px top,right 8px top;
+  background-size:128px 128px,128px 128px,128px 128px,128px 128px,64px 18px,64px 18px,18px 64px,18px 64px;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat-x,repeat-x,repeat-y,repeat-y;
+}
+.game-shell .redesign-settings::before { background-image:url('/images/redesign/settings-part-tl.webp'),url('/images/redesign/settings-part-tr.webp'),url('/images/redesign/settings-part-bl.webp'),url('/images/redesign/settings-part-br.webp'),url('/images/redesign/settings-part-top.webp'),url('/images/redesign/settings-part-bottom.webp'),url('/images/redesign/settings-part-left.webp'),url('/images/redesign/settings-part-right.webp'); }
+.game-shell .hm-modal::before,.game-shell .redesign-settings::before { inset:0; background:none; border:0 solid transparent; border-image:url('/images/redesign/pause-frame-atlas.webp') 128 / 128px / 40px 18px 32px 20px round; }
+.game-shell .redesign-settings::before { border-image-source:url('/images/redesign/settings-frame-atlas.webp'); }
+.game-shell .hm-pause .hm-menu-row-primary { background:linear-gradient(100deg,#ffab25 0,#ff8508 31%,#d8550020 47%,transparent 70%); border-color:#ffac32; box-shadow:0 0 3px #ff9a16,0 0 13px #ff630055; }
+.game-shell .hm-pause .hm-menu-row-primary .hm-menu-label { color:#100c06; }
+.game-shell .hm-pause .hm-menu-row-primary .hm-menu-n { color:#ffca61; }
+.game-shell .hm-pause .hm-menu-row-primary:hover .hm-menu-label { color:#000; }
+@media (max-width:1499px) { .game-shell .hm-hud .hm-goal { font-size:15px; } .game-shell .hm-hud .hm-time { font-size:30px; } }
+@media (max-width:700px) {
+  .game-shell .redesign-title .title-nav button.kit-btn { font-size:17px; }
+  .game-shell .redesign-title button.title-play { font-size:26px; }
+  .game-shell .redesign-title .title-character .title-kid { font-size:18px; }
+  .game-shell .hm-pause { min-height:0; }
+  .game-shell .hm-pause .hm-menu-row .hm-menu-label { font-size:23px; }
+  .game-shell .hm-pause h2.has-reference-heading { min-height:85px; height:85px; }
+  .game-shell .redesign-settings .settings-title.has-reference-heading { width:250px; height:70px; min-height:70px; }
+  .game-shell .redesign-settings .has-reference-heading .reference-heading { top:-12px; }
+  .game-shell .redesign-rewards h2.has-reference-heading { height:85px; min-height:85px; }
+  .game-shell .redesign-settings .settings-row-label > div:first-of-type { font-size:18px; }
+  .game-shell .redesign-settings .settings-row-label > div:last-of-type { font-size:12px; }
+  .game-shell .hm-pick .hm-pick-name { font-size:15px; }
+  .game-shell .hm-hud .hm-time { font-size:24px; }
+  .game-shell .hm-hud .hm-name { font-size:22px; }
+  .game-shell .hm-hud .hm-tab-name { font-size:15px; }
+  .game-shell .touch-game .hm-hud .hm-time { font-size:13px; }
+}
+
+@media (orientation:landscape) and (max-height:500px) { .game-shell .redesign-title .title-nav button.kit-btn { font-size:13px; } }
+
+/* Keep the reference frame independent of legacy corner-bracket dimensions. */
+.game-shell .hm-modal::before,
+.game-shell .redesign-settings::before {
+  width:auto; height:auto; box-sizing:border-box; opacity:.66;
+}
+.game-shell .hm-modal,
+.game-shell .redesign-settings {
+  background:var(--night-grain) center / 240px 240px,
+    radial-gradient(ellipse at 0 0,#6d250b20,transparent 60%),#100f12;
+  box-shadow:0 0 3px #ff8c2344,0 20px 70px #000b;
+}
+.game-shell .hm-pause { min-height:654px; }
+.game-shell .hm-pause .hm-menu-row {
+  display:grid; grid-template-columns:30px minmax(0,auto) 1fr;
+  min-height:56px; padding:11px 16px; gap:16px;
+  background-color:#08090b70; border-color:#85715b55;
+}
+.game-shell .hm-pause .hm-menu-chev { display:none; }
+.game-shell .hm-pause .hm-menu-n {
+  display:block; min-width:0; height:auto; padding:0; border:0;
+  border-radius:0; background:none; box-shadow:none;
+  font:500 25px/1 var(--font-hud); color:#ff8b16;
+}
+.game-shell .hm-pause .hm-menu-label { line-height:1.15; }
+.game-shell .hm-pause .hm-menu-row-primary {
+  background:linear-gradient(100deg,#0b0907,#0b0907);
+  border-color:#ff9d22; box-shadow:0 0 9px #ff670066;
+}
+.game-shell .hm-pause .hm-menu-row-primary .hm-menu-label {
+  margin:-10px 0 -10px -5px; padding:13px 30px 13px 15px;
+  min-height:51px; color:#130c05;
+  background:linear-gradient(100deg,#ffc33f,#ff8a0b 78%,#ff850000);
+}
+.game-shell .hm-pause .weapon-stat .wx-stat-k,
+.game-shell .hm-pause .weapon-stat .wx-stat-v {
+  font-family:var(--font-body); font-size:19px; line-height:1.2;
+}
+.game-shell .weapon-card .wx-stat-v { font-family:var(--font-body); font-weight:700; }
+.game-shell .weapon-card { --rarity:var(--acc); }
+.game-shell .redesign-settings {
+  display:flex; flex-direction:column; max-height:calc(100dvh - 88px);
+  padding-top:24px; padding-bottom:24px; overflow:visible;
+}
+.game-shell .redesign-settings > div:first-of-type,
+.game-shell .redesign-settings .settings-tabs,
+.game-shell .redesign-settings > div:last-of-type { flex-shrink:0; }
+.game-shell .redesign-settings .settings-body {
+  min-height:0; overflow-y:auto; overscroll-behavior:contain;
+  scrollbar-color:#8e552a #151317; scrollbar-width:thin; padding-right:5px;
+}
+.game-shell .redesign-settings .settings-tabs { margin-block:8px 12px; }
+.game-shell .settings-tab { font:400 20px/1.2 var(--font-menu); letter-spacing:.06em; }
+.game-shell .redesign-settings .settings-row-label { padding-block:1px; }
+.game-shell .redesign-settings > div:last-of-type { margin-top:12px; }
+.game-shell .redesign-settings > div:last-of-type .kit-btn { height:54px; }
+.game-shell .redesign-title .title-nav .kit-btn-dark {
+  --button-frame:url('/images/redesign/button-frame-muted.svg');
+  box-shadow:0 3px 8px #0005;
+}
+.game-shell .redesign-title .title-nav .kit-btn-dark:hover {
+  --button-frame:url('/images/redesign/button-frame.svg');
+}
+.game-shell .redesign-title .title-nav-play { background:linear-gradient(110deg,#62300f,#17100be8); }
+.game-shell .redesign-title .title-wrap::before { display:none; }
+.game-shell .redesign-title .title-actions { display:flex; flex-direction:column; gap:8px; width:min(100%,360px); justify-self:center; }
+.game-shell .redesign-title .title-actions .title-play { width:100%; }
+@media (min-width:1101px) and (min-height:781px) {
+  .game-shell .redesign-title .title-panel { min-height:338px; }
+  .game-shell .redesign-title .title-cards { align-items:start; }
+  .game-shell .redesign-title .title-character.is-selected { margin-top:-35px; }
+}
+.game-shell .redesign-title .title-resources b,
+.game-shell .redesign-title .title-resources small { font-family:var(--font-body); }
+.game-shell .redesign-title .title-resources b { font-size:19px; }
+.game-shell .redesign-title .title-unlock-note { font-family:var(--font-body); font-size:13px; }
+.game-shell .hm-hud .hm-radio { max-width:225px; overflow:hidden; }
+.game-shell .hm-hud .hm-goals { flex-shrink:1; }
+.game-shell .hm-hud .hm-time { text-shadow:0 2px 5px #000; }
+.game-shell .hm-hud .hm-goal { white-space:nowrap; }
+.game-shell .redesign-rewards .lvl-title.has-reference-heading { height:130px; }
+.game-shell .redesign-rewards .lvl-title.has-reference-heading .reference-heading { width:500px; }
+.game-shell .redesign-rewards .hm-pick .hm-pick-name {
+  font-family:var(--font-hud); font-size:34px; font-weight:600; line-height:1.12;
+  letter-spacing:.015em; color:#fff0d5;
+}
+.game-shell .redesign-rewards .hm-pick-quote { font:italic 500 18px/1.35 var(--font-body); }
+.game-shell .redesign-rewards .lvl-grid { margin-top:20px; }
+.game-shell .redesign-rewards .hm-pick { min-height:440px; }
+.game-shell .redesign-rewards .lvl-owned { font-family:var(--font-body); }
+@media (max-width:1100px) {
+  .game-shell .hm-pause .hm-menu-sub { display:none; }
+  .game-shell .hm-pause .hm-menu-row { grid-template-columns:26px 1fr; }
+}
+@media (max-width:700px) {
+  .game-shell .redesign-modal-backdrop:has(.redesign-settings) > .modal-close { display:none; }
+  .game-shell .redesign-modal-backdrop:has(.redesign-settings) .modal-scroll { padding:24px 16px; }
+  .game-shell .redesign-settings { max-height:calc(100dvh - 48px); padding:18px 14px; }
+  .game-shell .redesign-settings > div:last-of-type .kit-btn { height:46px; }
+  .game-shell .hm-pause { min-height:0; }
+  .game-shell .hm-pause .hm-menu-row { min-height:49px; padding:9px; }
+  .game-shell .hm-pause .hm-menu-row-primary .hm-menu-label { min-height:44px; padding:12px 15px; }
+  .game-shell .redesign-rewards .lvl-title.has-reference-heading { height:85px; }
+  .game-shell .redesign-rewards .hm-pick { min-height:165px; }
+  .game-shell .redesign-rewards .hm-pick .hm-pick-name { font-size:25px; }
+  .game-shell .redesign-rewards .hm-pick-quote { font-size:14px; }
+  .game-shell .redesign-rewards .lvl-grid { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .game-shell .redesign-rewards .lvl-card { min-width:0; width:100%; max-width:100%; padding:6px; }
+  .game-shell .redesign-rewards .lvl-card .hm-pick-art { flex:0 0 34%; min-width:0; min-height:150px; }
+  .game-shell .redesign-rewards .lvl-card .lvl-body { flex:1 1 0; min-width:0; padding:10px; }
+  .game-shell .redesign-rewards .hm-pick .hm-pick-name { font-size:22px; overflow-wrap:anywhere; }
+  .game-shell .redesign-rewards .hm-pick-desc { font-size:20px; line-height:1.15; overflow-wrap:anywhere; }
+  .game-shell .redesign-rewards .lvl-effect { margin-top:8px; gap:3px; }
+  .game-shell .redesign-rewards .lvl-tags { margin-top:8px; }
+  .game-shell .redesign-rewards .lvl-owned { padding-top:7px; gap:5px; }
+  .game-shell .redesign-rewards .hm-stamp { left:2px; right:2px; text-align:center; font-size:9px; padding:3px 0; }
+}
+
+@media (orientation:landscape) and (max-height:500px) {
+  .game-shell .redesign-modal-backdrop:has(.redesign-settings) > .modal-close { display:none; }
+  .game-shell .redesign-modal-backdrop:has(.redesign-settings) .modal-scroll { padding:16px; }
+  .game-shell .redesign-settings { max-height:calc(100dvh - 32px); padding:12px 24px; }
+  .game-shell .redesign-settings > div:first-of-type { min-height:64px; height:64px; }
+  .game-shell .redesign-settings > div:first-of-type .paper-kicker { display:none; }
+  .game-shell .redesign-settings .settings-title.has-reference-heading { width:200px; min-height:60px; height:60px; }
+  .game-shell .redesign-settings .has-reference-heading .reference-heading { top:-21px; }
+  .game-shell .redesign-settings > div:first-of-type > button { top:0; right:0; width:34px; height:34px; }
+  .game-shell .redesign-settings .settings-tabs { margin:0 0 8px; }
+  .game-shell .redesign-settings .settings-tab { padding:6px; font-size:17px; }
+  .game-shell .redesign-settings > div:last-of-type { margin-top:8px; padding-top:8px; }
+  .game-shell .redesign-settings > div:last-of-type .kit-btn { height:42px; }
+  .game-shell .redesign-settings .settings-row { min-height:52px; padding:6px 0; }
+  .game-shell .redesign-title .title-actions .title-play { height:48px; min-height:48px; max-height:48px; font-size:25px; }
+}

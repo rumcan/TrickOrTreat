@@ -200,9 +200,29 @@ export interface NightLight {sx:number;sy:number;rx:number;ry:number;i:number;to
 const tints=new Map<string,HTMLCanvasElement>();
 function tintDisc(color:string){let c=tints.get(color);if(c)return c;const N=128;c=rawCanvas(N,N);const g=c.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2);
  gr.addColorStop(0,color);gr.addColorStop(.6,color+'80');gr.addColorStop(1,color+'00');g.fillStyle=gr;g.fillRect(0,0,N,N);tints.set(color,c);return c;}
-function quadPath(g:CanvasRenderingContext2D,q:[number,number][]){g.beginPath();g.moveTo(q[0][0],q[0][1]);for(let k=1;k<q.length;k++)g.lineTo(q[k][0],q[k][1]);g.closePath();}
 function quadOff(q:[number,number][],W:number,H:number){return q.every(p=>p[0]<0)||q.every(p=>p[1]<0)||q.every(p=>p[0]>W)||q.every(p=>p[1]>H);}
-const scratch:{orig?:HTMLCanvasElement;mask?:HTMLCanvasElement}={},discs=new Map<number,HTMLCanvasElement>();let warm:HTMLCanvasElement|null=null;
+// Blurring polygons on the live frame forces expensive canvas compositing every
+// frame. Cache the light shape independently of camera position and intensity.
+const quadLights=new Map<string,HTMLCanvasElement>();
+let quadPixels=0;
+function drawQuadLight(ctx:CanvasRenderingContext2D,l:NightLight,color:string){
+ const q=l.quad!,x=Math.min(...q.map(p=>p[0])),y=Math.min(...q.map(p=>p[1]));
+ const points=q.map(p=>[Math.round((p[0]-x)*16)/16,Math.round((p[1]-y)*16)/16]);
+ const blur=Math.round(Math.max(.5,l.blur||0)*8)/8,pad=Math.ceil(blur*3)+2;
+ const w=Math.ceil(Math.max(...points.map(p=>p[0]))+pad*2),h=Math.ceil(Math.max(...points.map(p=>p[1]))+pad*2);
+ const key=color+'|'+blur+'|'+points.flat().join(',');
+ let image=quadLights.get(key);
+ if(!image){
+  // A soft light needs no giant texture. Bound the cache to 16 MiB of RGBA pixels.
+  const scale=Math.min(1,1024/Math.max(w,h));image=rawCanvas(Math.ceil(w*scale),Math.ceil(h*scale));
+  const g=image.getContext('2d')!;g.filter=`blur(${blur*scale}px)`;g.fillStyle=color;
+  g.beginPath();points.forEach((p,i)=>{const X=(p[0]+pad)*scale,Y=(p[1]+pad)*scale;if(i)g.lineTo(X,Y);else g.moveTo(X,Y);});g.closePath();g.fill();g.filter='none';
+  quadLights.set(key,image);quadPixels+=image.width*image.height;
+  while(quadPixels>4*1024*1024&&quadLights.size>1){const first=quadLights.keys().next().value!;const old=quadLights.get(first)!;quadPixels-=old.width*old.height;old.width=old.height=0;quadLights.delete(first);}
+ }
+ ctx.drawImage(image,x-pad,y-pad,w,h);
+}
+const scratch:{orig?:HTMLCanvasElement;mask?:HTMLCanvasElement;pool?:HTMLCanvasElement}={},discs=new Map<number,HTMLCanvasElement>();let warm:HTMLCanvasElement|null=null;
 function disc(feather:number){const key=Math.round(feather*100);let c=discs.get(key);if(c)return c;const N=256;c=rawCanvas(N,N);const g=c.getContext('2d')!,gr=g.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2),f=Math.min(.98,Math.max(.02,feather));
  gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1-f,'rgba(255,255,255,1)');for(let k=1;k<=8;k++){const t=k/8;gr.addColorStop(1-f+f*t,`rgba(255,255,255,${(1-t*t*(3-2*t)).toFixed(3)})`);}
  g.fillStyle=gr;g.fillRect(0,0,N,N);discs.set(key,c);return c;}
@@ -211,23 +231,30 @@ function warmDisc(){if(warm)return warm;const N=128;warm=rawCanvas(N,N);const g=
 export function applyNight(ctx:CanvasRenderingContext2D,night:Night,lights:NightLight[],cone:{x:number;y:number;a:number;len:number}|null){
  const W=ctx.canvas.width,H=ctx.canvas.height;
  for(const k of ['orig','mask'] as const){let c=scratch[k];if(!c)c=scratch[k]=rawCanvas(W,H);if(c.width!==W||c.height!==H){c.width=W;c.height=H;}}
- const orig=scratch.orig!,mask=scratch.mask!,o=orig.getContext('2d')!;o.globalCompositeOperation='copy';o.drawImage(ctx.canvas,0,0);o.globalCompositeOperation='source-over';
+ const orig=scratch.orig!,mask=scratch.mask!;
  ctx.save();ctx.setTransform(1,0,0,1,0,0);
+ const o=orig.getContext('2d')!;o.globalCompositeOperation='copy';o.drawImage(ctx.canvas,0,0);o.globalCompositeOperation='source-over';
  ctx.globalCompositeOperation='saturation';ctx.globalAlpha=night.desat;ctx.fillStyle='#808080';ctx.fillRect(0,0,W,H);
  ctx.globalCompositeOperation='multiply';ctx.globalAlpha=night.strength;ctx.fillStyle=night.tint;ctx.fillRect(0,0,W,H);
  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=night.dark;ctx.fillStyle='#03030c';ctx.fillRect(0,0,W,H);
  const m=mask.getContext('2d')!,d=disc(night.feather);m.globalCompositeOperation='source-over';m.globalAlpha=1;m.clearRect(0,0,W,H);m.globalCompositeOperation='lighter';
- for(const l of lights){if(l.quad){if(quadOff(l.quad,W,H))continue;m.globalAlpha=Math.min(1,l.i);m.filter=`blur(${Math.max(.5,l.blur||0).toFixed(1)}px)`;m.fillStyle='#fff';quadPath(m,l.quad);m.fill();m.filter='none';continue;}
+ for(const l of lights){if(l.quad){if(quadOff(l.quad,W,H))continue;m.globalAlpha=Math.min(1,l.i);drawQuadLight(m,l,'#fff');continue;}
   if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;m.globalAlpha=Math.min(1,l.i);m.drawImage(l.feather!=null?disc(l.feather):d,l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}
  if(cone){const gr=m.createRadialGradient(cone.x,cone.y,0,cone.x,cone.y,cone.len);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.55,'rgba(255,255,255,.7)');gr.addColorStop(1,'rgba(255,255,255,0)');
   m.globalAlpha=1;m.fillStyle=gr;m.beginPath();m.moveTo(cone.x,cone.y);m.arc(cone.x,cone.y,cone.len,cone.a-.42,cone.a+.42);m.closePath();m.fill();}
  m.globalAlpha=1;m.globalCompositeOperation='source-in';m.drawImage(orig,0,0);
  ctx.globalAlpha=1;ctx.drawImage(mask,0,0);
- // a little warmth in the pools, or the light's own picked colour
- for(const op of ['soft-light','screen'] as const){ctx.globalCompositeOperation=op;
+ // a little warmth in the pools, or the light's own picked colour. Every soft-light/screen draw straight onto the
+ // frame makes the GPU copy the whole frame first, so hundreds of lights (bullets, glows) were hundreds of copies a
+ // frame: the slow motion after the first minute. Gather each pass in one half-size layer and blend it once.
+ const lw=Math.ceil(W/2),lh=Math.ceil(H/2);let pool=scratch.pool;if(!pool)pool=scratch.pool=rawCanvas(lw,lh);if(pool.width!==lw||pool.height!==lh){pool.width=lw;pool.height=lh;}
+ const p=pool.getContext('2d')!;
+ for(const op of ['soft-light','screen'] as const){let any=false;
+  p.setTransform(1,0,0,1,0,0);p.globalCompositeOperation='source-over';p.globalAlpha=1;p.clearRect(0,0,lw,lh);p.setTransform(lw/W,0,0,lh/H,0,0);
   for(const l of lights){if(l.torch||(!l.tint&&(op==='screen'||!(night.warmth>0))))continue;
-   ctx.globalAlpha=Math.min(1,l.tint?(op==='screen'?.22:.4+night.warmth*.5)*l.i:night.warmth*l.i);
-   if(l.quad){if(quadOff(l.quad,W,H))continue;ctx.filter=`blur(${Math.max(.5,l.blur||0).toFixed(1)}px)`;ctx.fillStyle=l.tint||'#ff9a40';quadPath(ctx,l.quad);ctx.fill();ctx.filter='none';continue;}
-   if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;ctx.drawImage(l.tint?tintDisc(l.tint):warmDisc(),l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);}}
+   p.globalAlpha=Math.min(1,l.tint?(op==='screen'?.22:.4+night.warmth*.5)*l.i:night.warmth*l.i);
+   if(l.quad){if(quadOff(l.quad,W,H))continue;drawQuadLight(p,l,l.tint||'#ff9a40');any=true;continue;}
+   if(l.sx+l.rx<0||l.sy+l.ry<0||l.sx-l.rx>W||l.sy-l.ry>H)continue;p.drawImage(l.tint?tintDisc(l.tint):warmDisc(),l.sx-l.rx,l.sy-l.ry,l.rx*2,l.ry*2);any=true;}
+  if(any){ctx.globalCompositeOperation=op;ctx.globalAlpha=1;ctx.drawImage(pool,0,0,W,H);}}
  ctx.restore();
 }

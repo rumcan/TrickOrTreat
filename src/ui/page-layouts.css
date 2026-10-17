@@ -1,0 +1,132 @@
+/* Layouts follow the generated full-page desktop/mobile design references. */
+.game-shell .talent-side {
+  display:grid; grid-template-rows:minmax(0,1fr) auto; gap:0;
+  min-width:0; min-height:0; overflow:hidden; padding:30px 30px 36px;
+}
+.game-shell .talent-panel-scroll { min-height:0; overflow-y:auto; overflow-x:hidden; padding:4px; scrollbar-width:thin; }
+.game-shell .talent-panel-scroll > * + * { margin-top:14px; }
+.game-shell .talent-panel-head .paper-kicker { font:600 13px/1.3 var(--font-body); letter-spacing:.1em; }
+.game-shell .talent-side .talent-panel-head .paper-title { width:100%; margin:8px 0 12px; }
+.game-shell .talent-panel-head .paper-rule { display:none; }
+.game-shell .talent-side .talent-panel-head p { font:400 17px/1.4 var(--font-body); color:#ded3c2; margin:0; }
+.game-shell .talent-side .label { font:600 13px/1.35 var(--font-body); letter-spacing:.055em; }
+.game-shell .talent-balance-row { display:block; }
+.game-shell .talent-side .talent-wallet { padding:12px 16px; min-height:76px; gap:14px; }
+.game-shell .talent-wallet b { font:700 32px/1.1 var(--font-number); color:#f7d7ff; }
+.game-shell .talent-side .talent-earned { padding:14px 16px; }
+.game-shell .talent-side .talent-earned p { font:400 15px/1.4 var(--font-body); color:#d5c9b9; }
+.game-shell .talent-side .talent-focus { margin-top:18px; padding:18px; border-radius:5px; background:#101013dd; }
+.game-shell .talent-focus-head { display:flex; align-items:center; gap:14px; }
+.game-shell .talent-focus-art { width:64px; height:64px; border-width:2px; }
+.game-shell .talent-focus-art img { width:54px; height:54px; }
+.game-shell .talent-focus-name { margin-top:5px; color:#fff0da; font:400 27px/1.15 var(--font-menu); text-transform:uppercase; overflow-wrap:normal; }
+.game-shell .talent-side .talent-effect { margin:16px 0 0; font:600 19px/1.35 var(--font-body); color:#fff0da; }
+.game-shell .talent-side .talent-focus p:not(.talent-effect) { font-size:16px; line-height:1.4; }
+.game-shell .talent-side .talent-focus .font-cond2 { font:600 15px/1.4 var(--font-body); letter-spacing:0; text-transform:none; }
+.game-shell .talent-rank-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 14px; margin-top:8px; color:#c7bba9; font:600 15px/1.35 var(--font-body); }
+.game-shell .talent-side .hm-btn { white-space:normal; text-align:center; font-size:18px; line-height:1.25; min-height:48px; padding:10px 14px; }
+.game-shell .talent-side .talent-invest { margin-top:18px; min-height:52px; }
+.game-shell .talent-side .talent-branches { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.game-shell .talent-side .talent-branches .paper-card { padding:12px 8px!important; min-width:0; }
+.game-shell .talent-side .talent-branches .label { font-size:14px!important; letter-spacing:.025em; }
+.game-shell .talent-side .talent-branches .font-cond { font:700 28px/1.2 var(--font-number); padding:4px 0; }
+.game-shell .talent-guide { border:1px solid #85765b55; border-radius:4px; background:#0b0d12; }
+.game-shell .talent-guide summary { padding:12px 14px; cursor:pointer; color:#f4e5cb; font:400 18px/1.2 var(--font-menu); }
+.game-shell .talent-guide > div { padding:0 14px 12px; }
+.game-shell .talent-side .talent-guide p { display:flex; align-items:center; gap:9px; margin:8px 0; color:#ddd1bd; font:400 15px/1.4 var(--font-body); }
+.game-shell .talent-legend-ring { width:13px; height:13px; flex:none; border:2px solid #fa8a25; border-radius:50%; }
+.game-shell .talent-legend-ring--gold { border-color:#ffc94d; }
+.game-shell .talent-legend-path { width:20px; flex:none; border-top:2px dashed #00d5ff; }
+.game-shell .talent-side .talent-refund { width:100%; margin-top:12px; color:#c3b6a5; }
+.game-shell .talent-action-footer { display:flex; gap:12px; padding-top:18px; margin-top:16px; border-top:1px solid #c4762a66; }
+.game-shell .talent-action-footer .hm-btn { flex:1; min-width:0; }
+@media (min-width:1024px) {
+  .game-shell .talent-screen { display:grid; grid-template-columns:minmax(0,1fr) minmax(420px,30%); }
+  .game-shell .talent-side { overflow:hidden; }
+}
+@media (max-width:1023px) {
+  .game-shell .talent-screen { display:flex; flex-direction:column; overflow:hidden; }
+  .game-shell .talent-sky { flex:0 0 auto; height:34dvh; min-height:210px; max-height:320px; }
+  .game-shell .talent-side { flex:1 1 0; display:grid; padding:24px 26px 32px; overflow:hidden; }
+  .game-shell .talent-panel-scroll { min-height:0; overflow-y:auto; }
+  .game-shell .talent-action-footer { position:relative; z-index:5; padding:14px 0 0; margin-top:12px; background:#090a0ff5; }
+  .game-shell .talent-side .talent-panel-head .paper-title { height:90px; }
+  .game-shell .talent-panel-head .illustrated-heading,
+  .game-shell .talent-panel-head .illustrated-heading picture { height:90px; }
+  .game-shell .talent-panel-head .illustrated-heading img { height:90px; width:auto; max-width:100%; object-fit:contain; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .game-shell .talent-screen { display:grid; grid-template-columns:minmax(0,1fr) minmax(340px,46%); grid-template-rows:minmax(0,1fr); }
+  .game-shell .talent-sky { height:auto; min-height:0; max-height:none; }
+  .game-shell .talent-side { padding:20px 22px 28px; }
+  .game-shell .talent-side .talent-panel-head .paper-title,
+  .game-shell .talent-panel-head .illustrated-heading,
+  .game-shell .talent-panel-head .illustrated-heading picture,
+  .game-shell .talent-panel-head .illustrated-heading img { height:68px; }
+}
+.game-shell .reward-guide-short,.game-shell .lvl-bar-touch-hint { display:none; }
+.game-shell .hm-backdrop:has(> .redesign-rewards) { padding:16px; overflow:hidden; }
+@media (min-width:701px) and (min-height:501px) {
+  .game-shell .redesign-rewards {
+    width:min(1440px,calc(100vw - 32px)); height:min(860px,calc(100dvh - 32px));
+    max-height:calc(100dvh - 32px); padding:32px 44px 44px;
+  }
+  .game-shell .redesign-rewards .lvl-grid { margin-top:18px; gap:18px; }
+  .game-shell .redesign-rewards .lvl-bar {
+    min-height:66px; margin-top:18px; padding-top:16px;
+    border-top:1px solid #a65b2466; align-items:center;
+  }
+  .game-shell .redesign-rewards .lvl-bar > .hm-btn { min-height:48px; }
+}
+@media (min-width:701px) and (min-height:501px) and (max-height:800px) {
+  .game-shell .redesign-rewards { padding:26px 36px 40px; }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading { height:76px; }
+  .game-shell .redesign-rewards .lvl-grid { gap:14px; margin-top:14px; }
+  .game-shell .redesign-rewards .lvl-bar { margin-top:14px; padding-top:12px; min-height:62px; }
+  .game-shell .redesign-rewards[data-columns='5'] .hm-pick-name { font-size:21px; }
+  .game-shell .redesign-rewards[data-columns='5'] .hm-pick-desc { font-size:17px; }
+}
+/* The phone frame stays still; only the offer list scrolls. Footer actions
+   remain visible with a real safe inset from the painted keyline. */
+@media (max-width:700px), (max-height:500px) {
+  .game-shell .hm-backdrop:has(> .redesign-rewards) { padding:8px; align-items:center; }
+  .game-shell .redesign-rewards {
+    display:flex; flex-direction:column; gap:0; min-height:0;
+    width:calc(100vw - 16px); max-width:620px; height:calc(100dvh - 16px);
+    max-height:calc(100dvh - 16px); padding:26px 24px 32px; overflow:hidden;
+  }
+  .game-shell .redesign-rewards .lvl-head { flex:none; }
+  .game-shell .redesign-rewards .lvl-kicker { font-size:11px; line-height:1.3; letter-spacing:.1em; }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading { width:min(210px,78%); margin:8px 0; }
+  .game-shell .redesign-rewards .reward-guide { flex:none; margin:4px 0 12px; padding:6px 8px; font-size:14px; line-height:1.25; }
+  .game-shell .redesign-rewards .reward-guide-long { display:none; }
+  .game-shell .redesign-rewards .reward-guide-short { display:block; }
+  .game-shell .redesign-rewards .lvl-grid {
+    display:flex; flex-direction:column; flex:1 1 0; min-height:0;
+    overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin;
+    margin:0; padding:4px; gap:14px;
+  }
+  .game-shell .redesign-rewards .lvl-card { flex:0 0 auto; min-height:170px; height:auto; display:flex; flex-direction:row; }
+  .game-shell .redesign-rewards .lvl-card .hm-pick-art { flex:0 0 32%; min-height:145px; }
+  .game-shell .redesign-rewards .lvl-card .lvl-body { min-width:0; flex:1; padding:10px 8px; }
+  .game-shell .redesign-rewards .hm-pick-name { font-size:21px; }
+  .game-shell .redesign-rewards .hm-pick-desc { font-size:18px; line-height:1.25; }
+  .game-shell .redesign-rewards .hm-pick-quote { display:none; }
+  .game-shell .redesign-rewards .lvl-bar {
+    flex:none; display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; justify-content:space-between;
+    min-height:64px; gap:10px; margin-top:12px; padding-top:12px;
+  }
+  .game-shell .redesign-rewards .lvl-bar-hint { display:none; }
+  .game-shell .redesign-rewards .lvl-bar-touch-hint { display:block; font:600 15px/1.2 var(--font-body); }
+  .game-shell .redesign-rewards .lvl-reroll { flex:none; width:auto; min-height:48px; min-width:132px; padding:8px 12px; font-size:18px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .game-shell .redesign-rewards { max-width:900px; padding:18px 28px 32px; }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading { height:50px; width:auto; margin:3px 0; }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading img { height:100%; width:auto; }
+  .game-shell .redesign-rewards .reward-guide { padding:4px 8px; margin-bottom:6px; }
+  .game-shell .redesign-rewards .reward-guide-short { display:none; }
+  .game-shell .redesign-rewards .lvl-card { min-height:135px; }
+  .game-shell .redesign-rewards .lvl-card .hm-pick-art { flex-basis:25%; min-height:125px; }
+  .game-shell .redesign-rewards .lvl-bar { min-height:54px; margin-top:7px; padding-top:6px; }
+}

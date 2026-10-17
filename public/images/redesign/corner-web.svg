@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none">
+  <defs><linearGradient id="fade" x1="0" x2="1" y2="1"><stop stop-color="#e56a1b" stop-opacity=".85"/><stop offset="1" stop-color="#ce6d37" stop-opacity="0"/></linearGradient></defs>
+  <g stroke="url(#fade)" stroke-width=".85">
+    <path d="M2 2 160 7M2 2l152 40M2 2l131 77M2 2l105 111M2 2l64 145M2 2l26 158M2 2l3 158"/>
+    <path d="M5 23q10 1 15-6 4 1 4-12M5 43q20 1 26-17 11 2 14-19M5 64q31-4 39-28 15-1 24-28M5 87q36-4 51-39 22-3 35-40M5 113q47-8 65-50 27-4 43-55M5 145q61-10 81-67 33-8 50-69"/>
+    <path d="M20 18q6 6 9 11M31 26q8 11 14 11M44 36q9 14 12 13M56 48q12 16 14 15M70 63q10 17 16 15M29 29q-3 8 4 13M45 37q-2 10 3 16M56 49q1 12 9 21M70 64q0 15 9 24M86 78q1 13 10 25"/>
+  </g>
+  <g fill="#ff7f14" opacity=".7"><circle cx="4" cy="4" r="2"/><circle cx="53" cy="6" r=".8"/><circle cx="4" cy="75" r=".8"/><circle cx="73" cy="39" r=".6"/></g>
+</svg>
