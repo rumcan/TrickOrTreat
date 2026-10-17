@@ -232,6 +232,12 @@ export async function runQueue(opts, generate = execute) {
         }
         await writeJson(stateFile(out,job),s);current=null;await heartbeat();
         if(s.status==='generated') await review(out).catch(e=>log(`gallery refresh failed: ${e.message}`));
+        // Cut finished production sheets straight into the town builder and archive the sheet (slice.mjs).
+        if(s.status==='generated'&&job.phase==='production'&&opts.slice!==false&&opts.slice!=='false') {
+          const {sliceCampaign}=await import('./slice.mjs');
+          await sliceCampaign({out,only:job.key}).then(d=>log(`sliced ${job.key} into ${d[0]?.cells ?? 0} builder sprites`))
+            .catch(e=>log(`slicing ${job.key} failed (sheet kept in sheets/): ${e.message}`));
+        }
         if(s.status==='retry')soonest=Math.min(soonest,s.nextAttemptAt);
       }
       if(!pending||attempted>=limit) break;

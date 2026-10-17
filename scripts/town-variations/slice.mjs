@@ -17,8 +17,8 @@ import sharp from 'sharp';
 import {ROOT,DEFAULT_OUT,readJson,writeJson} from './plan.mjs';
 import {options} from './runner.mjs';
 
-const LIB = path.join(ROOT,'output/town-builder/library');
-const ART = path.join(ROOT,'art/town-variations');
+const LIBRARY = path.join(ROOT,'output/town-builder/library');
+const ART_DIR = path.join(ROOT,'art/town-variations');
 const VEHICLE_VIEWS = ['side view','front view','rear view','corner view'];
 
 // Alpha bounds inside one cell of the sheet; null when the cell is empty.
@@ -39,7 +39,7 @@ function cellsOf(sidecar,width,height,count) {
   return [0,1,2,3].map(i=>({left:i%2*width/2,top:Math.floor(i/2)*height/2,width:width/2,height:height/2}));
 }
 
-export async function sliceCampaign({out=DEFAULT_OUT,only,dryRun=false}={}) {
+export async function sliceCampaign({out=DEFAULT_OUT,only,dryRun=false,library:LIB=LIBRARY,art:ART=ART_DIR}={}) {
   const manifest=await readJson(path.join(out,'manifest.json'));
   const libraryFile=path.join(LIB,'library.json'),library=await readJson(libraryFile);
   const done=[];
