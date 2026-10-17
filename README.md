@@ -91,7 +91,7 @@ exporting. The working files are:
 | `output/town-builder/layout.json` | Placed objects |
 | `output/town-builder/plans/maple-falls.json` | Ground plan, roads and lighting settings |
 | `output/town-builder/library/` | Object artwork and library metadata |
-| `output/town-builder/map-current.json` | Pointer to the current completed ground bake; older setups use `map/` directly |
+| `output/town-builder/map-current.json` | Pointer to the current ground bake (`map-version-*`). Each **Rebuild ground** keeps the current and previous bake and deletes older ones |
 | `output/road-autotile-v4/`, `output/terrain-materials/`, `output/paving-kit/` | Road, grass and car-park materials the ground bake reads |
 | `output/town-art/` | The town's working art (raw generations, guides, sprite masters). Set `TOWN_ART` to use another folder |
 

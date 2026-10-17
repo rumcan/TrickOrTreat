@@ -23,3 +23,17 @@ export async function publishMap(data,completed){
  for(let attempt=0;;attempt++)try{await fs.rename(temp,file);break;}catch(e){if(!['EPERM','EACCES','EBUSY'].includes(e.code)||attempt>=20)throw e;await new Promise(resolve=>setTimeout(resolve,100));}
  return {directory:dir,previous};
 }
+/** After a publish, delete older bakes: keep only the current map and the previous one (for going back).
+ *  Removes map/, map-before-* and any map-version-/map-staging- folder older than the current one; a newer folder
+ *  (a bake still in progress) is never touched. Returns the names removed. */
+export async function pruneMaps(data){
+ const current=JSON.parse(await fs.readFile(path.join(data,'map-current.json'),'utf8')),keep=new Set([current.directory,current.previous]);
+ const stamp=name=>name.replace(/^map-(version|staging)-/,''),removed=[];
+ for(const e of await fs.readdir(data,{withFileTypes:true})){
+  if(!e.isDirectory()||keep.has(e.name))continue;
+  const old=e.name==='map'||/^map-before-/.test(e.name)||(/^map-(version|staging)-/.test(e.name)&&stamp(e.name)<stamp(current.directory));
+  if(!old)continue;
+  await fs.rm(path.join(data,e.name),{recursive:true,force:true,maxRetries:5});removed.push(e.name);
+ }
+ return removed;
+}

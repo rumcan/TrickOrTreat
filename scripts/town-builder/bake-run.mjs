@@ -1,5 +1,6 @@
 /** Runs one ground bake on its own, detached from the town builder server, so a server restart (node --watch) can't kill
- *  it: bakes into a fresh version folder, then switches map-current.json after validation.
+ *  it: bakes into a fresh version folder, then switches map-current.json after validation and deletes older bakes
+ *  (the current and previous map are kept).
  *  Progress goes to <data>/bake-status.json, which the server reads for GET /api/bake.
  *  node scripts/town-builder/bake-run.mjs <plan.json> <dataDir> */
 import fs from 'node:fs/promises';
@@ -7,7 +8,7 @@ import {writeFileSync,renameSync} from 'node:fs';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {publishMap} from './map-storage.mjs';
+import {publishMap,pruneMaps} from './map-storage.mjs';
 const HERE=path.dirname(fileURLToPath(import.meta.url)),[plan,DATA,...options]=process.argv.slice(2),STATUS=path.join(DATA,'bake-status.json');
 const st={running:true,pid:process.pid,log:[],startedAt:Date.now(),finishedAt:null,code:null};
 const save=()=>{try{writeFileSync(STATUS+'.tmp',JSON.stringify(st));renameSync(STATUS+'.tmp',STATUS);}catch{}};
@@ -20,7 +21,8 @@ const tick=setInterval(async()=>{let n=0;try{n=(await fs.readdir(path.join(stage
  st.log=st.log.filter(l=>!/^\d+ tiles, \d+s/.test(l));st.log.push(line);save();},1000);
 ch.on('error',e=>{clearInterval(tick);st.log.push(String(e));st.running=false;st.code=1;st.finishedAt=Date.now();save();});
 ch.on('close',async code=>{clearInterval(tick);try{if(code===0){const installed=await publishMap(DATA,stage);
-   st.log.push('Ground installed; previous map preserved at '+installed.previous);}
+   st.log.push('Ground installed; previous map preserved at '+installed.previous);
+   try{const removed=await pruneMaps(DATA);if(removed.length)st.log.push('Removed '+removed.length+' older bakes');}catch(e){st.log.push('Could not remove older bakes: '+String(e.message||e));}}
   else{st.log.push(`Bake process exited with code ${code}`);}}
  catch(e){code=1;st.log.push('Install failed: '+String(e.message||e));}
  st.running=false;st.code=code;st.finishedAt=Date.now();save();});
