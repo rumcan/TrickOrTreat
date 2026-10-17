@@ -53,6 +53,13 @@ export function invocation(provider,{manifest,prompt,refs,target,out,answer,asse
     ...refs.flatMap(r=>['--image',r]),'-'],stdin:instructions,cwd:out};
 }
 
+// RUN keeps every generation in the creator's 1 GB library until it is removed. Once the PNG is
+// downloaded the cloud copy is dead weight, so each one is removed straight after download.
+export const generationId = tail => tail.match(/"generationId"\s*:\s*"([0-9a-f-]{36})"/i)?.[1] || null;
+export const storageFull = error => /CREATOR_QUOTA_EXCEEDED|storage is full/i.test(error);
+export const removal = (manifest,id) => ({command:executable('run'),
+  args:['assets','rm',id,'--service','imagegen',...(manifest.gameId?['--game-id',manifest.gameId]:[])],cwd:ROOT});
+
 // Use executable + argument array, never shell interpolation of model prompts or file names.
 export async function execute(call,logfile,timeoutMs=18*60*1000) {
   await fs.mkdir(path.dirname(logfile),{recursive:true});
@@ -127,6 +134,18 @@ export async function runQueue(opts, generate = execute) {
   const shouldStop=()=>stopping||Date.now()>=deadline||existsSync(path.join(out,'STOP'))||existsSync(path.join(out,`STOP-${provider}`));
   const wait=async ms=>{const end=Date.now()+ms;while(Date.now()<end&&!shouldStop()) await sleep(Math.min(1000,end-Date.now()));};
   const signal=()=>{stopping=true;};process.on('SIGINT',signal);process.on('SIGTERM',signal);
+  // Downloaded generations still stored on RUN. Drained before each request; survives restarts.
+  const removals=path.join(out,provider+'-pending-removals.json');
+  const pendingRemovals=async()=>{try{return await readJson(removals);}catch(e){if(e.code==='ENOENT')return [];throw e;}};
+  const drainRemovals=async()=>{
+    let ids=await pendingRemovals();
+    for(const id of [...ids]) {
+      const result=await generate(removal(manifest,id),path.join(out,'logs','run-removals.log'));
+      if(result.code===0||/not.found|already.removed|404/i.test(result.tail)) {ids=ids.filter(i=>i!==id);await log(`removed ${id} from RUN storage`);}
+      else {await log(`could not remove ${id} yet: ${result.tail.replace(/\s+/g,' ').slice(-200)}`);break;}
+    }
+    await writeJson(removals,ids);return ids.length;
+  };
   try {
     await heartbeat(); await log(`worker started (pid ${process.pid}, gap ${gap/1000}s, deadline ${opts.until||'none'})`);
     const selected=manifest.jobs.filter(j=>j.provider===provider&&(phase==='all'||j.phase===phase)&&(!opts.only||opts.only.split(',').includes(j.assetId))&&
@@ -147,6 +166,7 @@ export async function runQueue(opts, generate = execute) {
         pending=true;
         if(s.nextAttemptAt>Date.now()) {soonest=Math.min(soonest,s.nextAttemptAt);continue;}
         await wait(Math.max(0,lastStart+gap-Date.now()));if(shouldStop())break;
+        if(provider==='run') await drainRemovals();
         const policy=await readJson(path.join(out,'reference-policy.json'));
         const includeWorld=job.mode==='with-world'||job.mode==='auto'&&
           (policy.providers?.[provider]?.includeWorld ?? policy.includeWorld);
@@ -162,6 +182,12 @@ export async function runQueue(opts, generate = execute) {
         try {
           const call=invocation(provider,{manifest,prompt,refs,target,out,answer,asset});
           const result=await generate(call,attemptBase+'.log');
+          const runId=provider==='run'?generationId(result.tail):null;
+          if(runId) {
+            s.runGenerationId=runId;
+            if(existsSync(target)) {await writeJson(removals,[...new Set([...await pendingRemovals(),runId])]);await drainRemovals();}
+            else await log(`kept ${runId} on RUN: its download is missing from ${target}`);
+          }
           await writeJson(path.join(out,'receipts',provider,job.key+`-${attempt}.json`),{provider,assetId:asset.id,key:job.key,prompt,
             refs:refs.map(f=>path.relative(out,f)),includeWorld,startedAt:s.startedAt,finishedAt:new Date().toISOString(),
             exitCode:result.code,timedOut:result.timedOut,model:provider==='run'?call.args[call.args.indexOf('--model')+1]:manifest.codexModel,
@@ -186,13 +212,21 @@ export async function runQueue(opts, generate = execute) {
         } catch(e) {
           const error=String(e.message).slice(-4000);
           const auth=/unauthorized|forbidden|not.logged.in|invalid.api.key|authentication.failed|access.to.the.path.*denied|insufficient.credit|insufficient.balance|not.enough.credit|image.*tool.*unavailable|usage.limit|purchase.more.credits/i.test(error);
-          const rate=/rate.?limit|429|quota|too many|concurrent.*limit|maximum.*concurrent/i.test(error);
+          const full=storageFull(error);
+          const rate=!full&&/rate.?limit|429|quota|too many|concurrent.*limit|maximum.*concurrent/i.test(error);
           const maxAttempts=rate?6:3;
-          const delay=/timed out/i.test(error)?18*60*1000:retryDelay(error,attempt,gap);
-          s={...s,status:auth?'blocked':attempt>=maxAttempts?'failed':'retry',error,
-            nextAttemptAt:Date.now()+delay,finishedAt:new Date().toISOString()};
+          const delay=full?gap:/timed out/i.test(error)?18*60*1000:retryDelay(error,attempt,gap);
+          // Full storage is not this asset's fault: the attempt does not count against it.
+          s={...s,status:auth?'blocked':full?'retry':attempt>=maxAttempts?'failed':'retry',error,
+            attempts:full?attempt-1:attempt,nextAttemptAt:Date.now()+delay,finishedAt:new Date().toISOString()};
           await log(`${s.status} ${job.key}: ${error.replace(/\s+/g,' ').slice(-500)}`);
           if(auth) stopping=true;
+          // Every later request would fail the same way, so free space or stop instead of walking the queue.
+          const waiting=full&&!stopping?(await pendingRemovals()).length:0;
+          if(full&&!stopping&&(!waiting||await drainRemovals()===waiting)) {
+            stopping=true;
+            await log('RUN storage is full and nothing is waiting for removal. Free space with `rundot assets list` / `rundot assets rm`, then resume.');
+          }
           // A provider quota is account-wide; pause this worker, rather than trying every remaining asset.
           if(rate&&!stopping) {await writeJson(stateFile(out,job),s);await wait(delay);}
         }

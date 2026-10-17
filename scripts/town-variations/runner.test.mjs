@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 import {classify,slotsFor,makePrompt,slug,writeJson,readJson} from './plan.mjs';
-import {invocation,validate,retryDelay,runQueue,status,outputFile} from './runner.mjs';
+import {invocation,validate,retryDelay,runQueue,status,outputFile,generationId} from './runner.mjs';
 
 async function sheet(file,{opaque=false,emptyCell=-1,crossGutter=false}={}) {
   const W=512,H=512,data=Buffer.alloc(W*H*4);
@@ -113,4 +113,29 @@ test('a failed attempt remains resumable; stop markers prevent generation',async
   const state=await readJson(path.join(out,'states/run/a.json'));assert.equal(state.status,'retry');assert.equal(state.attempts,1);assert.ok(state.nextAttemptAt>Date.now());
   await fs.writeFile(path.join(out,'STOP'),'stop');
   await runQueue({out,provider:'run',gap:0},async()=>{throw Error('Should not generate');});
+});
+
+test('each downloaded RUN image is removed from RUN storage; full storage stops the worker',async t=>{
+  const out=await temp(t),assets=['a','b'].map(id=>({id,name:id,kind:'decal',slots:['a','b','c','d'],old:{file:'old.png'}}));
+  const jobs=assets.map(a=>({key:a.id,assetId:a.id,provider:'run',phase:'production',mode:'auto'}));
+  await writeJson(path.join(out,'manifest.json'),{assets,jobs,style:{file:'style.png'},gameId:'g'});
+  await writeJson(path.join(out,'reference-policy.json'),{includeWorld:false});
+  for(const name of ['sheets/run','states/run','prompts/run','attempts/run','receipts/run'])await fs.mkdir(path.join(out,name),{recursive:true});
+  const id='a62f2840-3b42-4378-a85c-681484e4ce8d';
+  assert.equal(generationId(`Downloading...\n{"generationId":"${id}","filePath":"x.png"}`),id);
+  const removed=[];
+  await runQueue({out,provider:'run',gap:0,limit:1},async call=>{
+    if(call.args[0]==='assets') {removed.push(call.args[2]);assert.deepEqual(call.args.slice(3),['--service','imagegen','--game-id','g']);return {code:0,tail:'',timedOut:false};}
+    await sheet(call.args[call.args.indexOf('--out')+1]);return {code:0,tail:`{"generationId":"${id}"}`,timedOut:false};
+  });
+  assert.deepEqual(removed,[id]);
+  assert.deepEqual(await readJson(path.join(out,'run-pending-removals.json')),[]);
+  assert.equal((await readJson(path.join(out,'states/run/a.json'))).runGenerationId,id);
+  let requests=0;
+  await runQueue({out,provider:'run',gap:0},async call=>{
+    if(call.args[0]==='assets') throw Error('Nothing should be waiting for removal');
+    requests++;return {code:1,tail:'[IMAGE_GEN_CREATOR_QUOTA_EXCEEDED] Creator storage is full',timedOut:false};
+  });
+  assert.equal(requests,1);
+  const b=await readJson(path.join(out,'states/run/b.json'));assert.equal(b.status,'retry');assert.equal(b.attempts,0);
 });
