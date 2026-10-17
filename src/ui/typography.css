@@ -1,0 +1,61 @@
+/* Match the visual roles in the supplied compositions. Sizes refer to the
+   rendered lettering, rather than treating every condensed face as equivalent. */
+.game-shell .font-ui { font-family:var(--font-body); font-weight:400; }
+.game-shell .font-cond { font-family:'Anton',sans-serif; font-weight:400; letter-spacing:.015em; }
+.game-shell .kit-btn,
+.game-shell .hm-btn { font-family:'Anton',sans-serif; font-size:20px; font-weight:400; line-height:1.15; letter-spacing:.015em; }
+.game-shell .kit-btn.h-9 { font-size:16px; }
+.game-shell .redesign-title .title-nav button.kit-btn {
+  font-family:'Barlow Condensed',sans-serif; font-weight:600;
+  font-size:18px; letter-spacing:.035em;
+}
+.game-shell .redesign-title .title-nav button.title-nav-play { font-family:'Anton',sans-serif; font-size:22px; font-weight:400; }
+.game-shell .redesign-title button.title-play { font-family:'Anton',sans-serif; font-size:27px; font-weight:400; letter-spacing:.01em; }
+.game-shell .redesign-title .title-character .title-kid { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; letter-spacing:0; }
+.game-shell .redesign-title .title-character.is-selected .title-kid { font-size:25px; }
+.game-shell .redesign-title .title-kid small { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:600; letter-spacing:0; }
+.game-shell .redesign-title .title-go p { font-family:'Barlow Condensed',sans-serif; font-size:14px; line-height:1.35; }
+.game-shell .hm-pause .hm-menu-row .hm-menu-label { font-family:'Anton',sans-serif; font-size:25px; font-weight:400; letter-spacing:.01em; }
+.game-shell .hm-pause .hm-menu-sub { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:400; }
+.game-shell .redesign-settings .settings-row-label > div:first-of-type { font-family:'Barlow Condensed',sans-serif; font-size:23px; font-weight:700; }
+.game-shell .redesign-settings .settings-row-label > div:last-of-type { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:400; }
+.game-shell .weapon-card .weapon-stat .wx-stat-k { font-family:'Barlow Condensed',sans-serif; font-weight:400; }
+.game-shell .weapon-card .weapon-stat .wx-stat-v { font-family:'Barlow Condensed',sans-serif; font-weight:700; }
+.game-shell .end-panel .hm-btn.end-next { font-family:'Anton',sans-serif; font-size:24px; min-height:56px; }
+.game-shell .paper-title,
+.game-shell .talent-side h2.paper-title { font-family:'Anton',sans-serif; font-weight:400; letter-spacing:.015em; }
+.game-shell .talent-side h2.paper-title { font-size:29px!important; line-height:1.2; }
+.game-shell .talent-side p { font-family:'Barlow Condensed',sans-serif; font-size:16px; line-height:1.35; }
+.game-shell .kit-title,
+.game-shell .kit-word,
+.game-shell .character-details .font-brush {
+  font-family:var(--font-horror); font-weight:400; letter-spacing:0;
+  text-transform:uppercase; text-shadow:0 3px 1px #0008;
+}
+.game-shell .kit-word { font-size:clamp(68px,7vw,106px); line-height:.8; }
+.game-shell .kit-title:not(.character-heading) { font-size:clamp(44px,4vw,68px); line-height:.85; }
+.game-shell .character-heading { font-size:clamp(68px,8vw,128px); line-height:.8; color:#fff0d5!important; }
+.game-shell .character-heading em { font-style:normal; color:#ff8b16; }
+.game-shell .character-details .font-brush { font-size:26px; line-height:1.15; }
+.game-shell .hm-hud .hm-time { font-family:'Barlow Condensed',sans-serif; font-size:48px; font-weight:600; letter-spacing:.015em; }
+.game-shell .kit-banner-title { font-family:var(--font-horror); line-height:1; }
+@media (max-width:700px) {
+  .game-shell .kit-btn,.game-shell .hm-btn { font-size:18px; }
+  .game-shell .kit-btn.h-9 { font-size:15px; }
+  .game-shell .redesign-title .title-nav button.kit-btn { font-size:16px; }
+  .game-shell .redesign-title button.title-play { font-size:24px; }
+  .game-shell .redesign-title .title-character .title-kid { font-size:17px; }
+  .game-shell .redesign-title .title-character.is-selected .title-kid { font-size:19px; }
+  .game-shell .redesign-title .title-kid small { font-size:9px; }
+  .game-shell .redesign-title .title-go p { font-size:13px; }
+  .game-shell .hm-pause .hm-menu-row .hm-menu-label { font-size:21px; }
+  .game-shell .redesign-settings .settings-row-label > div:first-of-type { font-size:18px; }
+  .game-shell .redesign-settings .settings-row-label > div:last-of-type { font-size:13px; }
+  .game-shell .end-panel .hm-btn.end-next { font-size:20px; }
+  .game-shell .character-heading { font-size:70px; }
+  .game-shell .touch-game .hm-hud .hm-time { font-size:22px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .game-shell .redesign-title .title-nav button.kit-btn { font-size:13px; }
+  .game-shell .redesign-title .title-actions button.title-play { font-size:24px; }
+}

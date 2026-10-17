@@ -1,0 +1,65 @@
+import { chromium } from 'playwright-core';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+
+const out = 'art/redesign-checks/talent-camera';
+await fs.mkdir(out, { recursive: true });
+const browser = await chromium.launch({ channel: 'msedge' });
+try {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('http://localhost:5173/');
+  await page.getByRole('button', { name: 'Talents', exact: true }).waitFor({ timeout: 120000 });
+  await page.getByRole('button', { name: 'Talents', exact: true }).click();
+  const svg = page.locator('.talent-svg'), zoom = page.getByLabel('Talent tree zoom', { exact: true });
+  await svg.waitFor();
+  assert.equal(await zoom.textContent(), '350%', 'Phone starts zoomed into the starting talents');
+  const icon = await svg.locator('[data-talent-id="sharp"] image').boundingBox();
+  assert.ok(icon.width >= 32, 'Starting talent artwork is large enough to tap');
+  await page.getByRole('button', { name: 'Zoom in talent tree', exact: true }).click();
+  assert.equal(await zoom.textContent(), '455%');
+  await page.getByRole('button', { name: 'Zoom out talent tree', exact: true }).click();
+  assert.equal(await zoom.textContent(), '350%');
+  await page.getByRole('button', { name: 'Fit entire talent tree', exact: true }).click();
+  assert.equal(await zoom.textContent(), '100%');
+  await page.getByRole('button', { name: 'Focus selected talent', exact: true }).click();
+  assert.equal(await zoom.textContent(), '350%');
+
+  const balance = async () => Number(await page.locator('.talent-wallet b').textContent());
+  const beforeBalance = await balance(), beforeView = await svg.getAttribute('viewBox');
+  const box = await svg.boundingBox(), cx = box.x + box.width / 2, cy = box.y + box.height / 2;
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type, points) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points.map(([x, y, id]) => ({ x, y, id })) });
+  await touch('touchStart', [[cx, cy, 1]]);
+  for (let i = 1; i <= 5; i++) await touch('touchMove', [[cx - i * 10, cy + i * 4, 1]]);
+  await touch('touchEnd', []);
+  assert.notEqual(await svg.getAttribute('viewBox'), beforeView, 'One-finger drag moves the constellation');
+  assert.equal(await balance(), beforeBalance, 'Dragging cannot buy a talent');
+  await touch('touchStart', [[cx - 40, cy, 1], [cx + 40, cy, 2]]);
+  for (let i = 1; i <= 5; i++) await touch('touchMove', [[cx - 40 - i * 8, cy, 1], [cx + 40 + i * 8, cy, 2]]);
+  await touch('touchEnd', []);
+  assert.equal(await zoom.textContent(), '600%', 'Two-finger pinch zooms and respects the maximum');
+  assert.equal(await balance(), beforeBalance, 'Pinching cannot buy a talent');
+  await page.getByRole('button', { name: 'Focus selected talent', exact: true }).click();
+  const target = await svg.locator('[data-talent-id="sharp"] image').boundingBox();
+  await page.touchscreen.tap(target.x + target.width / 2, target.y + target.height / 2);
+  assert.equal(await balance(), beforeBalance - 15, 'Tapping a talent still purchases exactly one rank');
+  await page.touchscreen.tap(target.x + target.width / 2, target.y + target.height / 2);
+  assert.equal(await balance(), beforeBalance - 45);
+  await page.waitForTimeout(500);
+  assert.ok(await page.locator('.talent-invest').isDisabled(), 'Invest becomes disabled when the next rank costs more than the balance');
+  await page.screenshot({ path: `${out}/mobile-zoomed.png` });
+  const style = await page.locator('.talent-invest').evaluate(button => ({ filter: getComputedStyle(button).filter, fill: getComputedStyle(button, '::before').backgroundImage }));
+  assert.ok(style.filter.includes('grayscale(1)') && style.fill.includes('button-paint.png'), 'Disabled Invest keeps its painted center and desaturates the complete button');
+
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.waitForFunction(() => document.querySelector('.talent-svg').viewBox.baseVal.width === 1720);
+  assert.equal(await zoom.textContent(), '100%', 'Desktop starts with the full constellation');
+  const desktop = await svg.boundingBox();
+  await page.mouse.move(desktop.x + desktop.width / 2, desktop.y + desktop.height / 2);
+  await page.mouse.wheel(0, -400);
+  await page.waitForFunction(() => document.querySelector('.talent-svg').viewBox.baseVal.width < 1720);
+  assert.deepEqual(errors, []);
+  console.log('Verified mobile default zoom, zoom buttons, fit, focus, touch drag, two-finger pinch, safe talent purchases, disabled paint, and desktop wheel zoom.');
+} finally { await browser.close(); }

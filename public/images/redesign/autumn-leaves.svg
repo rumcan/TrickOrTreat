@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="130" viewBox="0 0 150 130">
+  <defs><linearGradient id="leaf" x2=".8" y2="1"><stop stop-color="#ff9c15"/><stop offset=".55" stop-color="#df4908"/><stop offset="1" stop-color="#7c2006"/></linearGradient><path id="maple" d="m0-27 6 15 9-10-1 14 15-3-9 12 10 4-17 7 2 9-12-5-1 16-3 1 1-17-13 6 1-10-16-7 12-5-10-11 15 3-1-14 10 11z"/></defs>
+  <g fill="url(#leaf)" stroke="#bd3c09" stroke-width=".55"><use href="#maple" transform="translate(87 28) rotate(-19) scale(.96)"/><use href="#maple" transform="translate(117 62) rotate(33) scale(.88)"/><use href="#maple" transform="translate(57 58) rotate(-64) scale(.64)"/><use href="#maple" transform="translate(103 94) rotate(67) scale(.58)"/><use href="#maple" transform="translate(130 28) rotate(39) scale(.49)"/><use href="#maple" transform="translate(39 27) rotate(-15) scale(.35)"/></g>
+  <g fill="none" stroke="#662409" stroke-width=".7" opacity=".7"><path d="m87 10 0 35m0-17 11-8m-11 15-12-9M110 49l18 31m-10-17 9-3m-5 10-11-1M57 48l0 22"/></g>
+  <g fill="#ff7a13"><circle cx="141" cy="93" r="1.4"/><circle cx="36" cy="80" r="1"/><circle cx="77" cy="105" r="1.4"/><circle cx="19" cy="41" r="1"/></g>
+</svg>

@@ -53,6 +53,9 @@ function spriteTop(img: Img): number {
   return t;
 }
 
+/** shots that light the town brightly at night (and claim the light budget before ordinary bullets) */
+const BIG_SHOTS = new Set(['fire', 'rocket', 'balloon', 'disc', 'void', 'shell', 'flame', 'missile', 'glaive']);
+
 export class Renderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -137,9 +140,12 @@ export class Renderer {
     }
     this.t += dt;
     const cv = this.canvas, ctx = this.ctx;
-    const dpr = Math.min(window.devicePixelRatio || 1, settings.hq ? 3 : 2);
-    this.dpr = dpr;
     const vw = cv.clientWidth, vh = cv.clientHeight;
+    // Standard graphics should not silently turn a Retina/fullscreen window into
+    // a multi-million-pixel lighting workload. High graphics retains a 4K budget.
+    const pixels = settings.hq ? 3840 * 2160 : 1920 * 1080;
+    const dpr = Math.min(window.devicePixelRatio || 1, settings.hq ? 3 : 2, Math.sqrt(pixels / Math.max(1, vw * vh)));
+    this.dpr = dpr;
     // also size our own layers on the first frame: a restarted run reuses a canvas that is already the right size,
     // and a 4x4 light layer stretched over the screen was the "no flashlight, dark blob" bug on the second game
     if (cv.width !== Math.floor(vw * dpr) || cv.height !== Math.floor(vh * dpr) || this.light.width !== Math.ceil(Math.floor(vw * dpr) / 2) || !this.vignette) {
@@ -672,8 +678,16 @@ export class Renderer {
         if (ax < camX - this.canvas.width / k / 2 - 400 || ax > camX + this.canvas.width / k / 2 + 400 || ay < camY - this.canvas.height / k / 2 - 300 || ay > camY + this.canvas.height / k / 2 + 600) continue;
         const fa = pr.fade ?? 1; for (const gl of pr.glows) nl.push({ sx: (ax + gl.x - camX) * k + this.canvas.width / 2, sy: (ay + gl.y - camY) * k + this.canvas.height / 2, rx: gl.r * k, ry: gl.r * k, i: night.glowStrength * fa }); }
       // guns, explosions and fire light up the town as they go: each puts the colour back where it shines
-      const fx = (x: number, y: number, r: number, i: number) => { if (i > 0.02) nl.push({ sx: sxw(x, y), sy: syw(x, y), rx: r * HW * 1.414 * k, ry: r * HH * 1.414 * k, i: Math.min(1, i) }); };
-      for (const b of g.bullets) if (b.kind === 'fire' || b.kind === 'rocket' || b.kind === 'balloon' || b.kind === 'disc' || b.kind === 'void' || b.kind === 'shell' || b.kind === 'flame' || b.kind === 'missile' || b.kind === 'glaive') fx(b.x, b.y, b.kind === 'void' ? 2.4 : 1.6, 0.8); else fx(b.x, b.y, 0.7, 0.45);
+      // A late wave puts hundreds of bullets in the air; lighting each one cost more than the whole rest of the
+      // frame. Only what is on screen gets a light, the big lights first, and the small ones share a budget.
+      const W = this.canvas.width, H = this.canvas.height;
+      let budget = 72;
+      const fx = (x: number, y: number, r: number, i: number) => {
+        if (i <= 0.02 || budget <= 0) return;
+        const sx = sxw(x, y), sy = syw(x, y), rx = r * HW * 1.414 * k, ry = r * HH * 1.414 * k;
+        if (sx + rx < 0 || sy + ry < 0 || sx - rx > W || sy - ry > H) return;
+        budget--; nl.push({ sx, sy, rx, ry, i: Math.min(1, i) });
+      };
       for (const pr of m.props) if (pr.burnT || pr.boomT !== undefined) fx(pr.x0 + pr.fw / 2, pr.y0 + pr.fh / 2, Math.max(pr.fw, pr.fh) * (pr.boomT !== undefined ? 2.4 : 1.4) + 1.2, pr.boomT !== undefined ? 1 : 0.6 + Math.min(0.4, (pr.burnT ?? 0) / 10));
       for (const z of g.zones) {
         if (z.kind === 'boom') fx(z.x, z.y, z.r * 2.6, 1 - z.t / z.life);
@@ -681,10 +695,12 @@ export class Renderer {
         else if (z.kind === 'flash') fx(z.x, z.y, z.r * 1.2, 1 - z.t / z.life);
         else if (z.kind === 'vortex' || z.kind === 'tornado') fx(z.x, z.y, z.r, 0.5);
       }
-      for (const b of g.ebullets) fx(b.x, b.y, 0.9, 0.6);
-      for (const e of g.enemies) { if (e.burnT > 0) fx(e.x, e.y, 1.4, 0.7); if (e.def.boss) fx(e.x, e.y, 3, 0.6); }
-      for (const q of g.particles) if (q.kind === 'glow' && q.size > 10) fx(q.x, q.y, 1.1, (q.life / q.max) * 0.7);
+      for (const e of g.enemies) { if (e.def.boss) fx(e.x, e.y, 3, 0.6); else if (e.burnT > 0) fx(e.x, e.y, 1.4, 0.7); }
       for (const k2 of g.pickups) if (k2.kind === 'weapon' || k2.kind === 'chest') fx(k2.x, k2.y, 1.4, 0.7);
+      for (const b of g.bullets) if (BIG_SHOTS.has(b.kind)) fx(b.x, b.y, b.kind === 'void' ? 2.4 : 1.6, 0.8);
+      for (const b of g.ebullets) fx(b.x, b.y, 0.9, 0.6);
+      for (const b of g.bullets) if (!BIG_SHOTS.has(b.kind)) fx(b.x, b.y, 0.7, 0.45);
+      for (const q of g.particles) if (q.kind === 'glow' && q.size > 10) fx(q.x, q.y, 1.1, (q.life / q.max) * 0.7);
       const tr = night.torch * (1 + settings.bright * 0.5);
       nl.push({ sx: sxw(pk.x, pk.y), sy: syw(pk.x, pk.y), rx: tr * HW * 1.414 * k, ry: tr * HH * 1.414 * k, i: 1, torch: true });
       const aim = Math.atan2(isoY(pk.aimX, pk.aimY), isoX(pk.aimX, pk.aimY));
@@ -1398,22 +1414,7 @@ export class Renderer {
       const [pa, pb] = MP(p.x, p.y);
       ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(pa, pb, 3.5 * k, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-      if (big) {
-        ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillStyle = '#f08a2c';
-        ctx.fillText('M A P L E   F A L L S', mx - 6, my - 34);
-        ctx.font = '32px Anton, Impact, sans-serif';
-        ctx.fillStyle = '#fff0da';
-        ctx.fillText(m.kind==='arcade'?'THE STARCADE':'TONIGHT\'S STREETS', mx - 6, my - 14);
-        ctx.fillStyle = '#ed7414';
-        ctx.fillRect(mx + 268, my - 24, 61, 4);
-        ctx.font = '700 13px "Barlow Condensed", system-ui, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#c9bda6';
-        if (!touchViewport) ctx.fillText('M  ·  CLOSE MAP', mx + mw + 6, my - 14); // touch gets a real button (Hud)
-      }
+
     }
 
     // crosshair

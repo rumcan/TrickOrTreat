@@ -1,0 +1,12 @@
+/* Two bundled UI faces. Illustrated headings use PNG artwork. */
+@font-face { font-family:'Anton'; src:url('/fonts/Anton-Regular.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:'Barlow Condensed'; src:url('/fonts/BarlowCondensed-Regular.ttf') format('truetype'); font-style:normal; font-weight:400 500; font-display:swap; }
+@font-face { font-family:'Barlow Condensed'; src:url('/fonts/BarlowCondensed-SemiBold.ttf') format('truetype'); font-style:normal; font-weight:600; font-display:swap; }
+@font-face { font-family:'Barlow Condensed'; src:url('/fonts/BarlowCondensed-Bold.ttf') format('truetype'); font-style:normal; font-weight:700 900; font-display:swap; }
+:root {
+  --font-horror:'Anton',sans-serif;
+  --font-menu:'Anton',sans-serif;
+  --font-hud:'Barlow Condensed',sans-serif;
+  --font-body:'Barlow Condensed',sans-serif;
+  --font-number:'Barlow Condensed',sans-serif;
+}

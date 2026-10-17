@@ -4,7 +4,9 @@ Halloween survival game with an optional Hide & Shriek rescue campaign.
 
 ## Development
 
-Use Node 22.12+ (Node 24 is tested), install with `npm ci`, then `npm run dev`.
+Use Node 22.12+ (Node 24 is tested), install with `npm ci`, then
+`npm run dev:local` for the local game at http://localhost:5173/.
+`npm run dev` uses the standard RUN SDK Vite configuration.
 The title screen's **Preview expansion locally** button unlocks developer-only
 testing without purchasing. It is absent from production builds.
 
@@ -45,17 +47,166 @@ Production packing reduces generated art to the manifest's runtime `maxScale`
 and omits inactive versions/provenance from `dist` only. Full-size source masters,
 sidecars and previous overrides remain preserved in `public/assets/` and `art/`.
 
-## Private release and paid expansion
+## Start the town builder
 
-RUN game ID: `AFjPSjQH9kbcCl57sgO3`. Publish privately with:
+Open PowerShell in the **main game folder**, not one of its worktrees:
 
 ```powershell
-npm run build
-rundot deploy --game-id AFjPSjQH9kbcCl57sgO3 --build-path ./dist --json
+Set-Location "C:\Work Admin\PERSONAL\Repos\TrickOrTreat"
+node .codex-session/town-worktree/scripts/town-builder/server.mjs --port 5190
 ```
 
-Do not add `--public`. Private releases are hidden from Explore but accessible
-through their share link. The original survival game remains free.
+Open **http://localhost:5190/**. Leave that terminal running while editing and
+exporting; press Ctrl+C there to stop the builder. If it is already running,
+open the URL instead of starting another server on the same port.
+
+There are now two independent building spaces: **Maple Falls** at
+http://localhost:5190/ and **New Town** at http://localhost:5192/. Use the map
+selector beside the town name to switch; it saves pending edits before leaving.
+Start both local builders with `node scripts/town-maps.mjs` from the main game
+folder. New Town saves its layout, ground plan, lighting, bakes and exports under
+`output/town-builder/maps/second-town/`, sharing the original sprite library and
+presets. Starting it again preserves your edits. In-game travel between the towns
+has not been added yet.
+
+If PowerShell cannot find `node` or `npm`, the tested installation on this PC
+can be enabled for the current terminal with:
+
+```powershell
+$env:Path = "C:\nvm\nvm\v24.21.0;$env:Path"
+```
+
+The builder automatically saves edits. Wait for its **saved** indicator before
+exporting. The working files are:
+
+| Location | Contents |
+| --- | --- |
+| `.codex-session/town-worktree/scripts/town-builder/` | Builder app, server and game exporter |
+| `output/town-builder/layout.json` | Placed objects |
+| `output/town-builder/plans/maple-falls.json` | Ground plan, roads and lighting settings |
+| `output/town-builder/library/` | Object artwork and library metadata |
+| `output/town-builder/map-current.json` | Pointer to the current completed ground bake; older setups use `map/` directly |
+
+The builder worktree and `output/` are local, Git-ignored folders. Back them up
+along with the game: a fresh Git clone does not contain this editor setup or
+your editable town data.
+
+## Update the playable game map after editing
+
+1. In the builder, finish editing and wait for **saved**. If you changed the
+   ground plan (roads, lots, paving or ground lighting), click **Rebuild ground**
+   and wait for it to finish successfully. Do not export while a rebuild is
+   still running.
+2. Keep the builder running on **5190**. The game exporter uses it to render
+   fences. In a **second PowerShell terminal**, return to the main game folder:
+
+   ```powershell
+   Set-Location "C:\Work Admin\PERSONAL\Repos\TrickOrTreat"
+   ```
+
+3. Back up the current playable map before replacing it:
+
+   ```powershell
+   Copy-Item -LiteralPath "public/assets/town-built" -Destination "output/town-built-backup-$(Get-Date -Format yyyyMMdd-HHmmss)" -Recurse
+   ```
+
+4. Generate the playable map. Wait for the final **done** message; this can take
+   several minutes. The exporter regenerates its worktree output directory.
+
+   ```powershell
+   node .codex-session/town-worktree/scripts/town-builder/export-game.mjs
+   ```
+
+5. Copy that output into the **main game**:
+
+   ```powershell
+   Copy-Item -LiteralPath ".codex-session/town-worktree/public/assets/town-built" -Destination "public/assets" -Recurse -Force
+   ```
+
+   The result must be `public/assets/town-built/town.json`, alongside `ground/`,
+   `sprites/` and `sprites-hd/`. Copy the whole folder so the map data and images
+   stay together. The exporter writes into the worktree; skipping this copy
+   leaves the main game using its previous map.
+
+6. Run `npm run dev:local` in another terminal (or use the existing server),
+   reload http://localhost:5173/, and start a **new run**. Check the changed area,
+   doors, collision, lighting and the in-game map. Existing runs keep their
+   already-created map. Then build the game with `npm run build` before uploading.
+
+The builder's **Export image** button produces a picture for review. It does
+not replace the playable map or publish anything to RUN.world. The game reads
+`public/assets/town-built/`; editing `output/town-builder/` alone does not update it.
+
+## Publish to RUN.world manually
+
+Use the main game folder throughout. This game's ID is
+`AFjPSjQH9kbcCl57sgO3`, already set in `game.config.prod.json`. Update that
+existing game; there is no need to run `rundot init` again.
+
+1. Verify the RUN CLI is available and sign into the account with access to
+   this game:
+
+   ```powershell
+   rundot --help
+   rundot login
+   ```
+
+   On this PC the CLI is installed at
+   `C:\Users\Francois Smit\AppData\Local\Programs\Rundot\rundot.exe`.
+   If `rundot` is not on PATH, invoke that executable with PowerShell's `&`
+   operator. Installation instructions are in the
+   [official CLI repository](https://github.com/series-ai/rundot-cli-releases#installation).
+
+2. If the town changed, complete the map-export and copy steps above first.
+   Build the latest game, including release asset packing:
+
+   ```powershell
+   npx tsc --noEmit
+   npm run build
+   ```
+
+   Both must succeed. Upload **`dist/` from the main game**, not the builder's
+   worktree or `output/`. For a local production check, run
+   `npm run preview -- --port 5174`, open http://localhost:5174/, and check a run.
+
+3. Choose one upload route:
+
+   **Unlisted test version** — upload and use the share URL returned by the CLI:
+
+   ```powershell
+   rundot deploy --game-id AFjPSjQH9kbcCl57sgO3 --build-path ./dist --json
+   ```
+
+   **Public release submission** — upload a new version for public review:
+
+   ```powershell
+   rundot deploy --game-id AFjPSjQH9kbcCl57sgO3 --build-path ./dist --public --json
+   ```
+
+   Deploy automatically increments the version. `--public` submits it for
+   review; it is not a guarantee of immediate Explore visibility. An unlisted
+   upload does not replace the currently public version.
+
+4. To promote an already-uploaded, tested version, list versions and submit
+   that **exact version** instead of uploading again:
+
+   ```powershell
+   rundot game list-versions --game-id AFjPSjQH9kbcCl57sgO3
+   # Replace 1.2.3 with the new version you tested:
+   rundot game set-public --game-id AFjPSjQH9kbcCl57sgO3 --version 1.2.3
+   ```
+
+   A submission must be newer than the currently public version. Open the
+   returned share URL to verify the uploaded build. The game's catalog address
+   is https://run.world/catalog/game/AFjPSjQH9kbcCl57sgO3.
+
+See the [official deployment guide](https://github.com/series-ai/venus-sdk-docs/blob/main/rundot-developer-platform/deploying-your-game.md)
+and [CLI reference](https://github.com/series-ai/rundot-cli-releases#deploy)
+for publishing and visibility details.
+
+## Paid expansion
+
+The original survival game remains free.
 
 `rundot/shop.config.json` declares a permanent, unique, server-entitled unlock.
 **The item is inactive until the exact Bits price is confirmed.** Its draft

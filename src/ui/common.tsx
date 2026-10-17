@@ -10,12 +10,13 @@ import { Weapon, weaponStats, Stats, TRAIT_BY_ID, INSC_STYLE, weaponDps, HERO_IN
 import { ART, PORTRAITS, HERO_COLORS, gunArtUrl } from './art';
 import { Keycap, KitButton, KitTitle } from './kit';
 import { BindKeys, useKeybindVersion } from './Keybinds';
+import { PaintedFrame } from './PaintedFrame';
 
 export { imgUrl };
 export const weaponUrl = (id: string) => imgUrl(weaponIcon(id));
 export const fmtTime = (t: number) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 /** rarity colours in the UI: grey, then the familiar yellow-green · deep blue · purple · orange */
-export const RARITY_KIT = ['#9aa0a6', '#1eff00', '#0070dd', '#a335ee', '#ff8000'];
+export const RARITY_KIT = ['#a6a5a2', '#64ff3a', '#36d7ff', '#c52aff', '#ff9d1e'];
 
 // ============ GLYPHS (filled icons as drawn in the kit) ============
 type G = { size?: number; className?: string };
@@ -111,16 +112,16 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
   const dps = weaponDps(w, stats);
   const cdps = compare ? weaponDps(compare, stats) : null;
   const Row = ({ k, v, icon: Icon }: { k: string; v: React.ReactNode; icon?: LucideIcon }) => (
-    <div className="wx-stat">
+    <div className="weapon-stat wx-stat">
       <span className="wx-stat-k">{Icon && <Icon size={13} strokeWidth={2.4} className="shrink-0" aria-hidden="true" />}{k}</span>
       <span className="wx-stat-v">{v}</span>
     </div>
   );
   return (
-    <div className={`kit-panel wx-card relative max-w-full ${compact ? 'w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ ['--acc' as string]: rc, borderColor: w.rarity ? rc : '#58585b' }}>
+    <div data-rarity={w.rarity} className={`weapon-card kit-panel wx-card relative max-w-full ${compact ? 'weapon-card-compact w-60 p-3' : 'w-72 p-4'} ${className}`} style={{ ['--acc' as string]: rc, ['--rarity' as string]: rc, borderColor: w.rarity ? rc : '#58585b' }}>
       {title && <div className="absolute -top-3 left-3"><Keycap className="!h-5 !text-[11px] uppercase tracking-wider">{title}</Keycap></div>}
-      <div className="flex items-center gap-3">
-        <div className="h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
+      <div className="weapon-card-header flex items-center gap-3">
+        <div className="weapon-card-art h-14 w-[99px] shrink-0 overflow-hidden border-2 bg-[#0a1630]" style={{ borderColor: w.rarity ? rc : '#58585b' }}>
           <GunArt id={w.def.id} />
         </div>
         <div className="min-w-0">
@@ -131,7 +132,7 @@ export function WeaponCard({ w, stats, compare, title, compact, bigInsc, classNa
         </div>
       </div>
       {!compact && <p className="mt-2 text-[12px] italic leading-snug text-[#9aa0a6]">{w.def.desc}</p>}
-      <div className="mt-2.5 rounded-[6px] border border-[#3a3d44] bg-black/30 px-3 py-0.5">
+      <div className="weapon-stats mt-2.5 rounded-[6px] border border-[#3a3d44] bg-black/30 px-3 py-0.5">
         <Row
           icon={Skull}
           k="DPS"
@@ -182,7 +183,7 @@ export function Inscriptions({ w, compact, big }: { w: Weapon; compact?: boolean
 
 function Arrow({ dir, onClick }: { dir: -1 | 1; onClick: () => void }) {
   return (
-    <button onClick={onClick} aria-label={dir < 0 ? 'Previous kid' : 'Next kid'} className="absolute top-1/2 z-10 -translate-y-1/2 p-1 text-[#141210] transition-transform hover:scale-110 active:scale-95" style={{ [dir < 0 ? 'left' : 'right']: -34 }}>
+    <button onClick={onClick} aria-label={dir < 0 ? 'Previous kid' : 'Next kid'} className="character-arrow absolute top-1/2 z-10 -translate-y-1/2 p-1 text-[#f8e8c8] transition-transform hover:scale-110 active:scale-95" style={{ [dir < 0 ? 'left' : 'right']: -34 }}>
       <svg width="24" height="44" viewBox="0 0 24 44"><path d={dir < 0 ? 'M22 2L2 22l20 20z' : 'M2 2l20 20L2 42z'} fill="currentColor" /></svg>
     </button>
   );
@@ -193,7 +194,8 @@ export function CharacterCard({ hero, stats, onPrev, onNext }: { hero: number; s
   const h = HERO_INFO[hero];
   const barW = (v: number) => `${Math.min(100, (v / 200) * 100)}%`;
   return (
-    <div className="kit-paper kit-pop flex w-full max-w-[640px] flex-col gap-6 p-5 sm:flex-row sm:p-6">
+    <div className="character-details generated-framed kit-paper kit-pop flex w-full max-w-[640px] flex-col gap-6 p-5 sm:flex-row sm:p-6">
+      <PaintedFrame />
       <div className="relative mx-10 shrink-0 self-center sm:mx-8">
         {onPrev && <Arrow dir={-1} onClick={onPrev} />}
         <div className="h-[260px] w-[176px] overflow-hidden border-[3px] border-[#1a1712] sm:h-[300px] sm:w-[200px]" style={{ background: HERO_COLORS[hero] }}>

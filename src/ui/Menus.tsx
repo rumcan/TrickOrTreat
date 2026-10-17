@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import type { LucideIcon } from 'lucide-react';
-import { Play, Users, Backpack, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Gamepad2, Sun, Vibrate, Moon, Lock, Maximize, Trophy, Sparkles, Keyboard } from 'lucide-react';
+import { Play, Users, Settings as Gear, ChevronRight, RotateCw, X, ChevronLeft, Sun, Vibrate, Moon, Lock, Maximize, Trophy, Sparkles, Keyboard, BookOpen, Skull, Droplet, Volume2, VolumeX, Zap, Monitor } from 'lucide-react';
 import { Game } from '../game/engine';
 import { HERO_INFO, Save, ESSENCE_UNLOCK, essenceEarned, weaponTitle, SCROLL_BY_ID, baseStats, applyTalents, weaponStats, weaponDps, Scroll, Weapon } from '../game/data';
 import { settings, saveSettings } from '../game/settings';
@@ -20,10 +19,11 @@ import { TagChips } from './BuildSheet';
 import { SCROLL_TAGS } from '../game/build';
 import { SplashArt } from './SplashArt';
 import { LeaderboardDrawer } from './LeaderboardDrawer';
-import RadioPill, { MusicToggle } from './RadioPill';
 import { KeybindEditor } from './Keybinds';
 import { useBack } from './back';
 import { canFullscreen, requestGameFullscreen } from './fullscreen';
+import { HeadingArt, TreatName, type HeadingId } from './HeadingArt';
+import { PaintedFrame } from './PaintedFrame';
 
 const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
@@ -32,7 +32,7 @@ function KeyArt({ dim = 0, blur }: { dim?: number; blur?: boolean }) {
   return (
     <>
       <SplashArt style={blur ? { filter: 'blur(5px) saturate(0.7)', transform: 'scale(1.05)' } : undefined} />
-      <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(14,15,19,${0.55 + dim}) 0%, rgba(14,15,19,${dim}) 38%, rgba(14,15,19,${0.15 + dim}) 62%, rgba(14,15,19,0.92) 100%)` }} />
+      <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, rgba(4,6,12,${0.08 + dim}) 0%, rgba(14,15,19,${dim}) 38%, rgba(14,15,19,${0.15 + dim}) 62%, rgba(4,6,12,${0.2 + dim}) 100%)` }} />
     </>
   );
 }
@@ -40,7 +40,7 @@ function KeyArt({ dim = 0, blur }: { dim?: number; blur?: boolean }) {
 function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) {
   useBack(() => onClose?.(), !!onClose);
   return (
-    <div className="absolute inset-0 z-50 bg-black/75">
+    <div className="redesign-modal-backdrop absolute inset-0 z-50 bg-black/55 backdrop-blur-sm" role="dialog" aria-modal="true">
       {/* margin:auto centring, so a popup taller than the phone starts at its top instead of being cut off above it */}
       <div className="modal-scroll flex h-full overflow-y-auto overscroll-contain p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
         <div className="m-auto flex w-full justify-center">{children}</div>
@@ -53,34 +53,9 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose?: () 
 
 // ================= TITLE =================
 /** The art Atlas is strictly a development tool and is never exposed by the production menu. */
-const SHOW_ATLAS = import.meta.env.DEV;
 
-/** one rail row: icon, uppercase label, chevron — the left menu of the new key art */
-function MenuRow({ icon: Icon, label, sub, onClick, primary, disabled, className = '' }: { icon: LucideIcon; label: string; sub?: string; onClick?: () => void; primary?: boolean; disabled?: boolean; className?: string }) {
-  return (
-    <button type="button" onClick={onClick} disabled={disabled} className={`title-menu ${primary ? 'title-menu--play' : ''} ${className}`}>
-      <Icon size={18} strokeWidth={2.6} className="title-menu-ico" />
-      <span className="title-menu-text">
-        <span className="title-menu-label">{label}</span>
-        {sub && <span className="title-menu-sub">{sub}</span>}
-      </span>
-      <ChevronRight size={18} strokeWidth={3} className="title-menu-chev" aria-hidden="true" />
-    </button>
-  );
-}
 
-/** Essence / best time: a dark plate with a round medallion, as in the kit sheet */
-function StatPlate({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: 'purple' | 'orange' }) {
-  return (
-    <span className={`title-stat title-stat--${tone}`}>
-      <span className="title-stat-ico">{icon}</span>
-      <span className="title-stat-value">{value}</span>
-      <span className="title-stat-label">{label}</span>
-    </span>
-  );
-}
-
-export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, onChars, onCheckpoint }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void; onCheckpoint?: () => void }) {
+export function Title({ save, setHero, onPlay, onCampaign, onTalents, onChars, onCheckpoint }: { save: Save; setHero: (hero: number) => void; onPlay: () => void; onCampaign: () => void; onTalents: () => void; onAtlas: () => void; onChars: () => void; onCheckpoint?: () => void }) {
   const [modal, setModal] = useState<'none' | 'settings' | 'howto'>('none');
   const [settingsTab, setSettingsTab] = useState<'game' | 'keys'>('game');
   const [records, setRecords] = useState(false);
@@ -88,90 +63,74 @@ export function Title({ save, setHero, onPlay, onCampaign, onTalents, onAtlas, o
   useSyncExternalStore(expansion.subscribe, expansion.snapshot, expansion.snapshot);
   const allowed = save.hero < 3 || hasFullGame();
   const hero = HERO_INFO[save.hero];
-  const kids = HERO_INFO.length;
-  const step = (by: number) => setHero((save.hero + by + kids) % kids);
+  const earnedPoints = essenceEarned(save);
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
-      <KeyArt />
-      {/* the key art's own words, under the town (decorative: it never takes a tap) */}
-      <div className="title-tagline" aria-hidden="true">Same streets. Scarier nights.</div>
-      {/* Night records still opens from the edge tab (and from the menu row above it) */}
-      <LeaderboardDrawer open={records} onOpenChange={setRecords} />
-      {/* Layout lives in index.css (.title-*): a left menu column on a desktop, one screen with no scrolling on a phone. */}
+    <div className="redesign-title absolute inset-0 overflow-hidden bg-[#0e0f13] text-[#f2e6c9]">
+      <KeyArt /><LeaderboardDrawer open={records} onOpenChange={setRecords} showTrigger={false} personalBest={save.best} />
+      {/* The reference skin adapts the same live controls to desktop and touch screens. */}
       <div className="title-wrap relative flex h-full flex-col justify-between gap-4 overflow-y-auto p-3 sm:p-8 sm:pt-12 lg:pt-12">
         <header aria-label="Game header" className="title-head flex flex-col items-center gap-2">
-          {/* full-game unlock lives in the top-right corner (the menu takes the left) */}
-          <div className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><ExpansionUnlock compact onPlay={onCampaign} /></div>
+          {/* full-game unlock lives in the top-right corner (the radio takes the top-left) */}
+          <details className="title-unlock absolute right-3 top-3 z-40 sm:right-5 sm:top-4"><summary><Sparkles size={15} /> Full game</summary><ExpansionUnlock compact onPlay={onCampaign} /></details>
           <LogoImg className="title-logo w-[min(300px,74vw)] sm:w-[min(400px,40vw)] xl:w-[min(520px,36vw)]" />
-          <div className="title-stats flex flex-wrap items-center justify-center gap-2">
-            <StatPlate tone="purple" icon={<CandyIcon size={16} />} label="Essence" value={String(save.soul)} />
-            {save.best > 0 && <StatPlate tone="orange" icon={<ClockIcon size={16} />} label="Best" value={fmtTime(save.best)} />}
-            {/* phones have no menu column, so the radio rides with the counters there */}
-            <MusicToggle className="title-stat-music" />
+          <div className="title-progress-panel">
+            <dl className="title-header-stats">
+              <div className="title-header-stat title-header-stat-points">
+                <dt>Talent points</dt>
+                <dd><span aria-hidden="true"><CandyIcon size={18} /></span><strong>{save.soul.toLocaleString('en-US')}</strong></dd>
+              </div>
+              <div className="title-header-stat title-header-stat-best">
+                <dt>Best night</dt>
+                <dd><span aria-hidden="true"><ClockIcon size={18} /></span><strong>{fmtTime(save.best)}</strong></dd>
+              </div>
+            </dl>
+            {!hasFullGame() && <button type="button" className="title-unlock-note" onClick={() => setShowcase(true)} aria-label={`Unlock every kid by earning 15,000 talent points. ${earnedPoints.toLocaleString('en-US')} earned. See the full game.`}>
+              <span className="title-unlock-copy"><strong>Unlock every kid</strong><small>{earnedPoints.toLocaleString('en-US')} / {ESSENCE_UNLOCK.toLocaleString('en-US')} talent points earned</small></span>
+              <ChevronRight size={18} aria-hidden="true" />
+              <span className="title-unlock-track" aria-hidden="true"><i style={{ transform: `scaleX(${Math.max(0, Math.min(1, earnedPoints / ESSENCE_UNLOCK))})` }} /></span>
+            </button>}
           </div>
-          {/* the free way into the full game, right under the Essence it counts; it opens the showcase, which shows the progress */}
-          {!hasFullGame() && <button type="button" className="unlock-badge" onClick={() => setShowcase(true)} aria-label="Reach 15,000 Essence to unlock the full game. Limited time. See what is in it."><img src={ART.badge15k} alt="" draggable={false} className="kit-bob" /></button>}
           {showcase && <UnlockShowcase onClose={() => setShowcase(false)} onPlay={onCampaign} />}
         </header>
         <div className="title-main mx-auto flex w-full max-w-4xl flex-1 flex-col">
           <div className="title-pick flex flex-1 items-center py-5">
-          <section aria-label="Character selection" className="title-panel kit-panel nx-leafy nx-bracket w-full p-3 sm:p-4">
-            <h1 className="title-h1 mb-3 font-cond text-xl uppercase text-[#ffc453] sm:text-2xl">Choose your kid</h1>
-            <div className="title-cast" role="group" aria-label="Playable kids">
-              <button type="button" className="title-arrow title-arrow--prev" aria-label="Previous kid" onClick={() => step(-1)}><ChevronLeft size={20} strokeWidth={3} /></button>
+          <section aria-label="Character selection" className="title-panel kit-panel w-full bg-[#0e0f13]/90 p-3 sm:p-4">
+            <h1 className="sr-only">Choose your kid</h1>
+            <button className="title-carousel title-carousel-prev" aria-label="Previous kid" onClick={() => setHero((save.hero + HERO_INFO.length - 1) % HERO_INFO.length)}><ChevronLeft /></button>
+            <div className="title-cards grid grid-cols-5 gap-1.5 sm:gap-3" role="group" aria-label="Playable kids" style={{ gridTemplateColumns: HERO_INFO.map((_, i) => i === save.hero ? '1.25fr' : '1fr').join(' ') }}>
               {HERO_INFO.map((kid, index) => {
                 const selected = index === save.hero, locked = index >= 3 && !hasFullGame();
-                return (
-                  <button
-                    key={kid.name}
-                    aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`}
-                    aria-pressed={selected}
-                    onClick={() => setHero(index)}
-                    className={`title-card group ${selected ? 'is-picked' : ''}`}
-                    style={{ ['--hero' as string]: HERO_COLORS[index] }}
-                  >
-                    <span className="title-card-art">
-                      <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className="title-portrait" />
-                      {locked && <span className="title-lock">Full game</span>}
-                    </span>
-                    {selected && <span aria-hidden="true" className="title-tick">✓</span>}
-                    <span className="title-kid">{kid.name}</span>
-                    {selected && (
-                      <span className="title-card-detail">
-                        <span className="title-card-role">{kid.title}</span>
-                        <span className="title-card-perk">{kid.passive}</span>
-                      </span>
-                    )}
-                  </button>
-                );
+                return <button key={kid.name} aria-label={`Select ${kid.name}${locked ? ' (full game)' : ''}`} aria-pressed={selected} onClick={() => setHero(index)} className={`title-character ${selected ? 'is-selected' : ''} group relative min-w-0 overflow-hidden rounded border-2 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffc453]`} style={{ '--hero-color': HERO_COLORS[index], borderColor: selected ? '#ffc453' : '#3a3d44', background: HERO_COLORS[index] } as React.CSSProperties}>
+                  <img src={PORTRAITS[index]} alt={`${kid.name} portrait`} draggable={false} className={`title-portrait h-24 w-full object-cover object-top sm:h-44 ${selected ? '' : 'opacity-80 group-hover:opacity-100'}`} />
+                  <div className={`title-kid bg-[#0e0f13]/95 px-1 py-1.5 font-cond2 text-sm font-bold ${selected ? 'text-[#ffc453]' : 'text-[#f2e6c9]'}`}>{kid.name}{selected && <small>{kid.title}</small>}</div>
+                  {locked && <span className="title-lock absolute inset-x-0 bottom-8 bg-black/75 py-0.5 text-[9px] uppercase tracking-wide text-[#ffc453]">Full game</span>}
+                  {selected && <span aria-hidden="true" className="absolute right-1 top-1 rounded bg-[#ffc453] px-1 text-xs font-bold text-black">✓</span>}
+                </button>;
               })}
-              <button type="button" className="title-arrow title-arrow--next" aria-label="Next kid" onClick={() => step(1)}><ChevronRight size={20} strokeWidth={3} /></button>
             </div>
+            <button className="title-carousel title-carousel-next" aria-label="Next kid" onClick={() => setHero((save.hero + 1) % HERO_INFO.length)}><ChevronRight /></button>
             <div className="title-go mt-3 flex flex-wrap items-center justify-between gap-3">
-              <div aria-live="polite" className="title-brief min-w-0 flex-1">
-                <div className="font-cond text-xl">{hero.name} <span className="text-sm text-[#9aa0a6]">· {hero.title}</span></div>
+              <div aria-live="polite" className="min-w-0 flex-1">
                 <p className="title-passive mt-1 text-xs text-[#e6dcc4]">{hero.passive} · {hero.skill} ({hero.cd}s)</p>
                 <p className="mt-1 hidden text-xs text-[#9aa0a6] sm:block">{hero.skillDesc}</p>
+                {!allowed && <p className="mt-1 text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
               </div>
-              {!allowed && <p className="title-locked-note w-full text-xs text-[#ffc453]">Unlock the full game in the header to play as {hero.name}.</p>}
-              <div className="flex w-full flex-col-reverse items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-                {onCheckpoint && (save.checkpoint ?? 0) >= 2 && <KitButton size="sm" variant="dark" disabled={!allowed} onClick={onCheckpoint} className="w-full sm:w-auto" aria-label={`Checkpoint: start at wave ${(save.checkpoint! - 1) * 25 + 1}, night ${save.checkpoint}`}>Checkpoint · wave {(save.checkpoint! - 1) * 25 + 1}</KitButton>}
-                <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-play w-full sm:w-auto">Go trick-or-treating</KitButton>
+              <div className="title-actions">
+                <KitButton size="lg" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-play w-full sm:w-auto" art={`${import.meta.env.BASE_URL}images/generated-v3/button-go-reference.png`}>Go trick-or-treating</KitButton>
+                {onCheckpoint && (save.checkpoint ?? 0) >= 2 && <KitButton size="sm" variant="dark" disabled={!allowed} onClick={onCheckpoint}>Checkpoint · night {save.checkpoint}</KitButton>}
               </div>
             </div>
           </section>
           </div>
-          <nav className="title-nav" aria-label="Main menu">
-            <MenuRow icon={Play} label="Play" sub="start the night" primary disabled={!allowed} onClick={onPlay} />
-            <MenuRow icon={Trophy} label="Night records" sub="the longest nights" onClick={() => setRecords(true)} />
-            <MenuRow icon={Sparkles} label={`Talents (${save.soul})`} sub="spend essence" onClick={onTalents} />
-            <MenuRow icon={Users} label="Character details" sub="stats and skills" onClick={onChars} />
-            {SHOW_ATLAS && <MenuRow icon={Backpack} label="Collection" sub="art atlas" onClick={onAtlas} />}
-            <MenuRow icon={Gamepad2} label="How to play" sub="controls and tricks" onClick={() => setModal('howto')} />
-            <MenuRow icon={Gear} label="Settings" sub="sound · keys · gore" onClick={() => { setSettingsTab('game'); setModal('settings'); }} />
+          <nav className="title-nav flex shrink-0 flex-wrap items-center justify-center gap-2">
+            <KitButton size="sm" icon={Play} fillIcon disabled={!allowed} onClick={onPlay} className="title-nav-play" art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-play.png`}>Play</KitButton>
+            <KitButton variant="dark" icon={Trophy} art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-records.png`} onClick={() => setRecords(true)}>Night records</KitButton>
+            <KitButton size="sm" variant="dark" icon={Sparkles} className="title-nav-talents" art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-talents.png`} onClick={onTalents}>Talents</KitButton>
+            <KitButton size="sm" variant="dark" icon={Users} className="title-nav-character" art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-character.png`} iconColor="#fb8016" onClick={onChars}>Character details</KitButton>
+            <KitButton size="sm" variant="dark" icon={BookOpen} className="title-nav-howto" art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-howto.png`} iconColor="#f4e6c4" onClick={() => setModal('howto')}>How to play</KitButton>
+            <KitButton size="sm" variant="dark" icon={Gear} className="title-nav-settings" art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-settings.png`} iconColor="#f4e6c4" onClick={() => { setSettingsTab('game'); setModal('settings'); }}>Settings</KitButton>
             {/* only where it can work; never floating over other buttons */}
-            {canFullscreen() && <MenuRow icon={Maximize} label="Fullscreen" className="title-fullscreen" onClick={() => requestGameFullscreen(true)} />}
-            <div className="title-rail-radio"><RadioPill compact /></div>
+            {canFullscreen() && <KitButton size="sm" variant="dark" icon={Maximize} iconColor="#f4e6c4" className="title-fullscreen" art={`${import.meta.env.BASE_URL}images/generated-v3/nav-reference-fullscreen.png`} onClick={() => requestGameFullscreen(true)}>Fullscreen</KitButton>}
           </nav>
         </div>
       </div>
@@ -192,7 +151,7 @@ function HowToModal({ onClose, onCustomise }: { onClose: () => void; onCustomise
       <div className="kit-pop w-full max-w-3xl space-y-3">
         <header className="kit-panel nx-bracket w-full px-5 py-4">
           <div className="paper-kicker">Maple Falls · your first night</div>
-          <h2 className="kit-word text-5xl sm:text-6xl">How to play</h2>
+          <h2 className="kit-word has-generated-heading"><HeadingArt name="how-to-play" text="How to play" /></h2>
           <span className="nx-divider" />
         </header>
         <InfoPanel />
@@ -237,7 +196,7 @@ export function CharSelect({ save, setHero, onBack, onPlay }: { save: Save; setH
       <KeyArt dim={0.35} blur />
       <div className="relative mx-auto flex min-h-full max-w-4xl flex-col items-center justify-center gap-6 px-4 py-8">
         <div className="text-center">
-          <KitTitle className="text-4xl sm:text-5xl">Choose your kid</KitTitle>
+          <KitTitle className="character-heading">Choose your kid</KitTitle>
           <div className="mt-2 font-cond2 text-sm font-semibold uppercase tracking-[0.16em] text-[#9aa0a6]">Each has a passive perk and a unique hero skill</div>
         </div>
         <CharacterCard key={i} hero={i} stats={stats} onPrev={() => setHero((i + n - 1) % n)} onNext={() => setHero((i + 1) % n)} />
@@ -293,11 +252,12 @@ export function SettingsModal({ onClose, tab: firstTab = 'game' }: { onClose: ()
   }, [onClose]);
   return (
     <Modal onClose={onClose}>
-      <div className="kit-panel kit-pop w-full max-w-md p-5 sm:max-w-2xl sm:p-6">
+      <div className="redesign-settings kit-panel kit-pop w-full max-w-md p-5 sm:max-w-2xl sm:p-6">
+        <PaintedFrame />
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="paper-kicker">Maple Falls · options</div>
-            <h2 className="kit-word text-5xl sm:text-6xl">Settings</h2>
+            <h2 className="settings-title has-reference-heading"><img className="reference-heading" src={ART.headingSettings} alt="" aria-hidden="true" /><span className="sr-only">Settings</span></h2>
           </div>
           <button onClick={onClose} aria-label="Close" className="shrink-0 text-[#9aa0a6] hover:text-[#fb8016]"><X size={24} /></button>
         </div>
@@ -328,16 +288,18 @@ export function SettingsModal({ onClose, tab: firstTab = 'game' }: { onClose: ()
           >
             {armed ? 'Click again to wipe' : 'Reset progress'}
           </KitButton>
-          <KitButton variant="cream" onClick={onClose}>Confirm</KitButton>
+          <KitButton variant="orange" onClick={onClose}>Confirm</KitButton>
         </div>
       </div>
     </Modal>
   );
 }
 function SettingRow({ label, desc, children }: { label: string; desc: string; children: React.ReactNode }) {
+  const Icon = /shake/.test(label) ? Vibrate : /brightness/.test(label) ? Sun : /blood/.test(label) ? Droplet : /Sound/.test(label) ? Volume2 : /Mute/.test(label) ? VolumeX : /graphics/.test(label) ? Monitor : /effects/.test(label) ? Zap : /names/.test(label) ? Skull : Gear;
   return (
     <div className="settings-row flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div>
+      <span className="settings-row-icon" aria-hidden="true"><Icon /></span>
+      <div className="settings-row-label">
         <div className="font-cond2 text-[15px] font-bold uppercase tracking-wide text-[#f2e6c9]">{label}</div>
         <div className="text-[12px] text-[#9aa0a6]">{desc}</div>
       </div>
@@ -358,20 +320,21 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
     { label: 'Settings', sub: 'sound · brightness · gore', on: () => setPanel('settings') },
     { label: 'Controls', sub: 'keys and mouse', on: () => setPanel((p) => (p === 'controls' ? 'none' : 'controls')) },
     { label: 'Restart run', sub: 'same kid, fresh night', on: onRestart },
-    { label: 'Quit run', sub: 'bank your essence', on: onQuit },
+    { label: 'Quit run', sub: 'bank your talent points', on: onQuit },
   ];
   const treats = Object.entries(game.scrolls).filter(([id, n]) => n > 0 && SCROLL_BY_ID[id]);
   return (
     <div className="hm-backdrop">
       <div className="hm-modal hm-pause nx-bracket nx-bracket--red kit-pop grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+        <PaintedFrame />
         <div className="hm-pause-main min-w-0">
           <div className="paper-kicker">Paused · {fmtTime(game.time)} · {HERO_INFO[game.hero].name}</div>
-          <h2 className="hm-modal-title">Take a breather</h2>
+          <h2 className="hm-modal-title has-reference-heading"><img className="reference-heading" src={ART.headingPause} alt="" aria-hidden="true" /><span className="sr-only">Take a breather</span></h2>
           <span className="hm-rule" />
           <ol className="mt-5 shrink-0">
             {items.map((it, k) => (
               <li key={it.label}>
-                <button onMouseEnter={() => setHover(k)} onClick={it.on} className="hm-menu-row">
+                <button onMouseEnter={() => setHover(k)} onClick={it.on} className={`hm-menu-row ${k === 0 ? 'hm-menu-row-primary' : ''}`}>
                   <span className="hm-menu-n">{String(k + 1).padStart(2, '0')}</span>
                   <span className="hm-menu-label">{it.label}</span>
                   <span className="hm-menu-sub">{it.sub}</span>
@@ -401,7 +364,7 @@ export function Pause({ game, onResume, onRestart, onQuit }: { game: Game; onRes
         </aside>
       </div>
       {panel === 'settings' && <SettingsModal onClose={() => setPanel('none')} />}
-      {panel === 'keys' && <Modal onClose={() => setPanel('controls')}><div className="kit-panel kit-pop w-full max-w-2xl p-5 sm:p-6 text-[#f2e6c9]"><div className="paper-kicker">Paused · {HERO_INFO[game.hero].name}</div><h2 className="kit-word text-5xl">Controls</h2><p className="settings-note mt-2">Click a key, then press the one you want. Your keys apply straight away and are remembered on this device.</p><KeybindEditor className="mt-4" /><div className="mt-4 flex justify-end gap-2"><KitButton variant="dark" onClick={() => setPanel('controls')}>Back to controls</KitButton><KitButton variant="cream" onClick={() => setPanel('none')}>Done</KitButton></div></div></Modal>}
+      {panel === 'keys' && <Modal onClose={() => setPanel('controls')}><div className="kit-panel kit-pop w-full max-w-2xl p-5 sm:p-6 text-[#f2e6c9]"><div className="paper-kicker">Paused · {HERO_INFO[game.hero].name}</div><h2 className="kit-word has-generated-heading"><HeadingArt name="controls" text="Controls" /></h2><p className="settings-note mt-2">Click a key, then press the one you want. Your keys apply straight away and are remembered on this device.</p><KeybindEditor className="mt-4" /><div className="mt-4 flex justify-end gap-2"><KitButton variant="dark" onClick={() => setPanel('controls')}>Back to controls</KitButton><KitButton variant="cream" onClick={() => setPanel('none')}>Done</KitButton></div></div></Modal>}
       {panel === 'inventory' && <RunInventory game={game} onClose={() => setPanel('none')} />}
       {panel === 'team' && <Modal onClose={() => setPanel('none')}><div className="kit-panel w-full max-w-3xl p-5 text-[#f2e6c9]"><KitTitle className="text-3xl">Friends & shared guns</KitTitle><p className="mt-2 text-sm text-[#9aa0a6]">Every friend on your team fights beside you. Sharing swaps guns, so nothing is duplicated. All friends' guns follow your highest weapon level. A friend who goes down must be revived within 30 seconds.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{game.friends.map(f => <div key={f.hero} className="kit-tile p-3"><div className="font-cond text-xl">{HERO_INFO[f.hero].name} {f.status === 'rescued' ? ((f.abductT ?? 0) > 0 ? `· abducted ${Math.ceil(f.abductT!)}s` : f.hp > 0 ? '· fighting' : '· down') : ''}</div>{f.status !== 'rescued' ? <p className="text-sm text-[#9aa0a6]">Find them in {game.rescueMap.gates[f.gate].name} and revive them.</p> : <><p className="text-sm">HP {Math.ceil(f.hp)}/{f.maxHp} · {f.weapon.def.name} Lv {f.weapon.level}</p><p className="text-xs text-[#9aa0a6]">Friend candy {f.candy} · revive {f.reviveCd > 0 ? `${Math.ceil(f.reviveCd)}s` : 'ready'}</p><div className="mt-2 flex gap-2">{game.p.weapons.map((w, slot) => w && <KitButton key={slot} size="sm" variant="dark" onClick={() => { game.giveFriendWeapon(f.hero, slot); setHover(n => n + 1); }}>Swap gun {slot + 1}</KitButton>)}</div></>}</div>)}</div><KitButton className="mt-4" variant="cream" onClick={() => setPanel('none')}>Back</KitButton></div></Modal>}
     </div>
@@ -426,15 +389,15 @@ function LockedPick({ scroll, weapon, game, onTaken }: { scroll: Scroll | null; 
   const rc = RARITY_KIT[rarity];
   const st = weapon ? weaponStats(weapon, game.stats) : null;
   return (
-    <div className="hm-pick hm-locked" style={{ ['--acc' as string]: rc }} aria-disabled={!offer} role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. ${offer ? 'Watch an ad to take it this run, or unlock the full game.' : 'Unlock the full game to find it.'}`}>
+    <div className="hm-pick hm-locked lvl-card" data-rarity={rarity} style={{ ['--acc' as string]: rc }} aria-disabled={!offer} role="group" aria-label={`Locked: ${weapon ? weapon.def.name : scroll?.name}. ${offer ? 'Watch an ad to take it this run, or unlock the full game.' : 'Unlock the full game to find it.'}`}>
       <div className={`hm-pick-art ${weapon ? 'hm-pick-gun' : ''}`} style={{ ['--glow' as string]: rc }}>
         {weapon ? <GunArt id={weapon.def.id} /> : scroll && <TreatArt id={scroll.id} />}
         <span className="hm-lock" aria-hidden="true"><Lock size={26} strokeWidth={2.5} /></span>
         <span className="hm-stamp">Full game</span>
       </div>
-      <div className="flex flex-1 flex-col p-3.5">
+      <div className="lvl-body flex flex-1 flex-col p-3.5">
         <div className="hm-label !text-[#8f8676]">{RARITY_NAMES[rarity]} {weapon ? `gun · Lv ${weapon.level}` : 'treat'} · locked</div>
-        <div className="hm-pick-name mt-1">{weapon ? weapon.def.name : scroll?.name}</div>
+        <div className="hm-pick-name mt-1">{weapon ? weapon.def.name : scroll ? <TreatName name={scroll.name} /> : null}</div>
         {scroll?.quote && <div className="hm-pick-quote">“{scroll.quote}”</div>}
         {weapon && <div className="hm-pick-quote">{weapon.def.desc}</div>}
         <div className="hm-label mt-3">{weapon ? 'Firepower' : 'Effect'}</div>
@@ -466,6 +429,7 @@ export function DiscardTreat({ game, onDone }: { game: Game; onDone: () => void 
   return (
     <div className="hm-backdrop" role="dialog" aria-modal="true" aria-label={`Discard ${sc.name}?`}>
       <div className="hm-modal kit-pop !w-[min(520px,100%)]">
+        <PaintedFrame />
         <div className="paper-kicker">Your treats · game paused</div>
         <h2 className="hm-modal-title !text-[clamp(30px,5vw,44px)]">Discard this treat?</h2>
         <span className="hm-rule" />
@@ -516,32 +480,32 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
   const locked = game.lockedChoice;
   const cards = n + (locked ? 1 : 0);
   // "Level up!" is drawn as a brush wordmark: cream first word, orange painted second (art/concept/level-up.webp)
-  const titleWords = title.split(' ');
-  const titleHead = titleWords.slice(0, -1).join(' ');
-  const titleTail = titleWords[titleWords.length - 1];
+  const titleArt: HeadingId = mode === 'house' ? 'trick-or-treat' : mode === 'shop' ? 'pick-treat' : game.time < 1 ? 'checkpoint' : 'boss-down';
   return (
     <div className="hm-backdrop">
-      <div className="hm-modal hm-modal--lvl nx-leafy kit-pop">
+      <div className="hm-modal hm-modal--lvl redesign-rewards kit-pop" data-columns={cards} style={{ '--reward-columns': Math.max(1, cards) } as React.CSSProperties}>
+        <PaintedFrame />
         <header className="lvl-head">
           <div className="lvl-kicker">{kicker}</div>
-          <h2 className="lvl-title" aria-label={title}><span>{titleHead}</span> <em>{titleTail}</em></h2>
+          <h2 className={`lvl-title ${mode === 'level' ? 'has-reference-heading' : 'has-generated-heading'}`} aria-label={title}>{mode === 'level' ? <img className="reference-heading" src={ART.headingLevelUp} alt="" aria-hidden="true" /> : <HeadingArt name={titleArt} text={title} />}</h2>
         </header>
-        {mode === 'house' && game.treatGuideNotice && <aside role="note" aria-label="Trick-or-treat guide" className="mt-4 rounded-lg border border-[#69cf91]/60 bg-[#102a23] px-4 py-3 text-sm leading-relaxed text-[#f0fff4]">
+        {mode === 'house' && game.treatGuideNotice && <aside role="note" aria-label="Trick-or-treat guide" className="reward-guide">
           <strong className="block text-[#a4f5ba]">The best loot is behind a door.</strong>
-          Trick-or-treat at houses and other buildings across town to find treats and guns. Houses offer Common–Rare loot; other venues offer Rare–Epic, and major buildings can offer Legendary rewards.
+          <span className="reward-guide-long">Trick-or-treat at houses and other buildings across town to find treats and guns. Houses offer Common–Rare loot; other venues offer Rare–Epic, and major buildings can offer Legendary rewards.</span>
+          <span className="reward-guide-short">Find treats and guns across town. Major buildings can offer Legendary rewards.</span>
         </aside>}
         <div className={`lvl-grid mt-5 grid grid-cols-1 gap-4 ${cards >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : cards === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
           {game.choices.map((c, i) => {
             const rc = RARITY_KIT[c.rarity], owned = game.scrolls[c.id] || 0;
             return (
-              <button key={c.id + i} onClick={() => pick(c.id)} className="hm-pick lvl-card" style={{ ['--acc' as string]: rc }}>
+              <button key={c.id + i} onClick={() => pick(c.id)} className="hm-pick lvl-card" data-rarity={c.rarity} style={{ ['--acc' as string]: rc }}>
                 <div className="hm-pick-art">
                   <TreatArt id={c.id} />
                   <span className="lvl-num">{i + 1}</span>
                   <span className="hm-stamp">{RARITY_NAMES[c.rarity]} treat</span>
                 </div>
                 <div className="lvl-body flex flex-1 flex-col">
-                  <div className="hm-pick-name">{c.name}</div>
+                  <div className="hm-pick-name"><TreatName name={c.name} /></div>
                   {c.quote && <div className="hm-pick-quote">“{c.quote}”</div>}
                   <div className="lvl-effect">
                     <span className="hm-label">Effect</span>
@@ -560,7 +524,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
             const rc = RARITY_KIT[w.rarity], i = game.choices.length + j;
             const st = weaponStats(w, game.stats);
             return (
-              <button key={w.uid} onClick={() => pickGun(j)} className="hm-pick lvl-card" style={{ ['--acc' as string]: rc }} aria-label={`Take ${w.def.name}`}>
+              <button key={w.uid} onClick={() => pickGun(j)} className="hm-pick lvl-card" data-rarity={w.rarity} style={{ ['--acc' as string]: rc }} aria-label={`Take ${w.def.name}`}>
                 <div className="hm-pick-art hm-pick-gun" style={{ ['--glow' as string]: rc }}>
                   <GunArt id={w.def.id} />
                   <span className="lvl-num">{i + 1}</span>
@@ -609,6 +573,7 @@ export function LevelUp({ game, onDone }: { game: Game; onDone: () => void }) {
           <span className="lvl-bar-hint">
             Press <Keycap className="lvl-key">1</Keycap><span aria-hidden="true">–</span><Keycap className="lvl-key">{n}</Keycap> · treats stack up to their maximum
           </span>
+          <span className="lvl-bar-touch-hint">Choose one reward</span>
           <button className="hm-btn lvl-reroll" disabled={game.rerolls <= 0} onClick={() => { game.reroll(); force((k) => k + 1); }}>
             <RotateCw size={18} strokeWidth={3} aria-hidden="true" /> Reroll ({game.rerolls})
           </button>
@@ -633,10 +598,11 @@ export function Shop({ game, onClose }: { game: Game; onClose: () => void }) {
   return (
     <div className="hm-backdrop">
       <div className="hm-modal kit-pop !max-w-[860px]">
+        <PaintedFrame />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="paper-kicker">{game.calmT > 0 ? `The Candy Lady's stand · ${Math.ceil(game.calmT)} quiet seconds left when you leave` : "The Candy Lady's stand"}</div>
-            <h2 className="hm-modal-title">Treats &amp; trades</h2>
+            <h2 className="hm-modal-title has-generated-heading"><HeadingArt name="shop" text="Treats & trades" /></h2>
             <span className="hm-rule" />
           </div>
           <div className="paper-card flex items-center gap-2 !px-4 !py-2"><CoinIcon size={22} /><span className="font-cond text-3xl leading-none text-[#f29b39]">{p.coins}</span></div>
@@ -708,7 +674,7 @@ export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; 
         <img src={ART.kitLogo} alt="" draggable={false} className="mx-auto mb-3 w-[min(260px,62vw)]" />
         {win || game.victorious
           ? <Banner kind="mission" title={game.victorious ? (game.night > 1 ? `Night ${game.night} · Wave ${game.wave}` : `Wave ${game.wave}`) : 'Mission complete'} sub={game.victorious ? `Night beaten · best ${game.save.bestWave ?? game.totalWave} waves${(game.save.bestWave ?? 0) <= game.totalWave ? ' · new record!' : ''}` : 'The Pumpkin King has been smashed'} size="lg" className="kit-pop" />
-          : <img src={ART.youDied} alt="You died. The monsters got you this time." width={1240} height={239} draggable={false} className="end-plate kit-pop" />}
+          : <Banner kind="died" title="You died" sub="The monsters got you this time" size="lg" className="kit-pop" />}
         <section className="end-panel">
           <div className="paper-kicker">Tonight's run</div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -718,18 +684,18 @@ export function EndScreen({ game, onAgain, onTitle, onContinue }: { game: Game; 
             <Stat icon={<CandyIcon size={18} />} label="Level" v={String(game.p.level)} />
           </div>
           <dl className="end-rows">{rows.map(([label, amount]) => <div key={label}><dt>{label}</dt><dd>+{amount}</dd></div>)}</dl>
-          <div className="end-total" aria-label={`Earned ${game.soulEarned} essence`}>
+          <div className="end-total" aria-label={`Earned ${game.soulEarned} talent points`}>
             <CandyIcon size={30} />
             <b>+{tally}</b>
-            <span>essence earned<small>Balance {game.save.soul} · spend it on permanent talents</small></span>
+            <span>talent points earned<small>Balance {game.save.soul} · spend it on permanent talents</small></span>
           </div>
           {game.fullGameEarned
-            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence. It is yours: Maya and Leo, the bigger town, and every full-game gun, treat and talent.</p>
-            : !hasFullGame() && <p className="end-unlock end-unlock--progress">Full game unlocks free at {ESSENCE_UNLOCK.toLocaleString('en-US')} Essence earned · {essenceEarned(game.save).toLocaleString('en-US')} so far</p>}
+            ? <p role="status" className="end-unlock"><b>Full game unlocked!</b> You have earned more than {ESSENCE_UNLOCK.toLocaleString('en-US')} talent points. It is yours: Maya and Leo, the bigger town, and every full-game gun, treat and talent.</p>
+            : !hasFullGame() && <p className="end-unlock end-unlock--progress">Full game unlocks free at {ESSENCE_UNLOCK.toLocaleString('en-US')} talent points earned · {essenceEarned(game.save).toLocaleString('en-US')} so far</p>}
           {recordMessage && <p role="status" className="mt-3 text-center text-sm text-[#9fe1cb]">{recordMessage}</p>}
           <div className="mt-4 flex flex-col gap-2">
             {win && !game.victorious && <button className="hm-btn ghost w-full" onClick={onContinue}><Play size={17} fill="currentColor" /> Endless night</button>}
-            <button className="hm-btn end-next w-full" onClick={() => setPanel('talents')}>Spend essence on talents <ChevronRight size={20} strokeWidth={3} /></button>
+            <button className="hm-btn end-next w-full" onClick={() => setPanel('talents')}>Spend talent points</button>
           </div>
         </section>
       </div>

@@ -5,6 +5,7 @@ import { KitButton, Keycap } from './kit';
 import { bindHint } from './Keybinds';
 import { WeaponCard, RARITY_KIT } from './common';
 import { TagChips } from './BuildSheet';
+import { PaintedFrame } from './PaintedFrame';
 import { INSC_TAGS, Tag } from '../game/build';
 import type { Weapon } from '../game/data';
 
@@ -42,10 +43,6 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
   });
   if (!found) return null;
   const rc = RARITY_KIT[found.rarity];
-  // the gun's name as a brush wordmark: cream stem, orange painted tail (art/concept/gun-inspect.webp)
-  const nameWords = found.def.name.split(' ');
-  const nameHead = nameWords.slice(0, -1).join(' ');
-  const nameTail = nameWords[nameWords.length - 1];
   const mine = game.p.weapons[slot];
   const tab = (on: boolean, color?: string) => `wx-tab min-w-0 flex-1 ${on ? 'is-on' : ''}` + (on && !color ? ' is-accent' : '');
   /** the tab strip: your two slots, and on a phone the find as well (there it is the only way to see each card) */
@@ -69,14 +66,13 @@ export function WeaponInspect({ game, onDone }: { game: Game; onDone: () => void
     </div>
   );
   return (
-    <div className="absolute inset-0 z-30 flex items-center justify-center overflow-y-auto bg-[rgba(2,5,7,0.72)] p-3 backdrop-blur-[3px]" role="dialog" aria-label="Inspect weapon">
-      <div className="wx-panel kit-pop m-auto w-full max-w-[980px] shrink-0" style={{ ['--acc' as string]: rc }}>
-        <header className="wx-head">
+    <div className="hm-backdrop" role="dialog" aria-label="Inspect weapon">
+      {/* the same painted frame and street backdrop as the treat bowl and pause screens */}
+      <div className="hm-modal wx-panel kit-pop m-auto w-full max-w-[980px] shrink-0" style={{ ['--acc' as string]: rc }}>
+        <PaintedFrame />
+        <header className="wx-head wx-head-row">
           <div className="lvl-kicker">{game.prizeGun ? 'Doorstep prize · compare before you choose' : 'Found on the ground · game paused'}</div>
-          <div className="wx-head-row">
-            <h2 className="wx-title" aria-label={found.def.name}><span>{nameHead}</span> <em>{nameTail}</em></h2>
-            <span className="wx-rarity">{RARITY[found.rarity].name} · Lv {found.level}</span>
-          </div>
+          <span className="wx-rarity">{RARITY[found.rarity].name} · Lv {found.level}</span>
         </header>
         {gunTags(found).length > 0 && <div className="wx-tagrow"><span className="wx-taglabel">Synergy tags while in hand</span><TagChips tags={gunTags(found)} className="!justify-start" /></div>}
         <div className="mt-3">{tabs(true)}</div>

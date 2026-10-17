@@ -10,6 +10,7 @@ try {
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "./ui/skin.css";
 import { preloadStorage } from "./game/storage";
 
 // Saves and settings are read at module load, so the device cache is filled before the game modules are imported.

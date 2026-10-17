@@ -1,0 +1,117 @@
+{
+  "choose-kid": {
+    "file": "heading-choose-kid.png",
+    "width": 623,
+    "height": 142,
+    "mobile": {
+      "file": "heading-choose-kid-mobile.png",
+      "width": 539,
+      "height": 298
+    }
+  },
+  "talents": {
+    "file": "heading-talents.png",
+    "width": 599,
+    "height": 131,
+    "mobile": {
+      "file": "heading-talents-mobile.png",
+      "width": 584,
+      "height": 282
+    }
+  },
+  "trick-or-treat": {
+    "file": "heading-trick-or-treat.png",
+    "width": 624,
+    "height": 143,
+    "mobile": {
+      "file": "heading-trick-or-treat-mobile.png",
+      "width": 476,
+      "height": 300
+    }
+  },
+  "run-build": {
+    "file": "heading-run-build.png",
+    "width": 605,
+    "height": 146,
+    "mobile": {
+      "file": "heading-run-build-mobile.png",
+      "width": 463,
+      "height": 308
+    }
+  },
+  "shop": {
+    "file": "heading-shop.png",
+    "width": 602,
+    "height": 136,
+    "mobile": {
+      "file": "heading-shop-mobile.png",
+      "width": 478,
+      "height": 305
+    }
+  },
+  "how-to-play": {
+    "file": "heading-how-to-play.png",
+    "width": 560,
+    "height": 146,
+    "mobile": {
+      "file": "heading-how-to-play-mobile.png",
+      "width": 434,
+      "height": 314
+    }
+  },
+  "friends": {
+    "file": "heading-friends.png",
+    "width": 631,
+    "height": 134,
+    "mobile": {
+      "file": "heading-friends-mobile.png",
+      "width": 567,
+      "height": 281
+    }
+  },
+  "controls": {
+    "file": "heading-controls.png",
+    "width": 480,
+    "height": 133
+  },
+  "pick-treat": {
+    "file": "heading-pick-treat.png",
+    "width": 556,
+    "height": 134,
+    "mobile": {
+      "file": "heading-pick-treat-mobile.png",
+      "width": 407,
+      "height": 290
+    }
+  },
+  "boss-down": {
+    "file": "heading-boss-down.png",
+    "width": 553,
+    "height": 144
+  },
+  "checkpoint": {
+    "file": "heading-checkpoint.png",
+    "width": 625,
+    "height": 141
+  },
+  "survived": {
+    "file": "heading-survived.png",
+    "width": 591,
+    "height": 144
+  },
+  "pinball-wizard": {
+    "file": "heading-pinball-wizard.png",
+    "width": 627,
+    "height": 145
+  },
+  "mixtape": {
+    "file": "heading-mixtape.png",
+    "width": 596,
+    "height": 133
+  },
+  "eye-tiger": {
+    "file": "heading-eye-tiger.png",
+    "width": 611,
+    "height": 136
+  }
+}

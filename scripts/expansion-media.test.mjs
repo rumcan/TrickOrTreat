@@ -65,10 +65,10 @@ try {
   console.log(JSON.stringify(audio, null, 2));
   assert.equal(audio.decoded.length, manifest.sfx.length); assert.equal(audio.lowPassHz, 700); assert.equal(audio.playbackRate, 1); assert.ok(audio.highAttenuationDb < -20); assert.ok(audio.playing && audio.radioLoaded);
   await page.evaluate(() => window.__tot.game.endRun(false));
-  await page.getByRole('button', { name: 'Spend essence on talents' }).waitFor();
+  await page.getByRole('button', { name: 'Spend talent points' }).waitFor();
   await page.waitForTimeout(1400);
   await page.screenshot({ path: 'art/world/checks/death-essence-summary.png' });
-  await page.getByRole('button', { name: 'Spend essence on talents' }).click();
+  await page.getByRole('button', { name: 'Spend talent points' }).click();
   await page.getByRole('button', { name: /Play again with these talents/ }).waitFor();
   await page.screenshot({ path: 'art/world/checks/post-run-talents.png' });
   const balance = await page.evaluate(() => window.__tot.game.save.soul);

@@ -1,0 +1,358 @@
+/* Live game HUD. The layout stays separate from modal styling so every action
+   continues to work on the street, with compact versions for touch screens. */
+.ingame { --hm-top: 80px; --hm-rail: 90px; }
+.hm-hud {
+  --hm-ember: #ff8615;
+  --hm-ink: #080b0eea;
+  --hm-surface: radial-gradient(ellipse at 0 0, #8e28092b, transparent 45%),
+    repeating-linear-gradient(137deg, #ffffff03 0 1px, transparent 1px 5px),
+    linear-gradient(120deg, #111318f5, #070a0df2);
+  --hm-frame-shadow: inset 0 0 0 1px #ffb23c24, inset 0 0 18px #ed4d0717, 0 0 7px #ff69092e;
+  color: #fff1dc;
+}
+.hm-hud .hm-topbar {
+  height: var(--hm-top);
+  gap: clamp(12px, 1.2vw, 24px);
+  padding: 5px 16px 5px 10px;
+  border-top: 1px solid #bd4b145e;
+  border-bottom: 1px solid #ed741b8f;
+  background: radial-gradient(ellipse at 59% 100%, #a62d093d, transparent 24%), var(--hm-surface);
+  box-shadow: 0 3px 16px #0008;
+}
+.hm-hud .hm-kid { width: 310px; flex: 0 1 310px; }
+.hm-hud .hm-kid .hm-av {
+  width: 74px;
+  height: 70px;
+  border: 1px solid #ff8615;
+  border-radius: 3px;
+  box-shadow: 0 0 7px #ff4c093b, inset 0 0 8px #ff69094d;
+}
+.hm-hud .hm-kid > div:last-of-type { width: 220px; }
+.hm-hud .hm-name { font-size: 27px; letter-spacing: .055em; text-shadow: 0 0 9px #f66a1729; }
+.hm-hud .hm-level { font-size: 19px; letter-spacing: .055em; color: #ff8010; }
+.hm-hud .hm-meter { grid-template-columns: 1fr 25px; gap: 9px; }
+.hm-hud .hm-meter span { height: 8px; background: #211b1a; box-shadow: inset 0 1px 2px #0009; }
+.hm-hud .hm-meter b { color: #ddd5c5; font-size: 14px; }
+.hm-hud .hm-xp { bottom: -1px; height: 1px; background: #6f300c40; }
+.hm-hud .hm-xp i { background: #ff9324; box-shadow: 0 0 6px #ff5f0d; }
+.hm-hud .hm-goals { flex: 0 0 auto; gap: 10px; }
+.hm-hud .hm-goal {
+  height: 39px;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid #e78420;
+  border-radius: 5px;
+  background: var(--hm-surface);
+  box-shadow: var(--hm-frame-shadow);
+  font-size: 14px;
+  letter-spacing: .02em;
+}
+.hm-hud .hm-goal-star { color: #ffb631; filter: drop-shadow(0 0 3px #ff700f91); }
+.hm-hud .hm-goal-v { color: #afa593; }
+.hm-hud .hm-goal.done { border-color: #56813e; color: #80b85c; }
+.hm-hud .hm-clock {
+  position: relative;
+  left: auto;
+  top: auto;
+  flex: 1 1 auto;
+  min-width: 184px;
+  height: 69px;
+  padding: 0 6px;
+  transform: none;
+  background: radial-gradient(ellipse at 50% 100%, #e7420b24, transparent 70%);
+}
+.hm-hud .hm-time { font-size: 40px; line-height: 1; letter-spacing: .025em; }
+.hm-hud .hm-time-sub { margin-top: 5px; color: #ff4552; font-size: 14px; letter-spacing: .1em; }
+.hm-hud .hm-tools { flex: 0 0 auto; margin-left: 0; }
+.hm-hud .hm-chip { height: 36px; gap: 7px; padding: 0 12px; border-color: #a8773e3d; }
+.hm-hud .hm-chip svg, .hm-hud .hm-chip > img { width: 25px; height: 25px; object-fit: contain; }
+.hm-hud .hm-chip b { font-size: 24px; }
+.hm-hud .hm-chip.money b { color: #ffb91c; }
+.hm-hud .hm-iconbtn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #cf7f28;
+  border-radius: 5px;
+  background: var(--hm-surface);
+  box-shadow: var(--hm-frame-shadow);
+}
+.hm-hud .hm-iconbtn svg { width: 24px; height: 24px; stroke-width: 1.7; }
+.hm-hud .hm-iconbtn:hover, .hm-hud .hm-iconbtn.on { background: #64280d; border-color: #ffb545; box-shadow: 0 0 12px #ff660a8f; }
+.hm-hud .hm-radio { display: none; }
+.hm-hud .hm-music { color: #ffb640; border-color: #d68228; background: var(--hm-surface); }
+
+.hm-hud .hm-rail {
+  top: var(--hm-top);
+  width: var(--hm-rail);
+  border-right: 1px solid #af612955;
+  background: linear-gradient(90deg, #080a0df2, #080b0de3);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #93430d transparent;
+}
+.hm-hud .hm-rail-title {
+  flex: 0 0 auto;
+  padding: 10px 0 5px;
+  border-bottom: 1px solid #b66e274a;
+  color: #ffb425;
+  font-family: var(--font-horror);
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: 0 0 7px #ff620959;
+}
+.hm-hud .hm-rail-row { flex: 0 0 auto; min-height: 49px; gap: 3px; border-bottom: 0; }
+.hm-hud .hm-rail-row:hover { background: #ff81100d; }
+.hm-hud .hm-rail-treat { position: relative; min-height: 50px; }
+.hm-hud .hm-rail-art {
+  width: 58px;
+  height: 42px;
+  border-width: 1px;
+  background: #030809;
+  box-shadow: inset 0 0 7px color-mix(in srgb, var(--hm-rarity) 35%, transparent), 0 0 4px color-mix(in srgb, var(--hm-rarity) 35%, transparent);
+}
+.hm-hud .hm-rail-art img { object-fit: contain; }
+.hm-hud .hm-rail-treat .hm-rail-n { position: absolute; right: 12px; bottom: 5px; padding: 1px 3px; background: #080b0eea; color: #fff1dc; font-size: 12px; }
+.hm-hud .hm-rail-synergy { min-height: 48px; }
+.hm-hud .hm-rail-tag { font-size: 13px; }
+.hm-hud .hm-rail-n { color: #ffb527; font-size: 13px; }
+.hm-hud .hm-rail-more { min-height: 46px; padding: 4px 0; }
+.hm-hud .hm-rail-empty { padding: 12px 10px; color: #afa18a; }
+.hm-hud .hm-rail-friend { flex-direction: row; gap: 6px; padding: 6px 9px; }
+.hm-hud .hm-rail-friend .hm-av { flex: 0 0 31px; width: 31px; height: 35px; border-color: #e78420; }
+.hm-hud .hm-rail-friend .hm-rail-n { font-size: 11px; overflow-wrap: anywhere; }
+
+.hm-hud .hm-slip, .hm-hud .hm-drawer, .hm-hud .hm-boss {
+  border: 1px solid #e8811c;
+  border-radius: 4px;
+  background: var(--hm-surface);
+  color: #f9edd6;
+  box-shadow: var(--hm-frame-shadow), 0 5px 18px #0007;
+}
+.hm-hud .hm-notices { right: 16px; top: calc(var(--hm-top) + min(245px, 22vw) / 2 + 35px); width: 290px; gap: 7px; }
+.hm-hud .hm-notices .hm-slip { min-height: 58px; padding: 6px 11px; border-left: 3px solid #ff9621; }
+.hm-hud .hm-notices .hm-av { width: 47px; height: 47px; border-color: #ff8b13; box-shadow: 0 0 6px #f86b173d; }
+.hm-hud .hm-notices .hm-slip > span { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; }
+.hm-hud .hm-kicker { color: #ffa429; }
+.hm-hud .hm-boss { top: calc(var(--hm-top) + 15px); border-color: #d85024; }
+.hm-hud .hm-progress { border: 1px solid #57443a; border-radius: 3px; background: #070a0e; box-shadow: inset 0 1px 4px #000; }
+.hm-hud .hm-progress i { background: linear-gradient(90deg, #f4510b, #ffb527); box-shadow: 0 0 6px #ff790959; }
+
+.hm-hud .hm-dock { bottom: 14px; min-width: 0; max-width: calc(100vw - 32px); gap: 9px; }
+.hm-hud .hm-tabs { height: 70px; width: min(880px, calc(100vw - 140px)); gap: 7px; border: 0; background: none; box-shadow: none; }
+.hm-hud .hm-tab {
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid #ad762d;
+  border-radius: 4px;
+  gap: 10px;
+  background: var(--hm-surface);
+  box-shadow: inset 0 0 0 1px #b76c1524, 0 3px 10px #0007;
+  text-align: left;
+}
+.hm-hud .hm-tab:last-child { border-right: 1px solid #ad762d; }
+.hm-hud .hm-tab-weapon { flex: 1 1 245px; border-color: var(--hm-rarity, #e78721); }
+.hm-hud .hm-tab.active { border: 2px solid #ffa11a; background: radial-gradient(ellipse at 0 0, #e9460b42, transparent 60%), var(--hm-surface); box-shadow: 0 0 4px #ffc134, 0 0 14px #ff5e0980, inset 0 0 10px #f66a1729; }
+.hm-hud .hm-tab.active::before { left: -2px; right: -2px; top: -2px; height: 2px; background: linear-gradient(90deg, #ffbc29, #ff5f0c, #ffc134); box-shadow: 0 0 7px #ff710c; }
+.hm-hud .hm-tab:hover:not(:disabled) { border-color: #ffc249; background-color: #532d122e; }
+.hm-hud .hm-tab .hm-key { height: 28px !important; min-width: 24px !important; padding: 0 5px !important; font-size: 15px !important; border: 1px solid #7d5d34; border-radius: 2px !important; color: #15110b; background: #fff0d3; box-shadow: inset 0 0 4px #e08d2680, 0 2px 0 #0009; }
+.hm-hud .hm-tab > img { width: 67px; height: 35px; object-fit: contain; }
+.hm-hud .hm-tab-name { max-width: 136px; font-size: 15px; letter-spacing: .015em; }
+.hm-hud .hm-tab-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; color: #eee3c9; }
+.hm-hud .hm-tab-ability { flex: 0 1 190px; }
+.hm-hud .hm-tab-ability > img { width: 38px; height: 38px; border: 1px solid #8a431d; border-radius: 3px; }
+.hm-hud .hm-tab-ability:last-child { flex-basis: 180px; }
+.hm-hud .hm-tab-ability .hm-tab-sub { font-size: 14px; }
+.hm-hud .hm-ammo-meter { position: absolute; right: 10px; bottom: 6px; left: 47%; height: 4px; background: #3a383747; }
+.hm-hud .hm-ammo-meter i { display: block; height: 100%; background: var(--hm-rarity); box-shadow: 0 0 5px color-mix(in srgb, var(--hm-rarity) 50%, transparent); }
+.hm-hud .hm-drawer { align-self: center; max-width: 100%; min-width: min(380px, 80vw); padding: 10px 16px; }
+.hm-hud .hm-drawer-main { font-size: 17px; }
+.hm-hud .hm-nearby .hm-slip { min-height: 47px; padding: 7px 12px; border-color: #ff921d; box-shadow: var(--hm-frame-shadow), 0 0 12px #ff76092e; }
+.hm-hud .hm-weapon-comparison { gap: 12px; max-height: max(160px, calc(100dvh - 310px)); padding: 15px 3px 3px; }
+.hm-hud .hm-weapon-card { width: 232px; padding: 15px 10px 10px; border-width: 1px; border-radius: 3px; background: var(--hm-surface); box-shadow: inset 0 0 18px color-mix(in srgb, var(--hm-rarity) 10%, transparent), 0 0 5px color-mix(in srgb, var(--hm-rarity) 65%, transparent); }
+.hm-hud .hm-weapon-card > .flex { gap: 12px; }
+.hm-hud .hm-weapon-card > .flex > div:first-of-type { width: 99px; height: 57px; border-width: 1px; border-radius: 2px; background: #06151bcc; }
+.hm-hud .hm-weapon-card .font-cond { font-size: 19px; line-height: 1.05; }
+.hm-hud .hm-weapon-card .font-cond2 { font-size: 13px; }
+.hm-hud .hm-weapon-card > .weapon-stats { border-color: #3e474954; border-radius: 3px; padding: 0 9px; }
+.hm-hud .hm-weapon-card .weapon-stat { padding-top: 5px; padding-bottom: 5px; border-color: #62676226; }
+.hm-hud .hm-weapon-card .font-ui { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; }
+.hm-hud .hm-weapon-card > .absolute { left: 9px; top: -13px; }
+.hm-hud .hm-weapon-card > .absolute .kit-key { color: #12100c; background: #fff0d1; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; }
+.hm-hud .hm-banner { width: min(620px, calc(100vw - 210px)); }
+.hm-hud .hm-banner > div { border: 1px solid #ff941c !important; border-radius: 3px; background: var(--hm-surface) !important; box-shadow: 0 0 4px #ff801d, 0 0 15px #ed540740 !important; }
+.hm-hud .hm-banner .font-cond { font-family: var(--font-horror); font-style: italic; color: #ffa32a !important; }
+.hm-hud .hm-mapclose { border: 1px solid #ec8b27; border-radius: 4px; background: var(--hm-surface); color: #fff0d2; }
+
+/* Original painted frames from the supplied sheet. Rarity sets the frame once
+   on the wrapper, so the card, slot and treat share the same visual language. */
+.hm-hud [data-rarity='0'] { --hm-card-art: url('/images/redesign/hud-card-gray.webp'); --hm-slot-art: url('/images/redesign/hud-slot-gray.webp'); --hm-rail-art: url('/images/redesign/hud-rail-gray.webp'); }
+.hm-hud [data-rarity='1'] { --hm-card-art: url('/images/redesign/hud-card-green.webp'); --hm-slot-art: url('/images/redesign/hud-slot-green.webp'); --hm-rail-art: url('/images/redesign/hud-rail-green.webp'); }
+.hm-hud [data-rarity='2'] { --hm-card-art: url('/images/redesign/hud-card-blue.webp'); --hm-slot-art: url('/images/redesign/hud-slot-blue.webp'); --hm-rail-art: url('/images/redesign/hud-rail-blue.webp'); }
+.hm-hud [data-rarity='3'] { --hm-card-art: url('/images/redesign/hud-card-purple.webp'); --hm-slot-art: url('/images/redesign/hud-slot-purple.webp'); --hm-rail-art: url('/images/redesign/hud-rail-purple.webp'); }
+.hm-hud [data-rarity='4'] { --hm-card-art: url('/images/redesign/hud-card-orange.webp'); --hm-slot-art: url('/images/redesign/hud-slot-orange.webp'); --hm-rail-art: url('/images/redesign/hud-rail-gold.webp'); }
+.hm-hud .hm-goal, .hm-hud .hm-iconbtn {
+  background: var(--hm-surface);
+  border: 1px solid #b87927;
+  box-shadow: inset 0 0 0 1px #ffc86312, 0 0 5px #ff700018;
+}
+.hm-hud .hm-tab {
+  border: 1px solid var(--hm-rarity,#b87927);
+  background: var(--hm-surface);
+  padding: 0 12px;
+  box-shadow: inset 0 0 0 1px #ffc8630d, 0 2px 8px #0008;
+}
+.hm-hud .hm-tab:last-child { border: 1px solid #b87927; }
+.hm-hud .hm-tab.active {
+  border: 1px solid #ffb12e;
+  background: radial-gradient(ellipse at left top,#9333114d,transparent 70%),var(--hm-surface);
+  box-shadow:0 0 3px #ffb233,0 0 12px #ff710048;
+}
+.hm-hud .hm-tab.active::before { display: none; }
+.hm-hud .hm-weapon-card {
+  border: 9px solid transparent !important;
+  border-image: var(--hm-card-art, url('/images/redesign/hud-card-gray.webp')) 23 20 fill / 9px round;
+  padding: 9px 4px 4px;
+  background: none;
+  box-shadow: none;
+}
+.hm-hud .hm-weapon-card > .absolute { left: 3px; top: -18px; }
+.hm-hud .hm-rail-art { border: 4px solid transparent !important; border-image: var(--hm-rail-art, url('/images/redesign/hud-portrait.webp')) 14 fill / 4px round; box-shadow: none; }
+.hm-hud .hm-slip, .hm-hud .hm-drawer { border: 6px solid transparent; border-image: url('/images/redesign/hud-toast.webp') 15 18 fill / 6px round; background: none; box-shadow: none; }
+.hm-hud .hm-notices .hm-slip { border-left: 6px solid transparent; padding: 2px 6px; }
+.hm-hud .hm-banner > div { border: 8px solid transparent !important; border-image: url('/images/redesign/hud-banner.webp') 20 fill / 8px round; background: none !important; box-shadow: none !important; }
+.hm-hud .hm-banner > div > img { margin: -6px 0 -6px -6px; height: calc(100% + 12px); }
+
+@media (min-width: 1700px) { .hm-hud .hm-kid { flex-basis: 330px; } .hm-hud .hm-goal { padding: 0 13px; font-size: 15px; } }
+@media (max-width: 1499px) {
+  .hm-hud .hm-kid { flex-basis: 267px; width: 267px; }
+  .hm-hud .hm-kid > div:last-of-type { width: 180px; }
+  .hm-hud .hm-goal { padding: 0 7px; gap: 5px; font-size: 12px; }
+  .hm-hud .hm-goals { gap: 7px; }
+  .hm-hud .hm-clock { min-width: 167px; }
+  .hm-hud .hm-time-sub { font-size: 12px; }
+  .hm-hud .hm-chip { padding: 0 8px; }
+  .hm-hud .hm-chip b { font-size: 22px; }
+  .hm-hud .hm-chip.hot { display: none; }
+}
+@media (max-width: 1279px) {
+  .hm-hud .hm-goals { display: none; }
+  .hm-hud .hm-clock { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); }
+  .hm-hud .hm-tools { margin-left: auto; }
+  .hm-hud .hm-weapon-comparison { max-height: max(160px, calc(100dvh - 350px)); }
+  .hm-hud .hm-tab-name { max-width: 110px; font-size: 13px; }
+  .hm-hud .hm-tab { gap: 7px; padding: 0 8px; }
+  .hm-hud .hm-tab > img { width: 50px; }
+}
+@media (max-width: 899px) {
+  .ingame { --hm-top: 68px; --hm-rail: 0px; }
+  .hm-hud .hm-topbar { padding: 4px 9px; }
+  .hm-hud .hm-kid { flex-basis: 235px; width: 235px; }
+  .hm-hud .hm-kid .hm-av { width: 57px; height: 58px; }
+  .hm-hud .hm-kid > div:last-of-type { width: 165px; }
+  .hm-hud .hm-name { font-size: 22px; }
+  .hm-hud .hm-level { font-size: 15px; }
+  .hm-hud .hm-clock { height: 58px; min-width: 130px; }
+  .hm-hud .hm-time { font-size: 32px; }
+  .hm-hud .hm-time-sub { font-size: 10px; letter-spacing: .05em; }
+  .hm-hud .hm-chip { padding: 0 6px; }
+  .hm-hud .hm-chip b { font-size: 19px; }
+  .hm-hud .hm-chip svg, .hm-hud .hm-chip > img { width: 20px; height: 20px; }
+  .hm-hud .hm-iconbtn { width: 36px; height: 40px; }
+  .hm-hud .hm-iconbtn svg { width: 20px; height: 20px; }
+  .hm-hud .hm-tabs { width: min(720px, calc(100vw - 22px)); height: 61px; gap: 5px; }
+  .hm-hud .hm-tab .hm-key { min-width: 20px !important; height: 24px !important; font-size: 13px !important; }
+  .hm-hud .hm-tab-name { max-width: 94px; font-size: 12px; }
+  .hm-hud .hm-tab-ability { flex-basis: 160px; }
+  .hm-hud .hm-tab-ability:last-child { flex-basis: 130px; }
+  .hm-hud .hm-notices { width: 240px; right: 10px; }
+  .hm-hud .hm-banner { width: min(560px, calc(100vw - 32px)); top: 25%; }
+}
+@media (max-width: 639px) {
+  .ingame { --hm-top: 61px; }
+  .hm-hud .hm-kid { flex-basis: 190px; width: 190px; gap: 7px; }
+  .hm-hud .hm-kid .hm-av { width: 46px; height: 48px; }
+  .hm-hud .hm-kid > div:last-of-type { width: 130px; }
+  .hm-hud .hm-name { font-size: 20px; }
+  .hm-hud .hm-level { font-size: 13px; }
+  .hm-hud .hm-meter { gap: 4px; grid-template-columns: 1fr 23px; }
+  .hm-hud .hm-meter span { height: 5px; }
+  .hm-hud .hm-meter b { font-size: 11px; }
+  .hm-hud .hm-clock { top: 2px; right: 50px; left: auto; min-width: 80px; height: 53px; transform: none; }
+  .hm-hud .hm-time { font-size: 27px; }
+  .hm-hud .hm-time-sub { max-width: 130px; overflow: hidden; font-size: 8px; letter-spacing: 0; }
+  .hm-hud .hm-tools > div:last-of-type { padding-left: 0; }
+  .hm-hud .hm-notices { width: 220px; top: calc(var(--hm-top) + min(245px, 22vw) / 2 + 25px); }
+  .hm-hud .hm-notices .hm-slip { min-height: 44px; padding: 5px 7px; }
+  .hm-hud .hm-notices .hm-av { height: 34px; width: 34px; }
+  .hm-hud .hm-notices .hm-slip > span { font-size: 13px; }
+  .hm-hud .hm-dock { bottom: 8px; max-width: calc(100vw - 14px); }
+  .hm-hud .hm-tabs { height: 53px; width: calc(100vw - 14px); gap: 4px; }
+  .hm-hud .hm-tab { gap: 5px; padding: 0 5px; }
+  .hm-hud .hm-tab > img { width: 38px; height: 27px; }
+  .hm-hud .hm-tab .hm-key { font-size: 11px !important; padding: 0 3px !important; min-width: 16px !important; height: 21px !important; }
+  .hm-hud .hm-tab-sub { font-size: 13px; }
+  .hm-hud .hm-tab-ability { flex-basis: 70px; }
+  .hm-hud .hm-tab-ability:last-child { flex-basis: 100px; gap: 4px; }
+  .hm-hud .hm-tab-ability:last-child > svg { width: 17px; }
+  .hm-hud .hm-tab-ability:last-child > span:last-child { gap: 2px; }
+  .hm-hud .hm-tab-ability:last-child > span:last-child > span { width: 7px; height: 7px; }
+  .hm-hud .hm-ammo-meter { left: 7px; right: 7px; bottom: 4px; height: 2px; }
+  .hm-hud .hm-banner > div { height: 64px !important; }
+}
+/* Existing touch controls retain their 44px targets and safe-area positioning. */
+.touch-game { --hm-top: calc(80px + env(safe-area-inset-top, 0px)); }
+.touch-game .hm-hud .hm-iconbtn { min-width: 44px; min-height: 44px; }
+.touch-game .hm-hud .hm-dock { bottom: env(safe-area-inset-bottom, 0px); }
+.touch-game .hm-hud .hm-tabs { width: min(540px, calc(100vw - 18px)); height: 48px; }
+.touch-game .hm-hud .hm-tab { min-height: 44px; }
+.touch-game .hm-hud .hm-tab-ability, .touch-game .hm-hud .hm-nearby, .touch-game .hm-hud .hm-drawer { display: none; }
+@media (max-width: 899px) { .touch-game { --hm-top: calc(68px + env(safe-area-inset-top, 0px)); } }
+@media (max-width: 639px) {
+  .touch-game { --hm-top: calc(72px + env(safe-area-inset-top, 0px)); }
+  .touch-game .hm-hud .hm-topbar { padding-top: env(safe-area-inset-top, 0px); }
+  .touch-game .hm-hud .hm-kid { gap: 6px; flex-basis: 170px; }
+  .touch-game .hm-hud .hm-kid .hm-av { width: 34px !important; height: 38px !important; }
+  .touch-game .hm-hud .hm-kid > div:last-of-type { width: min(118px, calc(100vw - 236px)); }
+  .touch-game .hm-hud .hm-name { font-size: 16px; }
+  .touch-game .hm-hud .hm-level { font-size: 12px; }
+  .touch-game .hm-hud .hm-clock { top: auto; left: auto; right: 10px; bottom: 5px; height: auto; min-width: 0; transform: none; padding: 0; background: none; }
+  .touch-game .hm-hud .hm-time { font-size: 14px; }
+  .touch-game .hm-hud .hm-time-sub { display: none; }
+  .touch-game .hm-hud .hm-chips { bottom: 5px; }
+  .touch-game .hm-hud .hm-chip { height: 14px; padding: 0; }
+  .touch-game .hm-hud .hm-chip b { font-size: 12px; }
+  .touch-game .hm-hud .hm-chip svg, .touch-game .hm-hud .hm-chip > img { width: 14px; height: 14px; }
+  .touch-game .hm-hud .hm-tools { gap: 0; padding-top: 4px; align-self: flex-start; }
+  .touch-game .hm-hud .hm-tools > div:last-of-type { gap: 3px; }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .touch-game .hm-hud .hm-tabs { width: min(360px, 55vw); }
+  .hm-hud .hm-banner { top: 23%; }
+  .hm-hud .hm-weapon-comparison { max-height: max(120px, calc(100dvh - 170px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hm-hud *, .hm-hud *::before { animation: none !important; transition: none !important; }
+}
+
+/* Touch controls use the same materials as the keyboard equipment dock. */
+.touch-game .touch-action {
+  border:1px solid #b87927; border-radius:4px;
+  background:linear-gradient(130deg,#24180fe8,#080b10e8);
+  box-shadow:inset 0 0 0 1px #ffc86312,0 3px 10px #0008;
+  color:#ffefd0;
+}
+.touch-game .touch-action span { font:500 17px/1 var(--font-hud); }
+.touch-game .touch-action--ready {
+  border-color:#ffc05b; color:#171008;
+  background:linear-gradient(#ffbd44,#ff8a12);
+  box-shadow:0 0 9px #ff71004a;
+}
+.touch-game .touch-action--skill { color:#ffbd52; }
+.touch-game .touch-action--dash { color:#51d4ed; }
+.touch-game .touch-action:disabled { opacity:.45; }
+.touch-game .touch-context {
+  border-color:#b8792777; background:#080b10ed; color:#f8e8cc;
+  font-family:var(--font-body);
+}

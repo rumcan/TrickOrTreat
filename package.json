@@ -4,6 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "art:generated-ui": "python scripts/prepare-generated-ui.py && python scripts/prepare-generated-ui-v3.py && python scripts/prepare-generated-ui-v5.py",
+    "test:ui-polish": "node scripts/ui-polish.test.mjs",
+    "test:ui-layout": "node scripts/ui-layout-regressions.test.mjs",
+    "art:redesign": "python scripts/prepare-redesign-art.py && python scripts/prepare-redesign-ui.py && python scripts/prepare-reference-frames.py && node scripts/prepare-hud-redesign.mjs",
+    "test:redesign": "node scripts/redesign-screenshots.mjs --serve",
+    "test:redesign:mobile": "node scripts/redesign-screenshots.mjs --serve --quick --mobile",
+    "test:typography": "node scripts/typography-layout.test.mjs",
     "test:nightmare": "node scripts/nightmare-art.test.mjs && node scripts/nightmare-roster.test.mjs",
     "art:nightmare:export": "node scripts/nightmare-art.mjs export",
     "art:nightmare:pack": "node scripts/nightmare-art.mjs pack",
@@ -13,6 +20,7 @@
     "art:arcade:export": "node scripts/arcade-v2-guides.mjs",
     "art:arcade:pack": "node scripts/pack-arcade-v2.mjs",
     "dev": "vite",
+    "dev:local": "vite --config vite.local.config.ts",
     "build": "vite build && node scripts/pack-release-assets.mjs",
     "preview": "vite preview",
     "art:export": "node scripts/export-art.mjs",
@@ -67,7 +75,9 @@
     "test:vending": "node --test scripts/vending-odds.test.mjs && node scripts/vending.test.mjs",
     "test:easy-wins": "node scripts/easy-wins.test.mjs",
     "audio:generate": "node scripts/generate-sounds.mjs",
-    "test:map-navigation": "node scripts/map-navigation.test.mjs"
+    "test:map-navigation": "node scripts/map-navigation.test.mjs",
+    "test:ui-controls": "node scripts/controls-records.test.mjs",
+    "test:talent-camera": "node scripts/talent-camera.test.mjs"
   },
   "dependencies": {
     "@series-inc/rundot-game-sdk": "^5.24.0",

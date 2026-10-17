@@ -1,0 +1,187 @@
+/* Image-generated lettering is always drawn at its natural aspect ratio. */
+.illustrated-heading,.illustrated-heading picture { display:block; max-width:100%; }
+.illustrated-heading img { display:block; width:100%; max-width:100%; height:auto; object-fit:contain; object-position:left center; }
+.game-shell .has-generated-heading { font-size:0!important; line-height:0!important; letter-spacing:0; text-shadow:none; transform:none; }
+.game-shell .kit-title.has-generated-heading { width:min(620px,100%); }
+.game-shell .character-heading.has-generated-heading { width:min(680px,84vw); }
+.game-shell .talent-side .has-generated-heading { width:100%; margin:8px 0 10px; }
+.game-shell .kit-word.has-generated-heading { width:min(580px,100%); }
+.game-shell .hm-pick-name:has(.illustrated-heading) { font-size:0!important; line-height:0!important; margin:5px 0 4px; }
+.game-shell .redesign-rewards .lvl-title.has-generated-heading { height:clamp(72px,11vh,120px); min-height:0; margin:0; }
+.game-shell .redesign-rewards .lvl-title.has-generated-heading .illustrated-heading,
+.game-shell .redesign-rewards .lvl-title.has-generated-heading picture { height:100%; width:auto; max-width:100%; }
+.game-shell .redesign-rewards .lvl-title.has-generated-heading img { height:100%; width:auto; max-width:100%; object-fit:contain; }
+.game-shell .hm-modal-title.has-generated-heading { width:min(650px,100%); margin:0; }
+
+/* One generated outline: 256px corners at 64px, straight edges repeat.
+   The dark fill starts inside the actual keyline, never behind its outer glow. */
+.painted-frame {
+  position:absolute; inset:0; display:block; pointer-events:none; z-index:-1;
+  border:0 solid transparent;
+  border-image:url('/images/generated-v4/frame.png') 256 / 64px / 0 repeat;
+}
+.game-shell :is(.hm-modal,.redesign-settings,.generated-framed):has(> .painted-frame) {
+  --frame-fill-inset:14px;
+  position:relative; isolation:isolate; border:0; border-image:none;
+  background:none; box-shadow:none;
+}
+.game-shell :is(.hm-modal,.redesign-settings,.generated-framed):has(> .painted-frame)::before {
+  content:''; display:block; position:absolute; inset:var(--frame-fill-inset);
+  z-index:-2; pointer-events:none; border:0; border-image:none; border-radius:5px;
+  opacity:1; transform:none;
+  background:linear-gradient(#08090bf5,#08090bf5),url('/images/redesign/ink-grain.svg') repeat,#08090b;
+  box-shadow:none;
+}
+.game-shell :is(.hm-modal,.redesign-settings,.generated-framed):has(> .painted-frame)::after { content:none; display:none; }
+
+/* Source PNG corners are reduced uniformly from 64px to 10px. CSS repeats
+   their straight edges and leaves the generated center out of border-image. */
+.game-shell .kit-btn,.game-shell .hm-btn {
+  --painted-button:url('/images/generated-v3/button-amber.png');
+  border:1px solid transparent; border-image:var(--painted-button) 64 / 10px / 1px repeat;
+  box-shadow:0 3px 9px #0007;
+}
+.game-shell .kit-btn-dark,.game-shell .hm-btn.ghost { --painted-button:url('/images/generated-v3/button-muted.png'); }
+.game-shell .redesign-title .title-nav .kit-btn-dark { --painted-button:url('/images/generated-v3/button-muted.png'); border-image-slice:64; border-image-width:10px; border-image-outset:1px; }
+.game-shell .kit-btn:not(:disabled):hover,.game-shell .hm-btn:not(:disabled):hover { border-image-source:var(--painted-button); }
+.game-shell .kit-btn-orange:not(.title-nav-play),.game-shell .hm-btn:not(.ghost) {
+  background:linear-gradient(#ffb42b,#ff9711);
+}
+.game-shell .kit-btn-orange:not(.title-nav-play):not(:disabled):hover,
+.game-shell .hm-btn:not(.ghost):not(:disabled):hover { background:linear-gradient(#ffbe44,#ffa322); filter:brightness(1.08); }
+.game-shell .kit-btn-red { --painted-button:url('/images/generated-v3/button-danger.png'); border-image-slice:64; border-image-width:10px; border-image-outset:1px; }
+
+.game-shell .lvl-card { --painted-card:url('/images/generated-v2/card-orange.png'); }
+.game-shell .lvl-card[data-rarity='0'] { --painted-card:url('/images/generated-v2/card-blue.png'); }
+.game-shell .lvl-card[data-rarity='1'] { --painted-card:url('/images/generated-v2/card-green.png'); }
+.game-shell .lvl-card[data-rarity='2'] { --painted-card:url('/images/generated-v2/card-blue.png'); }
+.game-shell .lvl-card[data-rarity='3'] { --painted-card:url('/images/generated-v2/card-purple.png'); }
+.game-shell .lvl-card[data-rarity='4'] { --painted-card:url('/images/generated-v2/card-orange.png'); }
+.game-shell .redesign-rewards .lvl-card { border:1px solid transparent; border-image:var(--painted-card) 40 / 14px / 3px repeat; box-shadow:0 3px 12px #0007; }
+.game-shell .redesign-rewards .hm-locked { opacity:.82; }
+
+@media (max-width:700px) {
+  .painted-frame { border-image-width:40px; }
+  .game-shell :is(.hm-modal,.redesign-settings,.generated-framed):has(> .painted-frame) { --frame-fill-inset:9px; }
+  .game-shell .character-heading.has-generated-heading { width:min(300px,80vw); }
+  .game-shell .talent-side .has-generated-heading { width:min(240px,100%); }
+  .game-shell .kit-word.has-generated-heading { width:min(280px,90%); }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading { height:auto; width:min(255px,85%); }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading .illustrated-heading,
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading picture { height:auto; width:100%; }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading img { width:100%; height:auto; }
+  .game-shell .hm-modal-title.has-generated-heading { width:min(280px,90%); }
+  .game-shell .redesign-rewards .lvl-card { border-image-width:10px; border-image-outset:2px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .painted-frame { border-image-width:40px; }
+  .game-shell :is(.hm-modal,.redesign-settings,.generated-framed):has(> .painted-frame) { --frame-fill-inset:9px; }
+  .game-shell .redesign-rewards .lvl-title.has-generated-heading { height:72px; }
+}
+
+/* Empty generated outlines: fixed corners, repeating edges, no painted fill. */
+.game-shell .kit-btn-orange,
+.game-shell .hm-btn:not(.ghost):not(.kit-btn-red) { color:#171008; text-shadow:none; }
+.game-shell .kit-btn-orange:not(:disabled):hover,
+.game-shell .hm-btn:not(.ghost):not(.kit-btn-red):not(:disabled):hover { color:#171008!important; text-shadow:none; }
+.game-shell .redesign-title .title-nav-play { background:linear-gradient(#ffb42b,#ff9711); color:#171008; }
+.game-shell .redesign-title .title-nav-play::after { color:#171008!important; }
+.game-shell .redesign-title .title-nav .title-nav-play svg { color:#171008!important; }
+.game-shell .kit-btn,.game-shell .hm-btn { border-radius:7px; }
+.game-shell .redesign-rewards .hm-pick-friend .hm-pick-art { background:#0b0c10!important; }
+.game-shell .redesign-rewards .hm-pick-friend .hm-pick-art > img { object-fit:cover; object-position:50% 23%; }
+.game-shell .modal-close { top:max(16px,env(safe-area-inset-top,0px)); right:max(16px,env(safe-area-inset-right,0px)); border:1px solid #c78731; color:#fff0d2; background:#0c0d10; box-shadow:0 3px 12px #0008; }
+
+/* Illustrated announcements keep their artwork proportional. Dynamic event
+   names use the same generated emblem with live Anton text beside it. */
+.game-shell .kit-banner.illustrated-notice {
+  display:flex; flex-direction:column; align-items:center; gap:2px; overflow:hidden;
+  height:auto; padding:10px 16px; border:1px solid #c58a3b99; border-image:none;
+  border-radius:5px; background:linear-gradient(125deg,#161109f5,#080a0ef5);
+  box-shadow:0 8px 26px #0008;
+}
+.game-shell .illustrated-notice-art { display:block; width:100%; height:116px; max-width:100%; object-fit:contain; }
+.game-shell .illustrated-notice--lg .illustrated-notice-art { height:170px; }
+.game-shell .illustrated-notice-sub { width:100%; color:#f1dfbe; font:600 16px/1.25 var(--font-body); text-align:center; overflow-wrap:anywhere; }
+.game-shell .illustrated-notice--died { border-color:#b72d34; background:linear-gradient(120deg,#230a0df5,#090a0ef5); }
+.game-shell .kit-banner.illustrated-notice--custom { flex-direction:row; gap:14px; }
+.game-shell .illustrated-notice-emblem { width:100px; height:90px; object-fit:contain; flex:none; }
+.game-shell .illustrated-notice-copy { min-width:0; flex:1; }
+.game-shell .illustrated-notice-title { color:#ffae30; font:400 clamp(22px,3vw,34px)/1.1 var(--font-menu); text-transform:uppercase; }
+.game-shell .illustrated-notice--custom .illustrated-notice-sub { margin-top:5px; text-align:left; }
+.game-shell .hm-slip { border-image:url('/images/generated-v3/button-muted.png') 64 / 8px / 0 repeat; background:#0b0d11f5; }
+.game-shell .hm-hud .hm-drawer { border-image:url('/images/generated-v3/button-muted.png') 64 / 8px / 0 repeat; background:#0b0d11f5; }
+@media (min-width:1101px) and (min-height:501px) {
+  .game-shell .redesign-title .title-nav { width:clamp(230px,17vw,280px); max-width:280px; }
+  .game-shell .redesign-title .title-nav .kit-btn { padding-right:30px; }
+}
+
+.game-shell .hm-map-toolbar {
+  position:absolute; z-index:30; top:calc(var(--hm-top) + 12px); left:50%;
+  transform:translateX(-50%); width:min(780px,calc(100% - 36px));
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:6px 12px; background:#080b10ed; border:1px solid #9b682c; border-radius:5px;
+}
+.game-shell .hm-map-toolbar > img { width:min(280px,55%); height:72px; object-fit:contain; object-position:left center; }
+.game-shell .hm-map-toolbar .hm-mapclose {
+  display:flex; position:static; transform:none; flex:none; cursor:pointer;
+  border:1px solid #c78731; border-radius:4px; background:#14100c; color:#fff0d2;
+  font:400 16px/1 var(--font-menu); min-height:44px; padding:0 14px;
+}
+.game-shell .hm-map-toolbar .hm-mapclose:hover { background:#38230d; color:#ffc65c; }
+@media (max-width:700px) {
+  .game-shell .illustrated-notice-art { height:100px; }
+  .game-shell .illustrated-notice--lg .illustrated-notice-art { height:130px; }
+  .game-shell .illustrated-notice-sub { font-size:14px; }
+  .game-shell .illustrated-notice-emblem { width:66px; height:74px; }
+  .game-shell .hm-map-toolbar { gap:8px; padding:5px 8px; }
+  .game-shell .hm-map-toolbar > img { height:54px; }
+  .game-shell .hm-map-toolbar .hm-mapclose { font-size:14px; padding:0 10px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .game-shell .illustrated-notice-art { height:70px; }
+  .game-shell .illustrated-notice--lg .illustrated-notice-art { height:95px; }
+  .game-shell .hm-map-toolbar > img { height:42px; }
+}
+
+/* The supplied menu uses complete, fixed artwork. Scale both dimensions
+   together; never apply the generic button border or fill to these controls. */
+.game-shell .redesign-title .reference-art-button,
+.game-shell .redesign-title .title-nav .reference-art-button {
+  display:block; height:auto; min-height:0; max-height:none; padding:0;
+  border:0; border-image:none; background:none; border-radius:0;
+  box-shadow:none; filter:none; transform:none; overflow:visible;
+}
+.game-shell .redesign-title .reference-art-button:not(:disabled):hover {
+  border:0; border-image:none; background:none; box-shadow:none; filter:none; transform:none;
+}
+.game-shell .redesign-title .reference-art-button > img {
+  position:static; display:block; width:100%; height:auto; object-fit:contain;
+}
+.game-shell .redesign-title .reference-art-button > .sr-only { position:absolute!important; }
+.game-shell .redesign-title .title-play.reference-art-button { position:relative; height:clamp(70px,6vw,100px); }
+.game-shell .redesign-title .title-play.reference-art-button > img { position:absolute; left:0; top:0; }
+.game-shell .redesign-title .reference-art-button::before,
+.game-shell .redesign-title .reference-art-button::after { display:none!important; }
+.game-shell .redesign-title .title-nav .reference-art-button:not(.title-nav-play) { width:88%; max-width:228px; }
+.game-shell .redesign-title .title-nav .title-nav-play { max-width:259px; }
+.game-shell .redesign-title .title-nav { gap:3px; }
+.game-shell .redesign-title .reference-art-button:focus-visible { outline:2px solid #ffc453; outline-offset:3px; }
+.game-shell .redesign-title .reference-art-button:not(:disabled):hover > img { filter:brightness(1.12); }
+.game-shell .redesign-title .title-actions { width:min(430px,100%); }
+.game-shell .hm-hud .hm-radio-player { position:absolute; z-index:24; left:8px; top:calc(var(--hm-top) + 12px); }
+@media (min-width:900px) {
+  .game-shell .hm-hud .hm-radio-player { left:auto; right:16px; top:calc(var(--hm-top) + 155px); }
+}
+.game-shell .hm-hud .hm-tab { border:1px solid transparent; border-image:var(--hm-slot-art,url('/images/redesign/hud-slot-orange.webp')) 20 / 7px / 1px repeat; background:#090b0fed; }
+.game-shell .hm-hud .hm-tab.active { border-image:url('/images/redesign/hud-slot-active.webp') 20 / 7px / 2px repeat; }
+.game-shell .hm-hud .hm-topbar { border:1px solid transparent; border-image:url('/images/redesign/hud-slot-orange.webp') 20 / 4px / 0 repeat; }
+.game-shell .hm-hud .hm-rail-title > img { display:block; width:65px; height:auto; margin:auto; }
+.game-shell .hm-hud .hm-ammo { position:absolute; left:130px; right:14px; bottom:6px; height:4px; background:#2b2630; }
+.game-shell .hm-hud .hm-ammo > i { display:block; width:100%; height:100%; background:var(--hm-rarity,#ff981b); transform-origin:left; }
+.game-shell .hm-hud .hm-weapon-card { border-image:var(--hm-card-art,url('/images/redesign/hud-card-gray.webp')) 20 / 7px / 1px repeat; background:#090d12f5; }
+@media (max-width:700px) {
+  .game-shell .hm-hud .hm-ammo { left:70px; right:8px; bottom:4px; height:2px; }
+  .game-shell .redesign-title .title-nav .reference-art-button:not(.title-nav-play) { width:100%; }
+  .game-shell .redesign-title .title-actions { width:min(350px,100%); }
+}
