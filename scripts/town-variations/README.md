@@ -61,7 +61,9 @@ All campaign data lives in:
 - `manifest.json`: frozen subject inventory, cell descriptions and job queue; the pre-production classification review is recorded here.
 - `references/`: exact input snapshots, with hashes and source paths in the manifest.
 - `prompts/<provider>/`: exact final prompts.
-- `sheets/codex/` and `sheets/run/`: PNG sheets for later slicing, with JSON sidecars giving native cell rectangles and slot descriptions.
+- `sheets/codex/` and `sheets/run/`: PNG sheets waiting to be sliced, with JSON sidecars giving native cell rectangles and slot descriptions.
+- `sliced/<provider>/`: sheets already cut into the town builder (kept for provenance).
+- `run-pending-removals.json`: downloaded generations still to be removed from RUN storage.
 - `states/`: resumable per-job progress, input choices, checks and errors.
 - `receipts/` and `attempts/`: provenance, native outputs from unsuccessful checks, and full CLI logs.
 - `codex.log`, `run.log`, `*-worker.json`: worker progress and heartbeat.
@@ -89,7 +91,7 @@ For every generated production sheet not yet sliced, the slicer cuts each cell, 
 
 Cells that touch their cell edge are tagged `touches-cell-edge` for a closer look. Scale is a first guess: resize in the builder to match what is already placed on the map.
 
-The generator itself never slices, registers, copies over an old asset or exports into the playable game. Automated checks verify PNG format, alpha area, content in each cell, clear middle gutters and no major canvas clipping. They cannot establish correct object count, perspective, consistent car identity, artistic quality or pixel-perfect geometry. Every output keeps `visualReview: pending` for review and slicing.
+The RUN worker runs the slicer on each production sheet as soon as it is generated (pass `--slice false` to the `run` command to skip that); `slice.mjs` on its own catches up on anything left in `sheets/`. Nothing is copied over an old asset or exported into the playable game. Automated checks verify PNG format, alpha area, content in each cell, clear middle gutters and no major canvas clipping. They cannot establish correct object count, perspective, consistent car identity, artistic quality or pixel-perfect geometry. Every output keeps `visualReview: pending` for review and slicing.
 
 Transient failures are retried up to three times; rate/quota limits up to six with cooldowns. Account authentication, exhausted credits or an unavailable image tool stop the affected provider for inspection. Other providers continue. Use `resume` after resolving the account issue. Failed jobs remain visible and are not silently marked complete.
 
